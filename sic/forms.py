@@ -10,7 +10,7 @@ class SubmitStoryForm(forms.Form):
     title = forms.CharField(label="Story title", required=True, max_length=100)
     description = forms.CharField(required=False)
     url = forms.URLField(required=False)
-    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all())
+    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), required=False)
 
 
 class SubmitCommentForm(forms.Form):

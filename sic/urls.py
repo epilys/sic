@@ -27,6 +27,7 @@ urlpatterns = [
     path("s/<int:pk>/<slug:slug>/", story, name="story"),
     path("u/<str:username>/", profile, name="profile"),
     path("submit/", submit_story, name="submit"),
+    path("upvote/<int:pk>/", upvote_story, name="upvote_story"),
     path(
         "accounts/login/",
         auth_views.LoginView.as_view(template_name="login.html"),

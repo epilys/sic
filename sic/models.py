@@ -35,6 +35,9 @@ class Story(models.Model):
             kwargs={"pk": self.pk, "slug": slugify(self.title, allow_unicode=False)},
         )
 
+    def karma(self):
+        return self.votes.all().count()
+
 
 class Message(models.Model):
     recipient = models.ForeignKey(
@@ -98,7 +101,9 @@ class Invitation(models.Model):
 
 
 class Vote(models.Model):
-    user = models.ForeignKey("User", on_delete=models.CASCADE, null=False)
+    user = models.ForeignKey(
+        "User", related_name="votes", on_delete=models.CASCADE, null=False
+    )
     story = models.ForeignKey(
         Story, related_name="votes", on_delete=models.CASCADE, null=False
     )

@@ -542,7 +542,7 @@ div.profile {
   flex-direction: column;
 }
 
-div.votes .upvote:hover, .upvoted div.votes .upvote {
+div.votes .upvote:hover, div.votes .upvote.upvoted {
     border-bottom-color: #ac130d;
 }
 
@@ -580,3 +580,11 @@ a.feed:hover:after {
 }
 
 
+.upvote input {
+  background: none;
+  border: none;
+  cursor: pointer;
+  height: 5px;
+  transform: scale(203%);
+  display: block;
+}

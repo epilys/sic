@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
+from django.db.models import Exists, OuterRef
 from .models import Story, Comment, User
 from .forms import *
 
@@ -42,10 +43,24 @@ def story(request, pk, slug=None):
 
 
 def index(request):
-    try:
-        s = Story.objects.all().filter(active=True)
-    except Story.DoesNotExist:
-        s = []
+    if request.user.is_authenticated:
+        try:
+            s = (
+                Story.objects.all()
+                .filter(active=True)
+                .annotate(
+                    upvoted=Exists(
+                        request.user.votes.all().filter(story=OuterRef("pk"))
+                    )
+                )
+            )
+        except Story.DoesNotExist:
+            s = []
+    else:
+        try:
+            s = Story.objects.all().filter(active=True)
+        except Story.DoesNotExist:
+            s = []
     return render(request, "index.html", {"stories": s})
 
 
@@ -137,6 +152,30 @@ def submit_story(request):
     user = request.user
     if request.method == "POST":
         form = SubmitStoryForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            description = form.cleaned_data["description"]
+            url = form.cleaned_data["url"]
+            story = Story.objects.create(
+                title=title, url=url, description=description, user=user
+            )
+            return redirect(story.get_absolute_url())
     else:
         form = SubmitStoryForm()
     return render(request, "submit.html", {"form": form})
+
+
+@login_required
+def upvote_story(request, pk):
+    if request.method == "GET":
+        user = request.user
+        try:
+            s = Story.objects.get(pk=pk)
+        except Story.DoesNotExist:
+            raise Http404("Story does not exist")
+        vote, created = user.votes.all().get_or_create(story=s, user=user)
+        if not created:
+            vote.delete()
+        if "next" in request.GET:
+            return redirect(request.GET["next"])
+    return redirect(reverse("index"))
