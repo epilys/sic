@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Edit avatar{% endblock %}
+{% block content %}
+<form enctype="multipart/form-data" method="post" action="">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Submit">
+</form>
+{% endblock %}

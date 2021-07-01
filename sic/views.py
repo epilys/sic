@@ -1,0 +1,142 @@
+from django.http import Http404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.contrib import messages
+from .models import Story, Comment, User
+from .forms import *
+
+from wand.image import Image
+from PIL import Image as PILImage
+
+
+def story(request, pk, slug=None):
+    try:
+        s = Story.objects.get(pk=pk)
+    except Story.DoesNotExist:
+        raise Http404("Story does not exist")
+    if request.method == "POST":
+        form = SubmitCommentForm(request.POST)
+        if form.is_valid():
+            if request.user:
+                new = Comment.objects.create(
+                    user=request.user,
+                    story=s,
+                    parent=None,
+                    text=form.cleaned_data["text"],
+                )
+                new.save()
+                messages.add_message(
+                    request, messages.SUCCESS, f"Your comment was posted."
+                )
+            else:
+                messages.add_message(
+                    request, messages.ERROR, f"You must be logged in to comment."
+                )
+        else:
+            messages.add_message(request, messages.ERROR, f"Invalid comment form.")
+    else:
+        form = SubmitCommentForm()
+    return render(request, "story.html", {"story": s, "comment_form": form})
+
+
+def index(request):
+    try:
+        s = Story.objects.all().filter(active=True)
+    except Story.DoesNotExist:
+        s = []
+    return render(request, "index.html", {"stories": s})
+
+
+def login(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect(reverse("index"))
+        else:
+            messages.add_message(request, messages.ERROR, f"Could not login.")
+    return render(request, "login.html")
+
+
+@login_required
+def account(request):
+    return render(request, "account.html", {"user": request.user})
+
+
+@login_required
+def edit_profile(request):
+    user = request.user
+    if request.method == "POST":
+        form = EditProfileForm(request.POST)
+        if form.is_valid():
+            homepage = form.cleaned_data["homepage"]
+            git_repository = form.cleaned_data["git_repository"]
+            about = form.cleaned_data["about"]
+            request.user.homepage = homepage
+            request.user.about = about
+            request.user.save()
+            return redirect(reverse("account"))
+    else:
+        initial = {
+            "homepage": user.homepage,
+            "git_repository": user.github_username,
+            "about": user.about,
+        }
+        form = EditProfileForm(initial=initial)
+    return render(request, "edit_profile.html", {"user": request.user, "form": form})
+
+
+@login_required
+def edit_avatar(request):
+    def generate_image_thumbnail(blob):
+        with Image(blob=blob) as i:
+            with i.convert("webp") as page:
+                page.alpha_channel = False
+                width = page.width
+                height = page.height
+                ratio = 100.0 / (width * 1.0)
+                new_height = int(ratio * height)
+                page.thumbnail(width=100, height=new_height)
+                return page.data_url()
+
+    if request.method == "POST":
+        form = EditAvatarForm(request.POST, request.FILES)
+        if form.is_valid():
+            img = form.cleaned_data["new_avatar"]
+            print(img)
+            data_url = generate_image_thumbnail(img)
+            request.user.avatar = data_url
+            request.user.save()
+            return redirect(reverse("account"))
+    else:
+        form = EditAvatarForm()
+    return render(request, "edit_avatar.html", {"user": request.user, "form": form})
+
+
+def profile(request, username):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        raise Http404("User does not exist")
+    return render(request, "profile.html", {"user": user})
+
+
+@login_required
+def inbox(request):
+    user = request.user
+    messages = list(user.received_messages.all()) + list(user.sent_messages.all())
+    return render(request, "inbox.html", {"messages": messages})
+
+
+@login_required
+def submit_story(request):
+    user = request.user
+    if request.method == "POST":
+        form = SubmitStoryForm(request.POST)
+    else:
+        form = SubmitStoryForm()
+    return render(request, "submit.html", {"form": form})

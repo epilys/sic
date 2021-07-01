@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{story.title}} - sic {% endblock %}
+{% block content %}
+<article>
+  <header>
+<h1 class="story-title"><a href="{{story.get_absolute_url}}">{{ story.title }}</a></li></h1>
+  </header>
+<a href="{{story.url}}">{{ story.url }}</a></li>
+{% if story.description %}
+<p>{{ story.description }}</p>
+{% endif %}
+</article>
+{% if request.user.is_authenticated %}
+<form action="" method="post" class="submit-comment-form">
+    {% csrf_token %}
+    {{ comment_form}}
+    <input type="submit" value="Submit">
+</form>
+{% else %}
+<p>Sign in to post comments.</p>
+{% endif %}
+<ul class="comments">
+{% for comment in story.comments.all %}
+<li><a href="{{comment.get_absolute_url}}">{{forloop.counter0}}</a>{{comment.user}} {{comment.created }} {{ comment.text }}</li>
+  {% endfor %}
+{% endblock %}

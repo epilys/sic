@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Edit profile{% endblock %}
+{% block content %}
+<form action="" method="post" class="submit-story-form">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Submit">
+</form>
+{% endblock %}

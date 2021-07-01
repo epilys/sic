@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}sic{% endblock %}
+{% block content %}
+<h1>Inbox</h1>
+<ul class="stories">
+  {% for msg in messages %}
+  <li>{{ msg }}</li>
+  {% empty %}
+  <li>None.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
