@@ -405,6 +405,10 @@ main>ul.stories {
   padding:0;
 }
 
+main>ul.stories li + li {
+  margin-top: 1rem;
+}
+
 main>ul.stories>li{
  display: inline-grid;
  width: 100%;
