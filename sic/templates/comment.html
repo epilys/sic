@@ -1,0 +1,22 @@
+<li class="comment">
+    <details class="comment{% if not comment.replies.exists %} no-children{% endif %}" open="open">
+        <summary>
+            <span class="links"><a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a> {{ comment.created }} | <a href="{{comment.get_absolute_url}}">link</a> | <label class="reply" for="reply-{{comment.pk}}"><a href="">reply</a></label>
+            </span>
+            <span class="comment">{{ comment.text }}</span>
+            <input class="reply" type="checkbox" id="reply-{{comment.pk}}" name="reply-{{comment.pk}}">
+            <form action="{% url 'reply' comment.pk %}" method="POST" class="reply-form">
+                {% csrf_token %}
+                <table>
+                    {{reply_form}}
+                </table>
+                <input type="submit" value="Submit">
+            </form>
+        </summary>
+        {% if comment.replies.exists %}
+            {% for reply in comment.replies.all %}
+                {% include "comment.html" with comment=reply %}
+            {% endfor %}
+        {% endif %}
+    </details>
+</li>

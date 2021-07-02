@@ -483,7 +483,7 @@ div.profile {
 }
 
 .profile label[for="username"]{
-  grid-area:"username-label";
+  grid-area:username-label;
 }
 .profile #username {
   grid-area: username;
@@ -604,8 +604,82 @@ a.feed:hover:after {
   display: block;
 }
 
-details#signup-details summary {
+label.reply {
+  cursor: pointer;
+}
+
+.reply a {
+  pointer-events: none;
+}
+
+form.reply-form {
+  display: none;
+}
+
+input[type="checkbox"].reply {
+  display: none;
+}
+
+input[type="checkbox"]:checked ~ form.reply-form:first-of-type {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  width: 66ch;
+}
+
+details.comment>summary>* {
+  vertical-align: top;
+}
+
+details.comment:not([open])>summary>span.comment {
+  display: -webkit-inline-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  width: 30ch;
+  margin: 0;
+}
+
+details.comment[open]>summary>span.comment {
+  width: 66ch;
+  text-align: justify;
+  text-indent: 1rem;
   display: block;
+  margin-block-start: 1em;
+}
+
+details[open].comment>summary:before {
+  content: '[-]';
+  padding: 2px; /* increase hit area*/
+  cursor: pointer;
+}
+
+details.comment>summary:before {
+  content: '[+]';
+  padding: 2px; /* increase hit area*/
+  cursor: pointer;
+}
+
+details.reply>summary, details.comment>summary, details#signup-details>summary {
+  display: block;
+  padding-bottom: 1rem;
+}
+
+li.comment {
+  list-style: none;
+  padding-bottom: 1rem;
+}
+
+li.comment + li.comment {
+  border-top: 1px solid black;
+  padding-top: 1rem;
+}
+
+li.comment>details>li.comment {
+  border-top: 1px solid black;
+  padding-top: 1rem;
+  margin-left: 1rem;
 }
 
 #signup-details[open]:after {

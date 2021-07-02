@@ -20,6 +20,13 @@ class SubmitCommentForm(forms.Form):
     text.widget.attrs.update({"rows": 3, "placeholder": ""})
 
 
+class SubmitReplyForm(forms.Form):
+    text = forms.CharField(
+        required=True, label="Reply", max_length=500, widget=forms.Textarea
+    )
+    text.widget.attrs.update({"rows": 3, "placeholder": ""})
+
+
 class EditAvatarForm(forms.Form):
     new_avatar = forms.FileField(
         required=False, label="Avatar file (leave blank for none)"

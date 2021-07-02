@@ -73,7 +73,11 @@ class Comment(models.Model):
         "Story", related_name="comments", on_delete=models.CASCADE, null=False
     )
     parent = models.ForeignKey(
-        "Comment", on_delete=models.SET_NULL, null=True, blank=True
+        "Comment",
+        related_name="replies",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     hat = models.ForeignKey(
         "Hat", on_delete=models.SET_NULL, null=True, blank=True, default=None

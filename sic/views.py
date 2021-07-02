@@ -51,7 +51,34 @@ def story(request, pk, slug=None):
         if slug != s.slugify():
             return redirect(s.get_absolute_url())
         form = SubmitCommentForm()
-    return render(request, "story.html", {"story": s, "comment_form": form})
+    reply_form = SubmitReplyForm()
+    return render(
+        request,
+        "story.html",
+        {"story": s, "comment_form": form, "reply_form": reply_form},
+    )
+
+
+@login_required
+def reply(request, comment_pk):
+    user = request.user
+    try:
+        comment = Comment.objects.get(pk=comment_pk)
+    except Comment.DoesNotExist:
+        raise Http404("Comment does not exist")
+    if request.method == "POST":
+        form = SubmitReplyForm(request.POST)
+        if form.is_valid():
+            text = form.cleaned_data["text"]
+            new_comment = Comment.objects.create(
+                user=user, story=comment.story, parent=comment, text=text
+            )
+        else:
+            error = form_errors_as_string(form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
+            )
+    return redirect(comment.story.get_absolute_url())
 
 
 def index(request, page_num=1):

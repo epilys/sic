@@ -28,6 +28,7 @@ urlpatterns = [
     path("s/<int:pk>/<slug:slug>/", story, name="story"),
     path("u/<str:username>/", profile, name="profile"),
     path("submit/", submit_story, name="submit"),
+    path("reply/<int:comment_pk>", reply, name="reply"),
     path("upvote/<int:pk>/", upvote_story, name="upvote_story"),
     path("accounts/invitations/new", generate_invite, name="generate_invite"),
     path(
