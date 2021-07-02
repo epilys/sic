@@ -232,6 +232,8 @@ def submit_story(request):
                 user=user,
                 user_is_author=user_is_author,
             )
+            story.tags.set(form.cleaned_data["tags"])
+            story.save()
             return redirect(story.get_absolute_url())
         else:
             error = form_errors_as_string(form.errors)
@@ -325,3 +327,38 @@ def profile_posts(request, username, page_num=1):
         "profile_posts.html",
         {"posts": page, "reply_form": SubmitReplyForm(), "user": user},
     )
+
+
+@login_required
+def edit_story(request, pk, slug=None):
+    user = request.user
+    try:
+        s = Story.objects.get(pk=pk)
+    except Story.DoesNotExist:
+        raise Http404("Story does not exist")
+    if request.method == "POST":
+        form = SubmitStoryForm(request.POST)
+        if form.is_valid():
+            s.title = form.cleaned_data["title"]
+            s.description = form.cleaned_data["description"]
+            s.url = form.cleaned_data["url"]
+            s.user_is_author = form.cleaned_data["user_is_author"]
+            s.tags.set(form.cleaned_data["tags"])
+            s.save()
+            return redirect(s.get_absolute_url())
+        else:
+            error = form_errors_as_string(form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
+            )
+    else:
+        form = SubmitStoryForm(
+            initial={
+                "title": s.title,
+                "description": s.description,
+                "url": s.url,
+                "user_is_author": s.user_is_author,
+                "tags": s.tags.all(),
+            }
+        )
+    return render(request, "submit.html", {"form": form})

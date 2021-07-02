@@ -1,0 +1,7 @@
+{% spaceless %}
+<ul class="tags">
+  {% for tag in tags %}
+  <li style="--tag-color: {{ tag.hex_color }};">{{ tag.name }}</li>
+  {% endfor %}
+</ul>
+{% endspaceless %}
