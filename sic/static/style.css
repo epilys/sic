@@ -425,6 +425,9 @@ main>ul.stories>li .links{
   grid-area: links;
 }
 
+div.votes>div.score {
+  text-align: center;
+}
 
 
 header>* {
