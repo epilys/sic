@@ -5,7 +5,7 @@
     <article>
         <header>
             <h1 class="story-title"><a href="{{story.get_listing_url}}">{{ story.title }}</a></h1>
-            <div class="links">{% if story.user.avatar %}<img class="avatar-small" src="{{story.user.avatar}}" height="1ex">{% endif %}{% if story.user_is_author %}authored by{% else %}via{% endif %} <a href="{{ story.user.get_absolute_url }}">{{ story.user }}</a> <time datetime="{{ story.created | date:"Y-m-d H:i:s" }}" title="{{ story.created }}">{{ story.created|naturaltime }}</time> | flag | hide | save | archived copy | <a href="{{story.get_absolute_url}}">{{ story.comments.count }} comments</a></div>
+            <div class="links">{% if story.user.avatar %}<img class="avatar-small" src="{{story.user.avatar}}" alt="user avatar">{% endif %}{% if story.user_is_author %}authored by{% else %}via{% endif %} <a href="{{ story.user.get_absolute_url }}">{{ story.user }}</a> <time datetime="{{ story.created | date:"Y-m-d H:i:s" }}" title="{{ story.created }}">{{ story.created|naturaltime }}</time> | flag | hide | save | archived copy | <a href="{{story.get_absolute_url}}">{{ story.comments.count }} comments</a></div>
         </header>
         <a href="{{story.url}}">{{ story.url }}</a>
         {% if story.description %}
@@ -21,7 +21,7 @@
     {% else %}
         <p>Sign in to post comments.</p>
     {% endif %}
-    <ul class="comments">
+    <ul class="posts">
         {% for comment in story.comments.all %}
             {% if not comment.parent %}
                 {% include "comment.html" with comment=comment reply_form=reply_form %}

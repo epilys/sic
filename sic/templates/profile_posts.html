@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}sic{% endblock %}
+{% block content %}
+    <ul class="posts">
+        {% for post in posts %}
+                {% if post.is_story %}
+            <li class="story">
+                    {% spaceless %}
+                        <div class="votes">
+                            <div class="upvote{% if post.upvoted %} upvoted{% endif %}">
+                                {% if request.user.is_authenticated %}
+                                    <form>
+                                        <input type="submit" formaction="{% url 'upvote_story' post.pk %}?next={{request.get_full_path|urlencode}}" formmethod="GET" value="">
+                                    </form>
+                                {% endif %}
+                            </div>
+                            <div class="score">
+                                {{post.karma}}
+                            </div>
+                        </div>
+                        <div class="title">
+                            <a href="{{post.get_listing_url}}">{{ post.title }}</a>
+                        </div>
+                        <div class="links">{% if post.user.avatar %}<img class="avatar-small" src="{{post.user.avatar}}" alt="user avatar">{% endif %}{% if post.user_is_author %}authored by{% else %}via{% endif %} <a href="{{ post.user.get_absolute_url }}">{{ post.user }}</a> <time datetime="{{ post.created | date:"Y-m-d H:i:s" }}" title="{{ post.created }}"> {{ post.created|naturaltime }}</time> | flag | hide | save | archived copy | <a href="{{post.get_absolute_url}}">{{ post.comments.count }} comments</a></div>
+                    {% endspaceless %}
+            </li>
+                {% else %}
+                    {% include "comment.html" with comment=post reply_form=reply_form shallow=True %}
+                {% endif %}
+        {% endfor %}
+    </ul>
+    <div class="pagination">
+        <span class="step-links">
+            {% if posts.has_previous %}
+                <a href="{% url 'profile_posts' username=user.username %}">&laquo; first</a>
+                <a href="{% url 'profile_posts_page' username=user.username page_num=posts.previous_page_number %}">&lt; previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ posts.number }}
+            </span>
+
+            {% if posts.has_next %}
+                <a href="{% url 'profile_posts_page' username=user.username page_num=posts.next_page_number %}">next &gt;</a>
+            {% else %}
+                (of {{posts.number}})
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}

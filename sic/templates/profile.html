@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 {% block title %}sic{% endblock %}
 {% block content %}
-<div class="profile">
-  <label for="username">username:</label>
-  <div id="username">{{ user.username }}</div>
-  <label for="homepage">homepage:</label>
-  <div id="homepage">{{ user.homepage }}</div>
-  <label for="git-repository">git repository:</label>
-  <div id="git-repository"></div>
-  <label for="about">about:</label>
-  <div id="about"></div>
-  <label for="status">status:</label>
-  <div id="status">active</div>
-  <label for="joined">joined:</label>
-  <div id="joined">{{ user.created }}</div>
-  <label for="invited_by">invited by:</label>
-  <div id="invited_by">{{ user.invited_by.inviter }}</div>
-  <label for="karma">karma:</label>
-  <div id="karma">{{ user.karma }}</div>
-  <label for="stories">stories:</label>
-  <div id="stories">{{ user.stories.count }}</div>
-  <label for="comments">comments:</label>
-  <div id="comments">{{ user.comments.count }}</div>
-  <div id="avatar">{% if user.avatar %}<div id="avatar-thumbnail" style="background-image: url({{user.avatar}});"><img src="{{ user.avatar }}"></div>{% else %}None.{%endif %}</div>
-</div>
+    <div class="profile">
+        <label for="username">username:</label>
+        <div id="username">{{ user.username }}</div>
+        <label for="homepage">homepage:</label>
+        <div id="homepage">{{ user.homepage }}</div>
+        <label for="git-repository">git repository:</label>
+        <div id="git-repository"></div>
+        <label for="about">about:</label>
+        <div id="about"></div>
+        <label for="status">status:</label>
+        <div id="status">active</div>
+        <label for="joined">joined:</label>
+        <div id="joined">{{ user.created }}</div>
+        <label for="invited_by">invited by:</label>
+        <div id="invited_by">{{ user.invited_by.inviter }}</div>
+        <label for="karma">karma:</label>
+        <div id="karma">{{ user.karma }}</div>
+        <label for="stories">stories:</label>
+        <div id="stories"><a href="{% url 'profile_posts' username=user.username %}">{{ user.stories.count }}</a></div>
+        <label for="comments">comments:</label>
+        <div id="comments"><a href="{% url 'profile_posts' username=user.username %}">{{ user.comments.count }}</a></div>
+        <div id="avatar">{% if user.avatar %}<div id="avatar-thumbnail" style="background-image: url({{user.avatar}});"><img src="{{ user.avatar }}"></div>{% else %}None.{%endif %}</div>
+    </div>
 {% endblock %}

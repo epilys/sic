@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Value, BooleanField
 from django.core.paginator import Paginator, InvalidPage
 from .models import Story, Comment, User
 from .forms import *
@@ -283,3 +283,45 @@ def generate_invite(request):
     if "next" in request.GET:
         return redirect(request.GET["next"])
     return redirect(reverse("account"))
+
+
+def profile_posts(request, username, page_num=1):
+    print("profile_posts", username, page_num)
+    if page_num == 1 and request.get_full_path() != reverse(
+        "profile_posts", args=[username]
+    ):
+        return redirect(reverse("profile_posts", args=[username]))
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        raise Http404("User does not exist")
+    s = list(
+        user.stories.filter(active=True)
+        .annotate(is_story=Value("True", output_field=BooleanField()))
+        .order_by("-created", "title")
+    ) + list(
+        user.comments.filter(deleted=False)
+        .annotate(is_story=Value("False", output_field=BooleanField()))
+        .order_by("-created")
+    )
+    s = sorted(s, key=lambda x: x.created, reverse=True)
+    paginator = Paginator(s, 10)
+    try:
+        page = paginator.page(page_num)
+    except InvalidPage:
+        """
+        page_num BooleanFieldis bigger than the actual number of pages
+        """
+        return redirect(
+            reverse(
+                "profile_posts_page",
+                args=[username],
+                kwargs={"page_num": paginator.num_pages},
+            )
+        )
+    print(s)
+    return render(
+        request,
+        "profile_posts.html",
+        {"posts": page, "reply_form": SubmitReplyForm(), "user": user},
+    )

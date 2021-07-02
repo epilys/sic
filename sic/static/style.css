@@ -399,17 +399,17 @@ body>header>nav.user {
 body>footer {
   text-align: right;
 }
-main>ul.stories {
+main>ul.posts {
   list-style: none;
   margin: 0;
   padding:0;
 }
 
-main>ul.stories li + li {
+main>ul.posts li + li {
   margin-top: 1rem;
 }
 
-main>ul.stories>li{
+main>ul.posts>li.story{
  display: inline-grid;
  width: 100%;
  padding: 0;
@@ -419,13 +419,13 @@ main>ul.stories>li{
  column-gap: .5rem;
 }
 
-main>ul.stories>li .votes{
+main>ul.posts>li.story .votes{
   grid-area: votes;
 }
-main>ul.stories>li .title{
+main>ul.posts>li.story .title{
   grid-area: title;
 }
-main>ul.stories>li .links{
+main>ul.posts>li.story .links{
   grid-area: links;
 }
 
@@ -582,15 +582,15 @@ div.votes .upvote, div.votes .flagger {
 }
 
 .avatar-small {
+  height: 2ex;
   border-radius: 50%;
   display: inline-block;
   margin-bottom: -5px;
   margin-top: -5px;
-  transform: scale(15);
   vertical-align: middle;
   margin: 0;
-  margin-right: 12px;
-  margin-left: 9px;
+  margin-right: 5px;
+  margin-left: 5px;
 }
 
 a.feed, a.feed:visited {
@@ -673,9 +673,8 @@ details.reply>summary, details.comment>summary, details#signup-details>summary {
   padding-bottom: 1rem;
 }
 
-li.comment {
+ul.posts li {
   list-style: none;
-  padding-bottom: 1rem;
 }
 
 li.comment + li.comment {
