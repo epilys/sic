@@ -26,6 +26,7 @@ class Story(models.Model):
         "Story", on_delete=models.CASCADE, null=True, blank=True
     )
     active = models.BooleanField(default=True, null=False)
+    user_is_author = models.BooleanField(default=False, null=False)
     tags = models.ManyToManyField("Tag", blank=True)
 
     def __str__(self):

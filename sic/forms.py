@@ -10,6 +10,11 @@ class SubmitStoryForm(forms.Form):
     title = forms.CharField(label="Story title", required=True, max_length=100)
     description = forms.CharField(required=False)
     url = forms.URLField(required=False)
+    user_is_author = forms.BooleanField(
+        label="Author",
+        required=False,
+        help_text="I am the author of the story at this URL (or this text)",
+    )
     tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), required=False)
 
 

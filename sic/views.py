@@ -224,8 +224,13 @@ def submit_story(request):
             title = form.cleaned_data["title"]
             description = form.cleaned_data["description"]
             url = form.cleaned_data["url"]
+            user_is_author = form.cleaned_data["user_is_author"]
             story = Story.objects.create(
-                title=title, url=url, description=description, user=user
+                title=title,
+                url=url,
+                description=description,
+                user=user,
+                user_is_author=user_is_author,
             )
             return redirect(story.get_absolute_url())
         else:
