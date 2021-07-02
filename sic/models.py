@@ -47,10 +47,10 @@ class Message(models.Model):
     author = models.ForeignKey(
         "User", related_name="sent_messages", on_delete=models.SET_NULL, null=True
     )
-    hat = models.ForeignKey("Hat", on_delete=models.SET_NULL, null=True)
+    hat = models.ForeignKey("Hat", on_delete=models.SET_NULL, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
-    subject = models.CharField(null=False, blank=False, max_length=100)
+    subject = models.CharField(null=False, blank=True, max_length=100)
     body = models.TextField(null=True, blank=False)
 
     def __str__(self):
@@ -67,6 +67,7 @@ class Comment(models.Model):
     parent = models.ForeignKey(
         "Comment", on_delete=models.SET_NULL, null=True, blank=True
     )
+    hat = models.ForeignKey("Hat", on_delete=models.SET_NULL, null=True, blank=True, default=None)
     deleted = models.BooleanField(default=False, null=False, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     text = models.TextField(null=True, blank=False)
