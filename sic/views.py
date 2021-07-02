@@ -79,7 +79,12 @@ def login(request):
 
 @login_required
 def account(request):
-    return render(request, "account.html", {"user": request.user})
+    generate_invite_form = GenerateInviteForm()
+    return render(
+        request,
+        "account.html",
+        {"user": request.user, "generate_invite_form": generate_invite_form},
+    )
 
 
 @login_required
@@ -179,3 +184,24 @@ def upvote_story(request, pk):
         if "next" in request.GET:
             return redirect(request.GET["next"])
     return redirect(reverse("index"))
+
+
+@login_required
+def generate_invite(request):
+    if request.method == "POST":
+        user = request.user
+        form = GenerateInviteForm(request.POST)
+        if form.is_valid():
+            address = form.cleaned_data["email"]
+            invitation, created = user.invited.all().get_or_create(
+                inviter=user, address=address
+            )
+            if created:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    f"Successfully generated invitation to {address}.",
+                )
+    if "next" in request.GET:
+        return redirect(request.GET["next"])
+    return redirect(reverse("account"))

@@ -26,4 +26,22 @@
   <div id="comments">{{ user.comments.count }}</div>
   <div id="avatar">{% if user.avatar %}<div id="avatar-thumbnail" style="background-image: url({{user.avatar}});"><img src="{{ user.avatar }}"></div>{% else %}None.{%endif %}<a href="{% url 'edit_avatar' %}">edit avatar</a></div>
 </div>
+<div class="invites">
+  <div class="invite_tree">
+    <h2>Invitation tree</h2>
+    {% for inv in user.invited.all %}
+    <p title="{{ inv.id }}">{{ inv.created }} - {{ inv.address }} - {% if inv.accepted %}<span class="accepted">accepted</span>{% else %}no answer yet{% endif %}</p>
+    {% empty %}
+    You haven't invited anyone yet.
+    {% endfor %}
+  </div>
+  <div class="generate_an_invite">
+    <h2>Invite a new user</h2>
+    <form method="POST" action="{% url 'generate_invite' %}?next={{request.get_full_path|urlencode}}">
+      {% csrf_token %}
+      {{ generate_invite_form }}
+      <input type="submit" value="generate">
+    </form>
+  </div>
+</div>
 {% endblock %}

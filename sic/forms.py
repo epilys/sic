@@ -35,3 +35,7 @@ class EditProfileForm(forms.Form):
         required=False, label="about", max_length=500, widget=forms.Textarea
     )
     about.widget.attrs.update({"rows": 3, "placeholder": ""})
+
+
+class GenerateInviteForm(forms.Form):
+    email = forms.EmailField(required=True, label="Account e-mail")

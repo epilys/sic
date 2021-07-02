@@ -603,3 +603,23 @@ a.feed:hover:after {
   transform: scale(203%);
   display: block;
 }
+
+details#signup-details summary {
+  display: block;
+}
+
+#signup-details[open]:after {
+  content: attr(title);
+  position: absolute;
+  width: 13ch;
+  text-align: justify;
+  transform: translateX(-75%);
+  margin-top: 12px;
+  border: 2px solid cadetblue;
+  padding: 12px;
+  background: white;
+}
+
+details#signup-details>summary>a {
+  pointer-events: none;
+}

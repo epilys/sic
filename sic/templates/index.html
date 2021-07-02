@@ -4,9 +4,7 @@
 <ul class="stories">
   {% for story in stories %}
   <li>
-    <div class="votes"><div class="upvote{% if story.upvoted %} upvoted{% endif %}">{% if request.user.is_authenticated %}<form><input type="submit" formaction="{% url 'upvote_story' story.pk %}?next={{request.get_full_path|urlencode}}
-                                                                                                    " formmethod="GET" value=""></form>{% endif %}</div><div class="score">{{story.karma}}</div></div>
-    <div class="title"><a href="{{story.get_absolute_url}}">{{ story.title }}</a></div>
+    <div class="votes"><div class="upvote{% if story.upvoted %} upvoted{% endif %}">{% if request.user.is_authenticated %}<form><input type="submit" formaction="{% url 'upvote_story' story.pk %}?next={{request.get_full_path|urlencode}}" formmethod="GET" value=""></form>{% endif %}</div><div class="score">{{story.karma}}</div></div><div class="title"><a href="{{story.get_absolute_url}}">{{ story.title }}</a></div>
     <div class="links">{% if story.user.avatar %}<img class="avatar-small" src="{{story.user.avatar}}" height="1ex">{% endif %}via <a href="{{ story.user.get_absolute_url }}">{{ story.user }}</a> {{ story.created }} | flag | hide | save | archived copy | <a href="{{story.get_absolute_url}}">{{ story.comments.count }} comments</a></div>
   </li>
   {% endfor %}

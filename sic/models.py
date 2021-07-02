@@ -3,6 +3,7 @@ from django.db.models import Count
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.urls import reverse
 from django.utils.text import slugify
+import uuid
 
 
 class Domain(models.Model):
@@ -67,7 +68,9 @@ class Comment(models.Model):
     parent = models.ForeignKey(
         "Comment", on_delete=models.SET_NULL, null=True, blank=True
     )
-    hat = models.ForeignKey("Hat", on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    hat = models.ForeignKey(
+        "Hat", on_delete=models.SET_NULL, null=True, blank=True, default=None
+    )
     deleted = models.BooleanField(default=False, null=False, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     text = models.TextField(null=True, blank=False)
@@ -91,14 +94,20 @@ class TagFilter(models.Model):
 
 
 class Invitation(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     inviter = models.ForeignKey(
         "User", related_name="invited", on_delete=models.SET_NULL, null=True
     )
     receiver = models.ForeignKey(
-        "User", related_name="invited_by", on_delete=models.SET_NULL, null=True
+        "User",
+        related_name="invited_by",
+        on_delete=models.SET_NULL,
+        null=True,
+        default=None,
     )
+    address = models.EmailField(null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True)
-    accepted = models.DateTimeField(null=False, blank=True)
+    accepted = models.DateTimeField(null=True, blank=True)
 
 
 class Vote(models.Model):
