@@ -13,6 +13,12 @@ from wand.image import Image
 from PIL import Image as PILImage
 
 
+def form_errors_as_string(errors):
+    return ", ".join(
+        map(lambda k: ", ".join(map(lambda err: k + ": " + err, errors[k])), errors)
+    )
+
+
 def story(request, pk, slug=None):
     try:
         s = Story.objects.get(pk=pk)
@@ -37,7 +43,10 @@ def story(request, pk, slug=None):
                     request, messages.ERROR, f"You must be logged in to comment."
                 )
         else:
-            messages.add_message(request, messages.ERROR, f"Invalid comment form.")
+            error = form_errors_as_string(form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid comment form. Error: {error}"
+            )
     else:
         form = SubmitCommentForm()
     return render(request, "story.html", {"story": s, "comment_form": form})
@@ -104,6 +113,11 @@ def edit_profile(request):
             request.user.about = about
             request.user.save()
             return redirect(reverse("account"))
+        else:
+            error = form_errors_as_string(form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
+            )
     else:
         initial = {
             "homepage": user.homepage,
@@ -136,6 +150,11 @@ def edit_avatar(request):
             request.user.avatar = data_url
             request.user.save()
             return redirect(reverse("account"))
+        else:
+            error = form_errors_as_string(form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
+            )
     else:
         form = EditAvatarForm()
     return render(request, "edit_avatar.html", {"user": request.user, "form": form})
@@ -169,6 +188,11 @@ def submit_story(request):
                 title=title, url=url, description=description, user=user
             )
             return redirect(story.get_absolute_url())
+        else:
+            error = form_errors_as_string(form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
+            )
     else:
         form = SubmitStoryForm()
     return render(request, "submit.html", {"form": form})
@@ -206,6 +230,11 @@ def generate_invite(request):
                     messages.SUCCESS,
                     f"Successfully generated invitation to {address}.",
                 )
+        else:
+            error = form_errors_as_string(form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
+            )
     if "next" in request.GET:
         return redirect(request.GET["next"])
     return redirect(reverse("account"))
