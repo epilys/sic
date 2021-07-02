@@ -45,6 +45,13 @@ class Story(models.Model):
     def karma(self):
         return self.votes.all().count()
 
+    def get_listing_url(self):
+        return (
+            self.get_absolute_url()
+            if self.url is None or len(self.url) == 0
+            else self.url
+        )
+
 
 class Message(models.Model):
     id = models.AutoField(primary_key=True)
