@@ -700,3 +700,7 @@ li.comment>details>li.comment {
 details#signup-details>summary>a {
   pointer-events: none;
 }
+
+article>header {
+  margin-bottom: 1rem;
+}
