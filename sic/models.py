@@ -7,10 +7,12 @@ import uuid
 
 
 class Domain(models.Model):
+    id = models.AutoField(primary_key=True)
     url = models.URLField(null=False, blank=False)
 
 
 class Story(models.Model):
+    id = models.AutoField(primary_key=True)
     user = models.ForeignKey(
         "User", related_name="stories", on_delete=models.CASCADE, null=False
     )
@@ -44,6 +46,7 @@ class Story(models.Model):
 
 
 class Message(models.Model):
+    id = models.AutoField(primary_key=True)
     recipient = models.ForeignKey(
         "User", related_name="received_messages", on_delete=models.SET_NULL, null=True
     )
@@ -62,6 +65,7 @@ class Message(models.Model):
 
 
 class Comment(models.Model):
+    id = models.AutoField(primary_key=True)
     user = models.ForeignKey(
         "User", related_name="comments", on_delete=models.CASCADE, null=False
     )
@@ -83,6 +87,7 @@ class Comment(models.Model):
 
 
 class Tag(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(null=False, blank=False, max_length=20)
 
     def __str__(self):
@@ -90,6 +95,7 @@ class Tag(models.Model):
 
 
 class TagFilter(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(null=False, blank=False, max_length=20)
 
     def __str__(self):
@@ -114,6 +120,7 @@ class Invitation(models.Model):
 
 
 class Vote(models.Model):
+    id = models.AutoField(primary_key=True)
     user = models.ForeignKey(
         "User", related_name="votes", on_delete=models.CASCADE, null=False
     )
@@ -124,10 +131,11 @@ class Vote(models.Model):
 
 
 class Moderation(models.Model):
-    pass
+    id = models.AutoField(primary_key=True)
 
 
 class Hat(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(null=False, blank=False, max_length=30)
 
 
@@ -163,6 +171,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
+    id = models.AutoField(primary_key=True)
     username = models.CharField(null=True, blank=True, unique=True, max_length=100)
     email = models.EmailField(
         verbose_name="email address",
