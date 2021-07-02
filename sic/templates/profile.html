@@ -2,26 +2,26 @@
 {% block title %}sic{% endblock %}
 {% block content %}
     <div class="profile">
-        <label for="username">username:</label>
+        <div id="label_for_username">username:</div>
         <div id="username">{{ user.username }}</div>
-        <label for="homepage">homepage:</label>
+        <div id="label_for_homepage">homepage:</div>
         <div id="homepage">{{ user.homepage }}</div>
-        <label for="git-repository">git repository:</label>
+        <div id="label_for_git-repository">git repository:</div>
         <div id="git-repository"></div>
-        <label for="about">about:</label>
+        <div id="label_for_about">about:</div>
         <div id="about"></div>
-        <label for="status">status:</label>
+        <div id="label_for_status">status:</div>
         <div id="status">active</div>
-        <label for="joined">joined:</label>
+        <div id="label_for_joined">joined:</div>
         <div id="joined">{{ user.created }}</div>
-        <label for="invited_by">invited by:</label>
+        <div id="label_for_invited_by">invited by:</div>
         <div id="invited_by">{{ user.invited_by.inviter }}</div>
-        <label for="karma">karma:</label>
+        <div id="label_for_karma">karma:</div>
         <div id="karma">{{ user.karma }}</div>
-        <label for="stories">stories:</label>
+        <div id="label_for_stories">stories:</div>
         <div id="stories"><a href="{% url 'profile_posts' username=user.username %}">{{ user.stories.count }}</a></div>
-        <label for="comments">comments:</label>
+        <div id="label_for_comments">comments:</div>
         <div id="comments"><a href="{% url 'profile_posts' username=user.username %}">{{ user.comments.count }}</a></div>
-        <div id="avatar">{% if user.avatar %}<div id="avatar-thumbnail" style="background-image: url({{user.avatar}});"><img src="{{ user.avatar }}"></div>{% else %}None.{%endif %}</div>
+        <div id="avatar">{% if user.avatar %}<div id="avatar-thumbnail" style="background-image: url({{user.avatar}});"><img src="{{ user.avatar }}" alt="user avatar"></div>{% else %}None.{%endif %}</div>
     </div>
 {% endblock %}

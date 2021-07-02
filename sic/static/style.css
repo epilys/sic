@@ -489,61 +489,61 @@ div.profile {
   width: 100%;
 }
 
-.profile label[for="username"]{
+.profile #label_for_username{
   grid-area:username-label;
 }
 .profile #username {
   grid-area: username;
 }
-.profile label[for="homepage"]{
+.profile #label_for_homepage{
   grid-area: homepage-label;
 }
 .profile #homepage {
   grid-area: homepage;
 }
-.profile label[for="git-repository"]{
+.profile #label_for_git-repository{
   grid-area: git-repository-label;
 }
 .profile #git-repository {
   grid-area: git-repository;
 }
-.profile label[for="about"]{
+.profile #label_for_about{
   grid-area: about-label;
 }
 .profile #about {
   grid-area: about;
 }
-.profile label[for="status"]{
+.profile #label_for_status{
   grid-area: status-label;
 }
 .profile #status {
   grid-area: status;
 }
-.profile label[for="joined"]{
+.profile #label_for_joined{
   grid-area: joined-label;
 }
 .profile #joined {
   grid-area: joined;
 }
-.profile label[for="invited_by"]{
+.profile #label_for_invited_by{
   grid-area: invited_by-label;
 }
 .profile #invited_by {
   grid-area: invited_by;
 }
-.profile label[for="karma"]{
+.profile #label_for_karma{
   grid-area: karma-label;
 }
 .profile #karma {
   grid-area: karma;
 }
-.profile label[for="stories"]{
+.profile #label_for_stories{
   grid-area: stories-label;
 }
 .profile #stories {
   grid-area: stories;
 }
-.profile label[for="comments"]{
+.profile #label_for_comments{
   grid-area: comments-label;
 }
 .profile #comments {
