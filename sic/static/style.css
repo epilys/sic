@@ -147,6 +147,7 @@ sup {
 
 img {
   border-style: none;
+  display: block;
 }
 
 /* Forms
@@ -471,6 +472,7 @@ div.profile {
   "about-label about avatar"
   "status-label status avatar"
   "joined-label joined avatar"
+  "invited_by-label invited_by avatar"
   "karma-label karma avatar"
   "stories-label stories avatar"
   "comments-label comments avatar";
@@ -478,8 +480,6 @@ div.profile {
   column-gap: 2rem;
   height: 100%;
   width: 100%;
-  grid-row: 1/ span1;
-  grid-column: 1/ span1;
 }
 
 .profile label[for="username"]{
@@ -518,6 +518,12 @@ div.profile {
 .profile #joined {
   grid-area: joined;
 }
+.profile label[for="invited_by"]{
+  grid-area: invited_by-label;
+}
+.profile #invited_by {
+  grid-area: invited_by;
+}
 .profile label[for="karma"]{
   grid-area: karma-label;
 }
@@ -536,10 +542,19 @@ div.profile {
 .profile #comments {
   grid-area: comments;
 }
+
 .profile #avatar {
   grid-area: avatar;
   display: flex;
   flex-direction: column;
+  width: max-content;
+  height: max-content;
+}
+
+div#avatar-thumbnail {
+  height: min-content;
+  padding: 3px;
+  background-size: 1px 1px;
 }
 
 div.votes .upvote:hover, div.votes .upvote.upvoted {
