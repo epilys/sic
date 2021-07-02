@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Exists, OuterRef
+from django.core.paginator import Paginator, InvalidPage
 from .models import Story, Comment, User
 from .forms import *
 
@@ -42,26 +43,29 @@ def story(request, pk, slug=None):
     return render(request, "story.html", {"story": s, "comment_form": form})
 
 
-def index(request):
+def index(request, page_num=1):
+    if page_num == 1 and request.get_full_path() != "/":
+        return redirect(reverse("index"))
     if request.user.is_authenticated:
-        try:
-            s = (
-                Story.objects.all()
-                .filter(active=True)
-                .annotate(
-                    upvoted=Exists(
-                        request.user.votes.all().filter(story=OuterRef("pk"))
-                    )
-                )
+        s = (
+            Story.objects.all()
+            .filter(active=True)
+            .annotate(
+                upvoted=Exists(request.user.votes.all().filter(story=OuterRef("pk")))
             )
-        except Story.DoesNotExist:
-            s = []
+        )
     else:
-        try:
-            s = Story.objects.all().filter(active=True)
-        except Story.DoesNotExist:
-            s = []
-    return render(request, "index.html", {"stories": s})
+        s = Story.objects.all().filter(active=True)
+    if not s.exists():
+        if request.get_full_path() != "/":
+            return redirect(reverse("index"))
+        s = Story.objects.none()
+    paginator = Paginator(s.order_by("-created", "title"), 10)
+    try:
+        page = paginator.page(page_num)
+    except InvalidPage:
+        return redirect(reverse("index_page", kwargs={"page_num": paginator.num_pages}))
+    return render(request, "index.html", {"stories": page})
 
 
 def login(request):

@@ -9,4 +9,22 @@
   </li>
   {% endfor %}
 </ul>
+<div class="pagination">
+    <span class="step-links">
+        {% if stories.has_previous %}
+            <a href="{% url 'index' %}">&laquo; first</a>
+            <a href="{% url 'index_page' stories.previous_page_number %}">&lt; previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ stories.number }}
+        </span>
+
+        {% if stories.has_next %}
+            <a href="{% url 'index_page' stories.next_page_number %}">next &gt;</a>
+        {% else %}
+        (of {{stories.number}})
+        {% endif %}
+    </span>
+</div>
 {% endblock %}

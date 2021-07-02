@@ -24,6 +24,7 @@ from .feeds import *
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", index, name="index"),
+    path("page/<int:page_num>/", index, name="index_page"),
     path("s/<int:pk>/<slug:slug>/", story, name="story"),
     path("u/<str:username>/", profile, name="profile"),
     path("submit/", submit_story, name="submit"),
