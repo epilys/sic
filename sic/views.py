@@ -83,8 +83,14 @@ def reply(request, comment_pk):
 
 def index(request, page_num=1):
     if page_num == 1 and request.get_full_path() != "/":
+        """
+        Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
+        """
         return redirect(reverse("index"))
     if request.user.is_authenticated:
+        """
+        Annotate each story with whether the logged in user has upvoted it or not.
+        """
         s = (
             Story.objects.all()
             .filter(active=True)
@@ -102,6 +108,9 @@ def index(request, page_num=1):
     try:
         page = paginator.page(page_num)
     except InvalidPage:
+        """
+        page_num is bigger than the actual number of pages
+        """
         return redirect(reverse("index_page", kwargs={"page_num": paginator.num_pages}))
     return render(request, "index.html", {"stories": page})
 
@@ -159,6 +168,8 @@ def edit_profile(request):
 
 @login_required
 def edit_avatar(request):
+    """Convert image to data:image/... in order to save avatars as strings in database."""
+
     def generate_image_thumbnail(blob):
         with Image(blob=blob) as i:
             with i.convert("webp") as page:
