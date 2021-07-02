@@ -29,11 +29,14 @@ class Story(models.Model):
     def __str__(self):
         return f"{self.title}"
 
+    def slugify(self):
+        return slugify(self.title, allow_unicode=True)
+
     def get_absolute_url(self):
 
         return reverse(
             "story",
-            kwargs={"pk": self.pk, "slug": slugify(self.title, allow_unicode=False)},
+            kwargs={"pk": self.pk, "slug": self.slugify()},
         )
 
     def karma(self):

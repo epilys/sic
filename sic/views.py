@@ -48,6 +48,8 @@ def story(request, pk, slug=None):
                 request, messages.ERROR, f"Invalid comment form. Error: {error}"
             )
     else:
+        if slug != s.slugify():
+            return redirect(s.get_absolute_url())
         form = SubmitCommentForm()
     return render(request, "story.html", {"story": s, "comment_form": form})
 
