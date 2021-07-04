@@ -52,10 +52,24 @@ def story(request, pk, slug=None):
             return redirect(s.get_absolute_url())
         form = SubmitCommentForm()
     reply_form = SubmitReplyForm()
+    if request.user.is_authenticated:
+        """
+        Annotate each comment with whether the logged in user has upvoted it or not.
+        """
+        comments = Comment.objects.filter(story=s, parent=None).annotate(
+            upvoted=Exists(request.user.votes.filter(story=s, comment=OuterRef("pk")))
+        )
+    else:
+        comments = Comment.objects.filter(story=s, parent=None)
     return render(
         request,
         "story.html",
-        {"story": s, "comment_form": form, "reply_form": reply_form},
+        {
+            "story": s,
+            "comment_form": form,
+            "reply_form": reply_form,
+            "comments": comments,
+        },
     )
 
 
@@ -95,7 +109,9 @@ def index(request, page_num=1):
             Story.objects.all()
             .filter(active=True)
             .annotate(
-                upvoted=Exists(request.user.votes.all().filter(story=OuterRef("pk")))
+                upvoted=Exists(
+                    request.user.votes.all().filter(story=OuterRef("pk"), comment=None)
+                )
             )
         )
     else:
@@ -204,7 +220,10 @@ def profile(request, username):
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        raise Http404("User does not exist")
+        try:
+            user = User.objects.get(pk=int(username))
+        except:
+            raise Http404("User does not exist")
     return render(request, "profile.html", {"user": user})
 
 
@@ -247,17 +266,24 @@ def submit_story(request):
 
 @login_required
 def upvote_story(request, pk):
-    if request.method == "GET":
+    if request.method == "POST":
         user = request.user
         try:
             s = Story.objects.get(pk=pk)
         except Story.DoesNotExist:
             raise Http404("Story does not exist")
-        vote, created = user.votes.all().get_or_create(story=s, user=user)
-        if not created:
-            vote.delete()
-        if "next" in request.GET:
-            return redirect(request.GET["next"])
+        if s.user.pk == user.pk:
+            messages.add_message(
+                request, messages.ERROR, "You cannot vote on your own posts."
+            )
+        else:
+            vote, created = user.votes.all().get_or_create(
+                story=s, comment=None, user=user
+            )
+            if not created:
+                vote.delete()
+    if "next" in request.GET:
+        return redirect(request.GET["next"])
     return redirect(reverse("index"))
 
 
@@ -362,3 +388,30 @@ def edit_story(request, pk, slug=None):
             }
         )
     return render(request, "submit.html", {"form": form})
+
+
+@login_required
+def upvote_comment(request, story_pk, slug, comment_pk):
+    if request.method == "POST":
+        user = request.user
+        try:
+            s = Story.objects.get(pk=story_pk)
+        except Story.DoesNotExist:
+            raise Http404("Story does not exist")
+        try:
+            c = Comment.objects.get(pk=comment_pk)
+        except Comment.DoesNotExist:
+            raise Http404("Comment does not exist")
+        if c.user.pk == user.pk:
+            messages.add_message(
+                request, messages.ERROR, "You cannot vote on your own posts."
+            )
+        else:
+            vote, created = user.votes.filter(story=s).get_or_create(
+                story=s, comment=c, user=user
+            )
+            if not created:
+                vote.delete()
+    if "next" in request.GET:
+        return redirect(request.GET["next"])
+    return redirect(reverse("index"))

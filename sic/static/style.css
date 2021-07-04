@@ -349,6 +349,12 @@ template {
   display: none;
 }
 
+:root {
+  --message-success-bg: #dfd;
+  --message-warning-bg: #ffc;
+  --message-error-bg: #ffefef;
+}
+
 
 html, body {
   font-family: sans;
@@ -430,7 +436,13 @@ main>ul.posts>li.story .links{
   grid-area: links;
 }
 
-div.votes>div.score {
+.votes {
+  display: inline-block;
+  vertical-align: top;
+  transform: translateY(-45%);
+}
+
+.votes>.score {
   text-align: center;
 }
 
@@ -565,11 +577,11 @@ div#avatar-thumbnail {
   background-size: 1px 1px;
 }
 
-div.votes .upvote:hover, div.votes .upvote.upvoted {
+.votes .upvote:hover, .votes .upvote.upvoted {
     border-bottom-color: #ac130d;
 }
 
-div.votes .upvote, div.votes .flagger {
+.votes .upvote, .votes .flagger {
     border-color: transparent transparent #bbb transparent;
     border-style: solid;
     border-width: 6px;
@@ -698,14 +710,20 @@ ul.posts li {
 }
 
 li.comment + li.comment {
-  border-top: 1px solid black;
   padding-top: 1rem;
+}
+
+li.comment li.comment {
+  border: 2px inset black;
 }
 
 li.comment>details>li.comment {
   border-top: 1px solid black;
-  padding-top: 1rem;
   margin-left: 1rem;
+  border-top: 1px solid #000;
+  margin-left: 1rem;
+  padding: 1rem 1rem 0px 0.5rem;
+  box-sizing: content-box;
 }
 
 #signup-details[open]:after {
@@ -727,3 +745,23 @@ details#signup-details>summary>a {
 article>header {
   margin-bottom: 1rem;
 }
+
+ul.messagelist {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+ul.messagelist li {
+    display: block;
+    background: var(--message-success-bg);
+}
+
+ul.messagelist li.warning {
+    background: var(--message-warning-bg);
+}
+
+ul.messagelist li.error {
+    background: var(--message-error-bg);
+}
+

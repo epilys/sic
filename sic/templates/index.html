@@ -10,7 +10,8 @@
                         <div class="upvote{% if story.upvoted %} upvoted{% endif %}">
                             {% if request.user.is_authenticated %}
                                 <form>
-                                    <input type="submit" formaction="{% url 'upvote_story' story.pk %}?next={{request.get_full_path|urlencode}}" formmethod="GET" value="">
+                                    {% csrf_token %}
+                                    <input type="submit" formaction="{% url 'upvote_story' story.pk %}?next={{request.get_full_path|urlencode}}" formmethod="POST" value="">
                                 </form>
                             {% endif %}
                         </div>

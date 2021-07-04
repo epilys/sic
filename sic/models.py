@@ -43,7 +43,7 @@ class Story(models.Model):
         )
 
     def karma(self):
-        return self.votes.all().count()
+        return self.votes.filter(comment=None).count()
 
     def get_listing_url(self):
         return (
@@ -97,11 +97,14 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.user} {self.created}"
 
+    def karma(self):
+        return self.votes.count()
+
 
 class Tag(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(null=False, blank=False, max_length=20)
-    hex_color = models.CharField(max_length=7, null=True, blank=True)
+    hex_color = models.CharField(max_length=7, null=True, blank=True, default="#fffff")
 
     def __str__(self):
         return f"{self.name}"
@@ -139,6 +142,9 @@ class Vote(models.Model):
     )
     story = models.ForeignKey(
         Story, related_name="votes", on_delete=models.CASCADE, null=False
+    )
+    comment = models.ForeignKey(
+        Comment, related_name="votes", on_delete=models.CASCADE, null=True
     )
     created = models.DateTimeField(auto_now_add=True)
 
@@ -229,12 +235,12 @@ class User(AbstractBaseUser):
         return self.username if self.username else self.email
 
     def karma(self):
-        return Vote.objects.all().filter(story__user=self).count()
+        return Vote.objects.all().filter(story__user=self, comment=None).count()
 
     def get_absolute_url(self):
         return reverse(
             "profile",
-            kwargs={"username": self.username},
+            kwargs={"username": self.username if self.username else self.pk},
         )
 
     def has_perm(self, perm, obj=None):

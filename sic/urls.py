@@ -26,6 +26,11 @@ urlpatterns = [
     path("", index, name="index"),
     path("page/<int:page_num>/", index, name="index_page"),
     path("s/<int:pk>/<slug:slug>/", story, name="story"),
+    path(
+        "s/<int:story_pk>/<slug:slug>/upvote/<int:comment_pk>/",
+        upvote_comment,
+        name="upvote_comment",
+    ),
     path("s/<int:pk>/<slug:slug>/edit", edit_story, name="edit_story"),
     path("u/<str:username>/", profile, name="profile"),
     path("u/<str:username>/posts", profile_posts, name="profile_posts"),

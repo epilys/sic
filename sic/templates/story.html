@@ -23,7 +23,7 @@
         <p>Sign in to post comments.</p>
     {% endif %}
     <ul class="posts">
-        {% for comment in story.comments.all %}
+        {% for comment in comments.all %}
             {% if not comment.parent %}
                 {% include "comment.html" with comment=comment reply_form=reply_form %}
             {% endif %}
