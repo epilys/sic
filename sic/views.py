@@ -52,15 +52,14 @@ def story(request, pk, slug=None):
             return redirect(s.get_absolute_url())
         form = SubmitCommentForm()
     reply_form = SubmitReplyForm()
+    comments = Comment.objects.filter(story=s, parent=None)
     if request.user.is_authenticated:
         """
         Annotate each comment with whether the logged in user has upvoted it or not.
         """
-        comments = Comment.objects.filter(story=s, parent=None).annotate(
+        comments = comments.annotate(
             upvoted=Exists(request.user.votes.filter(story=s, comment=OuterRef("pk")))
         )
-    else:
-        comments = Comment.objects.filter(story=s, parent=None)
     return render(
         request,
         "story.html",
@@ -101,25 +100,16 @@ def index(request, page_num=1):
         Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
         """
         return redirect(reverse("index"))
+    s = Story.objects.filter(active=True)
     if request.user.is_authenticated:
         """
         Annotate each story with whether the logged in user has upvoted it or not.
         """
-        s = (
-            Story.objects.all()
-            .filter(active=True)
-            .annotate(
-                upvoted=Exists(
-                    request.user.votes.all().filter(story=OuterRef("pk"), comment=None)
-                )
+        s = s.annotate(
+            upvoted=Exists(
+                request.user.votes.filter(story=OuterRef("pk"), comment=None)
             )
         )
-    else:
-        s = Story.objects.all().filter(active=True)
-    if not s.exists():
-        if request.get_full_path() != "/":
-            return redirect(reverse("index"))
-        s = Story.objects.none()
     paginator = Paginator(s.order_by("-created", "title"), 10)
     try:
         page = paginator.page(page_num)
@@ -277,9 +267,7 @@ def upvote_story(request, pk):
                 request, messages.ERROR, "You cannot vote on your own posts."
             )
         else:
-            vote, created = user.votes.all().get_or_create(
-                story=s, comment=None, user=user
-            )
+            vote, created = user.votes.get_or_create(story=s, comment=None, user=user)
             if not created:
                 vote.delete()
     if "next" in request.GET:
@@ -294,7 +282,7 @@ def generate_invite(request):
         form = GenerateInviteForm(request.POST)
         if form.is_valid():
             address = form.cleaned_data["email"]
-            invitation, created = user.invited.all().get_or_create(
+            invitation, created = user.invited.get_or_create(
                 inviter=user, address=address
             )
             if created:
