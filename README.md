@@ -6,6 +6,7 @@ Setup:
 cp sic/secret_settings.py{.template,}
 vim sic/secret_settings.py # add secret token
 python3 manage.py migrate #sets up database
+sqlite3 sic.dib < sic.db-dummy_data.sql # OPTIONAL insert dummy data
 python3 manage.py createsuperuser #selfexplanatory
 python3 manage.py runserver # run at 127.0.0.1:8000
 python3 manage.py runserver 8001 # run at 127.0.0.1:8001
