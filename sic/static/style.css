@@ -437,9 +437,9 @@ main>ul.posts>li.story .links{
 }
 
 .votes {
-  display: inline-block;
-  vertical-align: top;
-  transform: translateY(-45%);
+  display: inline-flex;
+  vertical-align: sub;
+  flex-direction: row;
 }
 
 .votes>.score {
@@ -585,13 +585,15 @@ div#avatar-thumbnail {
     border-color: transparent transparent #bbb transparent;
     border-style: solid;
     border-width: 6px;
-    border-bottom-width: 11px;
+    border-bottom-width: 12px;
     text-decoration: none;
     width: 0px;
     height: 0;
     margin-bottom: 0px;
     padding: 0;
-    display: block;
+    display: inline;
+    margin-right: 4px;
+    transform: translateY(-2px);
 }
 
 .avatar-small {
