@@ -1,12 +1,12 @@
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Exists, OuterRef, Value, BooleanField
 from django.core.paginator import Paginator, InvalidPage
-from .models import Story, Comment, User
+from .models import Story, Comment, User, Invitation
 from .forms import *
 
 from wand.image import Image
@@ -137,7 +137,7 @@ def login(request):
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
+            auth_login(request, user)
             return redirect(reverse("index"))
         else:
             messages.add_message(request, messages.ERROR, f"Could not login.")
@@ -415,3 +415,31 @@ def upvote_comment(request, story_pk, slug, comment_pk):
     if "next" in request.GET:
         return redirect(request.GET["next"])
     return redirect(reverse("index"))
+
+
+def accept_invite(request, pk):
+    try:
+        inv = Invitation.objects.get(pk=pk)
+    except Invitation.DoesNotExist:
+        raise Http404("Invitation URL is not valid")
+    if request.user.is_authenticated:
+        messages.add_message(
+            request, messages.ERROR, "You are signed in. Log out first."
+        )
+        return redirect("index")
+    if not inv.is_valid():
+        messages.add_message(request, messages.ERROR, "Invitation has expired.")
+        return redirect("index")
+    if request.method == "GET":
+        form = UserCreationForm()
+    elif request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user)
+            inv.accept(user)
+            messages.add_message(request, messages.SUCCESS, "Welcome")
+            return redirect(reverse("account"))
+    else:
+        return redirect(reverse("index"))
+    return render(request, "signup.html", {"form": form})

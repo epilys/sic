@@ -15,7 +15,7 @@
         <div id="label_for_joined">joined:</div>
         <div id="joined">{{ user.created }}</div>
         <div id="label_for_invited_by">invited by:</div>
-        <div id="invited_by">{{ user.invited_by.inviter }}</div>
+        <div id="invited_by"><a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a></div>
         <div id="label_for_karma">karma:</div>
         <div id="karma">{{ user.karma }}</div>
         <div id="label_for_stories">stories:</div>

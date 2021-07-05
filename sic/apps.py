@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from django.conf import settings
 
 
 class SicAppConfig(AppConfig):
@@ -50,3 +51,7 @@ class SicAppConfig(AppConfig):
 
     # minimum number of submitted stories before checking self promotion
     MIN_STORIES_CHECK_SELF_PROMOTION = 2
+
+    INVITATION_SUBJECT = "Your invitation to sic"
+    INVITATION_BODY = ""
+    INVITATION_FROM = settings.DEFAULT_FROM_EMAIL

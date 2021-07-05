@@ -3,7 +3,11 @@ from django.db.models import Count
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.urls import reverse
 from django.utils.text import slugify
+from django.utils.timezone import make_aware
+from django.core.mail import send_mail
+from .apps import SicAppConfig as config
 import uuid
+from datetime import datetime
 
 
 class Domain(models.Model):
@@ -123,7 +127,7 @@ class Invitation(models.Model):
     inviter = models.ForeignKey(
         "User", related_name="invited", on_delete=models.SET_NULL, null=True
     )
-    receiver = models.ForeignKey(
+    receiver = models.OneToOneField(
         "User",
         related_name="invited_by",
         on_delete=models.SET_NULL,
@@ -133,6 +137,31 @@ class Invitation(models.Model):
     address = models.EmailField(null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True)
     accepted = models.DateTimeField(null=True, blank=True)
+
+    def send(self, request):
+        try:
+            send_mail(
+                config.INVITATION_SUBJECT,
+                f"{config.INVITATION_BODY}\n\n{self.get_absolute_url()}",
+                config.INVITATION_FROM,
+                [self.address],
+                fail_silently=False,
+            )
+        except Exception as error:
+            messages.add_message(
+                request, messages.ERROR, f"Could not send invitation. Error: {error}"
+            )
+
+    def is_valid(self):
+        return self.accepted is None
+
+    def get_absolute_url(self):
+        return reverse("accept_invite", args=[self.id])
+
+    def accept(self, user):
+        self.accepted = make_aware(datetime.now())
+        self.receiver = user
+        self.save()
 
 
 class Vote(models.Model):
