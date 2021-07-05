@@ -18,8 +18,8 @@
                     <nav class="menu">
                         <ul>
                           <li><a href="{% url 'index' %}">Home</a></li>
-                          <li>Recent</li>
-                          <li>Comments</li>
+                          <li><a href="{% url 'recent' %}">Recent</a></li>
+                          <li><a href="{% url 'recent_comments' %}">Comments</a></li>
                           {% if request.user.is_authenticated %}
                           <li><a href="{% url 'submit' %}">Submit story</a></li>
                           {% endif %}

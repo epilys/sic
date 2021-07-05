@@ -15,7 +15,7 @@
                 <span class="score">
                     {{comment.karma}}
                 </span>
-            </span> <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time> | <a href="{{comment.get_absolute_url}}">link</a> | <label class="reply" for="reply-{{comment.pk}}"><a href="">reply</a></label>
+            </span> <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time> | <a href="{{comment.get_absolute_url}}">link</a> | <label class="reply" for="reply-{{comment.pk}}"><a href="">reply</a></label>{% if show_story %} | on <a href="{{ comment.story.get_absolute_url }}">{{ comment.story.title }}</a>{% endif %}
             </span>
             <span class="comment">{{ comment.text }}</span>
             <input class="reply" type="checkbox" id="reply-{{comment.pk}}" name="reply-{{comment.pk}}">

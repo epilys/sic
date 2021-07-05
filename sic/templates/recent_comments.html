@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}sic{% endblock %}
+{% block content %}
+    <ul class="comments">
+        {% for comment in comments %}
+            {% include "comment.html" with comment=comment reply_form=reply_form shallow=True show_story=True %}
+        {% endfor %}
+    </ul>
+    <div class="pagination">
+        <span class="step-links">
+            {% if comments.has_previous %}
+                <a href="{% url 'recent_comments' username=user.username %}">&laquo; first</a>
+                <a href="{% url 'recent_comments_page' username=user.username page_num=comments.previous_page_number %}">&lt; previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ comments.number }}
+            </span>
+
+            {% if comments.has_next %}
+                <a href="{% url 'recent_comments_page' username=user.username page_num=comments.next_page_number %}">next &gt;</a>
+            {% else %}
+                (of {{comments.number}})
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}

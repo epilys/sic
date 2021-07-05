@@ -25,6 +25,10 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", index, name="index"),
     path("page/<int:page_num>/", index, name="index_page"),
+    path("recent", recent, name="recent"),
+    path("recent/page/<int:page_num>/", recent, name="recent_page"),
+    path("comments", recent_comments, name="recent_comments"),
+    path("comments/page/<int:page_num>/", recent_comments, name="recent_comments_page"),
     path("s/<int:pk>/<slug:slug>/", story, name="story"),
     path(
         "s/<int:story_pk>/<slug:slug>/upvote/<int:comment_pk>/",

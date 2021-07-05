@@ -431,3 +431,62 @@ def accept_invite(request, pk):
     else:
         return redirect(reverse("index"))
     return render(request, "signup.html", {"form": form})
+
+
+def recent(request, page_num=1):
+    if page_num == 1 and request.get_full_path() != reverse("recent"):
+        """
+        Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
+        """
+        return redirect(reverse("recent"))
+    s = Story.objects.order_by("-created", "title").filter(active=True)
+    if request.user.is_authenticated:
+        """
+        Annotate each story with whether the logged in user has upvoted it or not.
+        """
+        s = s.annotate(
+            upvoted=Exists(
+                request.user.votes.filter(story=OuterRef("pk"), comment=None)
+            )
+        )
+    paginator = Paginator(s[:40], 10)
+    try:
+        page = paginator.page(page_num)
+    except InvalidPage:
+        """
+        page_num is bigger than the actual number of pages
+        """
+        return redirect(
+            reverse("recent_page", kwargs={"page_num": paginator.num_pages})
+        )
+    return render(request, "index.html", {"stories": page})
+
+
+def recent_comments(request, page_num=1):
+    if page_num == 1 and request.get_full_path() != reverse("recent_comments"):
+        """
+        Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
+        """
+        return redirect(reverse("recent_comments"))
+    comments = Comment.objects.order_by("-created").filter(deleted=False)
+    if request.user.is_authenticated:
+        """
+        Annotate each story with whether the logged in user has upvoted it or not.
+        """
+        comments = comments.annotate(
+            upvoted=Exists(request.user.votes.filter(comment=OuterRef("pk")))
+        )
+    paginator = Paginator(comments[:40], 10)
+    try:
+        page = paginator.page(page_num)
+    except InvalidPage:
+        """
+        page_num is bigger than the actual number of pages
+        """
+        return redirect(
+            reverse("recent_comments_page", kwargs={"page_num": paginator.num_pages})
+        )
+    reply_form = SubmitReplyForm()
+    return render(
+        request, "recent_comments.html", {"comments": page, "reply_form": reply_form}
+    )
