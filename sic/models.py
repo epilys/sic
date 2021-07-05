@@ -8,7 +8,10 @@ from django.core.mail import send_mail
 from .apps import SicAppConfig as config
 import uuid
 from datetime import datetime
+import string
 
+url_decode_translation = str.maketrans(string.ascii_lowercase[:10], string.digits)
+url_encode_translation = str.maketrans(string.digits, string.ascii_lowercase[:10])
 
 class Domain(models.Model):
     id = models.AutoField(primary_key=True)
@@ -100,6 +103,15 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user} {self.created}"
+
+    def get_absolute_url(self):
+        return self.story.get_absolute_url() + f"#{self.slugify()}"
+
+    def slugify(self) -> str:
+        return str(self.id).translate(url_encode_translation)
+
+    def deslugify(slug: str):
+        return int(slug.translate(url_decode_translation))
 
     def karma(self):
         return self.votes.count()
