@@ -125,3 +125,10 @@ LOGOUT_REDIRECT_URL = "/"
 
 if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# Allow local settings overrides
+
+try:
+    from .settings_local import *
+except ImportError:
+    pass
