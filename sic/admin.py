@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.models import Permission
 from django.forms import ModelForm
 from django.forms.widgets import TextInput
 from .models import *
@@ -29,3 +30,9 @@ admin.site.register(Tag, TagAdmin)
 admin.site.register(TagFilter)
 admin.site.register(User)
 admin.site.register(Vote)
+
+@admin.register(Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('content_type')

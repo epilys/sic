@@ -58,7 +58,7 @@ urlpatterns = [
         auth_views.LoginView.as_view(template_name="login.html"),
         name="password_reset",
     ),
-    path("accounts/", account, name="account"),
+    path("accounts/", view_account, name="account"),
     path("accounts/profile/edit", edit_profile, name="edit_profile"),
     path("accounts/profile/avatar", edit_avatar, name="edit_avatar"),
     path("accounts/inbox/", inbox, name="inbox"),
