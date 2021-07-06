@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}sic{% endblock %}
+{% block content %}
+{% spaceless %}
+<ul class="tags">
+  {% for tag in tags %}
+  <li style="--tag-color: {{ tag.hex_color }};">{{ tag.name }} {{ tag.stories.count }}</li>
+  {% endfor %}
+</ul>
+{% endspaceless %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if tags.has_previous %}
+                <a href="{% url 'browse_tags' %}">&laquo; first</a>
+                <a href="{% url 'browse_tags_page' page_num=tags.previous_page_number %}">&lt; previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ tags.number }}
+            </span>
+
+            {% if tags.has_next %}
+                <a href="{% url 'browse_tags_page' username=user.username page_num=tags.next_page_number %}">next &gt;</a>
+            {% else %}
+                (of {{tags.number}})
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}

@@ -18,6 +18,7 @@ def form_errors_as_string(errors):
 
 
 from .account import *
+from .tags import *
 
 
 def story(request, story_pk, slug=None):

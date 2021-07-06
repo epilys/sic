@@ -46,6 +46,8 @@ urlpatterns = [
     path("submit/", submit_story, name="submit"),
     path("reply/<int:comment_pk>", reply, name="reply"),
     path("upvote/<int:story_pk>/", upvote_story, name="upvote_story"),
+    path("tags/", browse_tags, name="browse_tags"),
+    path("tags/page/<int:page_num>/", browse_tags, name="browse_tags_page"),
     path("accounts/invitations/new", generate_invite, name="generate_invite"),
     path(
         "accounts/login/",

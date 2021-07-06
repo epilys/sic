@@ -16,7 +16,7 @@ class TagForm(ModelForm):
 
 class TagAdmin(admin.ModelAdmin):
     form = TagForm
-    fieldsets = ((None, {"fields": ("name", "hex_color")}),)
+    fieldsets = ((None, {"fields": ("name", "hex_color", "parents")}),)
 
 
 admin.site.register(Comment)

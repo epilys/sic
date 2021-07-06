@@ -35,7 +35,7 @@ class Story(models.Model):
     )
     active = models.BooleanField(default=True, null=False)
     user_is_author = models.BooleanField(default=False, null=False)
-    tags = models.ManyToManyField("Tag", blank=True)
+    tags = models.ManyToManyField("Tag", related_name="stories", blank=True)
 
     def __str__(self):
         return f"{self.title}"
@@ -123,6 +123,8 @@ class Tag(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(null=False, blank=False, max_length=20)
     hex_color = models.CharField(max_length=7, null=True, blank=True, default="#fffff")
+    created = models.DateTimeField(auto_now_add=True)
+    parents = models.ManyToManyField("Tag", blank=True)
 
     def __str__(self):
         return f"{self.name}"

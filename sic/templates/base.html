@@ -21,6 +21,7 @@
                           <li><a href="{% url 'index' %}">Home</a></li>
                           <li><a href="{% url 'recent' %}">Recent</a></li>
                           <li><a href="{% url 'recent_comments' %}">Comments</a></li>
+                          <li><a href="{% url 'browse_tags' %}">Tags</a></li>
                           {% if request.user.is_authenticated %}
                           <li><a href="{% url 'submit' %}">Submit story</a></li>
                           {% endif %}
