@@ -32,11 +32,16 @@ def login(request):
 
 @login_required
 def view_account(request):
+    user = request.user
     generate_invite_form = GenerateInviteForm()
+    hats = None
+    can_add_hats = user.has_perm('sic.add_hat')
+    if can_add_hats:
+        hats = user.hats.all()
     return render(
         request,
         "account.html",
-        {"user": request.user, "generate_invite_form": generate_invite_form},
+        {"user": request.user, "generate_invite_form": generate_invite_form, "can_add_hats": can_add_hats, "hats": hats},
     )
 
 

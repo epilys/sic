@@ -1,8 +1,12 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import string
 import uuid
 from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django.contrib.auth.models import (
+    BaseUserManager,
+    AbstractBaseUser,
+    PermissionsMixin,
+)
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.text import slugify
@@ -201,6 +205,9 @@ class Moderation(models.Model):
 class Hat(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(null=False, blank=False, max_length=30)
+    user = models.ForeignKey(
+        "User", related_name="hats", on_delete=models.CASCADE, null=False
+    )
 
 
 class UserManager(BaseUserManager):
@@ -234,7 +241,7 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractBaseUser):
+class User(PermissionsMixin, AbstractBaseUser):
     id = models.AutoField(primary_key=True)
     username = models.CharField(null=True, blank=True, unique=True, max_length=100)
     email = models.EmailField(
@@ -288,15 +295,10 @@ class User(AbstractBaseUser):
             kwargs={"username": self.username if self.username else self.pk},
         )
 
-    def has_perm(self, perm, obj=None):
-        "Does the user have a specific permission?"
-        # Simplest possible answer: Yes, always
-        return True
-
-    def has_module_perms(self, app_label):
-        "Does the user have permissions to view the app `app_label`?"
-        # Simplest possible answer: Yes, always
-        return True
+    def is_new_user(self):
+        return (make_aware(datetime.now()) - self.created) < timedelta(
+            days=config.NEW_USER_DAYS
+        ) and not self.is_staff
 
     @property
     def is_staff(self):

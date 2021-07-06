@@ -1,47 +1,65 @@
 {% extends "base.html" %}
 {% block title %}sic{% endblock %}
 {% block content %}
-<div style="grid-row: 1/ span 1;">
-<a href="{% url 'edit_profile' %}">edit profile</a>
-<a href="{{ user.get_absolute_url }}">view profile</a>
-</div>
-<div class="profile">
-  <label for="username">username:</label>
-  <div id="username">{{ user.username }}</div>
-  <label for="homepage">homepage:</label>
-  <div id="homepage">{{ user.homepage }}</div>
-  <label for="git-repository">git repository:</label>
-  <div id="git-repository"></div>
-  <label for="about">about:</label>
-  <div id="about"></div>
-  <label for="status">status:</label>
-  <div id="status">active</div>
-  <label for="joined">joined:</label>
-  <div id="joined">{{ user.created }}</div>
-  <label for="karma">karma:</label>
-  <div id="karma">{{ user.karma }}</div>
-  <label for="stories">stories:</label>
-  <div id="stories">{{ user.stories.count }}</div>
-  <label for="comments">comments:</label>
-  <div id="comments">{{ user.comments.count }}</div>
-  <div id="avatar">{% if user.avatar %}<div id="avatar-thumbnail" style="background-image: url({{user.avatar}});"><img src="{{ user.avatar }}"></div>{% else %}None.{%endif %}<a href="{% url 'edit_avatar' %}">edit avatar</a></div>
-</div>
-<div class="invites">
-  <div class="invite_tree">
-    <h2>Invitation tree</h2>
-    {% for inv in user.invited.all %}
-    <p title="{{ inv.id }}">{{ inv.created }} - {{ inv.address }} - {% if inv.accepted %}<span class="accepted">accepted</span>{% else %}no answer yet{% endif %}</p>
-    {% empty %}
-    You haven't invited anyone yet.
-    {% endfor %}
-  </div>
-  <div class="generate_an_invite">
-    <h2>Invite a new user</h2>
-    <form method="POST" action="{% url 'generate_invite' %}?next={{request.get_full_path|urlencode}}">
-      {% csrf_token %}
-      {{ generate_invite_form }}
-      <input type="submit" value="generate">
-    </form>
-  </div>
-</div>
+    <div style="grid-row: 1/ span 1;">
+        <a href="{% url 'edit_profile' %}">edit profile</a>
+        <a href="{{ user.get_absolute_url }}">view profile</a>
+    </div>
+    <div class="profile">
+        <label for="username">username:</label>
+        <div id="username">{{ user.username }}</div>
+        <label for="homepage">homepage:</label>
+        <div id="homepage">{{ user.homepage }}</div>
+        <label for="git-repository">git repository:</label>
+        <div id="git-repository"></div>
+        <label for="about">about:</label>
+        <div id="about"></div>
+        <label for="status">status:</label>
+        <div id="status">active</div>
+        <label for="joined">joined:</label>
+        <div id="joined">{{ user.created }}</div>
+        <label for="karma">karma:</label>
+        <div id="karma">{{ user.karma }}</div>
+        <label for="stories">stories:</label>
+        <div id="stories">{{ user.stories.count }}</div>
+        <label for="comments">comments:</label>
+        <div id="comments">{{ user.comments.count }}</div>
+        <div id="avatar">{% if user.avatar %}<div id="avatar-thumbnail" style="background-image: url({{user.avatar}});"><img src="{{ user.avatar }}"></div>{% else %}None.{%endif %}<a href="{% url 'edit_avatar' %}">edit avatar</a></div>
+    </div>
+    <div class="invites">
+        <div class="invite_tree">
+            <h2>Invitation tree</h2>
+            {% for inv in user.invited.all %}
+                <p title="{{ inv.id }}">{{ inv.created }} - {{ inv.address }} - {% if inv.accepted %}<span class="accepted">accepted</span>{% else %}no answer yet{% endif %}</p>
+            {% empty %}
+                You haven't invited anyone yet.
+            {% endfor %}
+        </div>
+        <div class="generate_an_invite">
+            <h2>Invite a new user</h2>
+            <form method="POST" action="{% url 'generate_invite' %}?next={{request.get_full_path|urlencode}}">
+                {% csrf_token %}
+                {{ generate_invite_form }}
+                <input type="submit" value="generate">
+            </form>
+        </div>
+        <div class="hats">
+            <h2>Hats</h2>
+            {% if can_add_hats %}
+                <ul>
+                    {% for hat in hats %}
+                        <li>{{ hat.name }}</li>
+                    {% empty %}
+                        <li>You have no hats.</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                {% if user.is_new_user %}
+                    <p>New accounts can't create hats.</p>
+                {% else %}
+                    <p>Your karma is too low, so you cannot create or use hats.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

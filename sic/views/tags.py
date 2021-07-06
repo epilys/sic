@@ -7,6 +7,7 @@ from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
 from ..models import Tag
 
+
 def browse_tags(request, page_num=1):
     if page_num == 1 and request.get_full_path() != reverse("browse_tags"):
         return redirect(reverse("browse_tags"))
@@ -27,4 +28,3 @@ def browse_tags(request, page_num=1):
         "browse_tags.html",
         {"tags": page},
     )
-
