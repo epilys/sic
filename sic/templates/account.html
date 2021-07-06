@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load utils %}
 {% block title %}sic{% endblock %}
 {% block content %}
     <div style="grid-row: 1/ span 1;">
@@ -37,7 +38,7 @@
         </div>
         <div class="generate_an_invite">
             <h2>Invite a new user</h2>
-            <form method="POST" action="{% url 'generate_invite' %}?next={{request.get_full_path|urlencode}}">
+            <form method="POST" action="{% url_with_next 'generate_invite' request %}">
                 {% csrf_token %}
                 {{ generate_invite_form }}
                 <input type="submit" value="generate">

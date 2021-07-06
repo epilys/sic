@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load utils %}
 {% block title %}sic{% endblock %}
 {% block content %}
     <ul class="posts">
@@ -11,7 +12,7 @@
                             <div class="upvote{% if post.upvoted %} upvoted{% endif %}">
                                 {% if request.user.is_authenticated %}
                                     <form>
-                                        <input type="submit" formaction="{% url 'upvote_story' post.pk %}?next={{request.get_full_path|urlencode}}" formmethod="GET" value="">
+                                        <input type="submit" formaction="{% url_with_next 'upvote_story' post.pk request %}" formmethod="GET" value="">
                                     </form>
                                 {% endif %}
                             </div>

@@ -1,10 +1,11 @@
 {% load humanize %}
+{% load utils %}
 
 <li class="comment" id="{{comment.slugify}}">
     <span class="links"><span class="votes">
         <span class="upvote{% if comment.upvoted %} upvoted{% endif %}">
             {% if request.user.is_authenticated %}
-                <form action="{% url 'upvote_comment' comment.story.pk None comment.pk %}?next={{request.get_full_path|urlencode}}" method="POST">
+                <form action="{% url_with_next 'upvote_comment' comment.story.pk None comment.pk request %}" method="POST">
                     {% csrf_token %}
                     <input type="submit" title="upvote comment" value="">
                 </form>
