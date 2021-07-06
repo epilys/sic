@@ -2,7 +2,7 @@
 {% load humanize %}
 {% block title %}sic{% endblock %}
 {% block content %}
-    <ul class="comments">
+    <ul class="posts">
         {% for comment in comments %}
             {% include "comment.html" with comment=comment reply_form=reply_form shallow=True show_story=True %}
         {% endfor %}

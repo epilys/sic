@@ -1,22 +1,22 @@
 {% load humanize %}
 
 <li class="comment" id="{{comment.slugify}}">
+    <span class="links"><span class="votes">
+        <span class="upvote{% if comment.upvoted %} upvoted{% endif %}">
+            {% if request.user.is_authenticated %}
+                <form action="{% url 'upvote_comment' comment.story.pk None comment.pk %}?next={{request.get_full_path|urlencode}}" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" title="upvote comment" value="">
+                </form>
+            {% endif %}
+        </span>
+        <span class="score">
+            {{comment.karma}}
+        </span>
+    </span> <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time> | <a href="{{comment.get_absolute_url}}">link</a> | <label class="reply" for="reply-{{comment.pk}}"><a href="">reply</a></label>{% if show_story %} | on <a href="{{ comment.story.get_absolute_url }}">{{ comment.story.title }}</a>{% endif %}
+    </span>
     <details class="comment{% if not comment.replies.exists %} no-children{% endif %}" open="open">
         <summary>
-            <span class="links"><span class="votes">
-                <span class="upvote{% if comment.upvoted %} upvoted{% endif %}">
-                    {% if request.user.is_authenticated %}
-                        <form action="{% url 'upvote_comment' comment.story.pk None comment.pk %}?next={{request.get_full_path|urlencode}}" method="POST">
-                            {% csrf_token %}
-                            <input type="submit" title="upvote comment" value="">
-                        </form>
-                    {% endif %}
-                </span>
-                <span class="score">
-                    {{comment.karma}}
-                </span>
-            </span> <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time> | <a href="{{comment.get_absolute_url}}">link</a> | <label class="reply" for="reply-{{comment.pk}}"><a href="">reply</a></label>{% if show_story %} | on <a href="{{ comment.story.get_absolute_url }}">{{ comment.story.title }}</a>{% endif %}
-            </span>
             <span class="comment">{{ comment.text }}</span>
             {% if request.user.is_authenticated %}
                 <input class="reply" type="checkbox" id="reply-{{comment.pk}}" name="reply-{{comment.pk}}">

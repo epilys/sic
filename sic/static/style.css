@@ -418,7 +418,6 @@ main>ul.posts li + li {
 main>ul.posts>li.story{
  display: inline-grid;
  width: 100%;
- padding: 0;
  grid-template-areas: "votes title" "votes links";
  grid-template-columns: auto 1fr;
  grid-template-rows: 1fr 1fr;
@@ -647,7 +646,7 @@ input[type="checkbox"]:checked ~ form.reply-form:first-of-type {
   display: flex;
   flex-direction: column;
   row-gap: 1rem;
-  width: 66ch;
+  max-width: 66ch;
 }
 
 details.comment>summary>* {
@@ -660,11 +659,11 @@ details.comment:not([open])>summary>span.comment {
   -webkit-box-orient: vertical;
   overflow: hidden;
   width: 30ch;
-  margin: 0;
+  margin: 2rem 0 0 0;
 }
 
 details.comment[open]>summary>span.comment {
-  width: 66ch;
+  max-width: 66ch;
   text-align: justify;
   text-indent: 1rem;
   display: block;
@@ -675,18 +674,25 @@ details[open].comment>summary:before {
   content: '[-]';
   padding: 2px; /* increase hit area*/
   cursor: pointer;
+  font-family: monospace;
 }
 
 details.comment>summary:before {
   content: '[+]';
   padding: 2px; /* increase hit area*/
   cursor: pointer;
+  font-family: monospace;
 }
 
 details.reply>summary, details.comment>summary, details#signup-details>summary {
   display: block;
+}
+
+details.reply[open]>summary, details.comment[open]>summary, details#signup-details[open]>summary {
+  display: block;
   padding-bottom: 1rem;
 }
+
 
 ul.tags {
   list-style: none;
@@ -711,12 +717,14 @@ ul.posts li {
   list-style: none;
 }
 
-li.comment + li.comment {
+ul.posts li + li {
   padding-top: 1rem;
+  border-top: 1px solid;
 }
 
 li.comment li.comment {
-  border: 2px inset black;
+  border-left: 1px dotted gray;
+  padding-left: 8px;
 }
 
 li.comment>details>li.comment {
@@ -726,6 +734,11 @@ li.comment>details>li.comment {
   margin-left: 1rem;
   padding: 1rem 1rem 0px 0.5rem;
   box-sizing: content-box;
+}
+
+li.comment>span.links {
+  position: absolute;
+  margin-left: 2.1rem;
 }
 
 #signup-details[open]:after {
