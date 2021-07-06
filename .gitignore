@@ -1,4 +1,5 @@
 sic/secret_settings.py
+sic/settings_local.py
 *.log
 *.pot
 *.pyc
@@ -17,3 +18,5 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+sic.db
+.vscode
