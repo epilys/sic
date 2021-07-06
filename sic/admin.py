@@ -31,8 +31,9 @@ admin.site.register(TagFilter)
 admin.site.register(User)
 admin.site.register(Vote)
 
+
 @admin.register(Permission)
 class PermissionAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.select_related('content_type')
+        return qs.select_related("content_type")

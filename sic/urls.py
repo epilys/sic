@@ -29,13 +29,13 @@ urlpatterns = [
     path("recent/page/<int:page_num>/", recent, name="recent_page"),
     path("comments", recent_comments, name="recent_comments"),
     path("comments/page/<int:page_num>/", recent_comments, name="recent_comments_page"),
-    path("s/<int:pk>/<slug:slug>/", story, name="story"),
+    path("s/<int:story_pk>/<slug:slug>/", story, name="story"),
     path(
         "s/<int:story_pk>/<slug:slug>/upvote/<int:comment_pk>/",
         upvote_comment,
         name="upvote_comment",
     ),
-    path("s/<int:pk>/<slug:slug>/edit", edit_story, name="edit_story"),
+    path("s/<int:story_pk>/<slug:slug>/edit", edit_story, name="edit_story"),
     path("u/<str:username>/", profile, name="profile"),
     path("u/<str:username>/posts", profile_posts, name="profile_posts"),
     path(
@@ -45,7 +45,7 @@ urlpatterns = [
     ),
     path("submit/", submit_story, name="submit"),
     path("reply/<int:comment_pk>", reply, name="reply"),
-    path("upvote/<int:pk>/", upvote_story, name="upvote_story"),
+    path("upvote/<int:story_pk>/", upvote_story, name="upvote_story"),
     path("accounts/invitations/new", generate_invite, name="generate_invite"),
     path(
         "accounts/login/",
@@ -62,7 +62,7 @@ urlpatterns = [
     path("accounts/profile/edit", edit_profile, name="edit_profile"),
     path("accounts/profile/avatar", edit_avatar, name="edit_avatar"),
     path("accounts/inbox/", inbox, name="inbox"),
-    path("accounts/invitation/<uuid:pk>", accept_invite, name="accept_invite"),
+    path("accounts/invitation/<uuid:invite_pk>", accept_invite, name="accept_invite"),
     path("feeds/latest.rss", LatestStoriesRss(), name="latest_stories_rss"),
     path("feeds/latest.atom", LatestStoriesAtom(), name="latest_stories_atom"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

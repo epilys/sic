@@ -1,17 +1,18 @@
+from datetime import datetime
+import string
+import uuid
 from django.db import models
-from django.db.models import Count
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django.contrib import messages
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.core.mail import send_mail
 from .apps import SicAppConfig as config
-import uuid
-from datetime import datetime
-import string
 
 url_decode_translation = str.maketrans(string.ascii_lowercase[:10], string.digits)
 url_encode_translation = str.maketrans(string.digits, string.ascii_lowercase[:10])
+
 
 class Domain(models.Model):
     id = models.AutoField(primary_key=True)
@@ -46,7 +47,7 @@ class Story(models.Model):
 
         return reverse(
             "story",
-            kwargs={"pk": self.pk, "slug": self.slugify()},
+            kwargs={"story_pk": self.pk, "slug": self.slugify()},
         )
 
     def karma(self):
@@ -110,6 +111,7 @@ class Comment(models.Model):
     def slugify(self) -> str:
         return str(self.id).translate(url_encode_translation)
 
+    @staticmethod
     def deslugify(slug: str):
         return int(slug.translate(url_decode_translation))
 

@@ -1,8 +1,4 @@
 from django import forms
-from django.forms import formset_factory, ModelForm
-from django.forms import modelformset_factory
-from django.forms import BaseFormSet
-from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
 from .apps import SicAppConfig as config
 from .models import Tag, User
@@ -73,15 +69,15 @@ class UserCreationForm(forms.Form):
             return username
         if username in config.BANNED_USERNAMES:
             raise ValidationError("Username not allowed")
-        r = User.objects.filter(username__iexact=username)
-        if r.count():
+        exists = User.objects.filter(username__iexact=username)
+        if exists.count():
             raise ValidationError("Username already exists")
         return username
 
     def clean_email(self):
         email = self.cleaned_data["email"]
-        r = User.objects.filter(email__iexact=email)
-        if r.count():
+        exists = User.objects.filter(email__iexact=email)
+        if exists.count():
             raise ValidationError("Email already exists")
         return email
 

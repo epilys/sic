@@ -23,6 +23,14 @@ Commit subjects *should* be written in imperative mood for consistency and clari
 
 ### Running validators / formatters
 
+#### python, `pylint`
+
+Uses [`.pylintrc`](.pylintrc).
+
+```shell
+pylint -E  sic/*py sic/views/*py
+```
+
 #### python, `black`
 
 ```shell
