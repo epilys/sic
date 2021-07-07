@@ -21,7 +21,7 @@
             </span>
 
             {% if tags.has_next %}
-                <a href="{% url 'browse_tags_page' username=user.username page_num=tags.next_page_number %}">next &gt;</a>
+                <a href="{% url 'browse_tags_page' page_num=tags.next_page_number %}">next &gt;</a>
             {% else %}
                 (of {{tags.number}})
             {% endif %}
