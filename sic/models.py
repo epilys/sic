@@ -32,6 +32,7 @@ class Story(models.Model):
     description = models.TextField(null=True, blank=True)
     url = models.URLField(null=True)
     created = models.DateTimeField(auto_now_add=True)
+    publish_date = models.DateField(null=True, blank=True)
 
     domain = models.ForeignKey(Domain, on_delete=models.SET_NULL, null=True, blank=True)
     merged_into = models.ForeignKey(
