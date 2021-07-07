@@ -52,3 +52,17 @@ def url_with_next(parser, token):
         ),
         request,
     )
+
+
+@register.simple_tag
+def story_is_bookmarked(user, story):
+    if not user.is_authenticated:
+        return False
+    return user.saved_stories.filter(pk=story.pk).exists()
+
+
+@register.simple_tag
+def comment_is_bookmarked(user, comment):
+    if not user.is_authenticated:
+        return False
+    return user.saved_comments.filter(pk=comment.pk).exists()

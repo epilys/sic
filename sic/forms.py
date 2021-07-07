@@ -5,9 +5,13 @@ from .models import Tag, User
 
 
 class SubmitStoryForm(forms.Form):
+    required_css_class = "required"
     title = forms.CharField(label="Story title", required=True, max_length=100)
     description = forms.CharField(required=False)
     url = forms.URLField(required=False)
+    publish_date = forms.DateField(
+        required=False, widget=forms.DateInput(attrs={"type": "date"})
+    )
     user_is_author = forms.BooleanField(
         label="Author",
         required=False,
@@ -99,3 +103,10 @@ class UserCreationForm(forms.Form):
             user.username = username
             user.save()
         return user
+
+
+class AnnotationForm(forms.Form):
+    text = forms.CharField(
+        required=True, label="Annotation", max_length=500, widget=forms.Textarea
+    )
+    text.widget.attrs.update({"rows": 3, "placeholder": ""})

@@ -126,10 +126,12 @@ def submit_story(request):
             title = form.cleaned_data["title"]
             description = form.cleaned_data["description"]
             url = form.cleaned_data["url"]
+            publish_date = form.cleaned_data["publish_date"]
             user_is_author = form.cleaned_data["user_is_author"]
             new_story = Story.objects.create(
                 title=title,
                 url=url,
+                publish_date=publish_date,
                 description=description,
                 user=user,
                 user_is_author=user_is_author,

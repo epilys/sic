@@ -46,6 +46,7 @@ urlpatterns = [
     path("submit/", submit_story, name="submit"),
     path("reply/<int:comment_pk>", reply, name="reply"),
     path("upvote/<int:story_pk>/", upvote_story, name="upvote_story"),
+    path("save/<int:story_pk>/", save_story, name="save_story"),
     path("tags/", browse_tags, name="browse_tags"),
     path("tags/page/<int:page_num>/", browse_tags, name="browse_tags_page"),
     path("accounts/invitations/new", generate_invite, name="generate_invite"),
@@ -61,6 +62,13 @@ urlpatterns = [
         name="password_reset",
     ),
     path("accounts/", view_account, name="account"),
+    path("accounts/bookmarks", saved_posts, name="saved_posts"),
+    path(
+        "accounts/bookmarks/page/<int:page_num>/", saved_posts, name="saved_posts_page"
+    ),
+    path(
+        "accounts/bookmarks/edit/<int:bookmark_pk>", edit_bookmark, name="edit_bookmark"
+    ),
     path("accounts/profile/edit", edit_profile, name="edit_profile"),
     path("accounts/profile/avatar", edit_avatar, name="edit_avatar"),
     path("accounts/inbox/", inbox, name="inbox"),
