@@ -99,3 +99,10 @@ class UserCreationForm(forms.Form):
             user.username = username
             user.save()
         return user
+
+
+class AnnotationForm(forms.Form):
+    text = forms.CharField(
+        required=True, label="Annotation", max_length=500, widget=forms.Textarea
+    )
+    text.widget.attrs.update({"rows": 3, "placeholder": ""})

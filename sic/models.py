@@ -278,6 +278,21 @@ class User(PermissionsMixin, AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     is_moderator = models.BooleanField(default=False)
 
+    saved_comments = models.ManyToManyField(
+        Comment,
+        through="CommentBookmark",
+        related_name="saved_by",
+        through_fields=("user", "comment"),
+        blank=True,
+    )
+    saved_stories = models.ManyToManyField(
+        Story,
+        through="StoryBookmark",
+        related_name="saved_by",
+        through_fields=("user", "story"),
+        blank=True,
+    )
+
     objects = UserManager()
 
     USERNAME_FIELD = "email"
@@ -305,3 +320,28 @@ class User(PermissionsMixin, AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+
+class CommentBookmark(models.Model):
+    id = models.AutoField(primary_key=True)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    annotation = models.TextField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ["comment", "user"]
+
+
+class StoryBookmark(models.Model):
+    id = models.AutoField(primary_key=True)
+    story = models.ForeignKey(Story, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    annotation = models.TextField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ["story", "user"]
+
+    def __str__(self):
+        return f"{self.id} {self.story} {self.user} {self.created}"

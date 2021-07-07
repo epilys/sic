@@ -7,13 +7,14 @@ from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
 from wand.image import Image
-from ..models import User, Invitation
+from ..models import User, Invitation, Story, StoryBookmark
 from ..forms import (
     GenerateInviteForm,
     EditProfileForm,
     EditAvatarForm,
     SubmitReplyForm,
     UserCreationForm,
+    AnnotationForm,
 )
 from . import form_errors_as_string
 
@@ -208,3 +209,70 @@ def accept_invite(request, invite_pk):
     else:
         return redirect(reverse("index"))
     return render(request, "signup.html", {"form": form})
+
+@login_required
+def save_story(request, story_pk):
+    if request.method == "GET":
+        user = request.user
+        try:
+            story_obj = Story.objects.get(pk=story_pk)
+        except Story.DoesNotExist:
+            raise Http404("Story does not exist") from Story.DoesNotExist
+        if user.saved_stories.filter(pk=story_obj.pk).exists():
+            user.saved_stories.remove(story_obj)
+        else:
+            user.saved_stories.add(story_obj, through_defaults=None)
+        print(StoryBookmark.objects.all())
+    if "next" in request.GET:
+        return redirect(request.GET["next"])
+    return redirect(reverse("index"))
+
+
+@login_required
+def saved_posts(request, page_num=1):
+    if page_num == 1 and request.get_full_path() != reverse("saved_posts"):
+        return redirect(reverse("saved_posts"))
+    user = request.user
+    story_obj = list(
+        user.saved_stories.through.objects.filter(story__active=True)
+        .annotate(is_story=Value("True", output_field=BooleanField()))
+        .select_related("story")
+        .order_by("-created", "story__title")
+    ) + list(
+        user.saved_comments.through.objects.filter(comment__deleted=False)
+        .annotate(is_story=Value("False", output_field=BooleanField()))
+        .order_by("-created")
+        .select_related("comment")
+    )
+    story_obj = sorted(story_obj, key=lambda x: x.created, reverse=True)
+    paginator = Paginator(story_obj, 10)
+    try:
+        page = paginator.page(page_num)
+    except InvalidPage:
+        # page_num BooleanFieldis bigger than the actual number of pages
+        return redirect(
+            reverse(
+                "saved_posts_page",
+                kwargs={"page_num": paginator.num_pages},
+            )
+        )
+    return render(
+        request,
+        "saved_posts.html",
+        {"bookmarks": page, "reply_form": SubmitReplyForm(), "user": user},
+    )
+
+@login_required
+def edit_bookmark(request, bookmark_pk):
+    """
+    if request.method == "POST":
+        annotation_form = AnnotationForm(request.POST)
+        if annotation_form.is_valid():
+            pk = request.POST["bookmark_pk"]
+            print(pk)
+    else:
+        annotation_form = AnnotationForm()
+"annotation_form": annotation_form,
+    """
+
+    pass

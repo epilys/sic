@@ -5,6 +5,7 @@
     <div style="grid-row: 1/ span 1;">
         <a href="{% url 'edit_profile' %}">edit profile</a>
         <a href="{{ user.get_absolute_url }}">view profile</a>
+        <a href="{% url 'saved_posts' %}">saved posts</a>
     </div>
     <div class="profile">
         <label for="username">username:</label>
@@ -44,23 +45,23 @@
                 <input type="submit" value="generate">
             </form>
         </div>
-        <div class="hats">
-            <h2>Hats</h2>
-            {% if can_add_hats %}
-                <ul>
-                    {% for hat in hats %}
-                        <li>{{ hat.name }}</li>
-                    {% empty %}
-                        <li>You have no hats.</li>
-                    {% endfor %}
-                </ul>
+    </div>
+    <div class="hats">
+        <h2>Hats</h2>
+        {% if can_add_hats %}
+            <ul>
+                {% for hat in hats %}
+                    <li>{{ hat.name }}</li>
+                {% empty %}
+                    <li>You have no hats.</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            {% if user.is_new_user %}
+                <p>New accounts can't create hats.</p>
             {% else %}
-                {% if user.is_new_user %}
-                    <p>New accounts can't create hats.</p>
-                {% else %}
-                    <p>Your karma is too low, so you cannot create or use hats.</p>
-                {% endif %}
+                <p>Your karma is too low, so you cannot create or use hats.</p>
             {% endif %}
-        </div>
+        {% endif %}
     </div>
 {% endblock %}

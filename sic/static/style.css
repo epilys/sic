@@ -719,7 +719,7 @@ ul.posts li {
 
 ul.posts li + li {
   padding-top: 1rem;
-  border-top: 1px solid;
+  border-top: 1px solid cadetblue;
 }
 
 li.comment li.comment {
