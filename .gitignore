@@ -20,3 +20,4 @@ env.bak/
 venv.bak/
 sic.db
 .vscode
+sic.egg-info/
