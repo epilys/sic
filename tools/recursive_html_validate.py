@@ -45,6 +45,8 @@ def scrape(
     password,
     vnu_jar_bin="vnu.jar",
     root_url="127.0.0.1:8002",
+    page=None,
+    depth=-1,
     _login=True,
     check_xml=False,
 ):
@@ -165,7 +167,9 @@ def scrape(
         }
         contents = make_post(AUTHENTICATION_URL, login_data)
 
-    def rec_scrape(site):
+    def rec_scrape(site, depth):
+        if depth == 0:
+            return
         try:
             r = make_get(site)
         except Exception as exc:
@@ -188,17 +192,21 @@ def scrape(
                 site = href
                 if site not in urls and not site.startswith("http"):
                     urls.append(site)
-                    rec_scrape(site)
+                    rec_scrape(site, depth - 1)
         return True
 
     if _login:
         login()
-    rec_scrape("/")
+    if page is None:
+        page = "/"
+    rec_scrape(page, depth)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("url", type=str, help="")
+    parser.add_argument("--page", type=str, help="", required=False, default=None)
+    parser.add_argument("--depth", type=int, help="", required=False, default=-1)
     parser.add_argument(
         "--login",
         action="store_true",
@@ -222,6 +230,8 @@ if __name__ == "__main__":
         args.password,
         vnu_jar_bin=args.vnu_jar_bin,
         root_url=args.url,
+        page=args.page,
+        depth=args.depth,
         _login=args.login,
         check_xml=args.check_xml,
     )
