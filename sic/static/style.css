@@ -381,6 +381,9 @@ main {
   width: 100%;
   height: 100%;
 }
+body>main>hr {
+  width: 100%;
+}
 
 body>header {
   margin-top: 2rem;
@@ -790,6 +793,8 @@ ul.messagelist {
 ul.messagelist li {
     display: block;
     background: var(--message-success-bg);
+    padding: .5rem 1rem;
+    outline: 4px solid #dddddd30;
 }
 
 ul.messagelist li.warning {
@@ -800,3 +805,26 @@ ul.messagelist li.error {
     background: var(--message-error-bg);
 }
 
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+}
+
+table {
+  width: max-content;
+}
+
+table,
+td {
+    border: 1px solid #333;
+}
+
+th, td {
+  padding: 2px 5px;
+}
+
+thead,
+tfoot {
+    background-color: #333;
+    color: #fff;
+}

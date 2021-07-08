@@ -153,7 +153,7 @@ class Tag(models.Model):
     name = models.CharField(null=False, blank=False, max_length=40, unique=True)
     hex_color = models.CharField(max_length=7, null=True, blank=True, default="#fffff")
     created = models.DateTimeField(auto_now_add=True)
-    parents = models.ManyToManyField("Tag", blank=True)
+    parents = models.ManyToManyField("Tag", related_name="children", blank=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -162,6 +162,63 @@ class Tag(models.Model):
         h = self.hex_color.lstrip("#")
         r, g, b = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
         return f"--red: {r}; --green:{g}; --blue:{b};"
+
+    def get_stories(self):
+        return self.stories.all().union(
+            *list(map(lambda t: t.get_stories(), self.children.all()))
+        )
+
+
+class Taggregation(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(null=False, blank=False, max_length=20)
+    description = models.TextField(null=True, blank=True)
+    creator = models.ForeignKey(
+        "User",
+        related_name="created_taggregations",
+        null=False,
+        blank=False,
+        on_delete=models.PROTECT,
+    )
+    moderators = models.ManyToManyField(
+        "User", related_name="moderated_taggregations", blank=False
+    )
+    tags = models.ManyToManyField("Tag", blank=False)
+    created = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+    default = models.BooleanField(default=False, null=False, blank=False)
+    discoverable = models.BooleanField(default=False, null=False, blank=False)
+    private = models.BooleanField(default=True, null=False, blank=False)
+
+    def __str__(self):
+        return f"{self.name}"
+
+    def slugify(self):
+        return slugify(self.name, allow_unicode=True)
+
+    def get_absolute_url(self):
+        return reverse(
+            "taggregation",
+            kwargs={"taggregation_pk": self.pk, "slug": self.slugify()},
+        )
+
+    def user_has_access(self, user):
+        if user.is_authenticated:
+            return (not self.private) or (
+                (user.pk == self.creator.pk) or (user in self.moderators.all())
+            )
+        else:
+            return not self.private
+
+    def user_can_modify(self, user):
+        if not self.user_has_access(user):
+            return False
+        return (user.pk == self.creator.pk) or (user in self.moderators.all())
+
+    def get_stories(self):
+        return Story.objects.none().union(
+            *list(map(lambda t: t.get_stories(), self.tags.all()))
+        )
 
 
 class TagFilter(models.Model):
@@ -292,6 +349,7 @@ class User(PermissionsMixin, AbstractBaseUser):
     disabled_invite_by_user = models.OneToOneField(
         "User", on_delete=models.CASCADE, null=True, blank=True
     )
+    taggregation_subscriptions = models.ManyToManyField(Taggregation, blank=True)
 
     email_notifications = models.BooleanField(default=False, null=False)
     email_replies = models.BooleanField(default=False, null=False)

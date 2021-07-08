@@ -64,4 +64,35 @@
             {% endif %}
         {% endif %}
     </div>
+    <div class="taggregations">
+        <h2>Aggregations</h2>
+        {% if user.created_taggregations.exists %}
+            <h3>Created:</h3>
+            <ul>
+                {% for c in user.created_taggregations.all %}
+                    <li><a href="{{c.get_absolute_url }}">{{ c.name }}</a></li>
+                {% empty %}
+                    <li>You have created no Aggregations.</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if user.moderated_taggregations.exists %}
+            <h3>Moderated:</h3>
+            <ul>
+                {% for c in user.moderated_taggregations.all %}
+                    <li><a href="{{c.get_absolute_url }}">{{ c.name }}</a></li>
+                {% empty %}
+                    <li>You moderate no Aggregations.</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <h3>Subscribed:</h3>
+        <ul>
+            {% for c in user.taggregation_subscriptions.all %}
+                <li><a href="{{c.get_absolute_url }}">{{ c.name }}</a></li>
+            {% empty %}
+                <li>You have no Aggregation subscriptions. Browse public Aggregations or create your own.</li>
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}
