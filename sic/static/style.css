@@ -389,6 +389,7 @@ body>header {
   margin-top: 2rem;
   margin-bottom: 2rem;
   display: flex;
+  flex-flow: row;
   justify-content: left;
   column-gap: 2rem;
 }
@@ -396,10 +397,12 @@ body>header>nav>ul {
   list-style: none;
   column-gap: 1rem;
   display: flex;
+  flex-flow:wrap;
   margin: 0;
 }
 body>header>nav>ul {
-  width: max-content;
+  max-width: max-content;
+  min-width: 0;
   padding: 0;
 }
 body>header>nav.user {
