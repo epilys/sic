@@ -393,6 +393,9 @@ body>header {
   justify-content: left;
   column-gap: 2rem;
 }
+body>header>nav {
+  min-width: 0;
+}
 body>header>nav>ul {
   list-style: none;
   column-gap: 1rem;
@@ -401,12 +404,12 @@ body>header>nav>ul {
   margin: 0;
 }
 body>header>nav>ul {
-  max-width: max-content;
-  min-width: 0;
+  width: 100%;
   padding: 0;
 }
 body>header>nav.user {
   text-align: right;
+  margin-left: auto;
 }
 body>footer {
   text-align: right;
@@ -456,6 +459,7 @@ main>ul.posts>li.story .links{
 
 header>* {
   place-self:center;
+  min-width: 0;
 }
 
 header .logo {
@@ -468,7 +472,10 @@ header .logo {
   width: min-content;
   margin-bottom: -5px;
   margin-top: -5px;
+  margin-left: 10px;
+  min-width: auto;
 }
+
 header .logo span {
   background-color: #1e82be;
 }
