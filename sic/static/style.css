@@ -402,18 +402,44 @@ body>header>nav>ul {
   display: flex;
   flex-flow:wrap;
   margin: 0;
-}
-body>header>nav>ul {
   width: 100%;
   padding: 0;
 }
+
 body>header>nav.user {
   text-align: right;
   margin-left: auto;
 }
+
 body>footer {
   text-align: right;
+  display: flex;
+  flex-flow: row;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
+
+body>footer>nav {
+  min-width: 0;
+}
+
+body>footer>nav>ul {
+  list-style: none;
+  column-gap: 1rem;
+  display: flex;
+  flex-flow:wrap;
+  margin: 0;
+  width: 100%;
+  padding: 0;
+}
+
+body>footer>nav.feeds {
+  margin-left: auto;
+}
+body>footer>nav.feeds>ul {
+  column-gap: 0;
+}
+
 main>ul.posts {
   list-style: none;
   margin: 0;
@@ -629,8 +655,17 @@ a.feed, a.feed:visited {
   color: #dc3545;
   padding: 8px 8px 0 8px;
 }
+
 a.feed:hover:after {
   content: attr(title);
+  padding: 5px;
+  position: absolute;
+  width: min-content;
+  text-align: center;
+  border: 1px solid;
+  background: white;
+  border-radius: 6px;
+  transform: translateX(-60%) translateY(-115%);
 }
 
 
