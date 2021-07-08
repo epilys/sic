@@ -134,6 +134,11 @@ class Tag(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+    def color_vars_css(self):
+        h = self.hex_color.lstrip("#")
+        r, g, b = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
+        return f"--red: {r}; --green:{g}; --blue:{b};"
+
 
 class TagFilter(models.Model):
     id = models.AutoField(primary_key=True)

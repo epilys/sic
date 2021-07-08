@@ -2,13 +2,13 @@
 {% load humanize %}
 {% block title %}sic{% endblock %}
 {% block content %}
-{% spaceless %}
-<ul class="tags">
-  {% for tag in tags %}
-  <li style="--tag-color: {{ tag.hex_color }};">{{ tag.name }} {{ tag.stories.count }}</li>
-  {% endfor %}
-</ul>
-{% endspaceless %}
+    {% spaceless %}
+        <ul class="tags">
+            {% for tag in tags %}
+                <li style="{{ tag.color_vars_css }}"><span class="tag-name">{{ tag.name }} {{ tag.stories.count }}</span></li>
+            {% endfor %}
+        </ul>
+    {% endspaceless %}
     <div class="pagination">
         <span class="step-links">
             {% if tags.has_previous %}

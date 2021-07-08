@@ -708,8 +708,7 @@ ul.tags {
 
 ul.tags>li {
   display: inline-block;
-  background-color: var(--tag-color);
-  border: 1px solid #d5d458;
+  border: 1px solid #0000005e;
   border-radius: 5px;
   color: #555;
   font-size: 8pt;
@@ -717,6 +716,11 @@ ul.tags>li {
   padding: 0px 0.4em 1px 0.4em;
   text-decoration: none;
   vertical-align: middle;
+
+  --aa-brightness: ((var(--red) * 299) + (var(--green) * 587) + (var(--blue) * 114)) / 1000;
+  --aa-color: calc((var(--aa-brightness) - 128) * -1000);
+  background: rgb(var(--red), var(--green), var(--blue));
+  color: rgb(var(--aa-color), var(--aa-color), var(--aa-color));
 }
 
 ul.posts li {
