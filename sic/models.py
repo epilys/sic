@@ -64,7 +64,6 @@ class Story(models.Model):
         "StoryKind",
         related_name="stories",
         blank=False,
-        default=StoryKind.default_value,
     )
 
     def __str__(self):

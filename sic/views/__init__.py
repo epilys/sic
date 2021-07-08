@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.db.models import Exists, OuterRef
 from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import PermissionDenied
-from ..models import Story, Comment, User, Invitation
+from ..models import Story, StoryKind, Comment, User, Invitation
 from ..forms import SubmitCommentForm, SubmitReplyForm, SubmitStoryForm
 
 
@@ -142,7 +142,7 @@ def submit_story(request):
         error = form_errors_as_string(form.errors)
         messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
     else:
-        form = SubmitStoryForm()
+        form = SubmitStoryForm(initial={"kind": StoryKind.default_value()})
     return render(request, "submit.html", {"form": form})
 
 

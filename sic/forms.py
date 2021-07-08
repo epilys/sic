@@ -29,7 +29,6 @@ class SubmitStoryForm(forms.Form):
         queryset=StoryKind.objects.all(),
         label="Submission kind",
         required=True,
-        initial=StoryKind.default_value(),
         help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
     )
 
