@@ -35,13 +35,22 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ["name", "hex_color_html", "parents_html", "created"]
 
 
+class StoryAdmin(admin.ModelAdmin):
+    ordering = ["-created", "title"]
+    list_display = ["title", "user", "created", "url"]
+    list_filter = [
+        "tags",
+    ]
+
+
 admin.site.register(Comment)
 admin.site.register(Domain)
 admin.site.register(Hat)
 admin.site.register(Invitation)
 admin.site.register(Message)
 admin.site.register(Moderation)
-admin.site.register(Story)
+admin.site.register(StoryKind)
+admin.site.register(Story, StoryAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(TagFilter)
 admin.site.register(User)

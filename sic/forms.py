@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .apps import SicAppConfig as config
-from .models import Tag, User
+from .models import Tag, User, StoryKind
 
 
 class SubmitStoryForm(forms.Form):
@@ -10,14 +10,28 @@ class SubmitStoryForm(forms.Form):
     description = forms.CharField(required=False)
     url = forms.URLField(required=False)
     publish_date = forms.DateField(
-        required=False, widget=forms.DateInput(attrs={"type": "date"})
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date"}),
+        help_text="Set publication date if relevant (for example, an article on current affairs).",
     )
     user_is_author = forms.BooleanField(
         label="Author",
         required=False,
         help_text="I am the author of the story at this URL (or this text)",
     )
-    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all(), required=False)
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        label="Topical tags",
+        required=False,
+        help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
+    )
+    kind = forms.ModelMultipleChoiceField(
+        queryset=StoryKind.objects.all(),
+        label="Submission kind",
+        required=True,
+        initial=StoryKind.default_value(),
+        help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
+    )
 
 
 class SubmitCommentForm(forms.Form):

@@ -23,6 +23,25 @@ class Domain(models.Model):
     url = models.URLField(null=False, blank=False)
 
 
+class StoryKind(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(null=False, blank=False, max_length=40, unique=True)
+    hex_color = models.CharField(max_length=7, null=True, blank=True, default="#fffff")
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+    def color_vars_css(self):
+        h = self.hex_color.lstrip("#")
+        r, g, b = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
+        return f"--red: {r}; --green:{g}; --blue:{b};"
+
+    def default_value():
+        val, _ = StoryKind.objects.get_or_create(name="article")
+        return val
+
+
 class Story(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(
@@ -41,6 +60,12 @@ class Story(models.Model):
     active = models.BooleanField(default=True, null=False)
     user_is_author = models.BooleanField(default=False, null=False)
     tags = models.ManyToManyField("Tag", related_name="stories", blank=True)
+    kind = models.ManyToManyField(
+        "StoryKind",
+        related_name="stories",
+        blank=False,
+        default=StoryKind.default_value,
+    )
 
     def __str__(self):
         return f"{self.title}"
@@ -126,7 +151,7 @@ class Comment(models.Model):
 
 class Tag(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(null=False, blank=False, max_length=20, unique=True)
+    name = models.CharField(null=False, blank=False, max_length=40, unique=True)
     hex_color = models.CharField(max_length=7, null=True, blank=True, default="#fffff")
     created = models.DateTimeField(auto_now_add=True)
     parents = models.ManyToManyField("Tag", blank=True)
