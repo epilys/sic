@@ -25,7 +25,7 @@
                         <a href="{{story.get_listing_url}}">{{ story.title }}</a>
                         {% include "story_tags.html" with tags=story.tags.all %}
                     </div>
-                    <div class="links">{% if story.user.avatar %}<img class="avatar-small" src="{{story.user.avatar}}" alt="user avatar">{% endif %}{% if story.user_is_author %}authored by{% else %}via{% endif %} <a href="{{ story.user.get_absolute_url }}">{{ story.user }}</a> <time datetime="{{ story.created | date:"Y-m-d H:i:s" }}" title="{{ story.created }}"> {{ story.created|naturaltime }}</time> | flag | hide | {% if request.user.is_authenticated %}<a href="{% url_with_next 'save_story' story.pk request %}">{% if is_bookmarked %}unsave{% else %}save{% endif %}</a> |{% endif %} archived copy | <a href="{{story.get_absolute_url}}">{{ story.comments.count }} comments</a></div>
+                    <div class="links">{% if story.user.avatar %}<img class="avatar-small" src="{{story.user.avatar}}" alt="user avatar" height="18" width="18">{% endif %}{% if story.user_is_author %}authored by{% else %}via{% endif %} <a href="{{ story.user.get_absolute_url }}">{{ story.user }}</a> <time datetime="{{ story.created | date:"Y-m-d H:i:s" }}" title="{{ story.created }}"> {{ story.created|naturaltime }}</time> | flag | hide | {% if request.user.is_authenticated %}<a href="{% url_with_next 'save_story' story.pk request %}">{% if is_bookmarked %}unsave{% else %}save{% endif %}</a> |{% endif %} archived copy | <a href="{{story.get_absolute_url}}">{{ story.comments.count }} comments</a></div>
                 {% endspaceless %}
             </li>
         {% endfor %}
