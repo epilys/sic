@@ -275,3 +275,7 @@ def recent_comments(request, page_num=1):
     return render(
         request, "recent_comments.html", {"comments": page, "reply_form": reply_form}
     )
+
+
+def about(request):
+    return render(request, "about.html")

@@ -24,6 +24,7 @@ from .feeds import *
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", index, name="index"),
+    path("about/", about, name="about"),
     path("page/<int:page_num>/", index, name="index_page"),
     path("recent", recent, name="recent"),
     path("recent/page/<int:page_num>/", recent, name="recent_page"),
