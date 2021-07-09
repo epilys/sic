@@ -400,6 +400,7 @@ body>header>nav>ul {
   list-style: none;
   column-gap: 1rem;
   display: flex;
+  justify-content: space-between;
   flex-flow:wrap;
   margin: 0;
   width: 100%;
@@ -456,18 +457,26 @@ main>ul.posts>li.story{
  width: 100%;
  grid-template-areas: "votes title" "votes links";
  grid-template-columns: auto 1fr;
- grid-template-rows: 1fr 1fr;
+ grid-template-rows: 1fr auto;
  column-gap: .5rem;
 }
 
 main>ul.posts>li.story .votes{
   grid-area: votes;
 }
-main>ul.posts>li.story .title{
+
+main>ul.posts>li.story div.title{
   grid-area: title;
   display: flex;
   gap: 4px;
+  flex-flow: wrap;
+  max-width: max-content;
 }
+
+div.title>ul.tags {
+  margin-left: auto;
+}
+
 main>ul.posts>li.story .links{
   grid-area: links;
 }
@@ -872,4 +881,18 @@ thead,
 tfoot {
     background-color: #333;
     color: #fff;
+}
+
+span.netloc {
+  color: darkslategray;
+  font-style: italic;
+  user-select: all;
+}
+
+span.netloc:before {
+  content:"(";
+}
+
+span.netloc:after {
+  content:")";
 }

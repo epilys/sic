@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 from datetime import datetime, timedelta
 import string
 import uuid
@@ -88,6 +89,12 @@ class Story(models.Model):
             if self.url is None or len(self.url) == 0
             else self.url
         )
+
+    def get_domain(self):
+        if not self.url:
+            return None
+        o = urlparse(self.url)
+        return o.netloc
 
 
 class Message(models.Model):
