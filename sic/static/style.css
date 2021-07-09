@@ -658,7 +658,14 @@ div#avatar-thumbnail {
   margin-left: 5px;
   object-fit: cover;
   object-position: center;
+  transition: transform .2s .3s ease;
+  cursor: zoom-in;
 }
+
+.avatar-small:hover {
+    transform: scale(6);
+}
+
 
 a.feed, a.feed:visited {
   color: #dc3545;
