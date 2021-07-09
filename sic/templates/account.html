@@ -32,7 +32,7 @@
         <div class="invite_tree">
             <h2>Invitation tree</h2>
             {% for inv in user.invited.all %}
-                <p title="{{ inv.id }}">{{ inv.created }} - {{ inv.address }} - {% if inv.accepted %}<span class="accepted">accepted</span>{% else %}no answer yet{% endif %}</p>
+                <p title="{{ inv.id }}">{{ inv.created }} - {{ inv.address }} - {% if inv.accepted %}<span class="accepted">accepted by <a href="{{ inv.receiver.get_absolute_url }}">{{ inv.receiver }}</a></span>{% else %}no answer yet <a href="{{ inv.get_absolute_url }}">share link</a>{% endif %}</p>
             {% empty %}
                 You haven't invited anyone yet.
             {% endfor %}

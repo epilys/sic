@@ -246,13 +246,20 @@ class Invitation(models.Model):
     accepted = models.DateTimeField(null=True, blank=True)
 
     def send(self, request):
+        root_url = request.get_host()
+        body = f"{config.INVITATION_BODY}\n\n{root_url}{self.get_absolute_url()}"
         try:
             send_mail(
                 config.INVITATION_SUBJECT,
-                f"{config.INVITATION_BODY}\n\n{self.get_absolute_url()}",
+                body,
                 config.INVITATION_FROM,
                 [self.address],
                 fail_silently=False,
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                f"Successfully sent invitation to {self.address}.",
             )
         except Exception as error:
             messages.add_message(

@@ -127,13 +127,14 @@ def generate_invite(request):
         form = GenerateInviteForm(request.POST)
         if form.is_valid():
             address = form.cleaned_data["email"]
-            _, created = user.invited.get_or_create(inviter=user, address=address)
+            inv, created = user.invited.get_or_create(inviter=user, address=address)
             if created:
                 messages.add_message(
                     request,
                     messages.SUCCESS,
                     f"Successfully generated invitation to {address}.",
                 )
+                inv.send(request)
         else:
             error = form_errors_as_string(form.errors)
             messages.add_message(
