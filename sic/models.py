@@ -158,7 +158,7 @@ class Comment(models.Model):
 class Tag(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(null=False, blank=False, max_length=40, unique=True)
-    hex_color = models.CharField(max_length=7, null=True, blank=True, default="#fffff")
+    hex_color = models.CharField(max_length=7, null=True, blank=True, default="#ffffff")
     created = models.DateTimeField(auto_now_add=True)
     parents = models.ManyToManyField("Tag", related_name="children", blank=True)
 
@@ -174,6 +174,9 @@ class Tag(models.Model):
         return self.stories.all().union(
             *list(map(lambda t: t.get_stories(), self.children.all()))
         )
+
+    def slugify(self):
+        return slugify(self.name, allow_unicode=True)
 
 
 class Taggregation(models.Model):

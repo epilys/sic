@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load utils %}
+{% block title %}{% if tag %}edit {{ tag.name }}{% else %}new tag{% endif %}{% endblock %}
+{% block content %}
+    {% if tag %}
+        <h1>edit {{ tag.name }}</h1>
+    {% else %}
+        <h1>new tag</h1>
+    {% endif %}
+    <form action="" method="post" class="submit-story-form">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Submit">
+    </form>
+{% endblock %}

@@ -7,6 +7,8 @@ from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
 from ..models import Tag, Story, Taggregation
+from ..forms import EditTagForm
+from . import form_errors_as_string
 
 
 def browse_tags(request, page_num=1):
@@ -84,3 +86,72 @@ def taggregation_change_subscription(request, taggregation_pk):
     if "next" in request.GET:
         return redirect(request.GET["next"])
     return redirect(reverse("account"))
+
+
+@login_required
+def edit_tag(request, tag_pk, slug=None):
+    try:
+        tag = Tag.objects.get(pk=tag_pk)
+    except Tag.DoesNotExist:
+        raise Http404("Tag does not exist") from Tag.DoesNotExist
+    if slug != tag.slugify():
+        return redirect(tag.get_absolute_url())
+    if not request.user.has_perm("sic.change_tag"):
+        return HttpResponseForbidden()
+    if request.method == "POST":
+        form = EditTagForm(request.POST)
+        if form.is_valid():
+            tag.name = form.cleaned_data["name"]
+            tag.hex_color = form.cleaned_data["hex_color"]
+            tag.parents.set(form.cleaned_data["parents"])
+            tag.save()
+            if "next" in request.GET:
+                return redirect(request.GET["next"])
+            return redirect(reverse("browse_tags"))
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = EditTagForm(
+            initial={
+                "name": tag.name,
+                "hex_color": tag.hex_color,
+                "parents": tag.parents.all(),
+            }
+        )
+    return render(
+        request,
+        "edit_tag.html",
+        {
+            "tag": tag,
+            "form": form,
+        },
+    )
+
+
+@login_required
+def add_tag(request):
+    if not request.user.has_perm("sic.add_tag"):
+        return HttpResponseForbidden()
+    if request.method == "POST":
+        form = EditTagForm(request.POST)
+        if form.is_valid():
+            new = Tag.objects.create(
+                name=form.cleaned_data["name"],
+                hex_color=form.cleaned_data["hex_color"],
+            )
+            new.parents.set(form.cleaned_data["parents"])
+            new.save()
+            if "next" in request.GET:
+                return redirect(request.GET["next"])
+            return redirect(reverse("browse_tags"))
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = EditTagForm()
+    return render(
+        request,
+        "edit_tag.html",
+        {
+            "form": form,
+        },
+    )

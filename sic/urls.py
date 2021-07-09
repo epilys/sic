@@ -50,6 +50,8 @@ urlpatterns = [
     path("save/<int:story_pk>/", save_story, name="save_story"),
     path("tags/", browse_tags, name="browse_tags"),
     path("tags/page/<int:page_num>/", browse_tags, name="browse_tags_page"),
+    path("tags/edit/<int:tag_pk>/<slug:slug>", edit_tag, name="edit_tag"),
+    path("tags/add/", add_tag, name="add_tag"),
     path("agg/<int:taggregation_pk>/<slug:slug>/", taggregation, name="taggregation"),
     path(
         "agg/change-subscription/<int:taggregation_pk>/",

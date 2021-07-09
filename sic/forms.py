@@ -123,3 +123,19 @@ class AnnotationForm(forms.Form):
         required=True, label="Annotation", max_length=500, widget=forms.Textarea
     )
     text.widget.attrs.update({"rows": 3, "placeholder": ""})
+
+
+class EditTagForm(forms.Form):
+    name = forms.CharField(required=True, label="Name", max_length=40)
+    hex_color = forms.CharField(
+        max_length=7,
+        required=False,
+        initial="#ffffff",
+        widget=forms.TextInput(attrs={"type": "color"}),
+    )
+    parents = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        label="parents",
+        required=False,
+        help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
+    )

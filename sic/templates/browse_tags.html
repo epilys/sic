@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load utils %}
 {% block title %}sic{% endblock %}
 {% block content %}
+    {% if request.user.is_authenticated %}
+        <a href="{% url_with_next 'add_tag' request %}">Add tag</a>
+    {% endif %}
     {% spaceless %}
         <ul class="tags">
             {% for tag in tags %}
-                <li style="{{ tag.color_vars_css }}"><span class="tag-name">{{ tag.name }} {{ tag.stories.count }}</span></li>
+                <li style="{{ tag.color_vars_css }}"><span class="tag-name"><a href="{% url_with_next 'edit_tag' tag.pk tag.slugify request %}">{{ tag.name }}</a> {{ tag.stories.count }}</span></li>
             {% endfor %}
         </ul>
     {% endspaceless %}

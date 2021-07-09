@@ -903,3 +903,8 @@ span.netloc:before {
 span.netloc:after {
   content:")";
 }
+
+span.tag-name a {
+  text-decoration: none;
+  color: inherit;
+}
