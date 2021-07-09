@@ -2,6 +2,7 @@ from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
 from .models import Story
 
+# Edit site domain in /admin/sites/site/1/change
 
 class LatestStoriesRss(Feed):
     title = "sic latest stories"
