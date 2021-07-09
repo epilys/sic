@@ -16,6 +16,7 @@ from ..forms import (
     UserCreationForm,
     AnnotationForm,
 )
+from ..apps import SicAppConfig as config
 from . import form_errors_as_string
 
 
@@ -36,13 +37,18 @@ def view_account(request):
     user = request.user
     generate_invite_form = GenerateInviteForm()
     hats = None
-    can_add_hats = user.has_perm('sic.add_hat')
+    can_add_hats = user.has_perm("sic.add_hat")
     if can_add_hats:
         hats = user.hats.all()
     return render(
         request,
         "account.html",
-        {"user": request.user, "generate_invite_form": generate_invite_form, "can_add_hats": can_add_hats, "hats": hats},
+        {
+            "user": request.user,
+            "generate_invite_form": generate_invite_form,
+            "can_add_hats": can_add_hats,
+            "hats": hats,
+        },
     )
 
 
@@ -165,7 +171,7 @@ def profile_posts(request, username, page_num=1):
         .order_by("-created")
     )
     story_obj = sorted(story_obj, key=lambda x: x.created, reverse=True)
-    paginator = Paginator(story_obj, 10)
+    paginator = Paginator(story_obj, config.STORIES_PER_PAGE)
     try:
         page = paginator.page(page_num)
     except InvalidPage:
@@ -211,6 +217,7 @@ def accept_invite(request, invite_pk):
         return redirect(reverse("index"))
     return render(request, "signup.html", {"form": form})
 
+
 @login_required
 def save_story(request, story_pk):
     if request.method == "GET":
@@ -246,7 +253,7 @@ def saved_posts(request, page_num=1):
         .select_related("comment")
     )
     story_obj = sorted(story_obj, key=lambda x: x.created, reverse=True)
-    paginator = Paginator(story_obj, 10)
+    paginator = Paginator(story_obj, config.STORIES_PER_PAGE)
     try:
         page = paginator.page(page_num)
     except InvalidPage:
@@ -263,17 +270,18 @@ def saved_posts(request, page_num=1):
         {"bookmarks": page, "reply_form": SubmitReplyForm(), "user": user},
     )
 
+
 @login_required
 def edit_bookmark(request, bookmark_pk):
     """
-    if request.method == "POST":
-        annotation_form = AnnotationForm(request.POST)
-        if annotation_form.is_valid():
-            pk = request.POST["bookmark_pk"]
-            print(pk)
-    else:
-        annotation_form = AnnotationForm()
-"annotation_form": annotation_form,
+        if request.method == "POST":
+            annotation_form = AnnotationForm(request.POST)
+            if annotation_form.is_valid():
+                pk = request.POST["bookmark_pk"]
+                print(pk)
+        else:
+            annotation_form = AnnotationForm()
+    "annotation_form": annotation_form,
     """
 
     pass

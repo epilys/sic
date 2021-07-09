@@ -55,3 +55,5 @@ class SicAppConfig(AppConfig):
     INVITATION_SUBJECT = "Your invitation to sic"
     INVITATION_BODY = ""
     INVITATION_FROM = settings.DEFAULT_FROM_EMAIL
+
+    STORIES_PER_PAGE = 20

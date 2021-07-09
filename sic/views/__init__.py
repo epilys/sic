@@ -9,6 +9,7 @@ from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import PermissionDenied
 from ..models import Story, StoryKind, Comment, User, Invitation
 from ..forms import SubmitCommentForm, SubmitReplyForm, SubmitStoryForm
+from ..apps import SicAppConfig as config
 
 
 def form_errors_as_string(errors):
@@ -108,7 +109,9 @@ def index(request, page_num=1):
                 request.user.votes.filter(story=OuterRef("pk"), comment=None)
             )
         )
-    paginator = Paginator(story_obj.order_by("-created", "title"), 10)
+    paginator = Paginator(
+        story_obj.order_by("-created", "title"), config.STORIES_PER_PAGE
+    )
     try:
         page = paginator.page(page_num)
     except InvalidPage:
@@ -242,7 +245,7 @@ def recent(request, page_num=1):
                 request.user.votes.filter(story=OuterRef("pk"), comment=None)
             )
         )
-    paginator = Paginator(story_obj[:40], 10)
+    paginator = Paginator(story_obj[:40], config.STORIES_PER_PAGE)
     try:
         page = paginator.page(page_num)
     except InvalidPage:
@@ -263,7 +266,7 @@ def recent_comments(request, page_num=1):
         comments = comments.annotate(
             upvoted=Exists(request.user.votes.filter(comment=OuterRef("pk")))
         )
-    paginator = Paginator(comments[:40], 10)
+    paginator = Paginator(comments[:40], config.STORIES_PER_PAGE)
     try:
         page = paginator.page(page_num)
     except InvalidPage:
