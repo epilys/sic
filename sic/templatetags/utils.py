@@ -1,8 +1,11 @@
 from django import template
+from django.conf import settings
 from django.utils.http import urlencode
+from django.utils.safestring import mark_safe
 from django.template.defaulttags import URLNode, url
 from django.template.exceptions import TemplateSyntaxError
 from django.template.base import Token, Node, kwarg_re
+import subprocess, os
 
 register = template.Library()
 
@@ -66,3 +69,21 @@ def comment_is_bookmarked(user, comment):
     if not user.is_authenticated:
         return False
     return user.saved_comments.filter(pk=comment.pk).exists()
+
+
+@register.simple_tag
+def build_sha():
+    git_dir = settings.BASE_DIR
+    head = subprocess.Popen(
+        'git -C {dir} log -1 --pretty=format:"%h\n%s\n%cd" --date=short'.format(
+            dir=git_dir
+        ),
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    git_string = head.stdout.read().strip().decode("utf-8")
+    [commit_sha, subject, date] = git_string.split("\n")
+    return mark_safe(
+        f'<span class="build"><a href="https://github.com/epilys/sic/commit/{commit_sha}"><code>[{commit_sha}]</code> {subject}</a> {date}</span>'
+    )

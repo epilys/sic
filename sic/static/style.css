@@ -413,7 +413,6 @@ body>header>nav.user {
 }
 
 body>footer {
-  text-align: right;
   display: flex;
   flex-flow: row;
   padding-top: 2rem;
@@ -907,4 +906,9 @@ span.netloc:after {
 span.tag-name a {
   text-decoration: none;
   color: inherit;
+}
+
+span.build, span.build a:visited {
+  color: #2f4f4f;
+  font-size: 80%;
 }
