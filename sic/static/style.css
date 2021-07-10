@@ -437,7 +437,8 @@ body>footer>nav.feeds {
   margin-left: auto;
 }
 body>footer>nav.feeds>ul {
-  column-gap: 0;
+  column-gap: 2px;
+  justify-content: right;
 }
 
 main>ul.posts {
@@ -668,10 +669,11 @@ div#avatar-thumbnail {
 
 a.feed, a.feed:visited {
   color: #dc3545;
-  padding: 8px 8px 0 8px;
+  padding: 0px 2px;
+  vertical-align: sub;
 }
 
-a.feed:hover:after {
+li:hover a.feed:after {
   content: attr(title);
   padding: 5px;
   position: absolute;
