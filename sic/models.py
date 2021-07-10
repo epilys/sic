@@ -38,6 +38,7 @@ class StoryKind(models.Model):
         r, g, b = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
         return f"--red: {r}; --green:{g}; --blue:{b};"
 
+    @staticmethod
     def default_value():
         val, _ = StoryKind.objects.get_or_create(name="article")
         return val
