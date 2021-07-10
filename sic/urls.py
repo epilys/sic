@@ -58,6 +58,12 @@ urlpatterns = [
         taggregation_change_subscription,
         name="taggregation_change_subscription",
     ),
+    path(
+        "agg/edit/<int:taggregation_pk>/<slug:slug>/",
+        edit_aggregation,
+        name="edit_aggregation",
+    ),
+    path("agg/new", new_aggregation, name="new_aggregation"),
     path("accounts/invitations/new", generate_invite, name="generate_invite"),
     path(
         "accounts/login/",

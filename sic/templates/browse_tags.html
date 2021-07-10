@@ -4,7 +4,11 @@
 {% block title %}sic{% endblock %}
 {% block content %}
     {% if request.user.is_authenticated %}
-        <a href="{% url_with_next 'add_tag' request %}">Add tag</a>
+        <nav>
+            <ul>
+                <li><a href="{% url_with_next 'add_tag' request %}">Add tag</a></li>
+            </ul>
+        </nav>
     {% endif %}
     {% spaceless %}
         <ul class="tags">

@@ -87,3 +87,8 @@ def build_sha():
     return mark_safe(
         f'<span class="build"><a href="https://github.com/epilys/sic/commit/{commit_sha}"><code>[{commit_sha}]</code> {subject}</a> {date}</span>'
     )
+
+
+@register.simple_tag
+def user_can_view_taggregation(taggregation, request):
+    return taggregation.user_has_access(request.user)

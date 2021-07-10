@@ -4,7 +4,7 @@
 {% block title %}sic{% endblock %}
 {% block content %}
     {% spaceless %}
-        <h1>{{ taggregation.name }}{% if user_can_modify %} <small><a href="#">edit&hellip;</a></small>{% endif %}</h1>
+        <h1>{{ taggregation.name }}{% if user_can_modify %} <small><a href="{% url_with_next 'edit_aggregation' taggregation.pk taggregation.slugify request %}">edit&hellip;</a></small>{% endif %}</h1>
         <form action="{% url 'taggregation_change_subscription' taggregation.pk %}" method="get">
             <input type="hidden" name="next" value="{{ request.get_full_path|urlencode}}" />
             <input type="submit" value="{% if subscribed %}un{% endif %}subscribe">

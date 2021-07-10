@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
 from ..models import Tag, Story, Taggregation
-from ..forms import EditTagForm
+from ..forms import EditTagForm, EditTaggregationForm
 from . import form_errors_as_string
 
 
@@ -82,7 +82,6 @@ def taggregation_change_subscription(request, taggregation_pk):
         messages.add_message(
             request, messages.SUCCESS, f"You have subscribed to {obj}."
         )
-    print(list(request.GET.items()))
     if "next" in request.GET:
         return redirect(request.GET["next"])
     return redirect(reverse("account"))
@@ -153,5 +152,99 @@ def add_tag(request):
         "edit_tag.html",
         {
             "form": form,
+        },
+    )
+
+
+@login_required
+def new_aggregation(request):
+    if request.method == "POST":
+        form = EditTaggregationForm(request.POST)
+        if form.is_valid():
+            subscribed = form.cleaned_data["subscribed"]
+            new = Taggregation.objects.create(
+                creator=request.user,
+                name=form.cleaned_data["name"],
+                description=form.cleaned_data["description"],
+                discoverable=form.cleaned_data["discoverable"],
+                private=form.cleaned_data["private"],
+            )
+            new.tags.set(form.cleaned_data["tags"])
+            new.moderators.add(request.user)
+            new.save()
+            if subscribed:
+                request.user.taggregation_subscriptions.add(new)
+            return redirect(new)
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = EditTaggregationForm()
+    return render(
+        request,
+        "edit_aggregation.html",
+        {
+            "form": form,
+        },
+    )
+
+
+@login_required
+def edit_aggregation(request, taggregation_pk, slug=None):
+    try:
+        obj = Taggregation.objects.get(pk=taggregation_pk)
+    except Taggregation.DoesNotExist:
+        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
+    if slug != obj.slugify():
+        return redirect(obj.get_absolute_url())
+    if not obj.user_has_access(request.user):
+        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
+    if not obj.user_can_modify(request.user):
+        return HttpResponseForbidden()
+    user = request.user
+    subscribed = user.taggregation_subscriptions.filter(pk=taggregation_pk).exists()
+
+    if request.method == "POST":
+        form = EditTaggregationForm(request.POST)
+        if form.is_valid():
+            new_subscribed = form.cleaned_data["subscribed"]
+            if subscribed != new_subscribed:
+                if subscribed:
+                    user.taggregation_subscriptions.remove(obj)
+                    messages.add_message(
+                        request, messages.SUCCESS, f"You have unsubscribed from {obj}."
+                    )
+                else:
+                    user.taggregation_subscriptions.add(obj)
+                    messages.add_message(
+                        request, messages.SUCCESS, f"You have subscribed to {obj}."
+                    )
+            obj.name = form.cleaned_data["name"]
+            obj.description = form.cleaned_data["description"]
+            obj.discoverable = form.cleaned_data["discoverable"]
+            obj.private = form.cleaned_data["private"]
+            obj.tags.set(form.cleaned_data["tags"])
+            obj.save()
+            if "next" in request.GET:
+                return redirect(request.GET["next"])
+            return redirect(obj)
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = EditTaggregationForm(
+            initial={
+                "name": obj.name,
+                "description": obj.description,
+                "discoverable": obj.discoverable,
+                "private": obj.private,
+                "subscribed": subscribed,
+                "tags": obj.tags.all(),
+            }
+        )
+    return render(
+        request,
+        "edit_aggregation.html",
+        {
+            "form": form,
+            "agg": obj,
         },
     )

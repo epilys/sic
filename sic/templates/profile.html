@@ -1,21 +1,20 @@
 {% extends "base.html" %}
+{% load utils %}
 {% block title %}sic{% endblock %}
 {% block content %}
     <div class="profile">
         <div id="label_for_username">username:</div>
         <div id="username">{{ user.username }}</div>
         <div id="label_for_homepage">homepage:</div>
-        <div id="homepage">{{ user.homepage }}</div>
-        <div id="label_for_git-repository">git repository:</div>
-        <div id="git-repository"></div>
+        <div id="homepage">{{ user.homepage|default_if_none:'None.' }}</div>
         <div id="label_for_about">about:</div>
-        <div id="about"></div>
+        <div id="about">{{ user.about|default_if_none:'None.' }}</div>
         <div id="label_for_status">status:</div>
-        <div id="status">active</div>
+        <div id="status">{% if not user.is_active %}in{%endif%}active</div>
         <div id="label_for_joined">joined:</div>
         <div id="joined">{{ user.created }}</div>
         <div id="label_for_invited_by">invited by:</div>
-        <div id="invited_by"><a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a></div>
+        <div id="invited_by">{% if user.invited_by %}<a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a>{% else %}None.{% endif %}</div>
         <div id="label_for_karma">karma:</div>
         <div id="karma">{{ user.karma }}</div>
         <div id="label_for_stories">stories:</div>
@@ -28,4 +27,15 @@
                 <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }}</figcaption>
             </figure></div>
     </div>
+    <h2>Aggregations</h2>
+    {% spaceless %}
+        <ul>
+            {% for c in user.taggregation_subscriptions.all %}
+                {% user_can_view_taggregation c request as can_view %}
+                {% if can_view %}
+                    <li><a href="{{c.get_absolute_url }}">{{ c.name }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endspaceless %}
 {% endblock %}

@@ -149,3 +149,25 @@ class EditTagForm(forms.Form):
         required=False,
         help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
     )
+
+
+class EditTaggregationForm(forms.Form):
+    name = forms.CharField(required=True, label="Name", max_length=40)
+    description = forms.CharField(required=False)
+    discoverable = forms.BooleanField(
+        label="Is discoverable",
+        required=False,
+        help_text="Will be shown in public lists.",
+    )
+    private = forms.BooleanField(
+        label="Is private",
+        required=False,
+        help_text="Will only be visible to users with access.",
+    )
+    subscribed = forms.BooleanField(required=False)
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        label="tags",
+        required=False,
+        help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
+    )
