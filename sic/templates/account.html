@@ -26,7 +26,12 @@
         <div id="stories">{{ user.stories.count }}</div>
         <label for="comments">comments:</label>
         <div id="comments">{{ user.comments.count }}</div>
-        <div id="avatar">{% if user.avatar %}<div id="avatar-thumbnail" style="background-image: url({{user.avatar}});"><img src="{{ user.avatar }}"></div>{% else %}None.{%endif %}<a href="{% url 'edit_avatar' %}">edit avatar</a></div>
+        <div id="avatar">
+            <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
+                {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title|default_if_none:''}}">{% else %}<div>None.</div>{% endif %}
+                <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }} <a href="{% url 'edit_avatar' %}">edit avatar</a></figcaption>
+            </figure>
+        </div>
     </div>
     <div class="invites">
         <div class="invite_tree">

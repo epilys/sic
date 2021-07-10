@@ -620,10 +620,19 @@ div.profile {
   height: max-content;
 }
 
-div#avatar-thumbnail {
+figure#avatar-thumbnail {
   height: min-content;
+  max-width: 100px;
   padding: 3px;
   background-size: 1px 1px;
+  display: flex;
+  flex-direction: column;
+}
+
+figure#avatar-thumbnail figcaption {
+  background: white;
+  padding: 3px 5px;
+  text-align: center;
 }
 
 .votes .upvote:hover, .votes .upvote.upvoted {
@@ -665,7 +674,12 @@ div#avatar-thumbnail {
 }
 
 .avatar-small:hover {
-    transform: scale(6);
+  transform: scale(6);
+  border-radius: 0;
+  outline: 1px solid #ffffffde;
+  height: auto;
+  position: relative;
+  z-index: 1;
 }
 
 

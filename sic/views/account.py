@@ -93,12 +93,19 @@ def edit_avatar(request):
                 return page.data_url()
 
     if request.method == "POST":
+        if "delete-image" in request.POST:
+            request.user.avatar = None
+            request.user.save()
+            return redirect(reverse("account"))
         form = EditAvatarForm(request.POST, request.FILES)
         if form.is_valid():
             img = form.cleaned_data["new_avatar"]
             print(img)
-            data_url = generate_image_thumbnail(img)
-            request.user.avatar = data_url
+            avatar_title = form.cleaned_data["avatar_title"]
+            if img:
+                data_url = generate_image_thumbnail(img)
+                request.user.avatar = data_url
+            request.user.avatar_title = avatar_title if len(avatar_title) > 0 else None
             request.user.save()
             return redirect(reverse("account"))
         error = form_errors_as_string(form.errors)

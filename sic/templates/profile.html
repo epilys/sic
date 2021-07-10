@@ -22,6 +22,10 @@
         <div id="stories"><a href="{% url 'profile_posts' username=user.username %}">{{ user.stories.count }}</a></div>
         <div id="label_for_comments">comments:</div>
         <div id="comments"><a href="{% url 'profile_posts' username=user.username %}">{{ user.comments.count }}</a></div>
-        <div id="avatar">{% if user.avatar %}<div id="avatar-thumbnail" style="background-image: url({{user.avatar}});"><img src="{{ user.avatar }}" alt="user avatar"></div>{% else %}None.{%endif %}</div>
+        <div id="avatar">
+            <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
+                {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title|default_if_none:''}}">{% else %}<div>None.</div>{% endif %}
+                <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }}</figcaption>
+            </figure></div>
     </div>
 {% endblock %}

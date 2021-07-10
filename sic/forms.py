@@ -49,8 +49,18 @@ class SubmitReplyForm(forms.Form):
 
 class EditAvatarForm(forms.Form):
     new_avatar = forms.FileField(
-        required=False, label="Avatar file (leave blank for none)"
+        required=False,
+        label="Image file",
+        help_text="leave blank to keep current image",
     )
+    avatar_title = forms.CharField(
+        required=False,
+        label="Title",
+        help_text="optional avatar attribution/description/title",
+        max_length=500,
+        widget=forms.Textarea,
+    )
+    avatar_title.widget.attrs.update({"rows": 2, "placeholder": "avatar title"})
 
 
 class EditProfileForm(forms.Form):

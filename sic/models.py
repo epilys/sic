@@ -357,6 +357,9 @@ class User(PermissionsMixin, AbstractBaseUser):
     created = models.DateTimeField(auto_now_add=True)
     about = models.TextField(null=True, blank=True)
     avatar = models.CharField(null=True, blank=True, editable=False, max_length=8196)
+    avatar_title = models.CharField(
+        null=True, blank=True, editable=True, max_length=256
+    )
     banned_by_user = models.OneToOneField(
         "User",
         related_name="banned_by",
