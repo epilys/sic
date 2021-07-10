@@ -352,7 +352,7 @@ template {
 :root {
   --message-success-bg: #dfd;
   --message-warning-bg: #ffc;
-  --message-error-bg: #ffefef;
+  --message-error-bg: #f77;
 }
 
 
@@ -483,7 +483,7 @@ main>ul.posts>li.story .links{
 
 .votes {
   display: inline-flex;
-  vertical-align: sub;
+  vertical-align: middle;
   flex-direction: row;
 }
 
@@ -627,22 +627,24 @@ div#avatar-thumbnail {
 }
 
 .votes .upvote:hover, .votes .upvote.upvoted {
-    border-bottom-color: #ac130d;
+  border-bottom-color: #ac130d;
 }
 
 .votes .upvote, .votes .flagger {
-    border-color: transparent transparent #bbb transparent;
-    border-style: solid;
-    border-width: 6px;
-    border-bottom-width: 12px;
-    text-decoration: none;
-    width: 0px;
-    height: 0;
-    margin-bottom: 0px;
-    padding: 0;
-    display: inline;
-    margin-right: 4px;
-    transform: translateY(-2px);
+  border-color: transparent transparent #bbb transparent;
+  border-style: solid;
+  border-width: 0.8ex;
+  border-bottom-width: 1.6ex;
+  border-top-width: 0;
+  text-decoration: none;
+  width: 0px;
+  height: 0;
+  margin-bottom: 0px;
+  padding: 0;
+  display: inline;
+  margin-right: 4px;
+  vertical-align: sub;
+  transform: translateY(.1ex);
 }
 
 .avatar-small {
@@ -690,9 +692,10 @@ li:hover a.feed:after {
   background: none;
   border: none;
   cursor: pointer;
-  height: 5px;
-  transform: scale(203%);
+  height: 1.8ex;
+  transform: translateX(-4px);
   display: block;
+  width: 1rem;
 }
 
 label.reply {
@@ -855,8 +858,9 @@ ul.messagelist {
 ul.messagelist li {
     display: block;
     background: var(--message-success-bg);
-    padding: .5rem 1rem;
-    outline: 4px solid #dddddd30;
+    padding: .8rem 1rem;
+    outline: 4px solid #dddddd5e;
+    outline-offset: -4px;
 }
 
 ul.messagelist li.warning {
