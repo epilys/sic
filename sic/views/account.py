@@ -17,7 +17,7 @@ from ..forms import (
     AnnotationForm,
 )
 from ..apps import SicAppConfig as config
-from . import form_errors_as_string
+from . import form_errors_as_string, HttpResponseNotImplemented
 
 
 def login(request):
@@ -237,9 +237,9 @@ def save_story(request, story_pk):
 
 
 @login_required
-def saved_posts(request, page_num=1):
-    if page_num == 1 and request.get_full_path() != reverse("saved_posts"):
-        return redirect(reverse("saved_posts"))
+def bookmarks(request, page_num=1):
+    if page_num == 1 and request.get_full_path() != reverse("bookmarks"):
+        return redirect(reverse("bookmarks"))
     user = request.user
     story_obj = list(
         user.saved_stories.through.objects.filter(story__active=True)
@@ -260,13 +260,13 @@ def saved_posts(request, page_num=1):
         # page_num BooleanFieldis bigger than the actual number of pages
         return redirect(
             reverse(
-                "saved_posts_page",
+                "bookmarks_page",
                 kwargs={"page_num": paginator.num_pages},
             )
         )
     return render(
         request,
-        "saved_posts.html",
+        "bookmarks.html",
         {"bookmarks": page, "reply_form": SubmitReplyForm(), "user": user},
     )
 
@@ -283,5 +283,4 @@ def edit_bookmark(request, bookmark_pk):
             annotation_form = AnnotationForm()
     "annotation_form": annotation_form,
     """
-
-    pass
+    return HttpResponseNotImplemented("HTTP 501: Not implemented")

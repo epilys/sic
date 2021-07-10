@@ -1,4 +1,5 @@
-from django.http import Http404
+from http import HTTPStatus
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
@@ -10,6 +11,10 @@ from django.core.exceptions import PermissionDenied
 from ..models import Story, StoryKind, Comment, User, Invitation
 from ..forms import SubmitCommentForm, SubmitReplyForm, SubmitStoryForm
 from ..apps import SicAppConfig as config
+
+
+class HttpResponseNotImplemented(HttpResponse):
+    status_code = HTTPStatus.NOT_IMPLEMENTED
 
 
 def form_errors_as_string(errors):

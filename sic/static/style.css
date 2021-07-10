@@ -899,10 +899,12 @@ span.netloc {
 
 span.netloc:before {
   content:"(";
+  font-style: normal;
 }
 
 span.netloc:after {
   content:")";
+  font-style: normal;
 }
 
 span.tag-name a {
@@ -913,4 +915,13 @@ span.tag-name a {
 span.build, span.build a:visited {
   color: #2f4f4f;
   font-size: 80%;
+}
+
+li.bookmark-annotation {
+  padding: 0 !important;
+  border: 0 !important;
+  margin-left: 3rem;
+  margin-bottom: 1rem;
+  width: max-content;
+  height: max-content;
 }

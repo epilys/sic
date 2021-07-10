@@ -71,10 +71,8 @@ urlpatterns = [
         name="password_reset",
     ),
     path("accounts/", view_account, name="account"),
-    path("accounts/bookmarks", saved_posts, name="saved_posts"),
-    path(
-        "accounts/bookmarks/page/<int:page_num>/", saved_posts, name="saved_posts_page"
-    ),
+    path("accounts/bookmarks", bookmarks, name="bookmarks"),
+    path("accounts/bookmarks/page/<int:page_num>/", bookmarks, name="bookmarks_page"),
     path(
         "accounts/bookmarks/edit/<int:bookmark_pk>", edit_bookmark, name="edit_bookmark"
     ),

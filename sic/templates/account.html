@@ -5,7 +5,7 @@
     <div style="grid-row: 1/ span 1;">
         <a href="{% url 'edit_profile' %}">edit profile</a>
         <a href="{{ user.get_absolute_url }}">view profile</a>
-        <a href="{% url 'saved_posts' %}">saved posts</a>
+        <a href="{% url 'bookmarks' %}">bookmarks</a>
     </div>
     <div class="profile">
         <label for="username">username:</label>
