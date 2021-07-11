@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.db.models import Exists, OuterRef
 from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import PermissionDenied
+from django.views.decorators.cache import cache_page
 from ..models import Story, StoryKind, Comment, User, Invitation
 from ..forms import SubmitCommentForm, SubmitReplyForm, SubmitStoryForm
 from ..apps import SicAppConfig as config
@@ -287,3 +288,18 @@ def recent_comments(request, page_num=1):
 
 def about(request):
     return render(request, "about.html")
+
+
+@cache_page(60 * 15)
+def invitation_tree(request):
+    root_user = User.objects.earliest("created")
+
+    return render(
+        request,
+        "about_invitation_tree.html",
+        {
+            "root_user": root_user,
+            "depth": 0,
+            "max_depth": 64,
+        },
+    )
