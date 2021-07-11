@@ -753,7 +753,7 @@ input[type="checkbox"].reply {
   display: none;
 }
 
-input[type="checkbox"]:checked ~ form.reply-form:first-of-type {
+input[type="checkbox"].reply:checked ~ form.reply-form:first-of-type {
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
@@ -761,50 +761,63 @@ input[type="checkbox"]:checked ~ form.reply-form:first-of-type {
   max-width: 66ch;
 }
 
-details.comment>summary>* {
+li.comment>span.links {
   vertical-align: top;
+  display: inline-flex;
+  column-gap: 4px;
+  margin-right: 4px;
 }
 
-details.comment:not([open])>summary>span.comment {
+span.comment {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+input[type="checkbox"].comment:checked~span.comment{
   display: -webkit-inline-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  padding: 0;
   width: 30ch;
-  margin: 2rem 0 0 0;
 }
 
-details.comment[open]>summary>span.comment {
+input[type="checkbox"].comment~span.comment{
   max-width: 66ch;
   text-align: justify;
-  text-indent: 1rem;
+  margin-left: 2rem;
   display: block;
-  margin-block-start: 1em;
 }
 
-details[open].comment>summary:before {
-  content: '[-]';
-  padding: 2px; /* increase hit area*/
-  cursor: pointer;
-  font-family: monospace;
-}
 
-details.comment>summary:before {
+input[type="checkbox"].comment {
+  display: none;
+}
+input[type="checkbox"].comment:checked~label.comment:before{
   content: '[+]';
   padding: 2px; /* increase hit area*/
   cursor: pointer;
   font-family: monospace;
 }
 
-details.reply>summary, details.comment>summary, details#signup-details>summary {
-  display: block;
+input[type="checkbox"].comment:not(:checked)~label.comment:before{
+  content: '[-]';
+  padding: 2px; /* increase hit area*/
+  cursor: pointer;
+  font-family: monospace;
 }
 
-details.reply[open]>summary, details.comment[open]>summary, details#signup-details[open]>summary {
-  display: block;
-  padding-bottom: 1rem;
+input[type="checkbox"].comment ~ div.replies {
+  display: revert;
+}
+input[type="checkbox"].comment:checked ~ div.replies {
+  display: none;
 }
 
+
+span.comment {
+  display: block;
+}
 
 ul.tags {
   list-style: none;
@@ -849,18 +862,13 @@ li.comment li.comment {
   padding-left: 8px;
 }
 
-li.comment>details>li.comment {
+li.comment>div.replies>li.comment {
   border-top: 1px solid black;
   margin-left: 1rem;
   border-top: 1px solid #000;
   margin-left: 1rem;
   padding: 1rem 1rem 0px 0.5rem;
   box-sizing: content-box;
-}
-
-li.comment>span.links {
-  position: absolute;
-  margin-left: 2.1rem;
 }
 
 #signup-details[open]:after {
