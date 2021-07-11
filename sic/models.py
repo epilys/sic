@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.core.mail import send_mail
+from django.contrib.sites.shortcuts import get_current_site
 from .apps import SicAppConfig as config
 from .markdown import comment_to_html
 from .voting import story_hotness
@@ -268,7 +269,7 @@ class Invitation(models.Model):
     accepted = models.DateTimeField(null=True, blank=True)
 
     def send(self, request):
-        root_url = request.get_host()
+        root_url = get_current_site(request).domain
         body = f"{config.INVITATION_BODY}\n\n{root_url}{self.get_absolute_url()}"
         try:
             send_mail(

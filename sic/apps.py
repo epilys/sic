@@ -53,7 +53,7 @@ class SicAppConfig(AppConfig):
     MIN_STORIES_CHECK_SELF_PROMOTION = 2
 
     INVITATION_SUBJECT = "Your invitation to sic"
-    INVITATION_BODY = ""
+    INVITATION_BODY = "Visit the following url to complete your registration:"
     INVITATION_FROM = settings.DEFAULT_FROM_EMAIL
 
     STORIES_PER_PAGE = 20

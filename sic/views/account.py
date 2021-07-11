@@ -1,4 +1,4 @@
-from django.http import Http404
+from django.http import HttpResponseForbidden, Http404
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
 from django.db.models import Value, BooleanField
@@ -134,8 +134,19 @@ def inbox(request):
 
 
 @login_required
-def generate_invite(request):
-    if request.method == "POST":
+def generate_invite(request, invite_pk=None):
+    if invite_pk:
+        try:
+            inv = Invitation.objects.get(pk=invite_pk)
+        except Invitation.DoesNotExist:
+            raise Http404("Invitation URL is not valid") from Invitation.DoesNotExist
+        if inv.inviter != request.user:
+            return HttpResponseForbidden()
+        if not inv.is_valid():
+            messages.add_message(request, messages.ERROR, "Invitation has expired.")
+        else:
+            inv.send(request)
+    elif request.method == "POST":
         user = request.user
         form = GenerateInviteForm(request.POST)
         if form.is_valid():

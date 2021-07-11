@@ -66,6 +66,11 @@ urlpatterns = [
     path("agg/new", new_aggregation, name="new_aggregation"),
     path("accounts/invitations/new", generate_invite, name="generate_invite"),
     path(
+        "accounts/invitations/new/<uuid:invite_pk>",
+        generate_invite,
+        name="resend_invite",
+    ),
+    path(
         "accounts/login/",
         auth_views.LoginView.as_view(template_name="login.html"),
         name="login",
