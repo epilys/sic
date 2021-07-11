@@ -71,6 +71,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "sic.settings.debug_context",
+                "sic.auth.auth_context",
             ],
         },
     },

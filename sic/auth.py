@@ -34,3 +34,17 @@ class SicBackend(ModelBackend):
             return True
         else:
             return False
+
+
+def auth_context(request):
+    if request.user.is_authenticated:
+        return {
+            "show_avatars": request.user.show_avatars,
+            "show_story_previews": request.user.show_story_previews,
+            "show_submitted_story_threads": request.user.show_submitted_story_threads,
+        }
+    return {
+        "show_avatars": True,
+        "show_story_previews": False,
+        "show_submitted_story_threads": False,
+    }
