@@ -15,6 +15,7 @@ from django.utils.timezone import make_aware
 from django.core.mail import send_mail
 from .apps import SicAppConfig as config
 from .markdown import comment_to_html
+from .voting import story_hotness
 
 url_decode_translation = str.maketrans(string.ascii_lowercase[:10], string.digits)
 url_encode_translation = str.maketrans(string.digits, string.ascii_lowercase[:10])
@@ -97,6 +98,9 @@ class Story(models.Model):
             return None
         o = urlparse(self.url)
         return o.netloc
+
+    def hotness(self):
+        return story_hotness(self)
 
 
 class Message(models.Model):
@@ -182,6 +186,9 @@ class Tag(models.Model):
 
     def slugify(self):
         return slugify(self.name, allow_unicode=True)
+
+    def hotness_modifier(self):
+        return 0.0
 
 
 class Taggregation(models.Model):

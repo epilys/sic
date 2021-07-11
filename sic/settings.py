@@ -54,6 +54,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "sic.urls"
 
+
+def debug_context(context):
+    return {"DEBUG": DEBUG}
+
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -65,6 +70,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "sic.settings.debug_context",
             ],
         },
     },
