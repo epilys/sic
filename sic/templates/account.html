@@ -2,6 +2,48 @@
 {% load utils %}
 {% block title %}sic{% endblock %}
 {% block content %}
+    <style>
+        ul.tree,
+        ul.tree ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        ul.tree ul {
+            margin-left: 10px;
+        }
+
+        ul.tree li {
+            margin: 0;
+            padding: 0 7px;
+            line-height: 20px;
+            color: #369;
+            font-weight: bold;
+            border-left: 1px solid rgb(100, 100, 100);
+
+        }
+
+        ul.tree li:last-child {
+            border-left: none;
+        }
+
+        ul.tree li:before {
+            position: relative;
+            top: -0.3em;
+            height: 1em;
+            width: 12px;
+            color: white;
+            border-bottom: 1px solid rgb(100, 100, 100);
+            content: "";
+            display: inline-block;
+            left: -7px;
+        }
+
+        ul.tree li:last-child:before {
+            border-left: 1px solid rgb(100, 100, 100);
+        }
+    </style>
     <div style="grid-row: 1/ span 1;">
         <nav>
             <ul>
@@ -81,6 +123,9 @@
     <div class="invites">
         <div class="invite_tree">
             <h2>Invitation tree</h2>
+            <ul class="tree">
+                {% include "invitation_tree.html" with user=user depth=0 max_depth=3 %}
+            </ul>
             {% for inv in user.invited.all %}
                 <p title="{{ inv.id }}">{{ inv.created }} - {{ inv.address }} - {% if inv.accepted %}<span class="accepted">accepted by <a href="{{ inv.receiver.get_absolute_url }}">{{ inv.receiver }}</a></span>{% else %}no answer yet <a href="{% url_with_next 'resend_invite' invite_pk=inv.pk request %}">resend email</a>, or <a href="{{ inv.get_absolute_url }}">share link</a>{% endif %}</p>
             {% empty %}

@@ -92,3 +92,9 @@ def build_sha():
 @register.simple_tag
 def user_can_view_taggregation(taggregation, request):
     return taggregation.user_has_access(request.user)
+
+
+@register.simple_tag(takes_context=True)
+def increment_var(context, var: str):
+    context["new_" + var] = context[var] + 1
+    return ""

@@ -1,0 +1,46 @@
+{% load humanize %}
+{% load utils %}
+{% spaceless %}
+    {% if depth < max_depth %}
+        {% if depth == 0 %}
+            {% if user.invited_by.inviter %}
+                <li>parent: <a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a>
+                    <ul>
+                        <li><a href="{{ user.get_absolute_url }}">{{ user }}</a>
+                            <ul>
+                                {% increment_var 'depth' %}
+                                {% for inv in user.invited.all %}
+                                    {% if inv.accepted %}
+                                        {% include "invitation_tree.html" with user=inv.receiver depth=new_depth max_depth=max_depth %}
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            {% else %}
+                <li><a href="{{ user.get_absolute_url }}">{{ user }}</a>
+                    <ul>
+                        {% increment_var 'depth' %}
+                        {% for inv in user.invited.all %}
+                            {% if inv.accepted %}
+                                {% include "invitation_tree.html" with user=inv.receiver depth=new_depth max_depth=max_depth %}
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endif %}
+        {% else %}
+            <li><a href="{{ user.get_absolute_url }}">{{ user }}</a>
+                <ul>
+                    {% increment_var 'depth' %}
+                    {% for inv in user.invited.all %}
+                        {% if inv.accepted %}
+                            {% include "invitation_tree.html" with user=inv.receiver depth=new_depth max_depth=max_depth %}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endif %}
+    {% endif %}
+{% endspaceless %}
