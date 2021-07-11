@@ -12,6 +12,7 @@ from ..forms import (
     GenerateInviteForm,
     EditProfileForm,
     EditAvatarForm,
+    EditAccountSettings,
     SubmitReplyForm,
     UserCreationForm,
     AnnotationForm,
@@ -300,3 +301,27 @@ def edit_bookmark(request, bookmark_pk):
     "annotation_form": annotation_form,
     """
     return HttpResponseNotImplemented("HTTP 501: Not implemented")
+
+
+@login_required
+def edit_settings(request):
+    user = request.user
+    if request.method == "POST":
+        form = EditAccountSettings(request.POST)
+        if form.is_valid():
+            user.email_notifications = form.cleaned_data["email_notifications"]
+            user.email_replies = form.cleaned_data["email_replies"]
+            user.email_messages = form.cleaned_data["email_messages"]
+            user.email_mentions = form.cleaned_data["email_mentions"]
+            user.show_avatars = form.cleaned_data["show_avatars"]
+            user.show_story_previews = form.cleaned_data["show_story_previews"]
+            user.show_submitted_story_threads = form.cleaned_data[
+                "show_submitted_story_threads"
+            ]
+            user.save()
+            return redirect(reverse("account"))
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = EditAccountSettings(initial=user._wrapped.__dict__)
+    return render(request, "edit_settings.html", {"user": user, "form": form})

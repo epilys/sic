@@ -89,6 +89,7 @@ urlpatterns = [
     ),
     path("accounts/profile/edit", edit_profile, name="edit_profile"),
     path("accounts/profile/avatar", edit_avatar, name="edit_avatar"),
+    path("accounts/settings/", edit_settings, name="edit_settings"),
     path("accounts/inbox/", inbox, name="inbox"),
     path("accounts/invitation/<uuid:invite_pk>", accept_invite, name="accept_invite"),
     path("feeds/latest.rss", LatestStoriesRss(), name="latest_stories_rss"),

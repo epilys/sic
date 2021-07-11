@@ -171,3 +171,13 @@ class EditTaggregationForm(forms.Form):
         required=False,
         help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
     )
+
+
+class EditAccountSettings(forms.Form):
+    email_notifications = forms.BooleanField(initial=True, required=False)
+    email_replies = forms.BooleanField(initial=True, required=False)
+    email_messages = forms.BooleanField(initial=True, required=False)
+    email_mentions = forms.BooleanField(initial=True, required=False)
+    show_avatars = forms.BooleanField(initial=True, required=False)
+    show_story_previews = forms.BooleanField(initial=True, required=False)
+    show_submitted_story_threads = forms.BooleanField(initial=True, required=False)

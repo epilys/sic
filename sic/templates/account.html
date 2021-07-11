@@ -5,37 +5,78 @@
     <div style="grid-row: 1/ span 1;">
         <nav>
             <ul>
+                <li><a href="{% url 'edit_settings' %}">edit settings</a></li>
                 <li><a href="{% url 'edit_profile' %}">edit profile</a></li>
                 <li><a href="{{ user.get_absolute_url }}">view profile</a></li>
                 <li><a href="{% url 'bookmarks' %}">bookmarks</a></li>
             </ul>
         </nav>
     </div>
-    <div class="profile">
-        <label for="username">username:</label>
-        <div id="username">{{ user.username }}</div>
-        <label for="homepage">homepage:</label>
-        <div id="homepage">{{ user.homepage }}</div>
-        <label for="git-repository">git repository:</label>
-        <div id="git-repository">{{ user.git_repository }}</div>
-        <label for="about">about:</label>
-        <div id="about"></div>
-        <label for="status">status:</label>
-        <div id="status">active</div>
-        <label for="joined">joined:</label>
-        <div id="joined">{{ user.created }}</div>
-        <label for="karma">karma:</label>
-        <div id="karma">{{ user.karma }}</div>
-        <label for="stories">stories:</label>
-        <div id="stories">{{ user.stories.count }}</div>
-        <label for="comments">comments:</label>
-        <div id="comments">{{ user.comments.count }}</div>
-        <div id="avatar">
-            <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
-                {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title|default_if_none:''}}">{% else %}<div>None.</div>{% endif %}
-                <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }} <a href="{% url 'edit_avatar' %}">edit avatar</a></figcaption>
-            </figure>
+    <div>
+        <h2>profile</h2>
+        <div class="profile">
+            <label for="username">username:</label>
+            <div id="username">{{ user.username }}</div>
+            <label for="homepage">homepage:</label>
+            <div id="homepage">{{ user.homepage }}</div>
+            <label for="git-repository">git repository:</label>
+            <div id="git-repository">{{ user.git_repository }}</div>
+            <label for="about">about:</label>
+            <div id="about"></div>
+            <label for="status">status:</label>
+            <div id="status">active</div>
+            <label for="joined">joined:</label>
+            <div id="joined">{{ user.created }}</div>
+            <label for="karma">karma:</label>
+            <div id="karma">{{ user.karma }}</div>
+            <label for="stories">stories:</label>
+            <div id="stories">{{ user.stories.count }}</div>
+            <label for="comments">comments:</label>
+            <div id="comments">{{ user.comments.count }}</div>
+            <div id="avatar">
+                <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
+                    {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title|default_if_none:''}}">{% else %}<div>None.</div>{% endif %}
+                    <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }} <a href="{% url 'edit_avatar' %}">edit avatar</a></figcaption>
+                </figure>
+            </div>
         </div>
+    </div>
+    <div class="settings">
+        <h2>settings</h2>
+        {% spaceless %}
+            <table>
+                <tbody>
+                    <tr>
+                        <th>email notifications</th>
+                        <td>{{ user.email_notifications }}</td>
+                    </tr>
+                    <tr>
+                        <th>email replies</th>
+                        <td>{{ user.email_replies }}</td>
+                    </tr>
+                    <tr>
+                        <th>email messages</th>
+                        <td>{{ user.email_messages }}</td>
+                    </tr>
+                    <tr>
+                        <th>email mentions</th>
+                        <td>{{ user.email_mentions }}</td>
+                    </tr>
+                    <tr>
+                        <th>show avatars</th>
+                        <td>{{ user.show_avatars }}</td>
+                    </tr>
+                    <tr>
+                        <th>show story previews</th>
+                        <td>{{ user.show_story_previews }}</td>
+                    </tr>
+                    <tr>
+                        <th> show submitted story threads</th>
+                        <td>{{ user.show_submitted_story_threads }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        {% endspaceless %}
     </div>
     <div class="invites">
         <div class="invite_tree">

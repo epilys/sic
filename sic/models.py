@@ -384,14 +384,15 @@ class User(PermissionsMixin, AbstractBaseUser):
     )
     taggregation_subscriptions = models.ManyToManyField(Taggregation, blank=True)
 
-    email_notifications = models.BooleanField(default=False, null=False)
-    email_replies = models.BooleanField(default=False, null=False)
-
-    email_messages = models.BooleanField(default=False, null=False)
-    email_mentions = models.BooleanField(default=False, null=False)
+    # options
+    email_notifications = models.BooleanField(default=True, null=False)
+    email_replies = models.BooleanField(default=True, null=False)
+    email_messages = models.BooleanField(default=True, null=False)
+    email_mentions = models.BooleanField(default=True, null=False)
     show_avatars = models.BooleanField(default=True, null=False)
-    show_story_previews = models.BooleanField(default=False, null=False)
-    show_submitted_story_threads = models.BooleanField(default=False, null=False)
+    show_story_previews = models.BooleanField(default=True, null=False)
+    show_submitted_story_threads = models.BooleanField(default=True, null=False)
+
     homepage = models.URLField(null=True, blank=True)
     git_repository = models.URLField(null=True, blank=True)
 
