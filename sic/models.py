@@ -392,8 +392,8 @@ class User(PermissionsMixin, AbstractBaseUser):
     show_avatars = models.BooleanField(default=True, null=False)
     show_story_previews = models.BooleanField(default=False, null=False)
     show_submitted_story_threads = models.BooleanField(default=False, null=False)
-    github_username = models.CharField(null=True, blank=True, max_length=500)
     homepage = models.URLField(null=True, blank=True)
+    git_repository = models.URLField(null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)

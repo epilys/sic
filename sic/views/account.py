@@ -58,11 +58,9 @@ def edit_profile(request):
     if request.method == "POST":
         form = EditProfileForm(request.POST)
         if form.is_valid():
-            homepage = form.cleaned_data["homepage"]
-            _git_repository = form.cleaned_data["git_repository"]
-            about = form.cleaned_data["about"]
-            request.user.homepage = homepage
-            request.user.about = about
+            request.user.homepage = form.cleaned_data["homepage"]
+            request.user.git_repository = form.cleaned_data["git_repository"]
+            request.user.about = form.cleaned_data["about"]
             request.user.save()
             return redirect(reverse("account"))
         error = form_errors_as_string(form.errors)
@@ -70,7 +68,7 @@ def edit_profile(request):
     else:
         initial = {
             "homepage": user.homepage,
-            "git_repository": user.github_username,
+            "git_repository": user.git_repository,
             "about": user.about,
         }
         form = EditProfileForm(initial=initial)
