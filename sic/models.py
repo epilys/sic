@@ -14,6 +14,7 @@ from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.core.mail import send_mail
 from .apps import SicAppConfig as config
+from .markdown import comment_to_html
 
 url_decode_translation = str.maketrans(string.ascii_lowercase[:10], string.digits)
 url_encode_translation = str.maketrans(string.digits, string.ascii_lowercase[:10])
@@ -154,6 +155,9 @@ class Comment(models.Model):
 
     def karma(self):
         return self.votes.count()
+
+    def text_to_html(self):
+        return comment_to_html(self.text)
 
 
 class Tag(models.Model):

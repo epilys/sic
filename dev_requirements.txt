@@ -18,3 +18,6 @@ sqlparse==0.4.1
 toml==0.10.2
 Wand==0.6.6
 wrapt==1.12.1
+linkify-it-py==1.0
+markdown-it-py==1.1.0
+markdown-it-py[linkify==1.1.0

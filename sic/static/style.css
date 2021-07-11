@@ -732,7 +732,7 @@ li:hover a.feed:after {
   width: 1rem;
 }
 
-label.reply {
+label.reply, label.toggle-source {
   cursor: pointer;
 }
 
@@ -741,8 +741,11 @@ label.required:after {
     color: red;
 }
 
-.reply a {
+.toggle-source a, .reply a {
   pointer-events: none;
+}
+.toggle-source a:visited, .reply a:visited {
+  color: LinkText;
 }
 
 form.reply-form {
@@ -766,11 +769,32 @@ li.comment>span.links {
   display: inline-flex;
   column-gap: 4px;
   margin-right: 4px;
+  margin-left: 2rem;
 }
 
 span.comment {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  padding-top: .5rem;
+  padding-bottom: .5rem;
+}
+span.comment-source {
+  display: none;
+  max-width: 66ch;
+  text-align: justify;
+  margin-left: 2rem;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding-top: .5rem;
+  padding-bottom: .5rem;
+}
+
+input[type="checkbox"].comment-source:checked~span.comment-source{
+  display: block;
+}
+input[type="checkbox"].comment-source:checked~span.comment{
+  display: none;
+}
+input[type="checkbox"].comment-source:checked~span:first-of-type.comment{
+  display: none;
 }
 
 input[type="checkbox"].comment:checked~span.comment{
@@ -780,6 +804,13 @@ input[type="checkbox"].comment:checked~span.comment{
   overflow: hidden;
   padding: 0;
   width: 30ch;
+  margin: 0;
+  outline: 1px dotted black;
+  max-width: max-content;
+  max-height: 1rem;
+}
+input[type="checkbox"].comment:checked~span.comment * {
+  margin: 0;
 }
 
 input[type="checkbox"].comment~span.comment{
@@ -788,6 +819,10 @@ input[type="checkbox"].comment~span.comment{
   margin-left: 2rem;
   display: block;
 }
+
+label.comment {
+  position: absolute;
+  }
 
 
 input[type="checkbox"].comment {
@@ -811,6 +846,9 @@ input[type="checkbox"].comment ~ div.replies {
   display: revert;
 }
 input[type="checkbox"].comment:checked ~ div.replies {
+  display: none;
+}
+input[type="checkbox"].comment:checked ~ span.comment-source {
   display: none;
 }
 
@@ -974,4 +1012,9 @@ li.bookmark-annotation {
 
 select {
   resize: vertical;
+}
+
+span.comment a {
+  word-break: break-all;
+  white-space: pre-line;
 }
