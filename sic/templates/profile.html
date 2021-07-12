@@ -3,31 +3,56 @@
 {% block title %}sic{% endblock %}
 {% block content %}
     <div class="profile">
-        <div id="label_for_username">username:</div>
-        <div id="username">{{ user.username }}</div>
-        <div id="label_for_homepage">homepage:</div>
-        <div id="homepage">{{ user.homepage|default_if_none:'None.' }}</div>
-        <div id="label_for_git-repository">git repository:</div>
-        <div id="git-repository">{{ user.git_repository|default_if_none:'None.' }}</div>
-        <div id="label_for_about">about:</div>
-        <div id="about">{{ user.about|default_if_none:'None.' }}</div>
-        <div id="label_for_status">status:</div>
-        <div id="status">{% if not user.is_active %}in{%endif%}active</div>
-        <div id="label_for_joined">joined:</div>
-        <div id="joined">{{ user.created }}</div>
-        <div id="label_for_invited_by">invited by:</div>
-        <div id="invited_by">{% if user.invited_by %}<a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a>{% else %}None.{% endif %}</div>
-        <div id="label_for_karma">karma:</div>
-        <div id="karma">{{ user.karma }}</div>
-        <div id="label_for_stories">stories:</div>
-        <div id="stories"><a href="{% url 'profile_posts' username=user.username %}">{{ user.stories.count }}</a></div>
-        <div id="label_for_comments">comments:</div>
-        <div id="comments"><a href="{% url 'profile_posts' username=user.username %}">{{ user.comments.count }}</a></div>
         <div id="avatar">
             <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
                 {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title|default_if_none:''}}">{% else %}<div>None.</div>{% endif %}
                 <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }}</figcaption>
-            </figure></div>
+            </figure>
+        </div>
+        <table>
+            <tbody>
+                <tr>
+                    <th>username:</th>
+                    <td>{{ user.username }}</td>
+                </tr>
+                <tr>
+                    <th>homepage:</th>
+                    <td>{% if user.homepage %}<a href="{{ user.homepage }}" rel="nofollow external">{{ user.homepage }}</a>{% endif %}</td>
+                </tr>
+                <tr>
+                    <th>git repository:</th>
+                    <td>{% if user.git_repository %}<a href="{{ user.git_repository }}" rel="nofollow external">{{ user.git_repository }}</a>{% endif %}</td>
+                </tr>
+                <tr>
+                    <th>about:</th>
+                    <td>{{ user.about }}</td>
+                </tr>
+                <tr>
+                    <th>status:</th>
+                    <td>{% if not user.is_active %}in{% endif %}active</td>
+                </tr>
+                <tr>
+                    <th>joined:</th>
+                    <td>{{ user.created }}</td>
+                </tr>
+                <tr>
+                    <th>invited by:</th>
+                    <td>{% if user.invited_by %}<a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a>{% else %}None.{% endif %}</td>
+                </tr>
+                <tr>
+                    <th>karma:</th>
+                    <td>{{ user.karma }}</td>
+                </tr>
+                <tr>
+                    <th>stories:</th>
+                    <td><a href="{% url 'profile_posts' username=user.username %}">{{ user.stories.count }}</a></td>
+                </tr>
+                <tr>
+                    <th>comments:</th>
+                    <td><a href="{% url 'profile_posts' username=user.username %}">{{ user.comments.count }}</a></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
     <h2>Aggregations</h2>
     {% spaceless %}

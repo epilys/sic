@@ -30,11 +30,11 @@
                 </tr>
                 <tr>
                     <th>homepage:</th>
-                    <td>{{ user.homepage }}</td>
+                    <td>{% if user.homepage %}<a href="{{ user.homepage }}" rel="nofollow external">{{ user.homepage }}</a>{% endif %}</td>
                 </tr>
                 <tr>
                     <th>git repository:</th>
-                    <td>{{ user.git_repository }}</td>
+                    <td>{% if user.git_repository %}<a href="{{ user.git_repository }}" rel="nofollow external">{{ user.git_repository }}</a>{% endif %}</td>
                 </tr>
                 <tr>
                     <th>about:</th>
