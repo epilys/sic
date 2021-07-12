@@ -76,6 +76,7 @@ def story(request, story_pk, slug=None):
                     messages.add_message(
                         request, messages.SUCCESS, "Your comment was posted."
                     )
+                    form = SubmitCommentForm()
                 else:
                     messages.add_message(
                         request, messages.ERROR, "You must be logged in to comment."

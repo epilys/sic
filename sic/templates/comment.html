@@ -24,7 +24,7 @@
         <span class="comment">{{ comment.text_to_html }}</span>
         <span class="comment-source">{{ comment.text }}</span>
         {% if request.user.is_authenticated %}
-            <input class="reply" type="checkbox" id="reply-{{comment.pk}}" name="reply-{{comment.pk}}" autocomplete="on" {% if preview %}checked="checked"{% endif %}>
+            <input class="reply" type="checkbox" id="reply-{{comment.pk}}" name="reply-{{comment.pk}}" {% if preview %}checked="checked"{% endif %}>
             <form action="{% url 'reply' comment.pk %}" method="POST" class="reply-form">
                 {% csrf_token %}
                 <input type="text" name="preview_comment_pk" value="{{comment.pk}}" hidden>
@@ -40,7 +40,7 @@
                     {% endif %}
                 </table>
                 <div class="button-flex-box">
-                    <input formaction="" type="submit" name="preview" value="Preview">
+                    <input formaction="." type="submit" name="preview" value="Preview">
                     <input type="submit" value="Submit">
                     <details class="formatting-help">
                         <summary>Formatting help</summary>

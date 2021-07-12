@@ -3,7 +3,9 @@
 {% block content %}
     <form action="" method="post" class="submit-story-form">
         {% csrf_token %}
-        {{ form }}
+        <table>
+            {{ form }}
+        </table>
         <input type="submit" value="Submit">
     </form>
 {% endblock %}

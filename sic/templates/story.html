@@ -17,15 +17,17 @@
         {% endif %}
     </article>
     {% if request.user.is_authenticated %}
-        <form action="" method="post" class="submit-comment-form">
+        <form method="post" class="submit-comment-form">
             {% if preview  %}
                 <span>Preview:</span>
                 <span class="comment preview">{{ preview }}</span>
             {% endif %}
             {% csrf_token %}
-            {{ comment_form}}
+            <table>
+                {{ comment_form}}
+            </table>
             <div class="button-flex-box">
-                <input formaction="" type="submit" name="preview" value="Preview">
+                <input type="submit" name="preview" value="Preview">
                 <input type="submit" value="Submit">
                 <details class="formatting-help">
                     <summary>Formatting help</summary>
