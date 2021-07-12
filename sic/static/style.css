@@ -543,6 +543,7 @@ form.submit-story-form {
 
 form.submit-comment-form {
   max-width: 66ch;
+  max-width: clamp(10vw, 66ch, 80vw);
   display: flex;
   flex-direction: column;
   row-gap: .5rem;
@@ -762,6 +763,7 @@ input[type="checkbox"].reply:checked ~ form.reply-form:first-of-type {
   flex-direction: column;
   row-gap: 1rem;
   max-width: 66ch;
+  max-width: clamp(10vw, 66ch, 80vw);
 }
 
 li.comment>span.links {
@@ -785,6 +787,11 @@ span.comment-source {
   margin-bottom: 1em;
   padding-top: .5rem;
   padding-bottom: .5rem;
+}
+
+span.comment.preview {
+  outline: 1px dotted;
+  outline-offset: 2px;
 }
 
 input[type="checkbox"].comment-source:checked~span.comment-source{
@@ -925,6 +932,10 @@ details#signup-details>summary>a {
   pointer-events: none;
 }
 
+main>article {
+  max-width: 80vw;
+}
+
 article>header {
   margin-bottom: 1rem;
 }
@@ -1026,4 +1037,25 @@ li.notification, li.notification a:visited, li.notification a {
 tr.active-notification, tr.active-notification a {
     background: Highlight;
     color: HighlightText;
+}
+
+div.button-flex-box {
+  display: flex;
+  flex-direction: row-reverse;
+  column-gap: 1rem;
+}
+
+details.formatting-help li {
+  list-style: revert;
+}
+details.formatting-help {
+
+}
+details.formatting-help[open]>span {
+  position: absolute;
+  padding: 1rem 1rem;
+  background: #fff;
+  outline: 1px solid Highlight;
+  max-width: 40vw;
+  overflow: auto;
 }

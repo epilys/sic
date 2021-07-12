@@ -516,6 +516,10 @@ class Notification(models.Model):
 
     def send(self, request):
         root_url = get_current_site(request).domain
+        if self.caused_by:
+            cause = str(self.caused_by)
+        else:
+            cause = "The system"
         if self.kind in {self.Kind.REPLY}:
             body = self.body + f"\n\nVisit {root_url}{self.url}"
         elif self.kind in {self.Kind.MESSAGE}:

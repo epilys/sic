@@ -12,6 +12,7 @@ from django.views.decorators.cache import cache_page
 from ..models import Story, StoryKind, Comment, User, Invitation
 from ..forms import SubmitCommentForm, SubmitReplyForm, SubmitStoryForm
 from ..apps import SicAppConfig as config
+from ..markdown import comment_to_html
 
 
 class HttpResponseNotImplemented(HttpResponse):
@@ -33,31 +34,57 @@ def story(request, story_pk, slug=None):
         story_obj = Story.objects.get(pk=story_pk)
     except Story.DoesNotExist:
         raise Http404("Story does not exist") from Story.DoesNotExist
+    if "reply_preview" in request.session:
+        request.session["reply_preview"] = {}
+    request.session.modified = True
+    ongoing_reply_form = None
+    ongoing_reply_pk = None
     if request.method == "POST":
-        form = SubmitCommentForm(request.POST)
-        if form.is_valid():
-            if request.user:
-                new = Comment.objects.create(
-                    user=request.user,
-                    story=story_obj,
-                    parent=None,
-                    text=form.cleaned_data["text"],
-                )
-                new.save()
-                parent_user = story_obj.user
-                parent_user.notify_reply(new, request)
-                messages.add_message(
-                    request, messages.SUCCESS, "Your comment was posted."
-                )
+        if "preview" in request.POST:
+            form = SubmitCommentForm()
+            if "preview_comment_pk" in request.POST:
+                comment_pk = request.POST["preview_comment_pk"]
+                ongoing_reply_form = SubmitReplyForm(request.POST)
             else:
-                messages.add_message(
-                    request, messages.ERROR, "You must be logged in to comment."
-                )
-        else:
-            error = form_errors_as_string(form.errors)
+                comment_pk = None
+                form = SubmitCommentForm(request.POST)
+                ongoing_reply_form = None
+            text = request.POST["text"]
+            if "reply_preview" not in request.session:
+                request.session["reply_preview"] = {}
+            request.session["reply_preview"][comment_pk] = comment_to_html(text)
+            request.session.modified = True
+            ongoing_reply_pk = int(comment_pk) if comment_pk else None
             messages.add_message(
-                request, messages.ERROR, f"Invalid comment form. Error: {error}"
+                request,
+                messages.INFO,
+                "You can view the formatting preview above the comment form.",
             )
+        else:
+            form = SubmitCommentForm(request.POST)
+            if form.is_valid():
+                if request.user:
+                    new = Comment.objects.create(
+                        user=request.user,
+                        story=story_obj,
+                        parent=None,
+                        text=form.cleaned_data["text"],
+                    )
+                    new.save()
+                    parent_user = story_obj.user
+                    parent_user.notify_reply(new, request)
+                    messages.add_message(
+                        request, messages.SUCCESS, "Your comment was posted."
+                    )
+                else:
+                    messages.add_message(
+                        request, messages.ERROR, "You must be logged in to comment."
+                    )
+            else:
+                error = form_errors_as_string(form.errors)
+                messages.add_message(
+                    request, messages.ERROR, f"Invalid comment form. Error: {error}"
+                )
     else:
         if slug != story_obj.slugify():
             return redirect(story_obj.get_absolute_url())
@@ -79,6 +106,8 @@ def story(request, story_pk, slug=None):
             "comment_form": form,
             "reply_form": reply_form,
             "comments": comments,
+            "ongoing_reply_form": ongoing_reply_form,
+            "ongoing_reply_pk": ongoing_reply_pk,
         },
     )
 
@@ -99,7 +128,9 @@ def reply(request, comment_pk):
                 user=user, story=comment.story, parent=comment, text=text
             )
             parent_user.notify_reply(comment, request)
-
+            messages.add_message(
+                request, messages.SUCCESS, "You successfuly submitted a comment."
+            )
         else:
             error = form_errors_as_string(form.errors)
             messages.add_message(

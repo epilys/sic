@@ -36,6 +36,7 @@ class Textractor(HTMLParser):
     def handle_data(self, data):
         self.output += re.sub(self.whitespace, " ", data).replace("\ufeff", "")
 
+    @staticmethod
     def extract(input_):
         parser = Textractor()
         parser.feed(input_)

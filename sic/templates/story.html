@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load utils %}
 {% block title %}{{story.title}} - sic {% endblock %}
 {% block content %}
+    {% get_comment_preview request None as preview  %}
     <article>
         <header>
             <h1 class="story-title"><a href="{{story.get_listing_url}}">{{ story.title }}</a></h1>
@@ -16,9 +18,20 @@
     </article>
     {% if request.user.is_authenticated %}
         <form action="" method="post" class="submit-comment-form">
+            {% if preview  %}
+                <span>Preview:</span>
+                <span class="comment preview">{{ preview }}</span>
+            {% endif %}
             {% csrf_token %}
             {{ comment_form}}
-            <input type="submit" value="Submit">
+            <div class="button-flex-box">
+                <input formaction="" type="submit" name="preview" value="Preview">
+                <input type="submit" value="Submit">
+                <details class="formatting-help">
+                    <summary>Formatting help</summary>
+                    <span>{% include "markdown_help.html" %}</span>
+                </details>
+            </div>
         </form>
     {% else %}
         <p>Sign in to post comments.</p>

@@ -98,3 +98,15 @@ def user_can_view_taggregation(taggregation, request):
 def increment_var(context, var: str):
     context["new_" + var] = context[var] + 1
     return ""
+
+
+@register.simple_tag()
+def get_comment_preview(request, comment_pk: int):
+    if isinstance(comment_pk, int):
+        comment_pk = str(comment_pk)
+    if (
+        "reply_preview" in request.session
+        and comment_pk in request.session["reply_preview"]
+    ):
+        return mark_safe(request.session["reply_preview"][comment_pk])
+    return None

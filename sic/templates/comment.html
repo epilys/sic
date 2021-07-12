@@ -1,6 +1,7 @@
 {% load humanize %}
 {% load utils %}
 
+{% get_comment_preview request comment.pk as preview  %}
 <li class="comment{% if not comment.replies.exists %} no-children{% endif %}" id="{{comment.slugify}}">
     {% spaceless %}
         <input class="comment" type="checkbox" id="comment-{{comment.pk}}" name="comment-{{comment.pk}}" >
@@ -23,13 +24,29 @@
         <span class="comment">{{ comment.text_to_html }}</span>
         <span class="comment-source">{{ comment.text }}</span>
         {% if request.user.is_authenticated %}
-            <input class="reply" type="checkbox" id="reply-{{comment.pk}}" name="reply-{{comment.pk}}">
+            <input class="reply" type="checkbox" id="reply-{{comment.pk}}" name="reply-{{comment.pk}}" autocomplete="on" {% if preview %}checked="checked"{% endif %}>
             <form action="{% url 'reply' comment.pk %}" method="POST" class="reply-form">
                 {% csrf_token %}
+                <input type="text" name="preview_comment_pk" value="{{comment.pk}}" hidden>
+                {% if preview %}
+                    <span>Preview:</span>
+                    <span class="comment preview">{{ preview }}</span>
+                {% endif %}
                 <table>
-                    {{reply_form}}
+                    {% if ongoing_reply_pk == comment.pk %}
+                        {{ ongoing_reply_form }}
+                    {% else %}
+                        {{reply_form}}
+                    {% endif %}
                 </table>
-                <input type="submit" value="Submit">
+                <div class="button-flex-box">
+                    <input formaction="" type="submit" name="preview" value="Preview">
+                    <input type="submit" value="Submit">
+                    <details class="formatting-help">
+                        <summary>Formatting help</summary>
+                        <span>{% include "markdown_help.html" %}</span>
+                    </details>
+                </div>
             </form>
         {% endif %}
         <div class="replies">
