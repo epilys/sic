@@ -236,7 +236,7 @@ def accept_invite(request, invite_pk):
 
 
 @login_required
-def save_story(request, story_pk):
+def bookmark_story(request, story_pk):
     if request.method == "GET":
         user = request.user
         try:
