@@ -9,6 +9,7 @@ from django.db.models import Exists, OuterRef
 from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.cache import cache_page
+from django.views.decorators.http import require_http_methods
 from ..models import Story, StoryKind, Comment, User, Invitation
 from ..forms import SubmitCommentForm, SubmitReplyForm, SubmitStoryForm
 from ..apps import SicAppConfig as config
@@ -340,3 +341,20 @@ def invitation_tree(request):
             "max_depth": 64,
         },
     )
+
+
+@require_http_methods(
+    [
+        "GET",
+    ]
+)
+def comment_source(request, story_pk, slug, comment_pk):
+    try:
+        story_obj = Story.objects.get(pk=story_pk)
+    except Story.DoesNotExist:
+        raise Http404("Story does not exist") from Story.DoesNotExist
+    try:
+        comment_obj = Comment.objects.get(pk=comment_pk)
+    except Comment.DoesNotExist:
+        raise Http404("Comment does not exist") from Comment.DoesNotExist
+    return HttpResponse(comment_obj.text, content_type="text/plain; charset=utf-8")
