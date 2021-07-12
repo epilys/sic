@@ -1,13 +1,14 @@
 {% load humanize %}
 {% load utils %}
 
-{% get_comment_preview request comment.pk as preview  %}
+{% get_comment_preview request comment.pk as preview %}
+{% comment_is_upvoted as is_upvoted %}
 <li class="comment{% if not comment.replies.exists %} no-children{% endif %}" id="{{comment.slugify}}">
     {% spaceless %}
         <input class="comment" type="checkbox" id="comment-{{comment.pk}}" name="comment-{{comment.pk}}" >
         <label class="comment" for="comment-{{comment.pk}}"></label>
         <span class="links"><span class="votes">
-            <span class="upvote{% if comment.upvoted %} upvoted{% endif %}">
+            <span class="upvote{% if is_upvoted %} upvoted{% endif %}">
                 {% if request.user.is_authenticated %}
                     <form action="{% url_with_next 'upvote_comment' comment.story.pk None comment.pk request %}" method="POST">
                         {% csrf_token %}

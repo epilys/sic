@@ -110,3 +110,19 @@ def get_comment_preview(request, comment_pk: int):
     ):
         return mark_safe(request.session["reply_preview"][comment_pk])
     return None
+
+
+@register.simple_tag(takes_context=True)
+def comment_is_upvoted(context):
+    user = context["request"].user
+    if not user.is_authenticated:
+        return False
+    return user.votes.filter(comment=context["comment"].pk).exists()
+
+
+@register.simple_tag(takes_context=True)
+def story_is_upvoted(context):
+    user = context["request"].user
+    if not user.is_authenticated:
+        return False
+    return user.votes.filter(story=context["story"].pk, comment=None).exists()

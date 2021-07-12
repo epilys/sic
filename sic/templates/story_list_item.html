@@ -3,8 +3,9 @@
 <li class="story">
     {% spaceless %}
         {% story_is_bookmarked request.user story as is_bookmarked %}
+        {% story_is_upvoted  as is_upvoted %}
         <div class="votes">
-            <div class="upvote{% if story.upvoted %} upvoted{% endif %}">
+            <div class="upvote{% if is_upvoted %} upvoted{% endif %}">
                 {% if request.user.is_authenticated %}
                     <form>
                         {% csrf_token %}

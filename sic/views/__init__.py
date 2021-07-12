@@ -5,7 +5,6 @@ from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
-from django.db.models import Exists, OuterRef
 from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.cache import cache_page
@@ -93,13 +92,6 @@ def story(request, story_pk, slug=None):
         form = SubmitCommentForm()
     reply_form = SubmitReplyForm()
     comments = Comment.objects.filter(story=story_obj, parent=None)
-    if request.user.is_authenticated:
-        # Annotate each comment with whether the logged in user has upvoted it or not.
-        comments = comments.annotate(
-            upvoted=Exists(
-                request.user.votes.filter(story=story_obj, comment=OuterRef("pk"))
-            )
-        )
     return render(
         request,
         "story.html",
@@ -146,13 +138,6 @@ def index(request, page_num=1):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
         return redirect(reverse("index"))
     story_obj = Story.objects.filter(active=True)
-    if request.user.is_authenticated:
-        # Annotate each story with whether the logged in user has upvoted it or not.
-        story_obj = story_obj.annotate(
-            upvoted=Exists(
-                request.user.votes.filter(story=OuterRef("pk"), comment=None)
-            )
-        )
     paginator = Paginator(
         story_obj.order_by("-created", "title"), config.STORIES_PER_PAGE
     )
@@ -282,13 +267,6 @@ def recent(request, page_num=1):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
         return redirect(reverse("recent"))
     story_obj = Story.objects.order_by("-created", "title").filter(active=True)
-    if request.user.is_authenticated:
-        # Annotate each story with whether the logged in user has upvoted it or not.
-        story_obj = story_obj.annotate(
-            upvoted=Exists(
-                request.user.votes.filter(story=OuterRef("pk"), comment=None)
-            )
-        )
     paginator = Paginator(story_obj[:40], config.STORIES_PER_PAGE)
     try:
         page = paginator.page(page_num)
@@ -305,11 +283,6 @@ def recent_comments(request, page_num=1):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
         return redirect(reverse("recent_comments"))
     comments = Comment.objects.order_by("-created").filter(deleted=False)
-    if request.user.is_authenticated:
-        # Annotate each story with whether the logged in user has upvoted it or not.
-        comments = comments.annotate(
-            upvoted=Exists(request.user.votes.filter(comment=OuterRef("pk")))
-        )
     paginator = Paginator(comments[:40], config.STORIES_PER_PAGE)
     try:
         page = paginator.page(page_num)
