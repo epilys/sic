@@ -18,6 +18,8 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from django.views.generic import RedirectView
+
 from .views import *
 from .feeds import *
 
@@ -101,4 +103,9 @@ urlpatterns = [
     path("accounts/notifications", notifications, name="notifications"),
     path("feeds/latest.rss", LatestStoriesRss(), name="latest_stories_rss"),
     path("feeds/latest.atom", LatestStoriesAtom(), name="latest_stories_atom"),
+    path(
+        "favicon.ico",
+        RedirectView.as_view(url="static/favicon.ico", permanent=False),
+        name="favicon",
+    ),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
