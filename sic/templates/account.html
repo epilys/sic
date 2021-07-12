@@ -2,48 +2,6 @@
 {% load utils %}
 {% block title %}sic{% endblock %}
 {% block content %}
-    <style>
-        ul.tree,
-        ul.tree ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        ul.tree ul {
-            margin-left: 10px;
-        }
-
-        ul.tree li {
-            margin: 0;
-            padding: 0 7px;
-            line-height: 20px;
-            color: #369;
-            font-weight: bold;
-            border-left: 1px solid rgb(100, 100, 100);
-
-        }
-
-        ul.tree li:last-child {
-            border-left: none;
-        }
-
-        ul.tree li:before {
-            position: relative;
-            top: -0.3em;
-            height: 1em;
-            width: 12px;
-            color: white;
-            border-bottom: 1px solid rgb(100, 100, 100);
-            content: "";
-            display: inline-block;
-            left: -7px;
-        }
-
-        ul.tree li:last-child:before {
-            border-left: 1px solid rgb(100, 100, 100);
-        }
-    </style>
     <div style="grid-row: 1/ span 1;">
         <nav>
             <ul>
@@ -51,37 +9,58 @@
                 <li><a href="{% url 'edit_profile' %}">edit profile</a></li>
                 <li><a href="{{ user.get_absolute_url }}">view profile</a></li>
                 <li><a href="{% url 'bookmarks' %}">bookmarks</a></li>
+                <li><a href="{% url 'notifications' %}">notification history</a></li>
             </ul>
         </nav>
     </div>
-    <div>
-        <h2>profile</h2>
-        <div class="profile">
-            <label for="username">username:</label>
-            <div id="username">{{ user.username }}</div>
-            <label for="homepage">homepage:</label>
-            <div id="homepage">{{ user.homepage }}</div>
-            <label for="git-repository">git repository:</label>
-            <div id="git-repository">{{ user.git_repository }}</div>
-            <label for="about">about:</label>
-            <div id="about"></div>
-            <label for="status">status:</label>
-            <div id="status">active</div>
-            <label for="joined">joined:</label>
-            <div id="joined">{{ user.created }}</div>
-            <label for="karma">karma:</label>
-            <div id="karma">{{ user.karma }}</div>
-            <label for="stories">stories:</label>
-            <div id="stories">{{ user.stories.count }}</div>
-            <label for="comments">comments:</label>
-            <div id="comments">{{ user.comments.count }}</div>
-            <div id="avatar">
-                <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
-                    {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title|default_if_none:''}}">{% else %}<div>None.</div>{% endif %}
-                    <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }} <a href="{% url 'edit_avatar' %}">edit avatar</a></figcaption>
-                </figure>
-            </div>
+    <h2>profile</h2>
+    <div class="profile">
+        <div id="avatar">
+            <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
+                {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title|default_if_none:''}}">{% else %}<div>None.</div>{% endif %}
+                <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }} <a href="{% url 'edit_avatar' %}">edit avatar</a></figcaption>
+            </figure>
         </div>
+        <table>
+            <tbody>
+                <tr>
+                    <th>username:</th>
+                    <td>{{ user.username }}</td>
+                </tr>
+                <tr>
+                    <th>homepage:</th>
+                    <td>{{ user.homepage }}</td>
+                </tr>
+                <tr>
+                    <th>git repository:</th>
+                    <td>{{ user.git_repository }}</td>
+                </tr>
+                <tr>
+                    <th>about:</th>
+                    <td>{{ user.about }}</td>
+                </tr>
+                <tr>
+                    <th>status:</th>
+                    <td>{% if not user.is_active %}in{% endif %}active</td>
+                </tr>
+                <tr>
+                    <th>joined:</th>
+                    <td>{{ user.created }}</td>
+                </tr>
+                <tr>
+                    <th>karma:</th>
+                    <td>{{ user.karma }}</td>
+                </tr>
+                <tr>
+                    <th>stories:</th>
+                    <td>{{ user.stories.count }}</td>
+                </tr>
+                <tr>
+                    <th>comments:</th>
+                    <td>{{ user.comments.count }}</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
     <div class="settings">
         <h2>settings</h2>
@@ -136,7 +115,9 @@
             <h2>Invite a new user</h2>
             <form method="POST" action="{% url_with_next 'generate_invite' request %}">
                 {% csrf_token %}
-                {{ generate_invite_form }}
+                <table>
+                    {{ generate_invite_form }}
+                </table>
                 <input type="submit" value="generate">
             </form>
         </div>

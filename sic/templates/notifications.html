@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Account notifications{% endblock %}
+{% block style %}
+    <style>
+        body>main {
+            overflow: auto;
+        }
+    </style>
+{% endblock %}
 {% block content %}
     <table>
         <thead>

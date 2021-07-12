@@ -36,7 +36,7 @@
                         <ul>
                             {% with request.user.active_notifications as notifications %}
                                 {% if notifications|length > 0 %}
-                                    <li class="notification"><a href="{% url 'notifications' %}">{{ notifications|length }} notification{{ notifications|pluralize }}</li></li>
+                                    <li class="notification"><a href="{% url 'notifications' %}">{{ notifications|length }} notification{{ notifications|pluralize }}</a></li>
                                 {% endif %}
                             {% endwith %}
                             <li>Replies</li>
