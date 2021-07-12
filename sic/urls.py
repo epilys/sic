@@ -90,6 +90,13 @@ urlpatterns = [
         name="password_reset",
     ),
     path("accounts/", view_account, name="account"),
+    path(
+        "accounts/password-change/",
+        auth_views.PasswordChangeView.as_view(
+            template_name="password_change.html", success_url="/accounts"
+        ),
+        name="password_change",
+    ),
     path("accounts/bookmarks", bookmarks, name="bookmarks"),
     path("accounts/bookmarks/page/<int:page_num>/", bookmarks, name="bookmarks_page"),
     path(
