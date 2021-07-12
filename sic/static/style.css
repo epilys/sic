@@ -1018,3 +1018,12 @@ span.comment a {
   word-break: break-all;
   white-space: pre-line;
 }
+
+li.notification, li.notification a:visited, li.notification a {
+  color: ActiveText;
+}
+
+tr.active-notification, tr.active-notification a {
+    background: Highlight;
+    color: HighlightText;
+}

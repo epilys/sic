@@ -15,7 +15,7 @@ from django.utils.timezone import make_aware
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from .apps import SicAppConfig as config
-from .markdown import comment_to_html
+from .markdown import comment_to_html, Textractor
 from .voting import story_hotness
 
 url_decode_translation = str.maketrans(string.ascii_lowercase[:10], string.digits)
@@ -443,6 +443,25 @@ class User(PermissionsMixin, AbstractBaseUser):
         # Simplest possible answer: All admins are staff
         return self.is_admin
 
+    def notify_reply(self, reply, request):
+        target = "comment" if reply.parent else "story"
+        plain_text_comment = Textractor.extract(reply.text_to_html()).strip()
+
+        notif = Notification.objects.create(
+            user=self,
+            name="New reply",
+            kind=Notification.Kind.REPLY,
+            body=f"{reply.user} has replied to your {target}:\n\n{plain_text_comment}",
+            caused_by=reply.user,
+            url=reply.get_absolute_url(),
+            active=True,
+        )
+        if self.email_replies:
+            notif.send(request)
+
+    def active_notifications(self):
+        return self.notifications.filter(active=True).order_by("-created")
+
 
 class CommentBookmark(models.Model):
     id = models.AutoField(primary_key=True)
@@ -467,3 +486,54 @@ class StoryBookmark(models.Model):
 
     def __str__(self):
         return f"{self.id} {self.story} {self.user} {self.created}"
+
+
+class Notification(models.Model):
+    class Kind(models.TextChoices):
+        REPLY = "RE", "New reply"
+        MESSAGE = "MSG", "New message"
+        MODERATION = "MODR", "A moderator acted on your behalf"
+        OTHER = "OTHR", "New notification"
+
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(null=False, blank=False, max_length=20)
+    body = models.TextField(null=False, blank=True)
+    url = models.URLField(null=True, blank=True)
+    user = models.ForeignKey(
+        User, related_name="notifications", on_delete=models.CASCADE
+    )
+    caused_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+    kind = models.CharField(
+        max_length=4,
+        choices=Kind.choices,
+        default=Kind.OTHER,
+    )
+    active = models.BooleanField(default=False, null=False)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} {self.kind}"
+
+    def send(self, request):
+        root_url = get_current_site(request).domain
+        if self.kind in {self.Kind.REPLY}:
+            body = self.body + f"\n\nVisit {root_url}{self.url}"
+        elif self.kind in {self.Kind.MESSAGE}:
+            body = f"{cause} has sent you a message: {root_url}{self.url}"
+        elif self.kind in {self.Kind.MODERATION}:
+            body = f"A moderator has made changes regarding your content: {root_url}{self.url}"
+        else:
+            body = f"You have a new notification: {root_url}{self.url}"
+        body += "\nYou can disable email notifications in your account settings."
+        try:
+            send_mail(
+                f"{self.name} - sic",
+                body,
+                config.NOTIFICATION_FROM,
+                [self.user.email],
+                fail_silently=False,
+            )
+        except Exception as error:
+            messages.add_message(
+                request, messages.ERROR, f"Could not send notification. Error: {error}"
+            )

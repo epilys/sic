@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Account notifications{% endblock %}
+{% block content %}
+    <table>
+        <thead>
+            <tr>
+                <th>date</th>
+                <th>caused by</th>
+                <th>kind</th>
+                <th>url</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for n in active_notifications %}
+                <tr class="active-notification">
+                    <td>{{ n.created }}</td>
+                    <td>{{ n.caused_by|default_if_none:"System" }}</td>
+                    <td>{{ n.get_kind_display }}</td>
+                    <td><a href="{{ n.url }}">{{ n.url }}</a></td>
+                </tr>
+            {% endfor %}
+            {% for n in rest_notifications %}
+                <tr>
+                    <td>{{ n.created }}</td>
+                    <td>{{ n.caused_by|default_if_none:"System" }}</td>
+                    <td>{{ n.get_kind_display }}</td>
+                    <td><a href="{{ n.url }}">{{ n.url }}</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

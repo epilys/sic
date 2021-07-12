@@ -93,6 +93,7 @@ urlpatterns = [
     path("accounts/settings/", edit_settings, name="edit_settings"),
     path("accounts/inbox/", inbox, name="inbox"),
     path("accounts/invitation/<uuid:invite_pk>", accept_invite, name="accept_invite"),
+    path("accounts/notifications", notifications, name="notifications"),
     path("feeds/latest.rss", LatestStoriesRss(), name="latest_stories_rss"),
     path("feeds/latest.atom", LatestStoriesAtom(), name="latest_stories_atom"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

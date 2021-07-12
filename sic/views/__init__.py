@@ -44,6 +44,8 @@ def story(request, story_pk, slug=None):
                     text=form.cleaned_data["text"],
                 )
                 new.save()
+                parent_user = story_obj.user
+                parent_user.notify_reply(new, request)
                 messages.add_message(
                     request, messages.SUCCESS, "Your comment was posted."
                 )
@@ -92,9 +94,12 @@ def reply(request, comment_pk):
         form = SubmitReplyForm(request.POST)
         if form.is_valid():
             text = form.cleaned_data["text"]
+            parent_user = comment.user
             comment = Comment.objects.create(
                 user=user, story=comment.story, parent=comment, text=text
             )
+            parent_user.notify_reply(comment, request)
+
         else:
             error = form_errors_as_string(form.errors)
             messages.add_message(

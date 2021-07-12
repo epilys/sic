@@ -55,5 +55,6 @@ class SicAppConfig(AppConfig):
     INVITATION_SUBJECT = "Your invitation to sic"
     INVITATION_BODY = "Visit the following url to complete your registration:"
     INVITATION_FROM = settings.DEFAULT_FROM_EMAIL
+    NOTIFICATION_FROM = settings.DEFAULT_FROM_EMAIL
 
     STORIES_PER_PAGE = 20

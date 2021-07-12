@@ -1,1 +1,5 @@
 ALLOWED_HOSTS = ["sic.example.com", "10.9.8.7"]
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "localhost"
+EMAIL_PORT = 25
+DEFAULT_FROM_EMAIL = "sic@domain.tld"

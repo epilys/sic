@@ -325,3 +325,16 @@ def edit_settings(request):
     else:
         form = EditAccountSettings(initial=user._wrapped.__dict__)
     return render(request, "edit_settings.html", {"user": user, "form": form})
+
+
+@login_required
+def notifications(request):
+    user = request.user
+    actives = list(user.notifications.filter(active=True).order_by("-created"))
+    rest = list(user.notifications.filter(active=False).order_by("-created"))
+    user.notifications.filter(active=True).update(active=False)
+    return render(
+        request,
+        "notifications.html",
+        {"user": user, "active_notifications": actives, "rest_notifications": rest},
+    )
