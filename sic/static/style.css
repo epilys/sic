@@ -818,6 +818,10 @@ ul.tags>li {
   min-width: max-content;
 }
 
+ul.posts {
+  padding-inline-start: clamp(5px, 5vw, 40px);
+}
+
 ul.posts li {
   list-style: none;
 }
@@ -1010,11 +1014,17 @@ details.formatting-help {
 }
 details.formatting-help[open]>span {
   position: absolute;
-  padding: 1rem 1rem;
+  padding: 1rem 2rem;
   background: #fff;
   outline: 1px solid Highlight;
-  max-width: 40vw;
+  max-width: 70vw;
   overflow: auto;
+  margin: 0 auto;
+  left: 10vw;
+  z-index: 2;
+}
+details.formatting-help[open]>span>table>caption{
+  margin-bottom: 1rem;
 }
 
 ul.tree,
