@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
 from wand.image import Image
-from ..models import User, Invitation, Story, StoryBookmark
+from ..models import User, Invitation, Story, StoryBookmark, Notification
 from ..forms import (
     GenerateInviteForm,
     EditProfileForm,
@@ -228,6 +228,16 @@ def accept_invite(request, invite_pk):
             user = form.save()
             auth_login(request, user)
             inv.accept(user)
+            notif = Notification.objects.create(
+                user=inv.inviter,
+                name=f"{user} has accepted your invitation",
+                kind=Notification.Kind.OTHER,
+                body=f"You can view {user}'s profile at {user.get_absolute_url()}.",
+                caused_by=user,
+                url=user.get_absolute_url(),
+                active=True,
+            )
+            inv.inviter.notify(notif, request)
             messages.add_message(request, messages.SUCCESS, "Welcome")
             return redirect(reverse("account"))
     else:

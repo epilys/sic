@@ -459,6 +459,10 @@ class User(PermissionsMixin, AbstractBaseUser):
         if self.email_replies:
             notif.send(request)
 
+    def notify(self, notify: "Notification", request):
+        if self.email_notifications:
+            notify.send(request)
+
     def active_notifications(self):
         return self.notifications.filter(active=True).order_by("-created")
 
@@ -528,7 +532,10 @@ class Notification(models.Model):
             body = f"A moderator has made changes regarding your content: {root_url}{self.url}"
         else:
             body = f"You have a new notification: {root_url}{self.url}"
-        body += "\nYou can disable email notifications in your account settings."
+        if len(self.body) > 0:
+            body += "\n\n"
+            body += self.body
+        body += "\n\nYou can disable email notifications in your account settings."
         try:
             send_mail(
                 f"{self.name} - sic",
