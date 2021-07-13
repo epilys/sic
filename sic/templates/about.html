@@ -4,6 +4,11 @@
 {% block title %}about sic{% endblock %}
 {% block content %}
     <h1>about sic</h1>
-    <p>Source code: <a href="https://github.com/epilys/sic/">https://github.com/epilys/sic/</a></p>
-    <p><a href="{% url 'invitation_tree' %}">User invitation tree</a></p>
+        <nav>
+            <ul>
+              <li><a href="{% url 'about_privacy' %}">Privacy Policy</a></li>
+              <li>Source code: <a href="https://github.com/epilys/sic/">https://github.com/epilys/sic/</a></li>
+              <li><a href="{% url 'invitation_tree' %}">User invitation tree</a></li>
+            </ul>
+        </nav>
 {% endblock %}

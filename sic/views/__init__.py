@@ -297,10 +297,6 @@ def recent_comments(request, page_num=1):
     )
 
 
-def about(request):
-    return render(request, "about.html")
-
-
 @cache_page(60 * 15)
 def invitation_tree(request):
     root_user = User.objects.earliest("created")

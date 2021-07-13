@@ -19,15 +19,21 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
+from django.views.generic.base import TemplateView
 
 from .views import *
 from .feeds import *
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("about/", TemplateView.as_view(template_name="about.html"), name="about"),
+    path("about/invitation-tree/", invitation_tree, name="invitation_tree"),
+    path(
+        "about/privacy/",
+        TemplateView.as_view(template_name="privacy.html"),
+        name="about_privacy",
+    ),
     path("", index, name="index"),
-    path("about/", about, name="about"),
-    path("about/invitation-tree", invitation_tree, name="invitation_tree"),
     path("page/<int:page_num>/", index, name="index_page"),
     path("recent", recent, name="recent"),
     path("recent/page/<int:page_num>/", recent, name="recent_page"),

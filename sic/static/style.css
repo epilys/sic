@@ -862,6 +862,13 @@ main>article {
   max-width: 80vw;
 }
 
+p {
+  text-align: justify;
+  hyphens: auto;
+  word-break: break-word;
+  max-width: clamp(10vw, 66ch, 80vw);
+}
+
 article>header {
   margin-bottom: 1rem;
 }
