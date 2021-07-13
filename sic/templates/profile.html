@@ -15,14 +15,12 @@
                     <th>username:</th>
                     <td>{{ user.username }}</td>
                 </tr>
-                <tr>
-                    <th>homepage:</th>
-                    <td>{% if user.homepage %}<a href="{{ user.homepage }}" rel="nofollow external">{{ user.homepage }}</a>{% endif %}</td>
-                </tr>
-                <tr>
-                    <th>git repository:</th>
-                    <td>{% if user.git_repository %}<a href="{{ user.git_repository }}" rel="nofollow external">{{ user.git_repository }}</a>{% endif %}</td>
-                </tr>
+                {% for label, metadata in user.metadata_fields %}
+                    <tr>
+                        <th>{{ label }}:</th>
+                        <td>{{ metadata|urlize }}</td>
+                    </tr>
+                {% endfor %}
                 <tr>
                     <th>about:</th>
                     <td>{{ user.about }}</td>

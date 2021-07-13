@@ -395,6 +395,14 @@ class User(PermissionsMixin, AbstractBaseUser):
 
     homepage = models.URLField(null=True, blank=True)
     git_repository = models.URLField(null=True, blank=True)
+    metadata_1 = models.CharField(null=True, blank=True, max_length=200)
+    metadata_2 = models.CharField(null=True, blank=True, max_length=200)
+    metadata_3 = models.CharField(null=True, blank=True, max_length=200)
+    metadata_4 = models.CharField(null=True, blank=True, max_length=200)
+    metadata_1_label = models.CharField(null=True, blank=True, max_length=200)
+    metadata_2_label = models.CharField(null=True, blank=True, max_length=200)
+    metadata_3_label = models.CharField(null=True, blank=True, max_length=200)
+    metadata_4_label = models.CharField(null=True, blank=True, max_length=200)
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -465,6 +473,22 @@ class User(PermissionsMixin, AbstractBaseUser):
 
     def active_notifications(self):
         return self.notifications.filter(active=True).order_by("-created")
+
+    def metadata_fields(self):
+        ret = []
+        if self.homepage and len(self.homepage) > 0:
+            ret.append(("homepage", self.homepage))
+        if self.git_repository and len(self.git_repository) > 0:
+            ret.append(("git repository", self.git_repository))
+        if self.metadata_1 and len(self.metadata_1) > 0:
+            ret.append((self.metadata_1_label, self.metadata_1))
+        if self.metadata_2 and len(self.metadata_2) > 0:
+            ret.append((self.metadata_2_label, self.metadata_2))
+        if self.metadata_3 and len(self.metadata_2) > 0:
+            ret.append((self.metadata_3_label, self.metadata_3))
+        if self.metadata_4 and len(self.metadata_4) > 0:
+            ret.append((self.metadata_4_label, self.metadata_4))
+        return ret
 
 
 class CommentBookmark(models.Model):

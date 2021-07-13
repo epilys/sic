@@ -72,6 +72,22 @@ class EditProfileForm(forms.Form):
         required=False, label="about", max_length=500, widget=forms.Textarea
     )
     about.widget.attrs.update({"rows": 3, "placeholder": ""})
+    metadata_1_label = forms.CharField(
+        required=False, label="Metadata 1 label", max_length=200
+    )
+    metadata_1 = forms.CharField(required=False, label="Metadata 1", max_length=200)
+    metadata_2_label = forms.CharField(
+        required=False, label="Metadata 2 label", max_length=200
+    )
+    metadata_2 = forms.CharField(required=False, label="Metadata 2", max_length=200)
+    metadata_3_label = forms.CharField(
+        required=False, label="Metadata 3 label", max_length=200
+    )
+    metadata_3 = forms.CharField(required=False, label="Metadata 3", max_length=200)
+    metadata_4_label = forms.CharField(
+        required=False, label="Metadata 4 label", max_length=200
+    )
+    metadata_4 = forms.CharField(required=False, label="Metadata 4", max_length=200)
 
 
 class GenerateInviteForm(forms.Form):

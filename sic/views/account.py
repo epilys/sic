@@ -62,6 +62,11 @@ def edit_profile(request):
             request.user.homepage = form.cleaned_data["homepage"]
             request.user.git_repository = form.cleaned_data["git_repository"]
             request.user.about = form.cleaned_data["about"]
+            for i in range(1, 5):
+                field = f"metadata_{i}"
+                label = field + "_label"
+                user._wrapped.__dict__[field] = form.cleaned_data[field]
+                user._wrapped.__dict__[label] = form.cleaned_data[label]
             request.user.save()
             return redirect(reverse("account"))
         error = form_errors_as_string(form.errors)
@@ -72,6 +77,11 @@ def edit_profile(request):
             "git_repository": user.git_repository,
             "about": user.about,
         }
+        for i in range(1, 5):
+            field = f"metadata_{i}"
+            label = field + "_label"
+            initial[field] = user._wrapped.__dict__[field]
+            initial[label] = user._wrapped.__dict__[label]
         form = EditProfileForm(initial=initial)
     return render(request, "edit_profile.html", {"user": request.user, "form": form})
 
