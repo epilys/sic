@@ -1,0 +1,473 @@
+/* Original animation from https://tomhazledine.com/ */
+
+.sic-animation {
+ position:absolute;
+ top:0;
+ left:0;
+ width:300px;
+ height:300px;
+ overflow:hidden;
+ pointer-events: none;
+}
+.sic-animation__inner {
+ position:absolute;
+ top:0;
+ left:0;
+ width:284px;
+ height:142px;
+ transform:translateY(58px) rotate(-45deg);
+ transform-origin:0 100%
+}
+.sic-animation__item {
+ display:block;
+ width:14.28571px;
+ height:14.28571px;
+ position:absolute;
+ top:0;
+ left:-14.28571px;
+ -webkit-animation:corner-slide 2s cubic-bezier(0,.7,.8,0) infinite;
+ animation:corner-slide 2s cubic-bezier(0,.7,.8,0) infinite;
+ transform:rotate(45deg)
+}
+
+@media (prefers-reduced-motion) {
+.sic-animation__item {
+ -webkit-animation:none;
+  animation: none;
+  display: none;
+}
+}
+
+.sic-animation__item:before {
+ content:"[sic]";
+ font-family: serif;
+}
+.sic-animation__item:nth-of-type(2n):before {
+ content:"[sic]";
+ font-family: sans-serif;
+ text-decoration: underline wavy red;
+}
+.sic-animation__item:nth-of-type(4n):before {
+ content:"[sic]";
+ font-family: cursive;
+}
+.sic-animation__item:nth-of-type(5n):before {
+ content:"[sic]";
+ font-style: oblique;
+}
+.sic-animation__item:first-of-type {
+ top:0;
+ font-size:17.11429px;
+ width:17.11429px;
+ height:17.11429px;
+ opacity:.95;
+ color:var(--primary);
+ -webkit-animation-delay:2.062s;
+ animation-delay:2.062s;
+ -webkit-animation-duration:3.76s;
+ animation-duration:3.76s
+}
+@media (max-width:750px) {
+ .sic-animation__item:first-of-type {
+  top:0;
+  font-size:8.55714px;
+  width:8.55714px;
+  height:8.55714px
+ }
+}
+.sic-animation__item:nth-of-type(2) {
+ top:.71429px;
+ font-size:15.2px;
+ width:15.2px;
+ height:15.2px;
+ opacity:.9;
+ color:var(--primary);
+ -webkit-animation-delay:2.633s;
+ animation-delay:2.633s;
+ -webkit-animation-duration:2.03s;
+ animation-duration:2.03s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(2) {
+  top:.35714px;
+  font-size:7.6px;
+  width:7.6px;
+  height:7.6px
+ }
+}
+.sic-animation__item:nth-of-type(3) {
+ top:2.14286px;
+ font-size:11.91429px;
+ width:11.91429px;
+ height:11.91429px;
+ opacity:.85;
+ color:var(--primary);
+ -webkit-animation-delay:2.316s;
+ animation-delay:2.316s;
+ -webkit-animation-duration:1.522s;
+ animation-duration:1.522s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(3) {
+  top:1.07143px;
+  font-size:5.95714px;
+  width:5.95714px;
+  height:5.95714px
+ }
+}
+.sic-animation__item:nth-of-type(4) {
+ top:4.28571px;
+ font-size:17.31429px;
+ width:17.31429px;
+ height:17.31429px;
+ opacity:.8;
+ color:var(--primary);
+ -webkit-animation-delay:1.195s;
+ animation-delay:1.195s;
+ -webkit-animation-duration:3.86s;
+ animation-duration:3.86s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(4) {
+  top:2.14286px;
+  font-size:8.65714px;
+  width:8.65714px;
+  height:8.65714px
+ }
+}
+.sic-animation__item:nth-of-type(5) {
+ top:7.14286px;
+ font-size:7.62857px;
+ width:7.62857px;
+ height:7.62857px;
+ opacity:.75;
+ color:var(--primary);
+ -webkit-animation-delay:2.736s;
+ animation-delay:2.736s;
+ -webkit-animation-duration:3.366s;
+ animation-duration:3.366s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(5) {
+  top:3.57143px;
+  font-size:3.81429px;
+  width:3.81429px;
+  height:3.81429px
+ }
+}
+.sic-animation__item:nth-of-type(6) {
+ top:10.71429px;
+ font-size:14.22857px;
+ width:14.22857px;
+ height:14.22857px;
+ opacity:.7;
+ color:var(--primary);
+ -webkit-animation-delay:.22s;
+ animation-delay:.22s;
+ -webkit-animation-duration:3.392s;
+ animation-duration:3.392s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(6) {
+  top:5.35714px;
+  font-size:7.11429px;
+  width:7.11429px;
+  height:7.11429px
+ }
+}
+.sic-animation__item:nth-of-type(7) {
+ top:15px;
+ font-size:18.97143px;
+ width:18.97143px;
+ height:18.97143px;
+ opacity:.65;
+ color:var(--primary);
+ -webkit-animation-delay:2.646s;
+ animation-delay:2.646s;
+ -webkit-animation-duration:3.904s;
+ animation-duration:3.904s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(7) {
+  top:7.5px;
+  font-size:9.48571px;
+  width:9.48571px;
+  height:9.48571px
+ }
+}
+.sic-animation__item:nth-of-type(8) {
+ top:20px;
+ font-size:20.21429px;
+ width:20.21429px;
+ height:20.21429px;
+ opacity:.6;
+ color:var(--primary);
+ -webkit-animation-delay:2.933s;
+ animation-delay:2.933s;
+ -webkit-animation-duration:2.8s;
+ animation-duration:2.8s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(8) {
+  top:10px;
+  font-size:10.10714px;
+  width:10.10714px;
+  height:10.10714px
+ }
+}
+.sic-animation__item:nth-of-type(9) {
+ top:25.71429px;
+ font-size:12.54286px;
+ width:12.54286px;
+ height:12.54286px;
+ opacity:.55;
+ color:var(--primary);
+ -webkit-animation-delay:1.319s;
+ animation-delay:1.319s;
+ -webkit-animation-duration:.988s;
+ animation-duration:.988s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(9) {
+  top:12.85714px;
+  font-size:6.27143px;
+  width:6.27143px;
+  height:6.27143px
+ }
+}
+.sic-animation__item:nth-of-type(10) {
+ top:32.14286px;
+ font-size:13.3px;
+ width:13.3px;
+ height:13.3px;
+ opacity:.5;
+ color:var(--primary);
+ -webkit-animation-delay:2.157s;
+ animation-delay:2.157s;
+ -webkit-animation-duration:3.25s;
+ animation-duration:3.25s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(10) {
+  top:16.07143px;
+  font-size:6.65px;
+  width:6.65px;
+  height:6.65px
+ }
+}
+.sic-animation__item:nth-of-type(11) {
+ top:39.28571px;
+ font-size:14.17143px;
+ width:14.17143px;
+ height:14.17143px;
+ opacity:.45;
+ color:var(--primary);
+ -webkit-animation-delay:1.834s;
+ animation-delay:1.834s;
+ -webkit-animation-duration:2.904s;
+ animation-duration:2.904s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(11) {
+  top:19.64286px;
+  font-size:7.08571px;
+  width:7.08571px;
+  height:7.08571px
+ }
+}
+.sic-animation__item:nth-of-type(12) {
+ top:47.14286px;
+ font-size:13.3px;
+ width:13.3px;
+ height:13.3px;
+ opacity:.4;
+ color:var(--primary);
+ -webkit-animation-delay:1.606s;
+ animation-delay:1.606s;
+ -webkit-animation-duration:1.824s;
+ animation-duration:1.824s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(12) {
+  top:23.57143px;
+  font-size:6.65px;
+  width:6.65px;
+  height:6.65px
+ }
+}
+.sic-animation__item:nth-of-type(13) {
+ top:55.71429px;
+ font-size:20.02857px;
+ width:20.02857px;
+ height:20.02857px;
+ opacity:.35;
+ color:var(--primary);
+ -webkit-animation-delay:2.536s;
+ animation-delay:2.536s;
+ -webkit-animation-duration:3.596s;
+ animation-duration:3.596s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(13) {
+  top:27.85714px;
+  font-size:10.01429px;
+  width:10.01429px;
+  height:10.01429px
+ }
+}
+.sic-animation__item:nth-of-type(14) {
+ top:65px;
+ font-size:20.97143px;
+ width:20.97143px;
+ height:20.97143px;
+ opacity:.3;
+ color:var(--primary);
+ -webkit-animation-delay:1.936s;
+ animation-delay:1.936s;
+ -webkit-animation-duration:2.202s;
+ animation-duration:2.202s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(14) {
+  top:32.5px;
+  font-size:10.48571px;
+  width:10.48571px;
+  height:10.48571px
+ }
+}
+.sic-animation__item:nth-of-type(15) {
+ top:75px;
+ font-size:19.32857px;
+ width:19.32857px;
+ height:19.32857px;
+ opacity:.25;
+ color:var(--primary);
+ -webkit-animation-delay:2.235s;
+ animation-delay:2.235s;
+ -webkit-animation-duration:3.124s;
+ animation-duration:3.124s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(15) {
+  top:37.5px;
+  font-size:9.66429px;
+  width:9.66429px;
+  height:9.66429px
+ }
+}
+.sic-animation__item:nth-of-type(16) {
+ top:85.71429px;
+ font-size:10.98571px;
+ width:10.98571px;
+ height:10.98571px;
+ opacity:.2;
+ color:var(--primary);
+ -webkit-animation-delay:2.789s;
+ animation-delay:2.789s;
+ -webkit-animation-duration:3.148s;
+ animation-duration:3.148s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(16) {
+  top:42.85714px;
+  font-size:5.49286px;
+  width:5.49286px;
+  height:5.49286px
+ }
+}
+.sisic-animation__item:nth-of-type(17) {
+ top:97.14286px;
+ font-size:17.64286px;
+ width:17.64286px;
+ height:17.64286px;
+ opacity:.15;
+ color:var(--primary);
+ -webkit-animation-delay:1.377s;
+ animation-delay:1.377s;
+ -webkit-animation-duration:3.638s;
+ animation-duration:3.638s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(17) {
+  top:48.57143px;
+  font-size:8.82143px;
+  width:8.82143px;
+  height:8.82143px
+ }
+}
+.sic-animation__item:nth-of-type(18) {
+ top:109.28571px;
+ font-size:14.6px;
+ width:14.6px;
+ height:14.6px;
+ opacity:.1;
+ color:var(--primary);
+ -webkit-animation-delay:.14s;
+ animation-delay:.14s;
+ -webkit-animation-duration:3.004s;
+ animation-duration:3.004s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(18) {
+  top:54.64286px;
+  font-size:7.3px;
+  width:7.3px;
+  height:7.3px
+ }
+}
+.sic-animation__item:nth-of-type(19) {
+ top:122.14286px;
+ font-size:14.01429px;
+ width:14.01429px;
+ height:14.01429px;
+ opacity:.05;
+ color:var(--primary);
+ -webkit-animation-delay:1.279s;
+ animation-delay:1.279s;
+ -webkit-animation-duration:2.298s;
+ animation-duration:2.298s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(19) {
+  top:61.07143px;
+  font-size:7.00714px;
+  width:7.00714px;
+  height:7.00714px
+ }
+}
+.sic-animation__item:nth-of-type(20) {
+ top:135.71429px;
+ font-size:7.65714px;
+ width:7.65714px;
+ height:7.65714px;
+ opacity:0;
+ color:var(--primary);
+ -webkit-animation-delay:.573s;
+ animation-delay:.573s;
+ -webkit-animation-duration:2.784s;
+ animation-duration:2.784s
+}
+@media (max-width:750px) {
+ .sic-animation__item:nth-of-type(20) {
+  top:67.85714px;
+  font-size:3.82857px;
+  width:3.82857px;
+  height:3.82857px
+ }
+}
+@-webkit-keyframes corner-slide {
+ 0% {
+  left:-14.28571px
+ }
+ to {
+  left:100%
+ }
+}
+@keyframes corner-slide {
+ 0% {
+  left:-14.28571px
+ }
+ to {
+  left:100%
+ }
+}
