@@ -114,6 +114,8 @@ urlpatterns = [
     path("accounts/inbox/", inbox, name="inbox"),
     path("accounts/invitation/<uuid:invite_pk>", accept_invite, name="accept_invite"),
     path("accounts/notifications", notifications, name="notifications"),
+    path("accounts/hats/edit/<int:hat_pk>", edit_hat, name="edit_hat"),
+    path("accounts/hats/create/", edit_hat, name="new_hat"),
     path("feeds/latest.rss", LatestStoriesRss(), name="latest_stories_rss"),
     path("feeds/latest.atom", LatestStoriesAtom(), name="latest_stories_atom"),
     path(

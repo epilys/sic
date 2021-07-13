@@ -124,9 +124,14 @@
     <div class="hats">
         <h2>Hats</h2>
         {% if can_add_hats %}
+            <nav>
+                <ul>
+                    <li><a href="{% url 'new_hat' %}">add hat</a></li>
+                </ul>
+            </nav>
             <ul>
-                {% for hat in hats %}
-                    <li>{{ hat.name }}</li>
+                {% for hat in user.hats.all %}
+                    <li class="hat" style="--hat-color: {{ hat.hex_color }}"><span class="hat" title="{{ hat.hex_color }}">{{ hat.name }}</span> <a href="{% url 'edit_hat' hat.pk %}">edit</a></li>
                 {% empty %}
                     <li>You have no hats.</li>
                 {% endfor %}

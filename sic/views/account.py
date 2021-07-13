@@ -7,12 +7,13 @@ from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
 from wand.image import Image
-from ..models import User, Invitation, Story, StoryBookmark, Notification
+from ..models import User, Invitation, Story, StoryBookmark, Notification, Hat
 from ..forms import (
     GenerateInviteForm,
     EditProfileForm,
     EditAvatarForm,
     EditAccountSettings,
+    EditHatForm,
     SubmitReplyForm,
     UserCreationForm,
     AnnotationForm,
@@ -358,3 +359,37 @@ def notifications(request):
         "notifications.html",
         {"user": user, "active_notifications": actives, "rest_notifications": rest},
     )
+
+
+@login_required
+def edit_hat(request, hat_pk=None):
+    if hat_pk:
+        try:
+            hat = Hat.objects.get(pk=hat_pk)
+        except Hat.DoesNotExist:
+            raise Http404("Hat does not exist") from Hat.DoesNotExist
+    else:
+        hat = None
+    user = request.user
+
+    if hat and not user.has_perm("sic.change_hat", hat):
+        return HttpResponseForbidden()
+    if request.method == "POST":
+        form = EditHatForm(request.POST)
+        if form.is_valid():
+            new_name = form.cleaned_data["name"]
+            new_color = form.cleaned_data["hex_color"]
+            if hat:
+                hat.name = new_name
+                hat.hex_color = new_color
+            else:
+                hat = Hat.objects.create(name=new_name, hex_color=new_color, user=user)
+            hat.save()
+            return redirect(reverse("account"))
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = EditHatForm(
+            initial={"name": hat.name, "hex_color": hat.hex_color} if hat else {}
+        )
+    return render(request, "edit_hat.html", {"user": user, "form": form, "hat": hat})

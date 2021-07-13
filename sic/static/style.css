@@ -385,7 +385,7 @@ main nav>ul{
   list-style: none;
   column-gap: 1rem;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: start;
   flex-flow:wrap;
   margin: 0;
   width: max-content;
@@ -568,6 +568,7 @@ div.profile {
   column-gap: 2rem;
   max-height: max-content;
   max-width: max-content;
+  justify-content: center;
 }
 
 .profile table {
@@ -589,6 +590,7 @@ figure#avatar-thumbnail {
   background-size: 1px 1px;
   display: flex;
   flex-direction: column;
+  margin: 0;
 }
 
 figure#avatar-thumbnail figcaption {
@@ -1066,4 +1068,19 @@ ul.tree li:before {
 
 ul.tree li:last-child:before {
     border-left: 1px solid rgb(100, 100, 100);
+}
+
+span.hat {
+  display: inline-block;
+  background: white;
+  color: var(--hat-color, black);
+  padding: 1px 2px;
+  border: 1px solid var(--hat-color, black);
+  border-radius: 3px;
+  height: max-content;
+  width: max-content;
+}
+
+li.hat::marker {
+  color: var(--hat-color, black);
 }

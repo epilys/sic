@@ -197,3 +197,17 @@ class EditAccountSettings(forms.Form):
     show_avatars = forms.BooleanField(initial=True, required=False)
     show_story_previews = forms.BooleanField(initial=True, required=False)
     show_submitted_story_threads = forms.BooleanField(initial=True, required=False)
+
+
+class EditHatForm(forms.Form):
+    name = forms.CharField(
+        required=True,
+        label="Name",
+        max_length=100,
+    )
+    hex_color = forms.CharField(
+        max_length=7,
+        required=False,
+        initial="#000000",
+        widget=forms.TextInput(attrs={"type": "color"}),
+    )

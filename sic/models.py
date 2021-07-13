@@ -321,10 +321,13 @@ class Moderation(models.Model):
 
 class Hat(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(null=False, blank=False, max_length=30)
+    name = models.CharField(null=False, blank=False, max_length=100)
+    hex_color = models.CharField(max_length=7, null=True, blank=True, default="#000000")
     user = models.ForeignKey(
         "User", related_name="hats", on_delete=models.CASCADE, null=False
     )
+    last_modified = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+    created = models.DateTimeField(auto_now_add=True)
 
 
 class UserManager(BaseUserManager):
