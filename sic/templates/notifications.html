@@ -1,38 +1,42 @@
 {% extends "base.html" %}
 {% block title %}Account notifications{% endblock %}
-{% block style %}
-    <style>
-        body>main {
-            overflow: auto;
-        }
-    </style>
-{% endblock %}
 {% block content %}
     <table>
         <thead>
             <tr>
-                <th>date</th>
-                <th>caused by</th>
-                <th>kind</th>
-                <th>url</th>
+                <th>title</th>
+                <th>body</th>
+                <th>cause</th>
             </tr>
         </thead>
         <tbody>
             {% for n in active_notifications %}
                 <tr class="active-notification">
-                    <td>{{ n.created }}</td>
-                    <td>{{ n.caused_by|default_if_none:"System" }}</td>
-                    <td>{{ n.get_kind_display }}</td>
-                    <td><a href="{{ n.url }}">{{ n.url }}</a></td>
-                </tr>
+                    <td>{{ n.name }}</td>
+                    <td><p>{{ n.body }}</p>
+                        <p>Link: <a href="{{ n.url }}">{{ n.url }}</a><p></td>
+                            <td class="subtable">
+                                <ul>
+                                    <li>{{ n.created }}</li>
+                                    <li>{{ n.get_kind_display }}</li>
+                                    <li>{% if n.caused_by %}<a href="{{ n.caused_by.get_absolute_url }}">{{ n.caused_by }}</a>{% else %}System{% endif %}</li>
+                                </ul>
+                            </td>
+                        </tr>
             {% endfor %}
             {% for n in rest_notifications %}
                 <tr>
-                    <td>{{ n.created }}</td>
-                    <td>{{ n.caused_by|default_if_none:"System" }}</td>
-                    <td>{{ n.get_kind_display }}</td>
-                    <td><a href="{{ n.url }}">{{ n.url }}</a></td>
-                </tr>
+                    <td>{{ n.name }}</td>
+                    <td><p>{{ n.body }}</p>
+                        <p>Link: <a href="{{ n.url }}">{{ n.url }}</a><p></td>
+                            <td class="subtable">
+                                <ul>
+                                    <li>{{ n.created }}</li>
+                                    <li>{{ n.get_kind_display }}</li>
+                                    <li>{% if n.caused_by %}<a href="{{ n.caused_by.get_absolute_url }}">{{ n.caused_by }}</a>{% else %}System{% endif %}</li>
+                                </ul>
+                            </td>
+                        </tr>
             {% endfor %}
         </tbody>
     </table>

@@ -902,6 +902,7 @@ h1, h2, h3, h4, h5, h6 {
 
 table {
   width: max-content;
+  max-width: 80vw;
 }
 
 table,
@@ -911,6 +912,27 @@ td {
 
 th, td {
   padding: 2px 5px;
+}
+
+th.subtable, td.subtable {
+  padding: 0;
+}
+
+.subtable>ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  row-gap: .5rem;
+}
+
+.subtable>ul>li {
+  padding: 3px 5px;
+}
+
+.subtable>ul>li + li {
+  border-top: 1px solid black;
 }
 
 thead,
