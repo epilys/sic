@@ -63,3 +63,8 @@ class SicAppConfig(AppConfig):
     FTS_DATABASE_FILENAME = "fts.db"
     FTS_COMMENTS_TABLE_NAME = "fts5_comments"
     FTS_STORIES_TABLE_NAME = "fts5_stories"
+
+    MENTION_TOKENIZER_NAME = "mention_tokenizer"
+
+    def ready(self):
+        import sic.notifications

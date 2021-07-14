@@ -239,7 +239,7 @@ def accept_invite(request, invite_pk):
             user = form.save()
             auth_login(request, user)
             inv.accept(user)
-            notif = Notification.objects.create(
+            Notification.objects.create(
                 user=inv.inviter,
                 name=f"{user} has accepted your invitation",
                 kind=Notification.Kind.OTHER,
@@ -248,7 +248,6 @@ def accept_invite(request, invite_pk):
                 url=user.get_absolute_url(),
                 active=True,
             )
-            inv.inviter.notify(notif, request)
             messages.add_message(request, messages.SUCCESS, "Welcome")
             return redirect(reverse("account"))
     else:

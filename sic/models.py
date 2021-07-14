@@ -14,6 +14,7 @@ from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.sites.models import Site
 from .apps import SicAppConfig as config
 from .markdown import comment_to_html, Textractor
 from .voting import story_hotness
@@ -458,26 +459,6 @@ class User(PermissionsMixin, AbstractBaseUser):
         # Simplest possible answer: All admins are staff
         return self.is_admin
 
-    def notify_reply(self, reply, request):
-        target = "comment" if reply.parent else "story"
-        plain_text_comment = reply.text_to_plain_text()
-
-        notif = Notification.objects.create(
-            user=self,
-            name="New reply",
-            kind=Notification.Kind.REPLY,
-            body=f"{reply.user} has replied to your {target}:\n\n{plain_text_comment}",
-            caused_by=reply.user,
-            url=reply.get_absolute_url(),
-            active=True,
-        )
-        if self.email_replies:
-            notif.send(request)
-
-    def notify(self, notify: "Notification", request):
-        if self.email_notifications:
-            notify.send(request)
-
     def active_notifications(self):
         return self.notifications.filter(active=True).order_by("-created")
 
@@ -526,6 +507,7 @@ class StoryBookmark(models.Model):
 class Notification(models.Model):
     class Kind(models.TextChoices):
         REPLY = "RE", "New reply"
+        MENTION = "MEN", "Mention"
         MESSAGE = "MSG", "New message"
         MODERATION = "MODR", "A moderator acted on your behalf"
         OTHER = "OTHR", "New notification"
@@ -549,8 +531,12 @@ class Notification(models.Model):
     def __str__(self):
         return f"{self.name} {self.kind}"
 
-    def send(self, request):
-        root_url = get_current_site(request).domain
+    def send(self, request=None):
+        if request:
+            domain = get_current_site(request).domain
+        else:
+            domain = Site.objects.get_current().domain
+        root_url = f"http://{domain}"
         if self.caused_by:
             cause = str(self.caused_by)
         else:
@@ -566,10 +552,10 @@ class Notification(models.Model):
         if len(self.body) > 0:
             body += "\n\n"
             body += self.body
-        body += "\n\nYou can disable email notifications in your account settings."
+        body += f"\n\nYou can disable email notifications in your account settings: {root_url}{reverse('edit_settings')}"
         try:
             send_mail(
-                f"{self.name} - sic",
+                f"[sic] {self.name}",
                 body,
                 config.NOTIFICATION_FROM,
                 [self.user.email],
