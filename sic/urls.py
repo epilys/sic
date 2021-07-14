@@ -35,6 +35,8 @@ urlpatterns = [
     ),
     path("", index, name="index"),
     path("page/<int:page_num>/", index, name="index_page"),
+    path("all/", all_stories, name="all_stories"),
+    path("all/page/<int:page_num>/", all_stories, name="all_stories_page"),
     path("recent", recent, name="recent"),
     path("recent/page/<int:page_num>/", recent, name="recent_page"),
     path("comments", recent_comments, name="recent_comments"),

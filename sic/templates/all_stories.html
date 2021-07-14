@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load utils %}
+{% block title %}All stories - sic{% endblock %}
+{% block content %}
+    <ul class="posts">
+        {% for story in stories %}
+            {% include "story_list_item.html" with story=story %}
+        {% endfor %}
+    </ul>
+    <div class="pagination">
+        <span class="step-links">
+            {% if stories.has_previous %}
+                <a href="{% url 'all_stories' %}">&laquo; first</a>
+                <a href="{% url 'all_stories_page' stories.previous_page_number %}">&lt; previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ stories.number }}
+            </span>
+
+            {% if stories.has_next %}
+                <a href="{% url 'all_stories_page' stories.next_page_number %}">next &gt;</a>
+            {% else %}
+                (of {{stories.number}})
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}

@@ -134,19 +134,70 @@ def reply(request, comment_pk):
 
 
 def index(request, page_num=1):
-    if page_num == 1 and request.get_full_path() != "/":
+    if page_num == 1 and request.get_full_path() != reverse("index"):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
         return redirect(reverse("index"))
-    story_obj = Story.objects.filter(active=True)
-    paginator = Paginator(
-        story_obj.order_by("-created", "title"), config.STORIES_PER_PAGE
+    story_obj = None
+    taggregations = None
+    # Figure out what to show in the index
+    # If user is authenticated AND has subscribed aggregations, show the set union of them
+    # otherwise show every story.
+    if request.user.is_authenticated:
+        user = request.user
+        if user.taggregation_subscriptions.exists():
+            story_obj = Story.objects.none().union(
+                *list(
+                    map(
+                        lambda t: t.get_stories(), user.taggregation_subscriptions.all()
+                    )
+                )
+            )
+            taggregations = list(user.taggregation_subscriptions.all())
+            if len(taggregations) > 5:
+                others = taggregations[5:]
+                taggregations = taggregations[:5]
+            else:
+                others = None
+            taggregations = {
+                "list": taggregations,
+                "others": others,
+            }
+    if not story_obj:
+        story_obj = Story.objects.filter(active=True)
+    all_stories = sorted(
+        story_obj.order_by("-created", "title"),
+        key=lambda s: s.hotness()["score"],
+        reverse=True,
     )
+    paginator = Paginator(all_stories, config.STORIES_PER_PAGE)
     try:
         page = paginator.page(page_num)
     except InvalidPage:
         # page_num is bigger than the actual number of pages
         return redirect(reverse("index_page", kwargs={"page_num": paginator.num_pages}))
-    return render(request, "index.html", {"stories": page})
+    return render(
+        request, "index.html", {"stories": page, "aggregations": taggregations}
+    )
+
+
+def all_stories(request, page_num=1):
+    if page_num == 1 and request.get_full_path() != reverse("all_stories"):
+        return redirect(reverse("all_stories"))
+    story_obj = Story.objects.filter(active=True)
+    all_stories = sorted(
+        story_obj.order_by("-created", "title"),
+        key=lambda s: s.hotness()["score"],
+        reverse=True,
+    )
+    paginator = Paginator(all_stories, config.STORIES_PER_PAGE)
+    try:
+        page = paginator.page(page_num)
+    except InvalidPage:
+        # page_num is bigger than the actual number of pages
+        return redirect(
+            reverse("all_stories_page", kwargs={"page_num": paginator.num_pages})
+        )
+    return render(request, "all_stories.html", {"stories": page})
 
 
 @login_required

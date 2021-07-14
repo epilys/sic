@@ -1116,3 +1116,44 @@ form.login-form {
   justify-content: end;
   place-self: center;
 }
+
+ul.inline-comma-sep-list {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  display: inline-flex;
+  flex-flow: wrap;
+  column-gap: 1ch;
+
+}
+ul.inline-comma-sep-list>li{
+  min-width: 0;
+  display: inline list-item;
+}
+
+ul.inline-comma-sep-list>li:not(:last-child,:nth-last-child(2)){
+  list-style: square;
+  list-style-type: ', ';
+  direction: rtl;
+}
+ul.inline-comma-sep-list>li:nth-last-child(2){
+  list-style: square;
+  list-style-type: ' and ';
+  direction: rtl;
+}
+ul.inline-comma-sep-list>li:last-child {
+  margin-left:3ch;
+}
+
+ul.inline-comma-sep-list>li>details>summary {
+  cursor: pointer;
+  text-decoration: underline;
+  display: inline;
+}
+ul.inline-comma-sep-list>li>details>summary+ul.inline-comma-sep-list{
+  margin-inline-start:.5rem;
+}
+
+span.showing-aggregations {
+  font-size: 80%;
+}

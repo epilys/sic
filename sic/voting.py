@@ -17,15 +17,15 @@ def story_hotness(story):
     for c in story.comments.all():
         if c.user == user:
             continue
-        score += 0.5
-        comment_score_modifier += 0.5
+        score += 0.25 * c.karma()
+        comment_score_modifier += 0.25 * c.karma()
     now = make_aware(datetime.utcnow())
-    age = story.created - now
+    age = now - story.created
     age = timedelta(days=age.days, seconds=age.seconds)
-    time_window_penalty = round(float(age.total_seconds()) / HOTNESS_WINDOW, 3)
+    time_window_penalty = -round(float(age.total_seconds()) / HOTNESS_WINDOW, 3)
     score += time_window_penalty
     return {
-        "score": int(score),
+        "score": score,
         "time_window_penalty": time_window_penalty,
         "age": age,
         "comment_score_modifier": comment_score_modifier,
