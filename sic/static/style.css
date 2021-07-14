@@ -496,6 +496,7 @@ main>ul.posts>li.story{
  grid-template-columns: auto 1fr;
  grid-template-rows: 1fr auto;
  column-gap: .5rem;
+ row-gap: .2rem;
 }
 
 main>ul.posts>li.story .votes{
@@ -646,7 +647,6 @@ figure#avatar-thumbnail figcaption {
   vertical-align: middle;
   margin: 0;
   margin-right: 5px;
-  margin-left: 5px;
   object-fit: cover;
   object-position: center;
   transition: transform .2s .3s ease;
@@ -812,7 +812,7 @@ ul.tags {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
+  display: inline-flex;
   flex-flow: wrap;
   row-gap: 4px;
   column-gap: 3px;
@@ -893,6 +893,11 @@ p {
 
 article>header {
   margin-bottom: 1rem;
+}
+
+article>header>ul.tags,
+article>header>div.links {
+  margin-top: .5rem;
 }
 
 ul.messagelist {

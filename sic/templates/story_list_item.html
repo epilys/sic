@@ -20,6 +20,7 @@
         <div class="title">
             <a href="{{story.get_listing_url}}" class="title">{{ story.title }}</a>
             {% with story.get_domain as domain %}{% if domain %}<span class="netloc">{{ domain }}</span>{% endif %}{% endwith %}
+            {% if story.publish_date %}<span>Published: <time datetime="{{ story.publish_date | date:"Y-m-d" }}" title="{{ story.publish_date }}">{{ story.publish_date|naturalday }}</time></span>{% endif %}
             {% include "story_tags.html" with tags=story.tags.all %}
             {% if DEBUG %}
                 <details>
