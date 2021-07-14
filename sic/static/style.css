@@ -356,8 +356,24 @@ template {
 }
 
 
+@font-face {
+  font-family: 'Inter';
+  font-style:  normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("Inter-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: 'Inter';
+  font-style:  normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("Inter-Bold.woff2") format("woff2");
+}
+
 html, body {
-  font-family: sans-serif;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
   width: 100%;
   height: 100%;
 }
@@ -920,6 +936,10 @@ th, td {
   padding: 2px 5px;
 }
 
+td input {
+  width: 98%;
+}
+
 th.subtable, td.subtable {
   padding: 0;
 }
@@ -954,12 +974,12 @@ span.netloc {
 }
 
 span.netloc:before {
-  content:"(";
+  content:"( ";
   font-style: normal;
 }
 
 span.netloc:after {
-  content:")";
+  content:" )";
   font-style: normal;
 }
 
@@ -1083,4 +1103,11 @@ span.hat {
 
 li.hat::marker {
   color: var(--hat-color, black);
+}
+
+form.login-form {
+  display: flex;
+  flex-flow: wrap;
+  justify-content: end;
+  place-self: center;
 }

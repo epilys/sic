@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 {% block title %}Login - sic {% endblock %}
 {% block content %}
-    <h2>Login</h2>
+    <h2 style="place-self:center;">Login</h2>
 
     {% if form.errors %}
-        <p>Your username and password didn't match. Please try again.</p>
+        <p style="place-self:center;">Your username and password didn't match. Please try again.</p>
     {% endif %}
 
     {% if next %}
         {% if user.is_authenticated %}
-            <p>Your account doesn't have access to this page. To proceed,
+            <p style="place-self:center;">Your account doesn't have access to this page. To proceed,
                 please login with an account that has access.</p>
         {% else %}
-            <p>Please login to see this page.</p>
+            <p style="place-self:center;">Please login to see this page.</p>
         {% endif %}
     {% endif %}
 
     {% if user.is_authenticated %}
     {% else %}
-        <form method="post" action="{% url 'login' %}">
+        <form method="post" action="{% url 'login' %}" class="login-form">
             {% csrf_token %}
             <table>
                 <tr>
@@ -37,5 +37,5 @@
     {% endif %}
 
     {# Assumes you setup the password_reset view in your URLconf #}
-    <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+    <p style="place-self:center;"><a href="{% url 'password_reset' %}">Lost password?</a></p>
 {% endblock %}
