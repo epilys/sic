@@ -19,5 +19,6 @@ ENV/
 env.bak/
 venv.bak/
 sic.db
+fts.db
 .vscode
 sic.egg-info/

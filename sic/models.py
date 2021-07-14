@@ -17,6 +17,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from .apps import SicAppConfig as config
 from .markdown import comment_to_html, Textractor
 from .voting import story_hotness
+import html
 
 url_decode_translation = str.maketrans(string.ascii_lowercase[:10], string.digits)
 url_encode_translation = str.maketrans(string.digits, string.ascii_lowercase[:10])
@@ -162,7 +163,10 @@ class Comment(models.Model):
         return self.votes.count()
 
     def text_to_html(self):
-        return comment_to_html(self.text)
+        return comment_to_html(html.escape(self.text))
+
+    def text_to_plain_text(self):
+        return Textractor.extract(self.text_to_html()).strip()
 
 
 class Tag(models.Model):
@@ -456,7 +460,7 @@ class User(PermissionsMixin, AbstractBaseUser):
 
     def notify_reply(self, reply, request):
         target = "comment" if reply.parent else "story"
-        plain_text_comment = Textractor.extract(reply.text_to_html()).strip()
+        plain_text_comment = reply.text_to_plain_text()
 
         notif = Notification.objects.create(
             user=self,

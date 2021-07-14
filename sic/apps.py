@@ -58,3 +58,8 @@ class SicAppConfig(AppConfig):
     NOTIFICATION_FROM = settings.DEFAULT_FROM_EMAIL
 
     STORIES_PER_PAGE = 20
+
+    FTS_DATABASE_NAME = "fts"
+    FTS_DATABASE_FILENAME = "fts.db"
+    FTS_COMMENTS_TABLE_NAME = "fts5_comments"
+    FTS_STORIES_TABLE_NAME = "fts5_stories"
