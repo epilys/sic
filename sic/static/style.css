@@ -637,11 +637,6 @@ figure#avatar-thumbnail figcaption {
   transform: translateY(.1ex);
 }
 
-.avatar-small:hover {
-  transform: scale(6);
-  border-radius: 0%;
-}
-
 .avatar-small {
   height: 1.5rem;
   width: 1.5rem;
@@ -654,13 +649,14 @@ figure#avatar-thumbnail figcaption {
   vertical-align: middle;
   margin: 0;
   margin-right: 5px;
-  transition: all .2s .3s ease;
   cursor: zoom-in;
   transform-origin: top left;
 }
 
 div.links>.avatar-small:hover {
+  transition: all .2s .3s ease;
   transform: scale(6);
+  border-radius: 0%;
 }
 
 a.feed, a.feed:visited {
