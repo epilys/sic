@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load utils %}
+{% block title %}search | sic{% endblock %}
+{% block content %}
+    <h1>comment search</h1>
+    <form action="" method="get" class="submit-story-form">
+        <table>
+            {{ form }}
+        </table>
+        <input type="submit" value="Search">
+    </form>
+    {% if results %}
+        <ul class="posts">
+            {% for comment in results %}
+                <li class="comment no-children" id="{{comment.slugify}}">
+                    <span class="links"><span class="votes">
+                        <span class="score">
+                            {{comment.karma}}
+                        </span>
+                    </span> <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time> | <a href="{{comment.get_absolute_url}}">link</a> | on <a href="{{ comment.story.get_absolute_url }}">{{ comment.story.title }}</a> | <a href="{% url 'comment_source' comment.story.pk 'test' comment.pk %}">source</a>
+                        {% if comment.hat %}
+                            <span class="hat" style="--hat-color: {{ comment.hat.hex_color }}">{{ comment.hat.name }}</span>
+                        {% endif %}
+                    </span>
+                    <span class="comment">{{ comment.snippet }}</span>
+                    <a href="{{ comment.get_absolute_url }}">go to comment</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

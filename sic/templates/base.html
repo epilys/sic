@@ -34,7 +34,7 @@
                         {% if request.user.is_authenticated %}
                             <li><a href="{% url 'submit' %}">Submit story</a></li>
                         {% endif %}
-                        <li>Search</li>
+                        <li><a href="{% url 'search' %}">Search</a></li>
                     </ul>
                 </nav>
                 {% if request.user.is_authenticated %}

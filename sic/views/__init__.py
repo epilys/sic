@@ -10,9 +10,15 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
 from ..models import Story, StoryKind, Comment, User, Invitation
-from ..forms import SubmitCommentForm, SubmitReplyForm, SubmitStoryForm
+from ..forms import (
+    SubmitCommentForm,
+    SubmitReplyForm,
+    SubmitStoryForm,
+    SearchCommentsForm,
+)
 from ..apps import SicAppConfig as config
 from ..markdown import comment_to_html
+from ..search import query_comments
 
 
 class HttpResponseNotImplemented(HttpResponse):
@@ -363,11 +369,7 @@ def invitation_tree(request):
     )
 
 
-@require_http_methods(
-    [
-        "GET",
-    ]
-)
+@require_http_methods(["GET"])
 def comment_source(request, story_pk, slug, comment_pk):
     try:
         story_obj = Story.objects.get(pk=story_pk)
@@ -378,3 +380,15 @@ def comment_source(request, story_pk, slug, comment_pk):
     except Comment.DoesNotExist:
         raise Http404("Comment does not exist") from Comment.DoesNotExist
     return HttpResponse(comment_obj.text, content_type="text/plain; charset=utf-8")
+
+
+@require_http_methods(["GET"])
+def search(request):
+    results = None
+    if "text" in request.GET:
+        form = SearchCommentsForm(request.GET)
+        if form.is_valid():
+            results = query_comments(form.cleaned_data["text"])
+    else:
+        form = SearchCommentsForm()
+    return render(request, "search.html", {"form": form, "results": results})

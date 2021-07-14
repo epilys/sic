@@ -53,6 +53,7 @@ urlpatterns = [
         name="comment_source",
     ),
     path("s/<int:story_pk>/<slug:slug>/edit", edit_story, name="edit_story"),
+    path("search/", search, name="search"),
     path("u/<str:username>/", profile, name="profile"),
     path("u/<str:username>/posts", profile_posts, name="profile_posts"),
     path(

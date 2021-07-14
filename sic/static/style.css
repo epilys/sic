@@ -563,6 +563,8 @@ form.submit-story-form {
   display: flex;
   flex-direction: column;
   row-gap: .5rem;
+  width: max-content;
+  max-width: 80vw;
 }
 
 form.submit-comment-form {

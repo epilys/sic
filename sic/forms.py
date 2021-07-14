@@ -211,3 +211,7 @@ class EditHatForm(forms.Form):
         initial="#000000",
         widget=forms.TextInput(attrs={"type": "color"}),
     )
+
+
+class SearchCommentsForm(forms.Form):
+    text = forms.CharField(required=True, label="full text query", max_length=500)
