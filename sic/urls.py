@@ -27,6 +27,11 @@ from .feeds import *
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("about/", TemplateView.as_view(template_name="about.html"), name="about"),
+    path(
+        "about/purpose",
+        TemplateView.as_view(template_name="purpose.html"),
+        name="purpose",
+    ),
     path("about/invitation-tree/", invitation_tree, name="invitation_tree"),
     path(
         "about/privacy/",
