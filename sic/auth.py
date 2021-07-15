@@ -42,9 +42,11 @@ def auth_context(request):
             "show_avatars": request.user.show_avatars,
             "show_story_previews": request.user.show_story_previews,
             "show_submitted_story_threads": request.user.show_submitted_story_threads,
+            "show_colors": request.user.show_colors,
         }
     return {
         "show_avatars": True,
         "show_story_previews": False,
         "show_submitted_story_threads": False,
+        "show_colors": True,
     }

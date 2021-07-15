@@ -54,7 +54,7 @@
             <h2>tags</h2>
             <ul class="tags">
                 {% for tag in taggregation.tags.all %}
-                    <li style="{{ tag.color_vars_css }}"><span class="tag-name">{{ tag.name }} {{ tag.stories.count }}</span></li>
+                    <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><span class="tag-name">{{ tag.name }} {{ tag.stories.count }}</span></li>
                 {% endfor %}
             </ul>
         </div>

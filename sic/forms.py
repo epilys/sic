@@ -197,6 +197,11 @@ class EditAccountSettings(forms.Form):
     show_avatars = forms.BooleanField(initial=True, required=False)
     show_story_previews = forms.BooleanField(initial=True, required=False)
     show_submitted_story_threads = forms.BooleanField(initial=True, required=False)
+    show_colors = forms.BooleanField(
+        initial=True,
+        help_text="If false, UI and tag colors are not shown, and if avatars are displayed, they are in monochrome.",
+        required=False,
+    )
 
 
 class EditHatForm(forms.Form):

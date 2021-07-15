@@ -350,6 +350,9 @@ template {
 }
 
 :root {
+  --theme-color: #1e82be;
+  --upvote-arrow-color:#bbb;
+  --upvote-arrow-upvoted-color: #ac130d;
   --message-success-bg: #dfd;
   --message-warning-bg: #ffc;
   --message-error-bg: #f77;
@@ -554,9 +557,9 @@ header>div.logo {
 }
 header div.logo {
   font-weight: 800;
-  background-color: #1e82be;
+  background-color: var(--theme-color);
   color: white;
-  border: 5px solid #1e82be;
+  border: 5px solid var(--theme-color);
   height: min-content;
   width: min-content;
   margin-bottom: -5px;
@@ -566,7 +569,7 @@ header div.logo {
 }
 
 header .logo span {
-  background-color: #1e82be;
+  background-color: var(--theme-color);
 }
 
 form.submit-story-form {
@@ -629,11 +632,11 @@ figure#avatar-thumbnail figcaption {
 }
 
 .votes .upvote:hover, .votes .upvote.upvoted {
-  border-bottom-color: #ac130d;
+  border-bottom-color: var(--upvote-arrow-upvoted-color);
 }
 
 .votes .upvote, .votes .flagger {
-  border-color: transparent transparent #bbb transparent;
+  border-color: transparent transparent var(--upvote-arrow-color) transparent;
   border-style: solid;
   border-width: 0.8ex;
   border-bottom-width: 1.6ex;

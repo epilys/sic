@@ -402,6 +402,7 @@ class User(PermissionsMixin, AbstractBaseUser):
     show_avatars = models.BooleanField(default=True, null=False)
     show_story_previews = models.BooleanField(default=True, null=False)
     show_submitted_story_threads = models.BooleanField(default=True, null=False)
+    show_colors = models.BooleanField(default=True, null=False)
 
     homepage = models.URLField(null=True, blank=True)
     git_repository = models.URLField(null=True, blank=True)

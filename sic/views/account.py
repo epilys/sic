@@ -338,6 +338,7 @@ def edit_settings(request):
             user.show_submitted_story_threads = form.cleaned_data[
                 "show_submitted_story_threads"
             ]
+            user.show_colors = form.cleaned_data["show_colors"]
             user.save()
             return redirect(reverse("account"))
         error = form_errors_as_string(form.errors)
