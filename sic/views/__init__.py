@@ -141,12 +141,14 @@ def index(request, page_num=1):
         return redirect(reverse("index"))
     story_obj = None
     taggregations = None
+    has_subscriptions = False
     # Figure out what to show in the index
     # If user is authenticated AND has subscribed aggregations, show the set union of them
     # otherwise show every story.
     if request.user.is_authenticated:
         user = request.user
         if user.taggregation_subscriptions.exists():
+            has_subscriptions = True
             story_obj = Story.objects.none().union(
                 *list(
                     map(
@@ -178,7 +180,13 @@ def index(request, page_num=1):
         # page_num is bigger than the actual number of pages
         return redirect(reverse("index_page", kwargs={"page_num": paginator.num_pages}))
     return render(
-        request, "index.html", {"stories": page, "aggregations": taggregations}
+        request,
+        "index.html",
+        {
+            "stories": page,
+            "has_subscriptions": has_subscriptions,
+            "aggregations": taggregations,
+        },
     )
 
 
@@ -388,3 +396,7 @@ def search(request):
     else:
         form = SearchCommentsForm()
     return render(request, "search.html", {"form": form, "results": results})
+
+
+def public_aggregations(request):
+    return HttpResponseNotImplemented("HTTP 501: Not implemented")

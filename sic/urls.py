@@ -74,6 +74,7 @@ urlpatterns = [
     path("tags/page/<int:page_num>/", browse_tags, name="browse_tags_page"),
     path("tags/edit/<int:tag_pk>/<slug:slug>", edit_tag, name="edit_tag"),
     path("tags/add/", add_tag, name="add_tag"),
+    path("aggs/", public_aggregations, name="public_aggregations"),
     path("agg/<int:taggregation_pk>/<slug:slug>/", taggregation, name="taggregation"),
     path(
         "agg/change-subscription/<int:taggregation_pk>/",
