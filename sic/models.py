@@ -99,8 +99,10 @@ class Story(models.Model):
     def get_domain(self):
         if not self.url:
             return None
-        o = urlparse(self.url)
-        return o.netloc
+        o = urlparse(self.url).netloc
+        if o.startswith("www."):
+            o = o[4:]
+        return o
 
     def hotness(self):
         return story_hotness(self)
