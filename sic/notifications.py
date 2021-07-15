@@ -14,14 +14,16 @@ def comment_save_receiver(
     comment = instance
     if (
         created
-        and comment.parent
-        and comment.parent.user != comment.user
+        and (
+            (comment.parent and comment.parent.user != comment.user)
+            or (comment.parent is None and comment.story.user != comment.user)
+        )
         and not comment.deleted
     ):
         target = "comment" if comment.parent else "story"
         plain_text_comment = comment.text_to_plain_text()
         Notification.objects.create(
-            user=comment.parent.user,
+            user=comment.parent.user if comment.parent else comment.story.user,
             name="New reply",
             kind=Notification.Kind.REPLY,
             body=f"{comment.user} has replied to your {target}:\n\n{plain_text_comment}",
@@ -38,6 +40,8 @@ def comment_save_receiver(
         )
         if comment.parent:
             mentioned_users = mentioned_users.exclude(id=comment.parent.user.pk)
+        else:
+            mentioned_users = mentioned_users.exclude(id=comment.story.user.pk)
         if mentioned_users.exists():
             plain_text_comment = comment.text_to_plain_text()
             for user in mentioned_users:

@@ -554,7 +554,7 @@ class Notification(models.Model):
         else:
             cause = "The system"
         if self.kind in {self.Kind.REPLY}:
-            body = self.body + f"\n\nVisit {root_url}{self.url}"
+            body = f"Visit {root_url}{self.url}"
         elif self.kind in {self.Kind.MESSAGE}:
             body = f"{cause} has sent you a message: {root_url}{self.url}"
         elif self.kind in {self.Kind.MODERATION}:
