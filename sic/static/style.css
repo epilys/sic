@@ -726,6 +726,7 @@ form.reply-form {
 
 textarea {
   max-width: 50vw;
+  resize: vertical;
 }
 
 input[type="checkbox"].reply {
@@ -1173,6 +1174,15 @@ span.showing-aggregations {
   body>header>div.logo {
     display: inline-block;
   }
+
+blockquote.message_body {
+  outline: 1px solid;
+  width: max-content;
+  padding: 0.35em 0.75em 0.625em;
+  margin: 0;
+  max-width: 80vw;
+}
+
 @media (max-width: 600px) {
 body>header>div.logo {
   font-size: 70%;

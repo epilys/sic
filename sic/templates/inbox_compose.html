@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}sic{% endblock %}
+{% block content %}
+    <h1>Compose</h1>
+    <nav class="menu">
+        <ul>
+            <li><a href="{% url 'inbox_compose' %}">Compose</a></li>
+            <li><a href="{% url 'inbox' %}">Inbox</a></li>
+            <li><a href="{% url 'inbox_sent' %}">Sent</a></li>
+        </ul>
+    </nav>
+    <form method="post" class="submit-story-form">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Send">
+    </form>
+{% endblock %}

@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
 from wand.image import Image
-from ..models import User, Invitation, Story, StoryBookmark, Notification, Hat
+from ..models import User, Invitation, Story, StoryBookmark, Notification, Hat, Message
 from ..forms import (
     GenerateInviteForm,
     EditProfileForm,
@@ -17,6 +17,7 @@ from ..forms import (
     SubmitReplyForm,
     UserCreationForm,
     AnnotationForm,
+    ComposeMessageForm,
 )
 from ..apps import SicAppConfig as config
 from . import form_errors_as_string, HttpResponseNotImplemented
@@ -139,8 +140,67 @@ def profile(request, username):
 @login_required
 def inbox(request):
     user = request.user
-    inbox_messages = list(user.received_messages.all()) + list(user.sent_messages.all())
-    return render(request, "inbox.html", {"messages": inbox_messages})
+    inbox_messages = user.received_messages.all()
+    return render(request, "inbox.html", {"messages_": inbox_messages})
+
+
+@login_required
+def inbox_sent(request):
+    user = request.user
+    inbox_messages = user.sent_messages.all()
+    return render(request, "inbox.html", {"messages_": inbox_messages})
+
+
+@login_required
+def inbox_compose(request, in_reply_to=None):
+    if in_reply_to:
+        try:
+            in_reply_to = Message.objects.get(pk=in_reply_to)
+        except Message.DoesNotExist:
+            raise Http404("Message does not exist") from Message.DoesNotExist
+    user = request.user
+    if request.method == "POST":
+        form = ComposeMessageForm(request.POST)
+        if form.is_valid():
+            recipient = form.cleaned_data["recipient"]
+            msg = Message.objects.create(
+                recipient=recipient,
+                read_by_recipient=False,
+                author=request.user,
+                hat=None,
+                subject=form.cleaned_data["subject"],
+                body=form.cleaned_data["body"],
+            )
+            messages.add_message(
+                request, messages.SUCCESS, f"Message sent to {recipient}"
+            )
+            return redirect(msg)
+    else:
+        if in_reply_to:
+            form = ComposeMessageForm(
+                initial={
+                    "recipient": in_reply_to.author,
+                    "subject": f"Re: {in_reply_to.subject}",
+                    "body": f"On {in_reply_to.created}, {in_reply_to.author} wrote:\n"
+                    + "\n".join(map(lambda l: "> " + l, in_reply_to.body.split("\n")))
+                    + "\n\n",
+                }
+            )
+        else:
+            form = ComposeMessageForm(initial=request.GET)
+    return render(request, "inbox_compose.html", {"form": form})
+
+
+@login_required
+def inbox_message(request, message_pk):
+    try:
+        msg = Message.objects.get(pk=message_pk)
+    except Message.DoesNotExist:
+        raise Http404("Message does not exist") from Message.DoesNotExist
+    if msg.recipient == request.user:
+        msg.read_by_recipient = True
+        msg.save(update_fields=["read_by_recipient"])
+    return render(request, "inbox_message.html", {"msg": msg})
 
 
 @login_required

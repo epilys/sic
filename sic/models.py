@@ -129,6 +129,12 @@ class Message(models.Model):
     def __str__(self):
         return f"{self.author} {self.subject}"
 
+    def get_absolute_url(self):
+        return reverse(
+            "inbox_message",
+            kwargs={"message_pk": self.pk},
+        )
+
 
 class Comment(models.Model):
     id = models.AutoField(primary_key=True)

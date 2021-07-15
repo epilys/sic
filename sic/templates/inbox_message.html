@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}sic{% endblock %}
+{% block content %}
+    <nav class="menu">
+        <ul>
+            <li><a href="{% url 'inbox_compose' %}">Compose</a></li>
+            <li><a href="{% url 'inbox' %}">Inbox</a></li>
+            <li><a href="{% url 'inbox_sent' %}">Sent</a></li>
+        </ul>
+    </nav>
+    <h1>{{msg.subject}}</h1>
+    <small>From <a href="{{ msg.author.get_absolute_url }}">{{ msg.author }}</a></small>
+    <small>Sent to <a href="{{ msg.recipient.get_absolute_url }}">{{ msg.recipient }}</a> <time datetime="{{ msg.created | date:"Y-m-d H:i:s" }}" title="{{ msg.created }}"> {{ msg.created|naturaltime }}</time></small>
+    <small>Read by recipient: {{ msg.read_by_recipient|yesno }}</small>
+    <blockquote class="message_body">
+        {{ msg.body|linebreaks }}
+    </blockquote>
+    <a href="{% url 'inbox_reply' in_reply_to=msg.pk %}">reply</a>
+{% endblock %}

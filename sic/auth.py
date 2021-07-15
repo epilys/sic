@@ -43,6 +43,9 @@ def auth_context(request):
             "show_story_previews": request.user.show_story_previews,
             "show_submitted_story_threads": request.user.show_submitted_story_threads,
             "show_colors": request.user.show_colors,
+            "unread_messages": request.user.received_messages.filter(
+                read_by_recipient=False
+            ).count(),
         }
     return {
         "show_avatars": True,

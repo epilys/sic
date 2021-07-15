@@ -2,11 +2,31 @@
 {% block title %}sic{% endblock %}
 {% block content %}
     <h1>Inbox</h1>
-    <ul class="posts">
-        {% for msg in messages %}
-            <li>{{ msg }}</li>
-        {% empty %}
-            <li>None.</li>
-        {% endfor %}
-    </ul>
+    <nav class="menu">
+        <ul>
+            <li><a href="{% url 'inbox_compose' %}">Compose</a></li>
+            <li><a href="{% url 'inbox' %}">Inbox</a></li>
+            <li><a href="{% url 'inbox_sent' %}">Sent</a></li>
+        </ul>
+    </nav>
+    <table>
+        <thead>
+            <tr>
+                <th>author</th>
+                <th>recipient</th>
+                <th>subject</th>
+                <th>created</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for msg in messages_ %}
+                <tr{% if not msg.read_by_recipient %} class="active-notification"{% endif %}>
+                    <td>{{ msg.author }}</td>
+                    <td>{{ msg.recipient }}</td>
+                    <td><a href="{{ msg.get_absolute_url }}">{{ msg.subject }}</a></td>
+                    <td>{{ msg.created }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

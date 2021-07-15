@@ -62,7 +62,7 @@
                                     <li class="notification"><a href="{% url 'notifications' %}">{{ notifications|length }} notification{{ notifications|pluralize }}</a></li>
                                 {% endif %}
                             {% endwith %}
-                            <li><a href="{% url 'inbox' %}">Messages</a></li>
+                            <li><a href="{% url 'inbox' %}">Inbox{% if unread_messages and unread_messages > 0 %} ({{ unread_messages }}){% endif %}</a></li>
                             <li><a href="{% url_with_next 'logout' request %}">logout</a></li>
                         </ul>
                     </nav>

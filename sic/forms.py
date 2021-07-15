@@ -220,3 +220,27 @@ class EditHatForm(forms.Form):
 
 class SearchCommentsForm(forms.Form):
     text = forms.CharField(required=True, label="full text query", max_length=500)
+
+
+def validate_recipient(value):
+    try:
+        recipient = User.objects.get(username=value)
+    except User.DoesNotExist:
+        raise ValidationError(f"User {value} not found.")
+
+
+class ComposeMessageForm(forms.Form):
+    recipient = forms.CharField(
+        required=True, label="recipient", validators=[validate_recipient]
+    )
+    subject = forms.CharField(required=True, label="subject", max_length=100)
+    body = forms.CharField(required=True, label="Message", widget=forms.Textarea)
+    body.widget.attrs.update({"rows": 8, "placeholder": ""})
+
+    def clean_recipient(self):
+        value = self.cleaned_data["recipient"]
+        try:
+            recipient = User.objects.get(username=value)
+            return recipient
+        except User.DoesNotExist:
+            raise ValidationError(f"User {value} not found.")
