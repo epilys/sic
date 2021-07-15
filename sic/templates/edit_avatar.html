@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Edit avatar{% endblock %}
 {% block content %}
+    <h1>edit avatar</h1>
     <p>Current avatar:</p>
     <figure style="width: max-content;">
         {% if user.avatar %}<img src="{{ user.avatar }}">{% else %}<div>None.</div>{% endif %}

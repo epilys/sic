@@ -38,21 +38,20 @@
                     </ul>
                 </nav>
                 {% if request.user.is_authenticated %}
-                    <nav class="user">
+                    <nav class="menu user">
                         <ul>
+                            <li><a href="{% url 'account' %}">{{ request.user }}</a></li>
                             {% with request.user.active_notifications as notifications %}
                                 {% if notifications|length > 0 %}
                                     <li class="notification"><a href="{% url 'notifications' %}">{{ notifications|length }} notification{{ notifications|pluralize }}</a></li>
                                 {% endif %}
                             {% endwith %}
-                            <li>Replies</li>
                             <li><a href="{% url 'inbox' %}">Messages</a></li>
-                            <li><a href="{% url 'account' %}">{{ request.user }}</a></li>
                             <li><a href="{% url_with_next 'logout' request %}">logout</a></li>
                         </ul>
                     </nav>
                 {% else %}
-                    <nav class="user">
+                    <nav class="menu user">
                         <ul>
                             <li><a href="{% url_with_next 'login' request %}">Login</a></li>
                             <li><details id="signup-details" title="You will need an invitation from an existing user to join."><summary><a href="">Sign up</a></summary></details></li>
