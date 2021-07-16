@@ -279,6 +279,7 @@ def edit_story(request, story_pk, slug=None):
             story_obj.url = form.cleaned_data["url"]
             story_obj.user_is_author = form.cleaned_data["user_is_author"]
             story_obj.tags.set(form.cleaned_data["tags"])
+            story_obj.kind.set(form.cleaned_data["kind"])
             story_obj.save()
             return redirect(story_obj.get_absolute_url())
         error = form_errors_as_string(form.errors)
@@ -291,6 +292,7 @@ def edit_story(request, story_pk, slug=None):
                 "url": story_obj.url,
                 "user_is_author": story_obj.user_is_author,
                 "tags": story_obj.tags.all(),
+                "kind": story_obj.kind.all(),
             }
         )
     return render(request, "submit.html", {"form": form})
