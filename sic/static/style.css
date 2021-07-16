@@ -1208,3 +1208,12 @@ body>header {
     display: inline-block;
   }
 }
+
+form.order-by-form {
+  display: flex;
+  flex-flow: wrap;
+  gap: .5rem;
+  width: max-content;
+  max-width: 80vw;
+  align-content: flex-start;
+}

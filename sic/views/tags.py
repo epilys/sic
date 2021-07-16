@@ -6,16 +6,41 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
+from django.utils.timezone import make_aware
 from ..models import Tag, Story, Taggregation
-from ..forms import EditTagForm, EditTaggregationForm
+from ..forms import EditTagForm, EditTaggregationForm, OrderByForm
 from . import form_errors_as_string
+from datetime import datetime
 
 
 def browse_tags(request, page_num=1):
+    if "order_by" in request.GET:
+        request.session["tag_order_by"] = request.GET["order_by"]
+    if "ordering" in request.GET:
+        request.session["tag_ordering"] = request.GET["ordering"]
+    order_by = request.session.get("tag_order_by", "created")
+    ordering = request.session.get("tag_ordering", "desc")
+    order_by_field = ("-" if ordering == "desc" else "") + order_by
+
     if page_num == 1 and request.get_full_path() != reverse("browse_tags"):
         return redirect(reverse("browse_tags"))
-    tags = Tag.objects.order_by("-created", "name")
-    paginator = Paginator(tags, 10)
+    if order_by in ["name", "created"]:
+        tags = Tag.objects.order_by(order_by_field, "name")
+    elif order_by == "active":
+        tags = sorted(
+            Tag.objects.all(),
+            key=lambda t: t.latest.created
+            if t.latest
+            else make_aware(datetime.fromtimestamp(0)),
+            reverse=ordering == "desc",
+        )
+    else:
+        tags = sorted(
+            Tag.objects.all(),
+            key=lambda t: t.stories.count(),
+            reverse=ordering == "desc",
+        )
+    paginator = Paginator(tags, 250)
     try:
         page = paginator.page(page_num)
     except InvalidPage:
@@ -26,11 +51,18 @@ def browse_tags(request, page_num=1):
                 kwargs={"page_num": paginator.num_pages},
             )
         )
+    order_by_form = OrderByForm(
+        fields=browse_tags.ORDER_BY_FIELDS,
+        initial={"order_by": order_by, "ordering": ordering},
+    )
     return render(
         request,
         "browse_tags.html",
-        {"tags": page},
+        {"tags": page, "order_by_form": order_by_form},
     )
+
+
+browse_tags.ORDER_BY_FIELDS = ["name", "created", "active", "number of posts"]
 
 
 def taggregation(request, taggregation_pk, slug=None):

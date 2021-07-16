@@ -244,3 +244,17 @@ class ComposeMessageForm(forms.Form):
             return recipient
         except User.DoesNotExist:
             raise ValidationError(f"User {value} not found.")
+
+
+class OrderByForm(forms.Form):
+    order_by = forms.ChoiceField(required=True, label="order by")
+    ordering = forms.TypedChoiceField(
+        required=True,
+        label="",
+        coerce=lambda c: c == "asc",
+        choices=[("asc", "ascending"), ("desc", "descending")],
+    )
+
+    def __init__(self, fields, *args, **kwargs):
+        super(OrderByForm, self).__init__(*args, **kwargs)
+        self.fields["order_by"].choices = [(f, f) for f in fields]

@@ -12,6 +12,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.timezone import make_aware
+from django.utils.functional import cached_property
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.sites.models import Site
@@ -206,6 +207,14 @@ class Tag(models.Model):
 
     def hotness_modifier(self):
         return 0.0
+
+    @cached_property
+    def latest(self):
+        stories = self.get_stories()
+        if stories.exists():
+            return stories.latest("created")
+        else:
+            return None
 
 
 class Taggregation(models.Model):

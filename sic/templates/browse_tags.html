@@ -3,15 +3,22 @@
 {% load utils %}
 {% block title %}sic{% endblock %}
 {% block content %}
-    {% if request.user.is_authenticated %}
-        <nav>
-            <ul>
+    <nav>
+        <ul>
+            {% if request.user.is_authenticated %}
                 <li><a href="{% url_with_next 'add_tag' request %}">Add tag</a></li>
-            </ul>
-        </nav>
-    {% endif %}
+            {% endif %}
+            <li><form method="get" class="order-by-form">
+                {% for f in order_by_form %}
+                    {{ f.label_tag }}
+                    {{ f }}
+                {% endfor %}
+                <input type="submit" value="sort">
+            </form></li>
+        </ul>
+    </nav>
     {% spaceless %}
-        <ul class="tags">
+        <ul class="tags" style="width: 80ch; max-width: 80vw;">
             {% for tag in tags %}
                 <li style="{{ tag.color_vars_css }}"><span class="tag-name"><a href="{% url_with_next 'edit_tag' tag.pk tag.slugify request %}">{{ tag.name }}</a> {{ tag.stories.count }}</span></li>
             {% endfor %}
