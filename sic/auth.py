@@ -8,11 +8,13 @@ class SicBackend(ModelBackend):
         if user_obj.is_staff or user_obj.is_superuser or user_obj.is_moderator:
             return True
         karma = user_obj.karma()
-        if perm in ["sic.add_tag", "sic.change_tag", "sic.delete_tag"]:
+        if perm == "sic.add_tag":
             return (
                 not user_obj.is_new_user()
                 and karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
             )
+        elif perm in ["sic.change_tag", "sic.delete_tag"]:
+            return not obj.stories.exists()
         elif perm == "sic.add_story":
             return karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
         elif (
