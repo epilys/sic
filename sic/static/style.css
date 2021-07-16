@@ -591,6 +591,7 @@ form.submit-comment-form {
 
 .story-title {
   font-size: 1.1rem;
+  margin-bottom: 0;
 }
 
 
@@ -906,6 +907,11 @@ p {
 
 article>header {
   margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+article>header>* {
+  place-self: start;
 }
 
 article>header>ul.tags,
@@ -990,6 +996,7 @@ span.netloc {
   color: darkslategray;
   font-style: italic;
   user-select: all;
+  white-space: nowrap;
 }
 
 span.netloc:before {
