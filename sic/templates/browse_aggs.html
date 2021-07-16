@@ -7,7 +7,7 @@
         <ul>
             <li><a href="{% url 'browse_tags' %}">Browse tags</a></li>
             {% if request.user.is_authenticated %}
-                <li><a href="{% url_with_next 'add_tag' request %}">Create aggregation</a></li>
+                <li><a href="{% url 'new_aggregation' %}">Create aggregation</a></li>
             {% endif %}
             <li><form method="get" class="order-by-form">
                 {% for f in order_by_form %}
