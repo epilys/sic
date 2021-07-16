@@ -396,7 +396,3 @@ def search(request):
     else:
         form = SearchCommentsForm()
     return render(request, "search.html", {"form": form, "results": results})
-
-
-def public_aggregations(request):
-    return HttpResponseNotImplemented("HTTP 501: Not implemented")

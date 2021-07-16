@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load utils %}
+{% block title %}sic{% endblock %}
+{% block content %}
+    <nav>
+        <ul>
+            <li><a href="{% url 'browse_tags' %}">Browse tags</a></li>
+            {% if request.user.is_authenticated %}
+                <li><a href="{% url_with_next 'add_tag' request %}">Create aggregation</a></li>
+            {% endif %}
+            <li><form method="get" class="order-by-form">
+                {% for f in order_by_form %}
+                    {{ f.label_tag }}
+                    {{ f }}
+                {% endfor %}
+                <input type="submit" value="sort">
+            </form></li>
+        </ul>
+    </nav>
+    {% spaceless %}
+        <dl class="aggregations" style="width: 80ch; max-width: 80vw;">
+            {% for agg in aggs %}
+                <dt><a href="{% url 'taggregation' agg.pk agg.slugify %}" class="agg-name">{{ agg.name }}</a> {{ agg.tags.count }} tag{{ agg.tags.count|pluralize}}</dt>
+                <dd>
+                    <dl>
+                        <dt>description</dt>
+                        <dd>{{ agg.description }}</dd>
+                        <dt>subscribers</dt>
+                        <dd>{{ agg.subscribers.count }}</dd>
+                        <dt>tags</dt>
+                        <dd>
+                            <ul class="tags">
+                                {% for tag in agg.tags.all %}
+                                    <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><span class="tag-name">{{ tag.name }} {{ tag.stories.count }}</span></li>
+                                {% endfor %}
+                            </ul></dd>
+                        <dt>created</dt>
+                        <dd>{{ agg.created|naturaltime }}</dd>
+                    </dl>
+                </dd>
+            {% endfor %}
+        </dl>
+
+    {% endspaceless %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if aggs.has_previous %}
+                <a href="{% url 'browse_aggs' %}">&laquo; first</a>
+                <a href="{% url 'browse_aggs_page' page_num=aggs.previous_page_number %}">&lt; previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ aggs.number }}
+            </span>
+
+            {% if aggs.has_next %}
+                <a href="{% url 'browse_aggs_page' page_num=aggs.next_page_number %}">next &gt;</a>
+            {% else %}
+                (of {{aggs.number}})
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}

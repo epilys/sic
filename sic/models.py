@@ -410,7 +410,9 @@ class User(PermissionsMixin, AbstractBaseUser):
     disabled_invite_by_user = models.OneToOneField(
         "User", on_delete=models.CASCADE, null=True, blank=True
     )
-    taggregation_subscriptions = models.ManyToManyField(Taggregation, blank=True)
+    taggregation_subscriptions = models.ManyToManyField(
+        Taggregation, related_name="subscribers", blank=True
+    )
 
     # options
     email_notifications = models.BooleanField(default=True, null=False)

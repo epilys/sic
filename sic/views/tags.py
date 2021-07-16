@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import make_aware
+from django.utils.http import urlencode
 from ..models import Tag, Story, Taggregation
 from ..forms import EditTagForm, EditTaggregationForm, OrderByForm
 from . import form_errors_as_string
@@ -76,7 +77,9 @@ def taggregation(request, taggregation_pk, slug=None):
         if request.user.is_authenticated:
             raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
         else:
-            return redirect(reverse("login", kwargs={"next": obj.get_absolute_url()}))
+            return redirect(
+                reverse("login") + "?" + urlencode({"next": obj.get_absolute_url()})
+            )
     if request.user.is_authenticated:
         subscribed = request.user.taggregation_subscriptions.filter(
             pk=taggregation_pk
@@ -280,3 +283,44 @@ def edit_aggregation(request, taggregation_pk, slug=None):
             "agg": obj,
         },
     )
+
+
+def public_aggregations(request, page_num=1):
+    if "order_by" in request.GET:
+        request.session["agg_order_by"] = request.GET["order_by"]
+    if "ordering" in request.GET:
+        request.session["agg_ordering"] = request.GET["ordering"]
+    order_by = request.session.get("agg_order_by", "created")
+    ordering = request.session.get("agg_ordering", "desc")
+    order_by_field = ("-" if ordering == "desc" else "") + order_by
+
+    if page_num == 1 and request.get_full_path() != reverse("public_aggregations"):
+        return redirect(reverse("public_aggregations"))
+    taggs = (
+        Taggregation.objects.exclude(discoverable=False)
+        .exclude(private=True)
+        .order_by(order_by_field, "name")
+    )
+    paginator = Paginator(taggs, 250)
+    try:
+        page = paginator.page(page_num)
+    except InvalidPage:
+        # page_num BooleanFieldis bigger than the actual number of pages
+        return redirect(
+            reverse(
+                "browse_tags_page",
+                kwargs={"page_num": paginator.num_pages},
+            )
+        )
+    order_by_form = OrderByForm(
+        fields=public_aggregations.ORDER_BY_FIELDS,
+        initial={"order_by": order_by, "ordering": ordering},
+    )
+    return render(
+        request,
+        "browse_aggs.html",
+        {"aggs": page, "order_by_form": order_by_form},
+    )
+
+
+public_aggregations.ORDER_BY_FIELDS = ["name", "created"]

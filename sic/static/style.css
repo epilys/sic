@@ -416,6 +416,7 @@ main {
 main nav>ul{
   list-style: none;
   column-gap: 1rem;
+  row-gap: 8px;
   display: flex;
   justify-content: start;
   flex-flow:wrap;
@@ -1216,4 +1217,42 @@ form.order-by-form {
   width: max-content;
   max-width: 80vw;
   align-content: flex-start;
+}
+
+
+dl.aggregations { margin-left: 6px; }
+
+dl.aggregations a.agg-name {
+font-family: monospace;
+}
+dl.aggregations>dd dd {
+display: inline-block;
+}
+dl.aggregations dt {
+font-weight: bold;
+color: #217ac0;
+font-size: 110%;
+max-width: max-content;
+}
+dl.aggregations dd { margin-left: 16px }
+
+dl.aggregations>dd + dt {
+margin-top: 1rem;
+border-top: 2px inset gray;
+padding-top: 1rem;
+}
+dl.aggregations>dd dt {
+  width: max-content;
+  border: 1px solid black;
+  background: white;
+  border-radius: 3px;
+  padding: 2px 5px;
+}
+
+
+dl.aggregations dl {
+  margin-top: 1rem;
+    display: grid;
+    grid-template-columns: min-content max-content;
+    grid-auto-rows: min-content;
 }

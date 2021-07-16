@@ -5,6 +5,7 @@
 {% block content %}
     <nav>
         <ul>
+            <li><a href="{% url 'public_aggregations' %}">Browse public tag aggregations</a></li>
             {% if request.user.is_authenticated %}
                 <li><a href="{% url_with_next 'add_tag' request %}">Add tag</a></li>
             {% endif %}
