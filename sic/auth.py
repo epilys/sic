@@ -5,7 +5,7 @@ from .models import Story, Hat
 
 class SicBackend(ModelBackend):
     def has_perm(self, user_obj, perm, obj):
-        if user_obj.is_staff or user_obj.is_superuser:
+        if user_obj.is_staff or user_obj.is_superuser or user_obj.is_moderator:
             return True
         karma = user_obj.karma()
         if perm in ["sic.add_tag", "sic.change_tag", "sic.delete_tag"]:
