@@ -23,6 +23,7 @@ from django.views.generic.base import TemplateView
 
 from .views import *
 from .feeds import *
+from .webfinger import webfinger
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -137,4 +138,5 @@ urlpatterns = [
         RedirectView.as_view(url="static/favicon.ico", permanent=False),
         name="favicon",
     ),
+    path(".well-known/webfinger", webfinger, name="webfinger"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
