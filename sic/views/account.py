@@ -6,7 +6,9 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
 from wand.image import Image
+from ..auth import AuthToken
 from ..models import User, Invitation, Story, StoryBookmark, Notification, Hat, Message
 from ..forms import (
     GenerateInviteForm,
@@ -453,3 +455,15 @@ def edit_hat(request, hat_pk=None):
             initial={"name": hat.name, "hex_color": hat.hex_color} if hat else {}
         )
     return render(request, "edit_hat.html", {"user": user, "form": form, "hat": hat})
+
+
+@login_required
+@require_http_methods(["GET"])
+def issue_token(request):
+    user = request.user
+    user.auth_token = AuthToken().make_token(user)
+    user.save(update_fields=["auth_token"])
+    messages.add_message(request, messages.SUCCESS, "New auth token generated.")
+    if "next" in request.GET:
+        return redirect(request.GET["next"])
+    return redirect(reverse("account"))

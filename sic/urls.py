@@ -22,7 +22,7 @@ from django.views.generic import RedirectView
 from django.views.generic.base import TemplateView
 
 from .views import *
-from .feeds import *
+from .feeds import LatestStoriesRss, LatestStoriesAtom, user_feeds_rss, user_feeds_atom
 from .webfinger import webfinger
 
 urlpatterns = [
@@ -89,6 +89,7 @@ urlpatterns = [
         name="edit_aggregation",
     ),
     path("agg/new", new_aggregation, name="new_aggregation"),
+    path("accounts/auth_token/new", issue_token, name="issue_token"),
     path("accounts/invitations/new", generate_invite, name="generate_invite"),
     path(
         "accounts/invitations/new/<uuid:invite_pk>",
@@ -133,6 +134,8 @@ urlpatterns = [
     path("accounts/hats/create/", edit_hat, name="new_hat"),
     path("feeds/latest.rss", LatestStoriesRss(), name="latest_stories_rss"),
     path("feeds/latest.atom", LatestStoriesAtom(), name="latest_stories_atom"),
+    path("feeds/<str:username>/latest.rss", user_feeds_rss, name="user_feeds_rss"),
+    path("feeds/<str:username>/latest.atom", user_feeds_atom, name="user_feeds_atom"),
     path(
         "favicon.ico",
         RedirectView.as_view(url="static/favicon.ico", permanent=False),

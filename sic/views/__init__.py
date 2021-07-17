@@ -146,26 +146,10 @@ def index(request, page_num=1):
     # If user is authenticated AND has subscribed aggregations, show the set union of them
     # otherwise show every story.
     if request.user.is_authenticated:
-        user = request.user
-        if user.taggregation_subscriptions.exists():
-            has_subscriptions = True
-            story_obj = Story.objects.none().union(
-                *list(
-                    map(
-                        lambda t: t.get_stories(), user.taggregation_subscriptions.all()
-                    )
-                )
-            )
-            taggregations = list(user.taggregation_subscriptions.all())
-            if len(taggregations) > 5:
-                others = taggregations[5:]
-                taggregations = taggregations[:5]
-            else:
-                others = None
-            taggregations = {
-                "list": taggregations,
-                "others": others,
-            }
+        frontpage = request.user.frontpage()
+        story_obj = frontpage["stories"]
+        taggregations = frontpage["taggregations"]
+        has_subscriptions = taggregations is not None
     if not story_obj:
         story_obj = Story.objects.filter(active=True)
     all_stories = sorted(

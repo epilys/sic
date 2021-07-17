@@ -435,6 +435,8 @@ class User(PermissionsMixin, AbstractBaseUser):
     metadata_3_label = models.CharField(null=True, blank=True, max_length=200)
     metadata_4_label = models.CharField(null=True, blank=True, max_length=200)
 
+    auth_token = models.TextField(null=True, blank=True)
+
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_moderator = models.BooleanField(default=False)
@@ -500,6 +502,33 @@ class User(PermissionsMixin, AbstractBaseUser):
         if self.metadata_4 and len(self.metadata_4) > 0:
             ret.append((self.metadata_4_label, self.metadata_4))
         return ret
+
+    def frontpage(self):
+        taggregations = None
+        if self.taggregation_subscriptions.exists():
+            story_obj = Story.objects.none().union(
+                *list(
+                    map(
+                        lambda t: t.get_stories(), self.taggregation_subscriptions.all()
+                    )
+                )
+            )
+            taggregations = list(self.taggregation_subscriptions.all())
+            if len(taggregations) > 5:
+                others = taggregations[5:]
+                taggregations = taggregations[:5]
+            else:
+                others = None
+            taggregations = {
+                "list": taggregations,
+                "others": others,
+            }
+        else:
+            story_obj = Story.objects.filter(active=True)
+        return {
+            "stories": story_obj,
+            "taggregations": taggregations,
+        }
 
 
 class CommentBookmark(models.Model):
