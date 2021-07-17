@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load utils %}
+{% block title %}Comments on {{story.title}} - sic {% endblock %}
+{% block content %}
+    <ul class="posts">
+        {% include "comment.html" with comment=comment edit_comment_pk=edit_comment_pk edit_comment_form=edit_comment_form %}
+    </ul>
+{% endblock %}
