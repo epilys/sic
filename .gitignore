@@ -1,10 +1,8 @@
-sic/secret_settings.py
-sic/settings_local.py
+sic/local
 *.log
 *.pot
 *.pyc
 __pycache__/
-local_settings.py
 db.sqlite3
 db.sqlite3-journal
 *.py[cod]
