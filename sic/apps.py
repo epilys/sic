@@ -1,5 +1,8 @@
 from django.apps import AppConfig
 from django.conf import settings
+import os
+import pathlib
+import subprocess
 
 
 class SicAppConfig(AppConfig):
@@ -66,5 +69,23 @@ class SicAppConfig(AppConfig):
 
     MENTION_TOKENIZER_NAME = "mention_tokenizer"
 
+    LOCAL_PATH = settings.BASE_DIR / "sic" / "local"
+    AP_PRIVKEY_PATH = LOCAL_PATH / "private.pem"
+    AP_PUBKEY_PATH = LOCAL_PATH / "public.pem"
+
     def ready(self):
         import sic.notifications
+
+        # Generate activitypub actor key pair
+        cwd = os.getcwd()
+        os.chdir(self.LOCAL_PATH)
+        if not self.AP_PRIVKEY_PATH.exists():
+            subprocess.run(
+                "openssl genrsa -out private.pem 2048", shell=True, check=True
+            )
+            subprocess.run(
+                "openssl rsa -in private.pem -outform PEM -pubout -out public.pem",
+                shell=True,
+                check=True,
+            )
+        os.chdir(cwd)

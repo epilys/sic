@@ -25,6 +25,19 @@ def webfinger(request):
             f"Bad request: {resource[1]} is an unknown domain"
         )
     username = resource[0]
+    if username == "sic":
+        return JsonResponse(
+            {
+                "subject": f"acct:sic@{domain}",
+                "links": [
+                    {
+                        "rel": "self",
+                        "type": "application/activity+json",
+                        "href": "https://{domain}/activity-pub/id.json",
+                    }
+                ],
+            }
+        )
     try:
         user = User.objects.filter(banned_by_user=None, is_active=True).get(
             username=username
