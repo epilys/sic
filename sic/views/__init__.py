@@ -15,6 +15,7 @@ from ..moderation import ModerationLogEntry
 from ..forms import (
     SubmitCommentForm,
     SubmitReplyForm,
+    EditReplyForm,
     SubmitStoryForm,
     SearchCommentsForm,
     BanUserForm,
@@ -288,6 +289,55 @@ def upvote_story(request, story_pk):
     if "next" in request.GET:
         return redirect(request.GET["next"])
     return redirect(reverse("index"))
+
+
+@login_required
+def edit_comment(request, comment_pk):
+    user = request.user
+    try:
+        comment_obj = Comment.objects.get(pk=comment_pk)
+    except Comment.DoesNotExist:
+        raise Http404("Comment does not exist") from Comment.DoesNotExist
+
+    if (
+        not request.user.is_admin
+        and not request.user.is_moderator
+        and request.user != comment_obj.user
+    ):
+        raise HttpResponseForbidden("Only a comment author or a moderator may edit it.")
+
+    if request.method == "POST":
+        form = EditReplyForm(request.POST)
+        if form.is_valid():
+            comment_obj.text = form.cleaned_data["text"]
+            comment_obj.save()
+            messages.add_message(request, messages.SUCCESS, "Comment edit saved.")
+            return redirect(comment_obj.story.get_absolute_url())
+        else:
+            error = form_errors_as_string(form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
+            )
+            return redirect(comment_obj.story.get_absolute_url())
+    else:
+        form = EditReplyForm(
+            initial={
+                "text": comment_obj.text,
+            },
+        )
+        display_comment = comment_obj
+        if comment_obj.parent is not None:
+            display_comment = comment_obj.parent
+        return render(
+            request,
+            "edit_comment.html",
+            {
+                "story": comment_obj.story,
+                "comment": display_comment,
+                "edit_comment_pk": comment_pk,
+                "edit_comment_form": form,
+            },
+        )
 
 
 @login_required
