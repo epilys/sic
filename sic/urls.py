@@ -63,6 +63,7 @@ urlpatterns = [
     ),
     path("s/<int:story_pk>/<slug:slug>/edit", edit_story, name="edit_story"),
     path("c/<int:comment_pk>/edit", edit_comment, name="edit_comment"),
+    path("c/<int:comment_pk>/delete", delete_comment, name="delete_comment"),
     path("search/", search, name="search"),
     path("u/<str:username>/", profile, name="profile"),
     path("u/<str:username>/posts", profile_posts, name="profile_posts"),

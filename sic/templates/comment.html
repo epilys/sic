@@ -5,77 +5,92 @@
 {% comment_is_upvoted as is_upvoted %}
 <li class="comment{% if not comment.replies.exists %} no-children{% endif %}" id="{{comment.slugify}}">
     {% spaceless %}
-        <input class="comment" type="checkbox" id="comment-{{comment.pk}}" name="comment-{{comment.pk}}" >
-        <label class="comment" for="comment-{{comment.pk}}"></label>
-        <span class="links"><span class="votes">
-            <span class="upvote{% if is_upvoted %} upvoted{% endif %}">
-                {% if request.user.is_authenticated %}
-                    <form action="{% url_with_next 'upvote_comment' comment.story.pk None comment.pk request %}" method="POST">
+        {%if comment.deleted %}
+            <span class="comment">
+                <p><em>Comment by {{ comment.user }} removed.</em></p>
+            </span>
+        {%else %}
+            <input class="comment" type="checkbox" id="comment-{{comment.pk}}" name="comment-{{comment.pk}}" >
+            <label class="comment" for="comment-{{comment.pk}}"></label>
+            <span class="links"><span class="votes">
+                <span class="upvote{% if is_upvoted %} upvoted{% endif %}">
+                    {% if request.user.is_authenticated %}
+                        <form action="{% url_with_next 'upvote_comment' comment.story.pk None comment.pk request %}" method="POST">
+                            {% csrf_token %}
+                            <input type="submit" title="upvote comment" value="">
+                        </form>
+                    {% endif %}
+                </span>
+                <span class="score">
+                    {{comment.karma}}
+                </span>
+            </span> <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time>
+                {%if not edit_comment_pk %}
+                    | <a href="{{comment.get_absolute_url}}">link</a>
+                    | <label class="reply" for="reply-{{comment.pk}}"><a href="">reply</a></label>{% if show_story %} | on <a href="{{ comment.story.get_absolute_url }}">{{ comment.story.title }}</a>{% endif %}
+                    | <a href="{% url 'comment_source' comment.story.pk 'test' comment.pk %}">source</a>
+                    {% if request.user.is_authenticated and request.user == comment.user %}
+                        | <a href="{% url 'edit_comment' comment.pk %}">edit</a>
+                        | <a href="{%url 'delete_comment' comment.pk %}">delete</a>
+                    {% endif %}
+                {% endif %}
+
+                {% if comment.hat %}
+                    <span class="hat" style="{% if show_colors %}--hat-color: {{ comment.hat.hex_color }}{% endif %}">{{ comment.hat.name }}</span>
+                {% endif %}
+            </span>
+            <span class="comment">{{ comment.text_to_html }}</span>
+            {% if request.user.is_authenticated %}
+                <input class="reply" type="checkbox" id="reply-{{comment.pk}}" name="reply-{{comment.pk}}"
+                    {% if preview or edit_comment_pk == comment.pk %}checked="checked"{% endif %}>
+                {% if not delete_comment %}
+                    {% if edit_comment_pk == comment.pk %}
+                        <form action="{% url 'edit_comment' comment.pk %}" method="POST" class="reply-form">
+                    {% else %}
+                        <form action="{% url 'reply' comment.pk %}" method="POST" class="reply-form">
+                    {% endif %}
+                    {% csrf_token %}
+                    <input type="text" name="preview_comment_pk" value="{{comment.pk}}" hidden>
+                    {% if preview %}
+                        <span>Preview:</span>
+                        <span class="comment preview">{{ preview }}</span>
+                    {% endif %}
+                    <table>
+                        {% if ongoing_reply_pk == comment.pk %}
+                            {{ ongoing_reply_form }}
+                        {% elif edit_comment_pk == comment.pk %}
+                            {{ edit_comment_form }}
+                        {% else %}
+                            {{reply_form}}
+                        {% endif %}
+                    </table>
+                    <div class="button-flex-box">
+                        {% if edit_comment_pk != comment.pk %}
+                            <input formaction="." type="submit" name="preview" value="Preview">
+                            <input type="submit" value="Submit">
+                        {% else %}
+                            &nbsp;
+                            <input type="submit" value="Save">
+                        {% endif %}
+                        <details class="formatting-help">
+                            <summary>Formatting help</summary>
+                            <span>{% include "markdown_help.html" %}</span>
+                        </details>
+                    </div>
+                    </form>
+                {% else %}
+                    <form action="{% url 'delete_comment' edit_comment_pk %}" method="POST">
                         {% csrf_token %}
-                        <input type="submit" title="upvote comment" value="">
+                        <table>
+                            {{ delete_comment_form }}
+                        </table>
+                        <input type="submit" value="Permanently Delete">
                     </form>
                 {% endif %}
-            </span>
-            <span class="score">
-                {{comment.karma}}
-            </span>
-        </span> <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time>
-            {%if not edit_comment_pk %}
-                | <a href="{{comment.get_absolute_url}}">link</a>
-                | <label class="reply" for="reply-{{comment.pk}}"><a href="">reply</a></label>{% if show_story %} | on <a href="{{ comment.story.get_absolute_url }}">{{ comment.story.title }}</a>{% endif %}
-                | <a href="{% url 'comment_source' comment.story.pk 'test' comment.pk %}">source</a>
-                {% if request.user.is_authenticated and request.user == comment.user %}
-                    | <a href="{% url 'edit_comment' comment.pk %}">edit</a>
-                {% endif %}
             {% endif %}
-
-            {% if comment.hat %}
-                <span class="hat" style="{% if show_colors %}--hat-color: {{ comment.hat.hex_color }}{% endif %}">{{ comment.hat.name }}</span>
-            {% endif %}
-        </span>
-        <span class="comment">{{ comment.text_to_html }}</span>
-        {% if request.user.is_authenticated %}
-            <input class="reply" type="checkbox" id="reply-{{comment.pk}}" name="reply-{{comment.pk}}"
-                {% if preview or edit_comment_pk == comment.pk %}checked="checked"{% endif %}>
-
-            {% if edit_comment_pk == comment.pk %}
-                <form action="{% url 'edit_comment' comment.pk %}" method="POST" class="reply-form">
-            {% else %}
-                <form action="{% url 'reply' comment.pk %}" method="POST" class="reply-form">
-            {% endif %}
-            {% csrf_token %}
-            <input type="text" name="preview_comment_pk" value="{{comment.pk}}" hidden>
-            {% if preview %}
-                <span>Preview:</span>
-                <span class="comment preview">{{ preview }}</span>
-            {% endif %}
-            <table>
-                {% if ongoing_reply_pk == comment.pk %}
-                    {{ ongoing_reply_form }}
-                {% elif edit_comment_pk == comment.pk %}
-                    {{ edit_comment_form }}
-                {% else %}
-                    {{reply_form}}
-                {% endif %}
-            </table>
-            <div class="button-flex-box">
-                {% if edit_comment_pk != comment.pk %}
-                    <input formaction="." type="submit" name="preview" value="Preview">
-                    <input type="submit" value="Submit">
-                {% else %}
-                    &nbsp;
-                    <input type="submit" value="Save">
-                {% endif %}
-                <details class="formatting-help">
-                    <summary>Formatting help</summary>
-                    <span>{% include "markdown_help.html" %}</span>
-                </details>
-            </div>
-            </form>
-
         {% endif %}
         <div class="replies">
-            {% if comment.replies.exists and not shallow %}
+            {% if comment.replies.exists and not shallow and not delete_comment %}
                 <ul class="posts">
                     {% for reply in comment.replies.all %}
                         {% include "comment.html" with comment=reply edit_comment_pk=edit_comment_pk edit_comment_form=edit_comment_form %}
