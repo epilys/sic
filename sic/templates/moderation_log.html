@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load utils %}
+{% block title %}Moderation log - sic{% endblock %}
+{% block content %}
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+                {% with log.get_edited_object as edited_object %}
+                    <tr>
+                        <td>{{ log.action_time|naturaltime }}</td>
+                        <td><a href="{{ log.user.get_absolute_url }}">{{ log.user }}</a>{% if log.user.is_admin %} (Admin){% elif log.user.is_moderator %} (Moderator){% endif %}</td>
+                        <td>{% if edited_object %}<a href="{{ edited_object.get_absolute_url }}">{{ edited_object }}</a>{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>Action: {{ log.action }}</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>Reason: {{ log.reason }}</td>
+                    </tr>
+                {% endwith %}
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination">
+        <span class="step-links">
+            {% if logs.has_previous %}
+                <a href="{% url 'moderation_log' %}">&laquo; first</a>
+                <a href="{% url 'moderation_log_page' logs.previous_page_number %}">&lt; previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ logs.number }}
+            </span>
+
+            {% if logs.has_next %}
+                <a href="{% url 'moderation_log_page' logs.next_page_number %}">next &gt;</a>
+            {% else %}
+                (of {{logs.number}})
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}

@@ -39,6 +39,8 @@ urlpatterns = [
         TemplateView.as_view(template_name="privacy.html"),
         name="about_privacy",
     ),
+    path("moderation-log/", moderation_log, name="moderation_log"),
+    path("moderation-log/<int:page_num>", moderation_log, name="moderation_log_page"),
     path("", index, name="index"),
     path("page/<int:page_num>/", index, name="index_page"),
     path("all/", all_stories, name="all_stories"),

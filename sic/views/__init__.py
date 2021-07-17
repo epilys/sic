@@ -11,6 +11,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
 from ..models import Story, StoryKind, Comment, User, Invitation
+from ..moderation import ModerationLogEntry
 from ..forms import (
     SubmitCommentForm,
     SubmitReplyForm,
@@ -425,3 +426,25 @@ class TitleHTMLExtractor(HTMLParser):
     def handle_data(self, data):
         if self.in_title:
             self.title += data
+
+
+@require_http_methods(["GET"])
+def moderation_log(request, page_num=1):
+    if page_num == 1 and request.get_full_path() != reverse("moderation_log"):
+        return redirect(reverse("moderation_log"))
+    logs = ModerationLogEntry.objects.order_by("-action_time")
+    paginator = Paginator(logs, 10)
+    try:
+        page = paginator.page(page_num)
+    except InvalidPage:
+        # page_num is bigger than the actual number of pages
+        return redirect(
+            reverse("moderation_log_page", kwargs={"page_num": paginator.num_pages})
+        )
+    return render(
+        request,
+        "moderation_log.html",
+        {
+            "logs": page,
+        },
+    )

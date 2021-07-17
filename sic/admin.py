@@ -4,6 +4,7 @@ from django.forms import ModelForm
 from django.forms.widgets import TextInput
 from django.utils.safestring import mark_safe
 from .models import *
+from .moderation import ModerationLogEntry
 
 
 def hex_color_html(self, obj):
@@ -133,6 +134,7 @@ admin.site.register(TagFilter)
 admin.site.register(Taggregation, TaggregationAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(Vote, VoteAdmin)
+admin.site.register(ModerationLogEntry)
 
 
 @admin.register(Permission)
