@@ -42,6 +42,14 @@ class SubmitCommentForm(forms.Form):
     text.widget.attrs.update({"rows": 3, "placeholder": ""})
 
 
+class DeleteCommentForm(forms.Form):
+    confirm_delete = forms.BooleanField(
+        required=True,
+        label="Really Delete this comment?",
+        help_text="Check this box to permanently delete this comment.",
+    )
+
+
 class SubmitReplyForm(forms.Form):
     text = forms.CharField(
         required=True, label="Reply", max_length=500, widget=forms.Textarea

@@ -16,6 +16,7 @@ from ..forms import (
     SubmitCommentForm,
     SubmitReplyForm,
     EditReplyForm,
+    DeleteCommentForm,
     SubmitStoryForm,
     SearchCommentsForm,
     BanUserForm,
@@ -338,6 +339,55 @@ def edit_comment(request, comment_pk):
                 "edit_comment_form": form,
             },
         )
+
+
+@login_required
+def delete_comment(request, comment_pk):
+    user = request.user
+    try:
+        comment_obj = Comment.objects.get(pk=comment_pk)
+    except Comment.DoesNotExist:
+        raise Http404("Comment does not exist") from Comment.DoesNotExist
+
+    if (
+        not request.user.is_admin
+        or not request.user.is_moderator
+        or request.user != comment_obj.user
+    ):
+        raise HttpResponseForbidden(
+            "Only a comment author or a moderator may delete this comment."
+        )
+
+    if request.method == "POST":
+        form = DeleteCommentForm(request.POST)
+        if form.is_valid():
+            comment_obj.deleted = True
+            comment_obj.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                f"Your comment (id: {comment_obj.pk}) has been deleted.",
+            )
+        else:
+            error = form_errors_as_string(form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
+            )
+    else:
+        form = DeleteCommentForm()
+        return render(
+            request,
+            "edit_comment.html",
+            {
+                "story": comment_obj.story,
+                "comment": comment_obj,
+                "edit_comment_pk": comment_pk,
+                "delete_comment": True,
+                "delete_comment_form": form,
+            },
+        )
+
+    return redirect(comment_obj.story.get_absolute_url())
 
 
 @login_required
