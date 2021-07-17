@@ -6,7 +6,7 @@ from .models import Tag, User, StoryKind
 
 class SubmitStoryForm(forms.Form):
     required_css_class = "required"
-    title = forms.CharField(label="Story title", required=True, max_length=100)
+    title = forms.CharField(label="Story title", required=False, max_length=100)
     description = forms.CharField(required=False)
     url = forms.URLField(required=False)
     publish_date = forms.DateField(

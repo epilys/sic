@@ -1,3 +1,4 @@
+import urllib.request
 from http import HTTPStatus
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
@@ -198,26 +199,46 @@ def all_stories(request, page_num=1):
 def submit_story(request):
     user = request.user
     if request.method == "POST":
-        form = SubmitStoryForm(request.POST)
-        if form.is_valid():
-            title = form.cleaned_data["title"]
-            description = form.cleaned_data["description"]
-            url = form.cleaned_data["url"]
-            publish_date = form.cleaned_data["publish_date"]
-            user_is_author = form.cleaned_data["user_is_author"]
-            new_story = Story.objects.create(
-                title=title,
-                url=url,
-                publish_date=publish_date,
-                description=description,
-                user=user,
-                user_is_author=user_is_author,
+        if "fetch-title" in request.POST:
+            qdict = request.POST.copy()
+            if len(qdict["url"]) > 0:
+                try:
+                    with urllib.request.urlopen(qdict["url"], timeout=2) as r:
+                        text = r.read().decode("utf-8")
+                    parsr = TitleHTMLExtractor()
+                    parsr.feed(text)
+                    title = parsr.title
+                    qdict["title"] = title
+                except Exception as exc:
+                    messages.add_message(
+                        request, messages.ERROR, f"Could not fetch title. Error: {exc}"
+                    )
+            form = SubmitStoryForm(qdict)
+        else:
+            form = SubmitStoryForm(request.POST)
+            form.fields["title"].required = True
+            if form.is_valid():
+                title = form.cleaned_data["title"]
+                description = form.cleaned_data["description"]
+                url = form.cleaned_data["url"]
+                publish_date = form.cleaned_data["publish_date"]
+                user_is_author = form.cleaned_data["user_is_author"]
+                new_story = Story.objects.create(
+                    title=title,
+                    url=url,
+                    publish_date=publish_date,
+                    description=description,
+                    user=user,
+                    user_is_author=user_is_author,
+                )
+                new_story.tags.set(form.cleaned_data["tags"])
+                new_story.save()
+                return redirect(new_story.get_absolute_url())
+            form.fields["title"].required = False
+            error = form_errors_as_string(form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
             )
-            new_story.tags.set(form.cleaned_data["tags"])
-            new_story.save()
-            return redirect(new_story.get_absolute_url())
-        error = form_errors_as_string(form.errors)
-        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
     else:
         form = SubmitStoryForm(initial={"kind": StoryKind.default_value()})
     return render(request, "submit.html", {"form": form})
@@ -382,3 +403,25 @@ def search(request):
     else:
         form = SearchCommentsForm()
     return render(request, "search.html", {"form": form, "results": results})
+
+
+from html.parser import HTMLParser
+
+
+class TitleHTMLExtractor(HTMLParser):
+    def __init__(self):
+        super(TitleHTMLExtractor, self).__init__()
+        self.title = ""
+        self.in_title = False
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "title":
+            self.in_title = True
+
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self.in_title = False
+
+    def handle_data(self, data):
+        if self.in_title:
+            self.title += data
