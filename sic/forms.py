@@ -222,16 +222,16 @@ class SearchCommentsForm(forms.Form):
     text = forms.CharField(required=True, label="full text query", max_length=500)
 
 
-def validate_recipient(value):
+def validate_user(value):
     try:
-        recipient = User.objects.get(username=value)
+        user = User.objects.get(username=value)
     except User.DoesNotExist:
         raise ValidationError(f"User {value} not found.")
 
 
 class ComposeMessageForm(forms.Form):
     recipient = forms.CharField(
-        required=True, label="recipient", validators=[validate_recipient]
+        required=True, label="recipient", validators=[validate_user]
     )
     subject = forms.CharField(required=True, label="subject", max_length=100)
     body = forms.CharField(required=True, label="Message", widget=forms.Textarea)
@@ -258,3 +258,21 @@ class OrderByForm(forms.Form):
     def __init__(self, fields, *args, **kwargs):
         super(OrderByForm, self).__init__(*args, **kwargs)
         self.fields["order_by"].choices = [(f, f) for f in fields]
+
+class BanUserForm(forms.Form):
+    username = forms.CharField(required=True, label="username", validators=[validate_user])
+    ban = forms.BooleanField(
+        label="ban",
+        required=False,
+        initial=True,
+    )
+    reason = forms.CharField(required=True, label="reason")
+    def clean_username(self):
+        value = self.cleaned_data["username"]
+        try:
+            user = User.objects.get(username=value)
+            if user.is_moderator or user.is_admin:
+                raise ValidationError(f"User {value} is staff.")
+            return user
+        except User.DoesNotExist:
+            raise ValidationError(f"User {value} not found.")

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load utils %}
+{% block title %}Moderator panel | sic{% endblock %}
+{% block content %}
+    <h1>Moderation panel</h1>
+    <div>
+        <h2>Change user ban status</h2>
+        <form method="post" class="submit-story-form">
+            {% csrf_token %}
+            <table>
+                {{ ban_user_form }}
+            </table>
+            <input type="submit" name="set-ban" value="Set ban">
+        </form>
+    </div>
+{% endblock %}

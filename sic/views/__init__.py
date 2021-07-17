@@ -1,6 +1,6 @@
 import urllib.request
 from http import HTTPStatus
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
@@ -17,6 +17,7 @@ from ..forms import (
     SubmitReplyForm,
     SubmitStoryForm,
     SearchCommentsForm,
+    BanUserForm,
 )
 from ..apps import SicAppConfig as config
 from ..markdown import comment_to_html
@@ -448,3 +449,33 @@ def moderation_log(request, page_num=1):
             "logs": page,
         },
     )
+
+@login_required
+def moderation(request):
+    if (not request.user.is_moderator) and (not request.user.is_admin):
+        return HttpResponseForbidden()
+    if request.method == "POST":
+        if "set-ban" in request.POST:
+            ban_user_form = BanUserForm(request.POST)
+            if ban_user_form.is_valid():
+                user = ban_user_form.cleaned_data["username"]
+                ban = ban_user_form.cleaned_data["ban"]
+                reason = ban_user_form.cleaned_data["reason"]
+                if ban and user.banned_by_user is not None:
+                    messages.add_message(request, messages.ERROR, f"{user} already banned")
+                    return redirect( reverse("moderation"))
+                if not ban and user.banned_by_user is None:
+                    messages.add_message(request, messages.ERROR, f"{user} already not banned")
+                    return redirect( reverse("moderation"))
+                user.banned_by_user = request.user if ban else None
+                user.save()
+                log_entry = ModerationLogEntry.changed_user_status(user, request.user, "Banned user" if ban else "Unbanned user", reason)
+                messages.add_message(request, messages.SUCCESS, f"{log_entry.action} {user}")
+                return redirect( reverse("moderation"))
+            error = form_errors_as_string(ban_user_form.errors)
+            messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+        else:
+            ban_user_form = BanUserForm()
+    else:
+        ban_user_form = BanUserForm()
+    return render(request, "moderation.html", { "ban_user_form" : ban_user_form})
