@@ -1263,3 +1263,29 @@ dl.aggregations dl {
     grid-template-columns: min-content max-content;
     grid-auto-rows: min-content;
 }
+
+
+ul.color-list {
+  margin: 0;
+  list-style: none;
+  padding: 0;
+  display :grid;
+  grid-auto-flow: dense row;
+  grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+  row-gap: 3px;
+}
+
+ul.color-list li {
+  user-select: all;
+  white-space: pre;
+}
+
+span.color-box {
+  background: var(--color);
+  width: 1rem;
+  height: 1rem;
+  display: inline-block;
+  outline: 1px solid black;
+  margin: 0px 10px;
+  vertical-align: middle;
+}

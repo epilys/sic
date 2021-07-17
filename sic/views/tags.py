@@ -12,6 +12,7 @@ from ..models import Tag, Story, Taggregation
 from ..forms import EditTagForm, EditTaggregationForm, OrderByForm
 from . import form_errors_as_string
 from datetime import datetime
+import random
 
 
 def browse_tags(request, page_num=1):
@@ -152,12 +153,15 @@ def edit_tag(request, tag_pk, slug=None):
                 "parents": tag.parents.all(),
             }
         )
+    # colors = list(gen_html(mix=[198, 31, 31]))
+    colors = list(gen_html())
     return render(
         request,
         "edit_tag.html",
         {
             "tag": tag,
             "form": form,
+            "colors": colors,
         },
     )
 
@@ -166,6 +170,7 @@ def edit_tag(request, tag_pk, slug=None):
 def add_tag(request):
     if not request.user.has_perm("sic.add_tag"):
         return HttpResponseForbidden()
+    colors = list(gen_html())
     if request.method == "POST":
         form = EditTagForm(request.POST)
         if form.is_valid():
@@ -181,12 +186,13 @@ def add_tag(request):
         error = form_errors_as_string(form.errors)
         messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
     else:
-        form = EditTagForm()
+        form = EditTagForm(initial={"hex_color": colors[0]})
     return render(
         request,
         "edit_tag.html",
         {
             "form": form,
+            "colors": colors,
         },
     )
 
@@ -324,3 +330,41 @@ def public_aggregations(request, page_num=1):
 
 
 public_aggregations.ORDER_BY_FIELDS = ["name", "created"]
+
+
+# HSV values in [0..1[
+# returns [r, g, b] values from 0 to 255
+def hsv_to_rgb(h, s, v):
+    h_i = int(h * 6)
+    f = h * 6 - h_i
+    p = v * (1 - s)
+    q = v * (1 - f * s)
+    t = v * (1 - (1 - f) * s)
+    if h_i == 0:
+        r, g, b = v, t, p
+    if h_i == 1:
+        r, g, b = q, v, p
+    if h_i == 2:
+        r, g, b = p, v, t
+    if h_i == 3:
+        r, g, b = p, q, v
+    if h_i == 4:
+        r, g, b = t, p, v
+    if h_i == 5:
+        r, g, b = v, p, q
+    return [int(r * 256), int(g * 256), int(b * 256)]
+
+
+def gen_html(mix=None):
+    # use golden ratio
+    golden_ratio_conjugate = 0.618033988749895
+    for _ in range(0, 50):
+        h = random.random()
+        h += golden_ratio_conjugate
+        h %= 1
+        [r, g, b] = hsv_to_rgb(h, 0.5, 0.95)
+        if mix:
+            r = int((r + mix[0]) / 2)
+            g = int((g + mix[1]) / 2)
+            b = int((b + mix[2]) / 2)
+        yield f"#%02x%02x%02x" % (r, g, b)

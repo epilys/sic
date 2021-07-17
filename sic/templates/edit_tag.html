@@ -8,9 +8,17 @@
     {% else %}
         <h1>new tag</h1>
     {% endif %}
-    <form action="" method="post" class="submit-story-form">
+    <form method="post" class="submit-story-form">
         {% csrf_token %}
         {{ form }}
         <input type="submit" value="Submit">
+        {% if show_colors %}
+            <p>color suggestions:</p>
+            <ul class="color-list">
+                {% for color in colors %}
+                    <li><span class="color-box" style="--color: {{ color }}"></span>{{ color }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </form>
 {% endblock %}
