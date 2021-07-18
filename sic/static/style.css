@@ -1296,6 +1296,7 @@ pre {
   outline: 5px solid var(--bg-color);
   width: min-content;
   overflow: auto;
-  max-width: 100%;
   padding: 2px 7px;
+  max-width: clamp(10vw, 66ch, 80vw);
+  min-width: clamp(10vw, 66ch, 80vw);
 }
