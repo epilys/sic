@@ -864,6 +864,10 @@ ul.posts li.comment + li {
   border-top: 1px solid cadetblue;
 }
 
+li.comment:target>span.comment {
+  background: #ffffa1;
+}
+
 li.comment li.comment {
   border-left: 1px dotted gray;
   padding-left: 8px;
