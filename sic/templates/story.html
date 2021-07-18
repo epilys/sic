@@ -5,8 +5,22 @@
 {% block content %}
     {% get_comment_preview request None as preview  %}
     {% story_is_bookmarked request.user story as is_bookmarked %}
+    {% story_is_upvoted  as is_upvoted %}
     <article>
         <header>
+            <div class="votes" style="position: absolute;transform: translateX(-112%);">
+                <div class="upvote{% if is_upvoted %} upvoted{% endif %}">
+                    {% if request.user.is_authenticated %}
+                        <form>
+                            {% csrf_token %}
+                            <input type="submit" formaction="{% url_with_next 'upvote_story' story.pk request %}" formmethod="POST" value="">
+                        </form>
+                    {% endif %}
+                </div>
+                <div class="score">
+                    {{story.karma}}
+                </div>
+            </div>
             <h1 class="story-title"><a href="{{story.get_listing_url}}">{{ story.title }}</a>{% with story.get_domain as domain %}{% if domain %} <span class="netloc">{{ domain }}</span>{% endif %}{% endwith %}</h1>
             {% if story.publish_date %}<span>Published: <time datetime="{{ story.publish_date | date:"Y-m-d" }}" title="{{ story.publish_date }}">{{ story.publish_date|naturalday }}</time></span>{% endif %}
             {% include "story_tags.html" with tags=story.tags.all %}
