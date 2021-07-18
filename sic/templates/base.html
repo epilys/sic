@@ -40,12 +40,12 @@
                 </div>
                 <nav class="main menu">
                     <ul>
-                        <li><a href="{% url 'index' %}">Home</a></li>
-                        <li><a href="{% url 'all_stories' %}">All stories</a></li>
-                        <li><a href="{% url 'recent' %}">Recent</a></li>
-                        <li><a href="{% url 'recent_comments' %}">Comments</a></li>
-                        <li><a href="{% url 'browse_tags' %}">Tags</a></li>
-                        <li><a href="{% url 'search' %}">Search</a></li>
+                        <li><a href="{% url 'index' %}" id="home_link">Home</a></li>
+                        <li><a href="{% url 'all_stories' %}" id="all_stories_link">All stories</a></li>
+                        <li><a href="{% url 'recent' %}" id="recent_link">Recent</a></li>
+                        <li><a href="{% url 'recent_comments' %}" id="recent_comments_link">Comments</a></li>
+                        <li><a href="{% url 'browse_tags' %}" id="browse_tags_link">Tags</a></li>
+                        <li><a href="{% url 'search' %}" id="search_link">Search</a></li>
                     </ul>
                 </nav>
                 {% if request.user.is_authenticated %}
@@ -56,16 +56,16 @@
                                     <li class="notification"><a href="{% url 'notifications' %}">{{ notifications|length }} notification{{ notifications|pluralize }}</a></li>
                                 {% endif %}
                             {% endwith %}
-                            <li class="username"><a href="{% url 'account' %}">{{ request.user }}</a></li>
-                            <li><a href="{% url 'submit' %}">Post</a></li>
-                            <li><a href="{% url 'inbox' %}">Inbox{% if unread_messages and unread_messages > 0 %} ({{ unread_messages }}){% endif %}</a></li>
-                            <li><a href="{% url_with_next 'logout' request %}">Logout</a></li>
+                            <li class="username"><a href="{% url 'account' %}" id="username_link">{{ request.user }}</a></li>
+                            <li><a href="{% url 'submit' %}" id="submit_link">Post</a></li>
+                            <li><a href="{% url 'inbox' %}" id="inbox_link">Inbox{% if unread_messages and unread_messages > 0 %} ({{ unread_messages }}){% endif %}</a></li>
+                            <li><a href="{% url_with_next 'logout' request %}" id="logout_link">Logout</a></li>
                         </ul>
                     </nav>
                 {% else %}
                     <nav class="menu user">
                         <ul>
-                            <li><a href="{% url_with_next 'login' request %}">Login</a></li>
+                            <li><a href="{% url_with_next 'login' request %}" id="login_link">Login</a></li>
                             <li><details id="signup-details" title="You will need an invitation from an existing user to join. Try joining our irc channel, #sic at libera.chat. See About page for more details."><summary><a href="">Sign up</a></summary><div>You will need an invitation from an existing user to join.<br/><br/>Try <a href="{% url 'about' %}">joining our irc channel, #sic at libera.chat</a>.</div></details></li>
                         </ul>
                     </nav>
