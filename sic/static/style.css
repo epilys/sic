@@ -878,20 +878,23 @@ li.comment>div.replies>li.comment {
   box-sizing: content-box;
 }
 
-#signup-details[open]:after {
-  content: attr(title);
+#signup-details[open] div {
   position: absolute;
-  width: 13ch;
+  width: 22ch;
   text-align: justify;
   transform: translateX(-75%);
   margin-top: 12px;
   border: 2px solid cadetblue;
   padding: 12px;
   background: white;
+  hyphens: auto;
 }
 
 details#signup-details>summary>a {
   pointer-events: none;
+}
+details#signup-details:not([open])>summary {
+  list-style: none;
 }
 
 main>article {
@@ -1192,11 +1195,12 @@ blockquote.message_body {
 }
 
 @media (max-width: 600px) {
-body>header>div.logo {
-  font-size: 70%;
-  border-width: 2px;
-}
-body>header {
+  body>header>div.logo {
+    font-size: 70%;
+    border-width: 2px;
+  }
+  body>header {
+    font-size: 90%;
     margin: 0;
     padding: .5rem 1.5rem;
     background-color: #eee;
@@ -1204,9 +1208,14 @@ body>header {
     grid-column: 1 / span 12;
     column-gap: 12px;
   } 
-  nav.menu>ul{
+  nav.main.menu>ul{
     row-gap: 4px;
     justify-content: left;
+    display: grid;
+    grid-template-columns: max-content max-content;
+    grid-auto-flow: row dense;
+    grid-auto-rows: min-content;
+    column-gap: 1px;
   }
   nav.menu>ul>li>a{
     border: 1px inset gray;
@@ -1214,6 +1223,23 @@ body>header {
     border-radius: 5px;
     padding: 2px 5px;
     display: inline-block;
+  }
+
+  nav.menu>ul>li.username {
+    grid-row: 1 / span 1;
+    grid-column: 1/ span 2;
+    text-align: center;
+  }
+
+  nav.main.menu {
+    width: 40vw;
+  }
+  nav.user.menu {
+    width: 30vw;
+  }
+  nav.user.menu>ul {
+    column-gap:0;
+    row-gap: 4px;
   }
 }
 
