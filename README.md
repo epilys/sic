@@ -3,8 +3,9 @@
 Setup:
 
 ```shell
-cp sic/secret_settings.py{.template,}
-vim sic/secret_settings.py # add secret token
+cp sic/local/secret_settings.py{.template,}
+vim sic/local/secret_settings.py # add secret token
+vim sic/local/settings_local.py # OPTIONAL: local settings (SMTP etc)
 python3 manage.py migrate #sets up database
 sqlite3 sic.dib < sic.db-dummy_data.sql # OPTIONAL insert dummy data
 python3 manage.py createsuperuser #selfexplanatory
@@ -37,7 +38,7 @@ pylint -E  sic/*py sic/views/*py
 black sic/*py
 ```
 
-### django templates, `djhml`
+### django templates, `djhtml`
 
 ```shell
 git add sic/templates/TEMPL.html # stage first
