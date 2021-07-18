@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}sic{% endblock %}
+{% block title %}{{ user }} posts - sic{% endblock %}
 {% block content %}
     <ul class="posts">
         {% for post in posts %}
