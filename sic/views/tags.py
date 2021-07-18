@@ -175,6 +175,7 @@ def edit_tag(request, tag_pk, slug=None):
         )
     # colors = list(gen_html(mix=[198, 31, 31]))
     colors = list(gen_html())
+    form.fields["parents"].queryset = Tag.objects.exclude(pk=tag_pk)
     return render(
         request,
         "edit_tag.html",
