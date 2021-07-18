@@ -48,6 +48,9 @@ class StoryKind(models.Model):
         val, _ = StoryKind.objects.get_or_create(name="article")
         return val
 
+    class Meta:
+        ordering = ['name', ]
+
 
 class Story(models.Model):
     id = models.AutoField(primary_key=True)
@@ -221,6 +224,9 @@ class Tag(models.Model):
         else:
             return None
 
+    class Meta:
+        ordering = ['name', ]
+
 
 class Taggregation(models.Model):
     id = models.AutoField(primary_key=True)
@@ -272,6 +278,9 @@ class Taggregation(models.Model):
         return Story.objects.none().union(
             *list(map(lambda t: t.get_stories(), self.tags.all()))
         )
+
+    class Meta:
+        ordering = ['name', ]
 
 
 class TagFilter(models.Model):
