@@ -19,7 +19,6 @@ from django.contrib.sites.models import Site
 from .apps import SicAppConfig as config
 from .markdown import comment_to_html, Textractor
 from .voting import story_hotness
-import html
 
 url_decode_translation = str.maketrans(string.ascii_lowercase[:10], string.digits)
 url_encode_translation = str.maketrans(string.digits, string.ascii_lowercase[:10])
@@ -112,7 +111,7 @@ class Story(models.Model):
         return story_hotness(self)
 
     def description_to_html(self):
-        return comment_to_html(html.escape(self.description))
+        return comment_to_html(self.description)
 
     def description_to_plain_text(self):
         return Textractor.extract(self.description_to_html()).strip()
@@ -182,7 +181,7 @@ class Comment(models.Model):
         return self.votes.count()
 
     def text_to_html(self):
-        return comment_to_html(html.escape(self.text))
+        return comment_to_html(self.text)
 
     def text_to_plain_text(self):
         return Textractor.extract(self.text_to_html()).strip()

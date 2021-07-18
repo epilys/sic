@@ -23,7 +23,7 @@
                             <span class="hat" style="--hat-color: {{ comment.hat.hex_color }}">{{ comment.hat.name }}</span>
                         {% endif %}
                     </span>
-                    <span class="comment">{{ comment.snippet }}</span>
+                    <span class="comment">{{ comment.snippet|escape }}</span>
                     <a href="{{ comment.get_absolute_url }}">go to comment</a>
                 </li>
             {% endfor %}
