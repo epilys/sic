@@ -6,6 +6,7 @@ import json
 
 
 class ModerationLogEntry(models.Model):
+    id = models.AutoField(primary_key=True)
     action_time = models.DateTimeField(
         auto_now_add=True,
         editable=False,
