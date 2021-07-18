@@ -67,6 +67,26 @@ def browse_tags(request, page_num=1):
 browse_tags.ORDER_BY_FIELDS = ["name", "created", "active", "number of posts"]
 
 
+def tag_graph(request):
+    import graphviz
+    from django.utils.safestring import mark_safe
+
+    dot = graphviz.Digraph(comment="tags", format="svg")
+    dot.attr(size="18,5")
+    for t in Tag.objects.all():
+        dot.node(str(t.id), t.name)
+    for t in Tag.objects.all():
+        for p in t.parents.all():
+            dot.edge(str(t.id), str(p.id))
+    dot = dot.unflatten(stagger=3, chain=5, fanout=True)
+    svg = dot.pipe().decode("utf-8")
+    return render(
+        request,
+        "tag_graph.html",
+        {"svg": mark_safe(svg)},
+    )
+
+
 def taggregation(request, taggregation_pk, slug=None):
     try:
         obj = Taggregation.objects.get(pk=taggregation_pk)
