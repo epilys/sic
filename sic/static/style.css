@@ -728,7 +728,7 @@ form.reply-form {
 
 textarea {
   max-width: 50vw;
-  resize: vertical;
+  resize: both;
 }
 
 input[type="checkbox"].reply {
