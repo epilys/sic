@@ -111,6 +111,12 @@ class Story(models.Model):
     def hotness(self):
         return story_hotness(self)
 
+    def description_to_html(self):
+        return comment_to_html(html.escape(self.description))
+
+    def description_to_plain_text(self):
+        return Textractor.extract(self.description_to_html()).strip()
+
 
 class Message(models.Model):
     id = models.AutoField(primary_key=True)

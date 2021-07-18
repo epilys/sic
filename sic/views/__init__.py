@@ -200,6 +200,7 @@ def all_stories(request, page_num=1):
 @login_required
 def submit_story(request):
     user = request.user
+    preview = None
     if request.method == "POST":
         if "fetch-title" in request.POST:
             qdict = request.POST.copy()
@@ -215,7 +216,20 @@ def submit_story(request):
                     messages.add_message(
                         request, messages.ERROR, f"Could not fetch title. Error: {exc}"
                     )
+            else:
+                messages.add_message(request, messages.WARNING, "URL field is empty.")
             form = SubmitStoryForm(qdict)
+        elif "preview" in request.POST:
+            form = SubmitStoryForm(request.POST)
+            form.is_valid()
+            preview = {
+                "description": comment_to_html(request.POST["description"]),
+                "title": form.cleaned_data["title"],
+                "url": form.cleaned_data["url"],
+                "domain": form.cleaned_data["url"],
+                "publish_date": form.cleaned_data["publish_date"],
+                "tags": form.cleaned_data["tags"],
+            }
         else:
             form = SubmitStoryForm(request.POST)
             form.fields["title"].required = True
@@ -243,7 +257,14 @@ def submit_story(request):
             )
     else:
         form = SubmitStoryForm(initial={"kind": StoryKind.default_value()})
-    return render(request, "submit.html", {"form": form})
+    return render(
+        request,
+        "submit.html",
+        {
+            "form": form,
+            "preview": preview,
+        },
+    )
 
 
 @login_required
@@ -272,6 +293,7 @@ def upvote_story(request, story_pk):
 @login_required
 def edit_story(request, story_pk, slug=None):
     user = request.user
+    preview = None
     try:
         story_obj = Story.objects.get(pk=story_pk)
     except Story.DoesNotExist:
@@ -279,18 +301,49 @@ def edit_story(request, story_pk, slug=None):
     if not request.user.has_perm("sic.change_story"):
         raise PermissionDenied("Only the author of the story can edit it.")
     if request.method == "POST":
-        form = SubmitStoryForm(request.POST)
-        if form.is_valid():
-            story_obj.title = form.cleaned_data["title"]
-            story_obj.description = form.cleaned_data["description"]
-            story_obj.url = form.cleaned_data["url"]
-            story_obj.user_is_author = form.cleaned_data["user_is_author"]
-            story_obj.tags.set(form.cleaned_data["tags"])
-            story_obj.kind.set(form.cleaned_data["kind"])
-            story_obj.save()
-            return redirect(story_obj.get_absolute_url())
-        error = form_errors_as_string(form.errors)
-        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+        if "fetch-title" in request.POST:
+            qdict = request.POST.copy()
+            if len(qdict["url"]) > 0:
+                try:
+                    with urllib.request.urlopen(qdict["url"], timeout=2) as r:
+                        text = r.read().decode("utf-8")
+                    parsr = TitleHTMLExtractor()
+                    parsr.feed(text)
+                    title = parsr.title
+                    qdict["title"] = title
+                except Exception as exc:
+                    messages.add_message(
+                        request, messages.ERROR, f"Could not fetch title. Error: {exc}"
+                    )
+            else:
+                messages.add_message(request, messages.WARNING, "URL field is empty.")
+            form = SubmitStoryForm(qdict)
+        elif "preview" in request.POST:
+            form = SubmitStoryForm(request.POST)
+            form.is_valid()
+            preview = {
+                "description": comment_to_html(request.POST["description"]),
+                "title": form.cleaned_data["title"],
+                "url": form.cleaned_data["url"],
+                "domain": form.cleaned_data["url"],
+                "publish_date": form.cleaned_data["publish_date"],
+                "tags": form.cleaned_data["tags"],
+            }
+        else:
+            form = SubmitStoryForm(request.POST)
+            if form.is_valid():
+                story_obj.title = form.cleaned_data["title"]
+                story_obj.description = form.cleaned_data["description"]
+                story_obj.url = form.cleaned_data["url"]
+                story_obj.user_is_author = form.cleaned_data["user_is_author"]
+                story_obj.tags.set(form.cleaned_data["tags"])
+                story_obj.kind.set(form.cleaned_data["kind"])
+                story_obj.save()
+                return redirect(story_obj.get_absolute_url())
+            error = form_errors_as_string(form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
+            )
     else:
         form = SubmitStoryForm(
             initial={
@@ -302,7 +355,14 @@ def edit_story(request, story_pk, slug=None):
                 "kind": story_obj.kind.all(),
             }
         )
-    return render(request, "submit.html", {"form": form})
+    return render(
+        request,
+        "submit.html",
+        {
+            "form": form,
+            "preview": preview,
+        },
+    )
 
 
 @login_required
@@ -450,6 +510,7 @@ def moderation_log(request, page_num=1):
         },
     )
 
+
 @login_required
 def moderation(request):
     if (not request.user.is_moderator) and (not request.user.is_admin):
@@ -462,20 +523,33 @@ def moderation(request):
                 ban = ban_user_form.cleaned_data["ban"]
                 reason = ban_user_form.cleaned_data["reason"]
                 if ban and user.banned_by_user is not None:
-                    messages.add_message(request, messages.ERROR, f"{user} already banned")
-                    return redirect( reverse("moderation"))
+                    messages.add_message(
+                        request, messages.ERROR, f"{user} already banned"
+                    )
+                    return redirect(reverse("moderation"))
                 if not ban and user.banned_by_user is None:
-                    messages.add_message(request, messages.ERROR, f"{user} already not banned")
-                    return redirect( reverse("moderation"))
+                    messages.add_message(
+                        request, messages.ERROR, f"{user} already not banned"
+                    )
+                    return redirect(reverse("moderation"))
                 user.banned_by_user = request.user if ban else None
                 user.save()
-                log_entry = ModerationLogEntry.changed_user_status(user, request.user, "Banned user" if ban else "Unbanned user", reason)
-                messages.add_message(request, messages.SUCCESS, f"{log_entry.action} {user}")
-                return redirect( reverse("moderation"))
+                log_entry = ModerationLogEntry.changed_user_status(
+                    user,
+                    request.user,
+                    "Banned user" if ban else "Unbanned user",
+                    reason,
+                )
+                messages.add_message(
+                    request, messages.SUCCESS, f"{log_entry.action} {user}"
+                )
+                return redirect(reverse("moderation"))
             error = form_errors_as_string(ban_user_form.errors)
-            messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
+            )
         else:
             ban_user_form = BanUserForm()
     else:
         ban_user_form = BanUserForm()
-    return render(request, "moderation.html", { "ban_user_form" : ban_user_form})
+    return render(request, "moderation.html", {"ban_user_form": ban_user_form})

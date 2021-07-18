@@ -19,7 +19,7 @@
         </header>
         <a href="{{story.url}}">{{ story.url }}</a>
         {% if story.description %}
-            <p>{{ story.description }}</p>
+            <div>{{ story.description_to_html }}</div>
         {% endif %}
     </article>
     {% if request.user.is_authenticated %}

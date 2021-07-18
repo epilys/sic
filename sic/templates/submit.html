@@ -1,10 +1,36 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% block title %}submit story{% endblock %}
 {% block content %}
-    <form action="" method="post" class="submit-story-form">
-        <input type="submit" name="fetch-title" value="fetch title">
+    <form method="post" class="submit-story-form">
+        {% if preview %}
+            <span>Preview:</span>
+            <div class="title">
+                <a href="{{ preview.url }}" class="title">{{ preview.title }}</a>
+                {% if preview.domain %}<span class="netloc">{{ preview.domain }}</span>{% endif %}
+                {% if preview.publish_date %}<span>Published: <time datetime="{{ preview.publish_date | date:"Y-m-d" }}" title="{{ preview.publish_date }}">{{ preview.publish_date|naturalday }}</time></span>{% endif %}
+                {% include "story_tags.html" with tags=preview.tags %}
+            </div>
+            <span class="comment preview">{{ preview.description }}</span>
+        {% endif %}
         {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="Submit">
+        {% for field in form %}
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {{ field }}
+            {% if field.name == 'url' %}
+                <input type="submit" name="fetch-title" value="fetch title">
+            {% endif %}
+            {% if field.name == 'description' %}
+                <details class="formatting-help">
+                    <summary>Formatting help</summary>
+                    <span>{% include "markdown_help.html" %}</span>
+                </details>
+            {% endif %}
+        {% endfor %}
+        <div class="button-flex-box">
+            <input type="submit" value="Submit">
+            <input type="submit" name="preview" value="Preview">
+        </div>
     </form>
 {% endblock %}

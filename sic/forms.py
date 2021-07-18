@@ -7,7 +7,9 @@ from .models import Tag, User, StoryKind
 class SubmitStoryForm(forms.Form):
     required_css_class = "required"
     title = forms.CharField(label="Story title", required=False, max_length=100)
-    description = forms.CharField(required=False)
+    description = forms.CharField(
+        required=False, widget=forms.Textarea({"rows": 3, "placeholder": ""})
+    )
     url = forms.URLField(required=False)
     publish_date = forms.DateField(
         required=False,
@@ -259,14 +261,18 @@ class OrderByForm(forms.Form):
         super(OrderByForm, self).__init__(*args, **kwargs)
         self.fields["order_by"].choices = [(f, f) for f in fields]
 
+
 class BanUserForm(forms.Form):
-    username = forms.CharField(required=True, label="username", validators=[validate_user])
+    username = forms.CharField(
+        required=True, label="username", validators=[validate_user]
+    )
     ban = forms.BooleanField(
         label="ban",
         required=False,
         initial=True,
     )
     reason = forms.CharField(required=True, label="reason")
+
     def clean_username(self):
         value = self.cleaned_data["username"]
         try:
