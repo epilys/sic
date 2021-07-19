@@ -7,7 +7,17 @@
     {% spaceless %}
         {%if comment.deleted %}
             <span class="comment">
-                <p><em>Comment by {{ comment.user }} removed.</em></p>
+                <p><em>
+                    {% if comment.last_log_entry %}
+                        Comment deleted by {% if comment.last_log_entry.user == comment.user %}author{% else %}{{ comment.last_log_entry.user }}{% endif %}
+                        <time datetime="{{ comment.last_log_entry.action_time | date:"Y-m-d H:i:s" }}" title="{{ comment.last_log_entry.action_time }}">
+                            {{ comment.last_log_entry.action_time|naturaltime }}.
+                        </time>{% if comment.last_log_entry.reason %} Reason: {{comment.last_log_entry.reason}}{% endif %}
+                    {% else %}
+                        {# This should only be possible on very early development versions #}
+                        Comment deleted by author.
+                    {% endif %}
+                </em></p>
             </span>
         {%else %}
             <input class="comment" type="checkbox" id="comment-{{comment.pk}}" name="comment-{{comment.pk}}" >
@@ -24,14 +34,20 @@
                 <span class="score">
                     {{comment.karma}}
                 </span>
-            </span> <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time>
+            </span> <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a>
+                <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time>
+                {% if comment.last_log_entry %}
+                    <time datetime="{{ comment.last_log_entry.action_time | date:"Y-m-d H:i:s" }}" title="{{ comment.last_log_entry.action_time }}">- Edited {{ comment.last_log_entry.action_time|naturaltime }}</time>
+                {%endif%}
                 {%if not edit_comment_pk %}
                     | <a href="{{comment.get_absolute_url}}">link</a>
                     | <label class="reply" for="reply-{{comment.pk}}"><a href="">reply</a></label>{% if show_story %} | on <a href="{{ comment.story.get_absolute_url }}">{{ comment.story.title }}</a>{% endif %}
                     | <a href="{% url 'comment_source' comment.story.pk 'test' comment.pk %}">source</a>
-                    {% if request.user.is_authenticated and request.user == comment.user %}
-                        | <a href="{% url 'edit_comment' comment.pk %}">edit</a>
-                        | <a href="{%url 'delete_comment' comment.pk %}">delete</a>
+                    {% if request.user.is_authenticated %}
+                        {%if request.user == comment.user or request.user.is_moderator %}
+                            | <a href="{% url 'edit_comment' comment.pk %}">edit</a>
+                            | <a href="{%url 'delete_comment' comment.pk %}">delete</a>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
 

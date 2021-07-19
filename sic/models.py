@@ -170,6 +170,17 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.user} {self.created}"
 
+    def last_log_entry(self):
+        from .moderation import ModerationLogEntry
+        from django.contrib.contenttypes.models import ContentType
+
+        entry = ModerationLogEntry.objects.filter(
+            object_id=self.id,
+            content_type=ContentType.objects.get(app_label="sic", model="comment"),
+        ).latest("action_time")
+
+        return entry
+
     def get_absolute_url(self):
         return self.story.get_absolute_url() + f"#{self.slugify()}"
 
