@@ -305,14 +305,26 @@ def edit_comment(request, comment_pk):
         and not request.user.is_moderator
         and request.user != comment_obj.user
     ):
-        raise HttpResponseForbidden("Only a comment author or a moderator may edit it.")
+        raise PermissionDenied("Only a comment author or a moderator may edit it.")
 
     if request.method == "POST":
         form = EditReplyForm(request.POST)
         if form.is_valid():
-            comment_obj.text = form.cleaned_data["text"]
-            comment_obj.save()
-            messages.add_message(request, messages.SUCCESS, "Comment edit saved.")
+            before_text = comment_obj.text
+            reason = form.cleaned_data["edit_reason"] or ""
+            if comment_obj.user != request.user and not reason:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "A reason is required in order to edit someone else's comment!",
+                )
+            else:
+                ModerationLogEntry.edit_comment(
+                    before_text, comment_obj, request.user, reason
+                )
+                comment_obj.text = form.cleaned_data["text"]
+                comment_obj.save()
+                messages.add_message(request, messages.SUCCESS, "Comment edit saved.")
             return redirect(comment_obj.story.get_absolute_url())
         else:
             error = form_errors_as_string(form.errors)
@@ -351,10 +363,10 @@ def delete_comment(request, comment_pk):
 
     if (
         not request.user.is_admin
-        or not request.user.is_moderator
-        or request.user != comment_obj.user
+        and not request.user.is_moderator
+        and request.user != comment_obj.user
     ):
-        raise HttpResponseForbidden(
+        raise PermissionDenied(
             "Only a comment author or a moderator may delete this comment."
         )
 
@@ -362,12 +374,23 @@ def delete_comment(request, comment_pk):
         form = DeleteCommentForm(request.POST)
         if form.is_valid():
             comment_obj.deleted = True
-            comment_obj.save()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                f"Your comment (id: {comment_obj.pk}) has been deleted.",
-            )
+            reason = form.cleaned_data["deletion_reason"] or ""
+            if comment_obj.user != request.user and not reason:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "A reason is required in order to delete someone else's comment!",
+                )
+            else:
+                ModerationLogEntry.delete_comment(
+                    comment_obj, request.user, form.cleaned_data["deletion_reason"]
+                )
+                comment_obj.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    f"Your comment (id: {comment_obj.pk}) has been deleted.",
+                )
         else:
             error = form_errors_as_string(form.errors)
             messages.add_message(

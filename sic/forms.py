@@ -48,6 +48,11 @@ class DeleteCommentForm(forms.Form):
         label="Really Delete this comment?",
         help_text="Check this box to permanently delete this comment.",
     )
+    deletion_reason = forms.CharField(
+        required=False,
+        label="Public deletion reason",
+        help_text="Describe the reason (that will be shown in the public log) for deleting this comment.",
+    )
 
 
 class SubmitReplyForm(forms.Form):
@@ -62,6 +67,11 @@ class EditReplyForm(forms.Form):
         required=True, label="Edit", max_length=500, widget=forms.Textarea
     )
     text.widget.attrs.update({"rows": 3, "placeholder": ""})
+    edit_reason = forms.CharField(
+        required=False,
+        label="Reason",
+        help_text="Describe the reason (that will be shown in the public log) for editing this comment.",
+    )
 
 
 class EditAvatarForm(forms.Form):
