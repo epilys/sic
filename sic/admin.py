@@ -78,6 +78,10 @@ class NotificationAdmin(ModelAdmin):
     list_filter = ["kind"]
 
 
+class TaggregationHasTagInline(admin.TabularInline):
+    model = TaggregationHasTag
+
+
 class TaggregationAdmin(ModelAdmin):
     ordering = ["-created"]
     list_display = [
@@ -91,6 +95,9 @@ class TaggregationAdmin(ModelAdmin):
         "private",
     ]
     list_filter = ["default", "discoverable", "private"]
+    inlines = [
+        TaggregationHasTagInline,
+    ]
 
 
 class UserAdmin(ModelAdmin):
@@ -142,6 +149,7 @@ admin.site.register(StoryKind, StoryKindAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(TagFilter)
 admin.site.register(Taggregation, TaggregationAdmin)
+admin.site.register(TaggregationHasTag)
 admin.site.register(User, UserAdmin)
 admin.site.register(Vote, VoteAdmin)
 admin.site.register(ModerationLogEntry)

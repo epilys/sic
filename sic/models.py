@@ -219,10 +219,17 @@ class Tag(models.Model):
         r, g, b = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
         return f"--red: {r}; --green:{g}; --blue:{b};"
 
-    def get_stories(self):
-        return self.stories.all().union(
-            *list(map(lambda t: t.get_stories(), self.children.all()))
-        )
+    def get_stories(self, depth=0):
+        if depth == 0:
+            return set(self.stories.all())
+        if depth == -1:
+            new_depth = depth
+        else:
+            new_depth = depth - 1
+        ret = set(self.stories.all())
+        for c in self.children.all():
+            ret |= c.get_stories(new_depth)
+        return ret
 
     def slugify(self):
         return slugify(self.name, allow_unicode=True)
@@ -232,7 +239,7 @@ class Tag(models.Model):
 
     @cached_property
     def latest(self):
-        stories = self.get_stories()
+        stories = self.get_stories(-1)
         if stories.exists():
             return stories.latest("created")
         else:
@@ -291,9 +298,10 @@ class Taggregation(models.Model):
         return (user.pk == self.creator.pk) or (user in self.moderators.all())
 
     def get_stories(self):
-        return Story.objects.none().union(
-            *list(map(lambda t: t.get_stories(), self.tags.all()))
-        )
+        ret = set()
+        for h in self.taggregationhastag_set.all():
+            ret |= h.get_stories()
+        return ret
 
     class Meta:
         ordering = ["name"]
@@ -303,6 +311,13 @@ class TaggregationHasTag(models.Model):
     id = models.AutoField(primary_key=True)
     taggregation = models.ForeignKey(Taggregation, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, null=True, blank=True, on_delete=models.CASCADE)
+    depth = models.IntegerField(default=0, null=False, blank=False)
+
+    def __str__(self):
+        return f"{self.taggregation} {self.tag} depth={self.depth}"
+
+    def get_stories(self):
+        return set(self.tag.get_stories(self.depth))
 
 
 class TagFilter(models.Model):
@@ -578,13 +593,9 @@ class User(PermissionsMixin, AbstractBaseUser):
     def frontpage(self):
         taggregations = None
         if self.taggregation_subscriptions.exists():
-            story_obj = Story.objects.none().union(
-                *list(
-                    map(
-                        lambda t: t.get_stories(), self.taggregation_subscriptions.all()
-                    )
-                )
-            )
+            stories = set()
+            for t in self.taggregation_subscriptions.all():
+                stories |= t.get_stories()
             taggregations = list(self.taggregation_subscriptions.all())
             if len(taggregations) > 5:
                 others = taggregations[5:]
@@ -596,9 +607,9 @@ class User(PermissionsMixin, AbstractBaseUser):
                 "others": others,
             }
         else:
-            story_obj = Story.objects.filter(active=True)
+            stories = Story.objects.filter(active=True)
         return {
-            "stories": story_obj,
+            "stories": stories,
             "taggregations": taggregations,
         }
 
