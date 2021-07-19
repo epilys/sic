@@ -256,7 +256,9 @@ class Taggregation(models.Model):
     moderators = models.ManyToManyField(
         "User", related_name="moderated_taggregations", blank=False
     )
-    tags = models.ManyToManyField("Tag", blank=False)
+    tags = models.ManyToManyField(
+        "Tag", related_name="taggregations", through="TaggregationHasTag", blank=False
+    )
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     default = models.BooleanField(default=False, null=False, blank=False)
@@ -295,6 +297,12 @@ class Taggregation(models.Model):
 
     class Meta:
         ordering = ["name"]
+
+
+class TaggregationHasTag(models.Model):
+    id = models.AutoField(primary_key=True)
+    taggregation = models.ForeignKey(Taggregation, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, null=True, blank=True, on_delete=models.CASCADE)
 
 
 class TagFilter(models.Model):
