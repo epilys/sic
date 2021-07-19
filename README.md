@@ -1,5 +1,7 @@
 # sic
 
+Link aggregator community organised by tags in `python3`/`django3` + `sqlite3`. Test instance at https://sic.nessuent.xyz/
+
 <table>
 	<tbody>
 		<tr>
