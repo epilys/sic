@@ -1,5 +1,18 @@
 # sic
 
+<table>
+	<tbody>
+		<tr>
+			<td><kbd><img src="./screenshot-frontpage.png" alt="1" /></kbd></td>
+			<td><kbd><img src="./screenshot-frontpage-mobile.png" alt="2" /></kbd></td>
+		</tr>
+		<tr>
+			<th></th>
+			<th></th>
+		</tr>
+	</tbody>
+</table>
+
 Setup:
 
 ```shell
