@@ -2,6 +2,24 @@
 {% load humanize %}
 {% load utils %}
 {% block title %}{{ taggregation.name }} aggregation - sic{% endblock %}
+{% block style %}
+    <style>
+        .story_filters_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            grid-auto-flow: row;
+            row-gap: 1rem;
+            column-gap: 1rem;
+            grid-auto-rows: auto;
+            width: 100%;
+        }
+
+        div.tag-graph-svg svg {
+            max-width: var(--main-width);
+            height: min-content;
+        }
+    </style>
+{% endblock %}
 {% block content %}
     {% spaceless %}
         <h1>{{ taggregation.name }}{% if user_can_modify %} <small><a href="{% url_with_next 'edit_aggregation' taggregation.pk taggregation.slugify request %}">edit&hellip;</a></small>{% endif %}</h1>
@@ -41,6 +59,9 @@
                 <th>Is discoverable</th><td>{% if not taggregation.private %}{{ taggregation.discoverable|yesno }}{% else %}no{% endif %}</td>
             </tr>
             <tr>
+                <th>Subscribers</th><td>{{ taggregation.subscribers.count }}</td>
+            </tr>
+            <tr>
                 <th>Description</th>
                 {% if taggregation.description %}
                     <td>{{ taggregation.description }}</td>
@@ -49,14 +70,115 @@
                 {% endif %}
             </tr>
         </table>
+        <div class="tag-graph-svg">
+            {{ svg }}
+        </div>
         <hr />
         <div>
-            <h2>tags</h2>
-            <ul class="tags">
-                {% for tag in taggregation.tags.all %}
-                    <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><span class="tag-name">{{ tag.name }} {{ tag.stories.count }}</span></li>
+            <h2>story filters</h2>
+            <div class="story_filters_grid">
+                {% for has in taggregation.taggregationhastag_set.all %}
+                    <div>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        <div style="{% if show_colors %}{{ has.tag.color_vars_css }}{% endif %}" class="tag"><span class="tag-name">{{ has.tag.name }} {{ has.tag.stories.count }}</span></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        depth
+                                    </th>
+                                    <td>
+                                        {% if has.depth == -1 %}unlimited{%else%}{{ has.depth }}{%endif%}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>total children tags</th>
+                                    <td>
+                                        {% with has.vertices as vertices %}{{ vertices|length }} tag{{vertices|pluralize}} in subtree{%endwith%}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>exclude filters</th>
+                                    <td class="subtable">
+                                        {% if has.exclude_filters.exists %}
+                                            <table class="filters">
+                                                <thead>
+                                                    <tr>
+                                                        <th>name</th>
+                                                        <th>type</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for f in has.exclude_filters.all %}
+                                                        <tr>
+                                                            <td>{{ f.name }}</td>
+                                                            <td>{{ f.inner.kind }}</td>
+                                                            {% spaceless %}
+                                                                <td>
+                                                                    {% with f.inner as f %}
+                                                                        {% if f.content.get_absolute_url %}
+                                                                            <a href="{{f.content.get_absolute_url}}">{{ f.content }}</a>
+                                                                        {% else %}
+                                                                            {{ f.content }}
+                                                                        {% endif %}
+                                                                    {% endwith %}
+                                                                </td>
+                                                            {% endspaceless %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        {% else %}
+                                            <span>None.</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>include filters</th>
+                                    <td class="subtable">
+                                        {% if has.include_filters.exists %}
+                                            <table class="filters">
+                                                <thead>
+                                                    <tr>
+                                                        <th>name</th>
+                                                        <th>type</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for f in has.include_filters.all %}
+                                                        <tr>
+                                                            <td>{{ f.name }}</td>
+                                                            <td>{{ f.inner.kind }}</td>
+                                                            {% spaceless %}
+                                                                <td>
+                                                                    {% with f.inner as f %}
+                                                                        {% if f.content.get_absolute_url %}
+                                                                            <a href="{{f.content.get_absolute_url}}">{{ f.content }}</a>
+                                                                        {% else %}
+                                                                            {{ f.content }}
+                                                                        {% endif %}
+                                                                    {% endwith %}
+                                                                </td>
+                                                            {% endspaceless %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        {% else %}
+                                            <span>None.</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                 {% endfor %}
-            </ul>
+            </div>
         </div>
         <hr />
         <div>

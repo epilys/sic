@@ -8,11 +8,13 @@ from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import make_aware
 from django.utils.http import urlencode
+from django.utils.safestring import mark_safe
 from ..models import Tag, Story, Taggregation
 from ..forms import EditTagForm, EditTaggregationForm, OrderByForm
 from . import form_errors_as_string
 from datetime import datetime
 import random
+import functools
 
 
 def browse_tags(request, page_num=1):
@@ -67,23 +69,28 @@ def browse_tags(request, page_num=1):
 browse_tags.ORDER_BY_FIELDS = ["name", "created", "active", "number of posts"]
 
 
-def tag_graph(request):
+def tag_graph_svg(tags):
     import graphviz
-    from django.utils.safestring import mark_safe
 
     dot = graphviz.Digraph(comment="tags", format="svg")
     dot.attr(size="18,5")
-    for t in Tag.objects.all():
+    for t in tags:
         dot.node(str(t.id), t.name)
-    for t in Tag.objects.all():
+    for t in tags:
         for p in t.parents.all():
-            dot.edge(str(t.id), str(p.id))
+            if p not in tags:
+                continue
+            dot.edge(str(p.id), str(t.id))
     dot = dot.unflatten(stagger=3, chain=5, fanout=True)
     svg = dot.pipe().decode("utf-8")
+    return svg
+
+
+def tag_graph(request):
     return render(
         request,
         "tag_graph.html",
-        {"svg": mark_safe(svg)},
+        {"svg": mark_safe(tag_graph_svg(Tag.objects.all()))},
     )
 
 
@@ -115,6 +122,16 @@ def taggregation(request, taggregation_pk, slug=None):
             "taggregation": obj,
             "user_can_modify": obj.user_can_modify(request.user),
             "subscribed": subscribed,
+            "svg": mark_safe(
+                tag_graph_svg(
+                    functools.reduce(
+                        lambda a, b: a | b,
+                        map(
+                            lambda has: has.vertices(), obj.taggregationhastag_set.all()
+                        ),
+                    )
+                )
+            ),
         },
     )
 

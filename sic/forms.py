@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .apps import SicAppConfig as config
-from .models import Tag, User, StoryKind
+from .models import Tag, User, StoryKind, StoryFilter
 
 
 class SubmitStoryForm(forms.Form):
@@ -205,9 +205,24 @@ class EditTaggregationForm(forms.Form):
         help_text="Will only be visible to users with access.",
     )
     subscribed = forms.BooleanField(required=False)
-    tags = forms.ModelMultipleChoiceField(
+
+
+class EditTaggregationHasTag(forms.Form):
+    tag = forms.ModelChoiceField(
         queryset=Tag.objects.all(),
-        label="tags",
+        label="tag",
+        required=True,
+    )
+    depth = forms.IntegerField(initial=0, required=True)
+    exclude_filters = forms.ModelMultipleChoiceField(
+        queryset=StoryFilter.objects.all(),
+        label="exclude filters",
+        required=False,
+        help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
+    )
+    include_filters = forms.ModelMultipleChoiceField(
+        queryset=StoryFilter.objects.all(),
+        label="include filters (override exclude filters)",
         required=False,
         help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
     )

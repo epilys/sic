@@ -2,6 +2,48 @@
 {% load humanize %}
 {% load utils %}
 {% block title %}browse aggregations - sic{% endblock %}
+{% block style %}
+    <style>
+        dl.aggregations { margin-left: 6px; }
+
+        dl.aggregations a.agg-name {
+            font-family: monospace;
+        }
+        dl.aggregations>dd dd {
+            display: inline-block;
+        }
+        dl.aggregations dt {
+            font-weight: bold;
+            color: #217ac0;
+            font-size: 110%;
+            max-width: max-content;
+        }
+        dl.aggregations dd { margin-left: 16px }
+
+        dl.aggregations>dd + dt {
+            margin-top: 1rem;
+            border-top: 2px inset gray;
+            padding-top: 1rem;
+        }
+        dl.aggregations>dd dt {
+            width: max-content;
+            height: min-content;
+            border: 1px solid black;
+            background: white;
+            border-radius: 3px;
+            padding: 2px 5px;
+        }
+
+
+        dl.aggregations dl {
+            margin-top: 1rem;
+            display: grid;
+            grid-template-columns: min-content 1fr;
+            grid-auto-rows: min-content;
+        }
+
+    </style>
+{% endblock %}
 {% block content %}
     <nav>
         <ul>
@@ -32,7 +74,7 @@
                         <dd>
                             <ul class="tags">
                                 {% for tag in agg.tags.all %}
-                                    <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><span class="tag-name">{{ tag.name }} {{ tag.stories.count }}</span></li>
+                                    <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><div class="tag"><span class="tag-name">{{ tag.name }} {{ tag.stories.count }}</span></div></li>
                                 {% endfor %}
                             </ul></dd>
                         <dt>created</dt>

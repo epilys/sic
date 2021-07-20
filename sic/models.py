@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 import string
 import uuid
 import itertools
+import abc
+import collections
 from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager,
@@ -323,6 +325,26 @@ class TaggregationHasTag(models.Model):
     def __str__(self):
         return f"{self.taggregation} {self.tag} depth={self.depth}"
 
+    def vertices(self):
+        if self.depth == 0:
+            return set([self.tag])
+        queue = collections.deque([(self.depth, self.tag)])
+        seen_set = set()
+        while len(queue) != 0:
+            depth, tag = queue.pop()
+            seen_set.add(tag)
+            if depth == 0:
+                continue
+            if depth == -1:
+                new_depth = -1
+            else:
+                new_depth == depth - 1
+            for c in tag.children.all():
+                if c in seen_set:
+                    continue
+                queue.append((new_depth, c))
+        return seen_set
+
     def get_stories(self):
         stories_exc = self.tag.get_stories(self.depth)
         # keep copy for include filters; these override the exclude filters
@@ -371,6 +393,14 @@ class StoryFilter(models.Model):
 
     def __str__(self) -> str:
         return self.name if len(self.name) > 0 else "unnamed"
+
+    @abc.abstractmethod
+    def kind(self):
+        ...
+
+    @abc.abstractmethod
+    def content(self):
+        ...
 
     def inner(self):
         try:
@@ -441,11 +471,23 @@ class MatchFilter(StoryFilter):
 class ExactTagFilter(StoryFilter):
     tag = models.ForeignKey(Tag, null=False, blank=True, on_delete=models.CASCADE)
 
+    def content(self):
+        return self.tag
+
+    def kind(self):
+        return "exact tag filter"
+
     def match(self):
         return lambda tag_obj: tag_obj.pk == self.tag.pk
 
 
 class TagNameFilter(MatchFilter):
+    def kind(self):
+        return "tag name match filter"
+
+    def content(self):
+        return self.match_string
+
     def match(self):
         if self.is_regexp:
             raise NotImplementedError(
@@ -455,7 +497,11 @@ class TagNameFilter(MatchFilter):
 
 
 class DomainFilter(MatchFilter):
-    pass
+    def kind(self):
+        return "domain match filter"
+
+    def content(self):
+        return self.match_string
 
     def match(self):
         if self.is_regexp:
@@ -467,6 +513,12 @@ class DomainFilter(MatchFilter):
 
 class UserFilter(StoryFilter):
     user = models.ForeignKey("User", on_delete=models.CASCADE, null=False)
+
+    def kind(self):
+        return "user filter"
+
+    def content(self):
+        return self.user
 
     def match(self):
         return lambda user_obj: user_obj.pk == self.user.pk

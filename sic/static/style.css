@@ -880,7 +880,7 @@ ul.tags {
   height: max-content;
 }
 
-ul.tags>li {
+.tag {
   display: inline-block;
   border: 1px solid #0000005e;
   border-radius: 5px;
@@ -1054,6 +1054,13 @@ thead,
 tfoot {
     background-color: #333;
     color: #fff;
+}
+
+table.filters {
+  display: inline-block;
+  max-height: 10rem;
+  overflow: auto;
+  border-collapse: collapse;
 }
 
 span.netloc {
@@ -1339,44 +1346,6 @@ form.order-by-form {
   width: max-content;
   max-width: var(--main-width);
   align-content: flex-start;
-}
-
-
-dl.aggregations { margin-left: 6px; }
-
-dl.aggregations a.agg-name {
-font-family: monospace;
-}
-dl.aggregations>dd dd {
-display: inline-block;
-}
-dl.aggregations dt {
-font-weight: bold;
-color: #217ac0;
-font-size: 110%;
-max-width: max-content;
-}
-dl.aggregations dd { margin-left: 16px }
-
-dl.aggregations>dd + dt {
-margin-top: 1rem;
-border-top: 2px inset gray;
-padding-top: 1rem;
-}
-dl.aggregations>dd dt {
-  width: max-content;
-  border: 1px solid black;
-  background: white;
-  border-radius: 3px;
-  padding: 2px 5px;
-}
-
-
-dl.aggregations dl {
-  margin-top: 1rem;
-    display: grid;
-    grid-template-columns: min-content max-content;
-    grid-auto-rows: min-content;
 }
 
 
