@@ -573,6 +573,12 @@ header .logo span {
   background-color: var(--theme-color);
 }
 
+header .logo span a,
+header .logo span a:visited {
+  text-decoration: none;
+  color: white;
+}
+
 form.submit-story-form {
   display: flex;
   flex-direction: column;
