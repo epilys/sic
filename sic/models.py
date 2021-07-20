@@ -2,6 +2,7 @@ from urllib.parse import urlparse
 from datetime import datetime, timedelta
 import string
 import uuid
+import itertools
 from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager,
@@ -312,20 +313,163 @@ class TaggregationHasTag(models.Model):
     taggregation = models.ForeignKey(Taggregation, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, null=True, blank=True, on_delete=models.CASCADE)
     depth = models.IntegerField(default=0, null=False, blank=False)
+    include_filters = models.ManyToManyField(
+        "StoryFilter", blank=True, related_name="included_in"
+    )
+    exclude_filters = models.ManyToManyField(
+        "StoryFilter", blank=True, related_name="excluded_in"
+    )
 
     def __str__(self):
         return f"{self.taggregation} {self.tag} depth={self.depth}"
 
     def get_stories(self):
-        return set(self.tag.get_stories(self.depth))
+        stories_exc = self.tag.get_stories(self.depth)
+        # keep copy for include filters; these override the exclude filters
+        stories_inc = stories_exc
+
+        exclude = StoryFilter.filter_story_attributes(
+            stories_exc, self.exclude_filters.all()
+        )
+        if exclude["tags"]:
+            stories_exc = itertools.filterfalse(
+                lambda story_obj: len(set(story_obj.tags.all()) & exclude["tags"]) > 0,
+                stories_exc,
+            )
+        if exclude["users"]:
+            stories_exc = itertools.filterfalse(
+                lambda story_obj: story_obj.user in exclude["users"], stories_exc
+            )
+        stories_exc = set(stories_exc)
+
+        include = StoryFilter.filter_story_attributes(
+            stories_inc, self.include_filters.all()
+        )
+
+        if not include["tags"] and not include["users"]:
+            stories_inc = set()
+
+        if include["tags"]:
+            stories_inc = filter(
+                lambda story_obj: len(set(story_obj.tags.all()) & include["tags"]) > 0,
+                stories_inc,
+            )
+        if include["users"]:
+            stories_inc = filter(
+                lambda story_obj: story_obj.user in include["users"], stories_inc
+            )
+        stories_inc = set(stories_inc)
+
+        if stories_inc:
+            return stories_exc | stories_inc
+        return stories_exc
 
 
-class TagFilter(models.Model):
+class StoryFilter(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(null=False, blank=False, max_length=20)
+    name = models.CharField(null=False, blank=True, max_length=20)
 
-    def __str__(self):
-        return f"{self.name}"
+    def __str__(self) -> str:
+        return self.name if len(self.name) > 0 else "unnamed"
+
+    def inner(self):
+        try:
+            return self.exacttagfilter
+        except:
+            pass
+        try:
+            return self.nametagfilter
+        except:
+            pass
+        try:
+            return self.domaintagfilter
+        except:
+            pass
+        try:
+            return self.userfilter
+        except:
+            pass
+        return None
+
+    @staticmethod
+    def filter_filters(filters):
+        tag_filters = []
+        domain_filters = []
+        user_filters = []
+        for f in filters:
+            f = f.inner()
+            if isinstance(f, TagNameFilter) or isinstance(f, ExactTagFilter):
+                tag_filters.append(f)
+            elif isinstance(f, DomainFilter):
+                domain_filters.append(f)
+            elif isinstance(f, UserFilter):
+                user_filters.append(f)
+        return {
+            "tag_filters": tag_filters,
+            "user_filters": user_filters,
+            "domain_filters": domain_filters,
+        }
+
+    @staticmethod
+    def filter_story_attributes(stories, filters):
+        filters = StoryFilter.filter_filters(filters)
+        tag_set = set()
+        if len(filters["tag_filters"]) > 0:
+            result = set()
+            for s in stories:
+                tag_set |= set(s.tags.all())
+            for t in filters["tag_filters"]:
+                result |= set(filter(t.match(), tag_set))
+            tag_set = set(result)
+        user_set = set()
+        if len(filters["user_filters"]) > 0:
+            result = set()
+            for s in stories:
+                user_set.add(s.user)
+            for u in filters["user_filters"]:
+                result |= set(filter(u.match(), user_set))
+            user_set = set(result)
+
+        return {"users": user_set, "tags": tag_set}
+
+
+class MatchFilter(StoryFilter):
+    match_string = models.TextField(null=False, blank=False)
+    is_regexp = models.BooleanField(null=False, blank=False, default=False)
+
+
+class ExactTagFilter(StoryFilter):
+    tag = models.ForeignKey(Tag, null=False, blank=True, on_delete=models.CASCADE)
+
+    def match(self):
+        return lambda tag_obj: tag_obj.pk == self.tag.pk
+
+
+class TagNameFilter(MatchFilter):
+    def match(self):
+        if self.is_regexp:
+            raise NotImplementedError(
+                "regular expression matching in story filters not implemented yet"
+            )
+        return lambda tag_obj: self.match_string in tag_obj.name
+
+
+class DomainFilter(MatchFilter):
+    pass
+
+    def match(self):
+        if self.is_regexp:
+            raise NotImplementedError(
+                "regular expression matching in story filters not implemented yet"
+            )
+        return lambda domain_obj: self.match_string in domain_obj
+
+
+class UserFilter(StoryFilter):
+    user = models.ForeignKey("User", on_delete=models.CASCADE, null=False)
+
+    def match(self):
+        return lambda user_obj: user_obj.pk == self.user.pk
 
 
 class InvitationRequest(models.Model):

@@ -137,6 +137,30 @@ class InvitationRequestAdmin(ModelAdmin):
     inlines = [InvitationRequestVoteInline]
 
 
+class StoryFilterAdmin(ModelAdmin):
+    ordering = ["name"]
+
+
+class ExactTagFilterAdmin(StoryFilterAdmin):
+    list_display = ["name", "tag"]
+
+
+class UserFilterAdmin(StoryFilterAdmin):
+    list_display = ["name", "user"]
+
+
+class MatchFilterAdmin(StoryFilterAdmin):
+    list_display = ["name", "match_string", "is_regexp"]
+
+
+class TagNameFilterAdmin(MatchFilterAdmin):
+    pass
+
+
+class DomainFilterAdmin(MatchFilterAdmin):
+    pass
+
+
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Hat, HatAdmin)
@@ -147,7 +171,11 @@ admin.site.register(Notification, NotificationAdmin)
 admin.site.register(Story, StoryAdmin)
 admin.site.register(StoryKind, StoryKindAdmin)
 admin.site.register(Tag, TagAdmin)
-admin.site.register(TagFilter)
+admin.site.register(StoryFilter, StoryFilterAdmin)
+admin.site.register(ExactTagFilter, ExactTagFilterAdmin)
+admin.site.register(UserFilter, UserFilterAdmin)
+admin.site.register(TagNameFilter, TagNameFilterAdmin)
+admin.site.register(DomainFilter, DomainFilterAdmin)
 admin.site.register(Taggregation, TaggregationAdmin)
 admin.site.register(TaggregationHasTag)
 admin.site.register(User, UserAdmin)

@@ -151,7 +151,7 @@ def index(request, page_num=1):
     if page_num == 1 and request.get_full_path() != reverse("index"):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
         return redirect(reverse("index"))
-    story_obj = None
+    stories = None
     taggregations = None
     has_subscriptions = False
     # Figure out what to show in the index
@@ -159,13 +159,23 @@ def index(request, page_num=1):
     # otherwise show every story.
     if request.user.is_authenticated:
         frontpage = request.user.frontpage()
-        story_obj = frontpage["stories"]
+        stories = frontpage["stories"]
         taggregations = frontpage["taggregations"]
         has_subscriptions = taggregations is not None
-    if not story_obj:
-        story_obj = Story.objects.filter(active=True)
+    if not stories:
+        stories = Story.objects.filter(active=True).order_by("-created", "title")
+    # https://docs.python.org/3/howto/sorting.html#sort-stability-and-complex-sorts
     all_stories = sorted(
-        story_obj.order_by("-created", "title"),
+        stories,
+        key=lambda s: s.title,
+        reverse=True,
+    )
+    all_stories = sorted(
+        stories,
+        key=lambda s: s.created,
+    )
+    all_stories = sorted(
+        stories,
         key=lambda s: s.hotness()["score"],
         reverse=True,
     )
