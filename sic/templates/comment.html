@@ -71,15 +71,25 @@
                         <span>Preview:</span>
                         <span class="comment preview">{{ preview }}</span>
                     {% endif %}
-                    <table>
-                        {% if ongoing_reply_pk == comment.pk %}
-                            {{ ongoing_reply_form }}
-                        {% elif edit_comment_pk == comment.pk %}
-                            {{ edit_comment_form }}
-                        {% else %}
-                            {{reply_form}}
-                        {% endif %}
-                    </table>
+                    {% if ongoing_reply_pk == comment.pk %}
+                        {% for field in ongoing_reply_form %}
+                            {{ field.errors }}
+                            {{ field.label_tag }}
+                            {{ field }}
+                        {% endfor %}
+                    {% elif edit_comment_pk == comment.pk %}
+                        {% for field in edit_comment_form %}
+                            {{ field.errors }}
+                            {{ field.label_tag }}
+                            {{ field }}
+                        {% endfor %}
+                    {% else %}
+                        {% for field in reply_form %}
+                            {{ field.errors }}
+                            {{ field.label_tag }}
+                            {{ field }}
+                        {% endfor %}
+                    {% endif %}
                     <div class="button-flex-box">
                         {% if edit_comment_pk != comment.pk %}
                             <input formaction="." type="submit" name="preview" value="Preview">
@@ -95,7 +105,7 @@
                     </div>
                     </form>
                 {% else %}
-                    <form action="{% url 'delete_comment' edit_comment_pk %}" method="POST">
+                    <form action="{% url 'delete_comment' edit_comment_pk %}" method="POST" class="delete-comment-form">
                         {% csrf_token %}
                         <table>
                             {{ delete_comment_form }}

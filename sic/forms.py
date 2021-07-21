@@ -39,7 +39,7 @@ class SubmitCommentForm(forms.Form):
     text = forms.CharField(
         required=True, label="Comment", max_length=500, widget=forms.Textarea
     )
-    text.widget.attrs.update({"rows": 3, "placeholder": ""})
+    text.widget.attrs.update({"rows": 6, "placeholder": ""})
 
 
 class DeleteCommentForm(forms.Form):

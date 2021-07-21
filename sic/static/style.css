@@ -590,6 +590,7 @@ form.submit-story-form {
 form.submit-comment-form {
   max-width: 66ch;
   max-width: clamp(10vw, 66ch, 80vw);
+  width: max-content;
   display: flex;
   flex-direction: column;
   row-gap: .5rem;
@@ -732,13 +733,18 @@ label.required:after {
   color: LinkText;
 }
 
+form.delete-comment-form table,
+form.delete-comment-form th,
+form.delete-comment-form td {
+  border: 0;
+}
+
 form.reply-form {
   display: none;
   width: max-content;
 }
 
 textarea {
-  max-width: 50vw;
   resize: both;
 }
 
@@ -747,7 +753,8 @@ input[type="checkbox"].reply {
 }
 
 input[type="checkbox"].reply:checked ~ form.reply-form:first-of-type {
-  margin-top: 1rem;
+  margin-left: 2rem;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
   row-gap: 1rem;
@@ -1075,9 +1082,12 @@ div.button-flex-box {
 details.formatting-help li {
   list-style: revert;
 }
-details.formatting-help {
 
+details.formatting-help summary {
+  vertical-align: middle;
+  display: inline list-item;
 }
+
 details.formatting-help[open]>span {
   position: absolute;
   padding: 1rem 2rem;

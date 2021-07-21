@@ -43,9 +43,11 @@
                 <span class="comment preview">{{ preview }}</span>
             {% endif %}
             {% csrf_token %}
-            <table>
-                {{ comment_form}}
-            </table>
+            {% for field in comment_form %}
+                {{ field.errors }}
+                {{ field.label_tag }}
+                {{ field }}
+            {% endfor %}
             <div class="button-flex-box">
                 <input type="submit" name="preview" value="Preview">
                 <input type="submit" value="Submit">
