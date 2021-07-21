@@ -605,32 +605,39 @@ form.submit-comment-form {
 div.profile {
   display: flex;
   flex-flow: wrap;
-  row-gap: 1rem;
-  column-gap: 2rem;
+  row-gap: 0rem;
+  column-gap: 0rem;
   max-height: max-content;
   max-width: max-content;
   justify-content: center;
+  border: 3px solid #333;
+  border-radius: 3px;
 }
 
 .profile table {
-  grid-column: 1 / span 1;
+  border: 0;
 }
 
 .profile #avatar {
-  grid-column: 2 / span 1;
+  flex-basis: max-content;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  width: max-content;
-  height: max-content;
+  width: auto;
+  height: auto;
+  background-size: 1px 1px;
+  place-content: center;
 }
 
 figure#avatar-thumbnail {
-  height: min-content;
+  height: 100%;
   max-width: 100px;
   padding: 3px;
   background-size: 1px 1px;
   display: flex;
   flex-direction: column;
+  place-content: center;
+  align-self: center;
   margin: 0;
 }
 
