@@ -229,6 +229,8 @@ button:-moz-focusring,
 
 fieldset {
   padding: 0.35em 0.75em 0.625em;
+  border-radius: 3px;
+  box-sizing:border-box;
 }
 
 /**
@@ -579,12 +581,19 @@ header .logo span a:visited {
   color: white;
 }
 
-form.submit-story-form {
+form.submit-story-form,form.submit-story-form>fieldset {
   display: flex;
   flex-direction: column;
-  row-gap: .5rem;
+  row-gap: 4px;
   width: max-content;
+  width: clamp(10vw, 66ch, 80vw);
   max-width: 80vw;
+}
+
+form.submit-story-form textarea {
+  max-width: 100%;
+  min-width: 100%;
+  resize: both;
 }
 
 form.submit-comment-form {
@@ -1380,4 +1389,27 @@ pre {
   padding: 2px 7px;
   max-width: clamp(10vw, 66ch, 80vw);
   min-width: clamp(10vw, 66ch, 80vw);
+}
+
+
+form>*:not([type=hidden]) +label,
+fieldset>*:not([type=hidden],legend) +label{
+  margin-top: 1rem;
+}
+
+fieldset>legend {
+  font-weight: bolder;
+  background-color: white;
+  border: 1px outset black;
+  padding: 2px 5px;
+  border-radius: 2px;
+}
+
+form label {
+  font-weight: bolder;
+  text-transform: lowercase;
+}
+
+p.help-text {
+  margin-top: 0;
 }

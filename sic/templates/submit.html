@@ -2,6 +2,9 @@
 {% load humanize %}
 {% block title %}submit story{% endblock %}
 {% block content %}
+    <h1>submit story</h1>
+    <p class="help-text">A story can have no <code>url</code>; in that case, the story content is what you put in the description.</p>
+    <p class="help-text">You can edit your story after submission to add missing tags or correct mistakes.</p>
     <form method="post" class="submit-story-form">
         {% if preview %}
             <span>Preview:</span>
@@ -14,20 +17,59 @@
             <span class="comment preview">{{ preview.description }}</span>
         {% endif %}
         {% csrf_token %}
-        {% for field in form %}
-            {{ field.errors }}
-            {{ field.label_tag }}
-            {{ field }}
-            {% if field.name == 'url' %}
-                <input type="submit" name="fetch-title" value="fetch title">
+        <fieldset>
+            <legend>story content</legend>
+            {{ form.title.errors }}
+            {{ form.title.label_tag }}
+            {% if form.title.help_text %}
+                <p class="help-text">{{ form.title.help_text }}</p>
             {% endif %}
-            {% if field.name == 'description' %}
-                <details class="formatting-help">
-                    <summary>Formatting help</summary>
-                    <span>{% include "markdown_help.html" %}</span>
-                </details>
+            {{ form.title }}
+            {{ form.url.errors }}
+            {{ form.url.label_tag }}
+            {% if form.url.help_text %}
+                <p class="help-text">{{ form.url.help_text }}</p>
             {% endif %}
-        {% endfor %}
+            {{ form.url }}
+            <input type="submit" name="fetch-title" value="fetch title">
+            {{ form.description.errors }}
+            {{ form.description.label_tag }}
+            {% if form.description.help_text %}
+                <p class="help-text">{{ form.description.help_text }}</p>
+            {% endif %}
+            {{ form.description }}
+            <details class="formatting-help">
+                <summary>Formatting help</summary>
+                <span>{% include "markdown_help.html" %}</span>
+            </details>
+        </fieldset>
+        <fieldset>
+            <legend>metadata</legend>
+            {{ form.publish_date.errors }}
+            {{ form.publish_date.label_tag }}
+            {% if form.publish_date.help_text %}
+                <p class="help-text">{{ form.publish_date.help_text }}</p>
+            {% endif %}
+            {{ form.publish_date }}
+            {{ form.user_is_author.errors }}
+            {{ form.user_is_author.label_tag }}
+            {% if form.user_is_author.help_text %}
+                <p class="help-text">{{ form.user_is_author.help_text }}</p>
+            {% endif %}
+            {{ form.user_is_author }}
+            {{ form.tags.errors }}
+            {{ form.tags.label_tag }}
+            {% if form.tags.help_text %}
+                <p class="help-text">{{ form.tags.help_text }}</p>
+            {% endif %}
+            {{ form.tags }}
+            {{ form.kind.errors }}
+            {{ form.kind.label_tag }}
+            {% if form.kind.help_text %}
+                <p class="help-text">{{ form.kind.help_text }}</p>
+            {% endif %}
+            {{ form.kind }}
+        </fieldset>
         <div class="button-flex-box">
             <input type="submit" value="Submit">
             <input type="submit" name="preview" value="Preview">

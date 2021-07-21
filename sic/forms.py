@@ -8,13 +8,15 @@ class SubmitStoryForm(forms.Form):
     required_css_class = "required"
     title = forms.CharField(label="Story title", required=False, max_length=100)
     description = forms.CharField(
-        required=False, widget=forms.Textarea({"rows": 3, "placeholder": ""})
+        required=False,
+        widget=forms.Textarea({"rows": 3, "cols": 15, "placeholder": ""}),
+        help_text="Write additional context for the submitted link, or your content if your post has no URL.",
     )
     url = forms.URLField(required=False)
     publish_date = forms.DateField(
         required=False,
         widget=forms.DateInput(attrs={"type": "date"}),
-        help_text="Set publication date if relevant (for example, an article on current affairs).",
+        help_text="Set publication date if relevant (for example, an article not published within the last year).",
     )
     user_is_author = forms.BooleanField(
         label="Author",
