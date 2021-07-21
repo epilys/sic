@@ -3,6 +3,11 @@
 {% load utils %}
 {% block title %}bookmarks - sic{% endblock %}
 {% block content %}
+    <nav>
+        <ul>
+            <li><a href="{% url 'bookmarks_json' %}">Export to <code>json</code></a></li>
+        </ul>
+    </nav>
     <ul class="posts">
         {% for b in bookmarks %}
             {% if b.is_story %}

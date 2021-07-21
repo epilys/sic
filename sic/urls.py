@@ -123,6 +123,7 @@ urlpatterns = [
     ),
     path("accounts/bookmarks", bookmarks, name="bookmarks"),
     path("accounts/bookmarks/page/<int:page_num>/", bookmarks, name="bookmarks_page"),
+    path("accounts/bookmarks.json", bookmarks_json, name="bookmarks_json"),
     path(
         "accounts/bookmarks/edit/<int:bookmark_pk>", edit_bookmark, name="edit_bookmark"
     ),

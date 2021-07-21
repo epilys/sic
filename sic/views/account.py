@@ -1,11 +1,13 @@
-from django.http import HttpResponseForbidden, Http404
+from django.http import HttpResponseForbidden, Http404, JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
 from django.db.models import Value, BooleanField
 from django.urls import reverse
 from django.contrib import messages
+from django.core import serializers
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 from django.views.decorators.http import require_http_methods
 from wand.image import Image
 from ..auth import AuthToken
@@ -333,6 +335,60 @@ def bookmark_story(request, story_pk):
     if "next" in request.GET:
         return redirect(request.GET["next"])
     return redirect(reverse("index"))
+
+
+@login_required
+def bookmarks_json(request):
+    user = request.user
+    ret = []
+    domain = Site.objects.get_current().domain
+    for b in user.saved_stories.through.objects.filter(story__active=True).order_by(
+        "-created", "story__title"
+    ):
+        story = {
+            "id": b.story.pk,
+            "user": str(b.story.user),
+            "title": b.story.title,
+            "description": b.story.description,
+            "url": b.story.url,
+            "sic_url": "http://" + domain + b.story.get_absolute_url(),
+            "created": b.story.created,
+            "publish_date": b.story.publish_date,
+            "tags": list(map(lambda t: str(t), b.story.tags.all())),
+            "kind": list(map(lambda k: str(k), b.story.kind.all())),
+        }
+        ret.append(
+            {
+                "type": "story",
+                "story": story,
+                "created": b.created,
+                "annotation": b.annotation,
+            }
+        )
+    for b in user.saved_comments.through.objects.filter(
+        comment__deleted=False
+    ).order_by("-created"):
+        comment = {
+            "id": b.comment.pk,
+            "user": str(b.comment.user),
+            "story_id": b.comment.story.pk,
+            "story_title": b.comment.story.title,
+            "text": b.comment.text_to_plain_text(),
+            "sic_url": "http://" + domain + b.comment.get_absolute_url(),
+            "parent": ("http://" + domain + b.comment.parent.get_absolute_url())
+            if b.comment.parent
+            else None,
+            "created": b.comment.created,
+        }
+        ret.append(
+            {
+                "type": "comment",
+                "comment": comment,
+                "created": b.created,
+                "annotation": b.annotation,
+            }
+        )
+    return JsonResponse(ret, safe=False)
 
 
 @login_required
