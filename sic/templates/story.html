@@ -6,9 +6,9 @@
     {% get_comment_preview request None as preview  %}
     {% story_is_bookmarked request.user story as is_bookmarked %}
     {% story_is_upvoted  as is_upvoted %}
-    <article>
+    <article class="story">
         <header>
-            <div class="votes" style="position: absolute;transform: translateX(-112%);">
+            <div class="votes">
                 <div class="upvote{% if is_upvoted %} upvoted{% endif %}">
                     {% if request.user.is_authenticated %}
                         <form>

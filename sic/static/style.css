@@ -660,6 +660,11 @@ figure#avatar-thumbnail figcaption {
   transform: translateY(.1ex);
 }
 
+article.story>header>.votes {
+  position: absolute;
+  transform: translateX(-112%);
+}
+
 .avatar-small {
   height: 1.5rem;
   width: 1.5rem;
@@ -1250,6 +1255,21 @@ blockquote.message_body {
   nav.user.menu>ul {
     column-gap:0;
     row-gap: 4px;
+  }
+
+  .votes {
+    flex-direction: column;
+    row-gap: 4px;
+    transform: translateY(-.8ex);
+  }
+  .votes .upvote {
+    margin-right: 0;
+    border-width: 1ex;
+    border-bottom-width: 1.8ex;
+  }
+
+  article.story>header>.votes {
+    transform: translateX(-140%) translateY(-.8ex);
   }
 }
 
