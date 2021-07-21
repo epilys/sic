@@ -33,6 +33,16 @@ urlpatterns = [
         TemplateView.as_view(template_name="purpose.html"),
         name="purpose",
     ),
+    path(
+        "about/contact",
+        TemplateView.as_view(template_name="about_contact.html"),
+        name="about_contact",
+    ),
+    path(
+        "about/code-of-conduct",
+        TemplateView.as_view(template_name="coc.html"),
+        name="code_of_conduct",
+    ),
     path("about/invitation-tree/", invitation_tree, name="invitation_tree"),
     path(
         "about/privacy/",

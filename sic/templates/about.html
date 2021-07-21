@@ -31,14 +31,16 @@
             <span class="sic-animation__item"></span>
         </div>
     </div>
-    <h1>about sic</h1>
+    <h1>about <strong><code>[sic]</code></strong></h1>
     <nav class="menu">
         <ul>
             <li><a href="{% url 'purpose' %}">Statement of Purpose</a></li>
+            <li><a href="{% url 'code_of_conduct' %}">Community Code of Conduct</a></li>
+            <li><a href="{% url 'about_contact' %}">Contact</a></li>
             <li><a href="{% url 'about_privacy' %}">Privacy Policy</a></li>
+            <li><a href="{% url 'invitation_tree' %}">User invitation tree</a></li>
             <li>IRC Channel: <code>#sic</code> on <a href="https://libera.chat/" rel="external nofollow">Libera Chat</a>, connect with an IRC client at <a href="ircs://irc.libera.chat:6697" rel="external nofollow"><code>ircs://irc.libera.chat:6697</code></a>, use a <a href="https://web.libera.chat/?channel=#sic">webclient</a> or the <a href="https://app.element.io/#/room/#sic:libera.chat" rel="external nofollow">Matrix bridge</a>.</li>
             <li>Source code: <a href="https://github.com/epilys/sic/">https://github.com/epilys/sic/</a></li>
-            <li><a href="{% url 'invitation_tree' %}">User invitation tree</a></li>
         </ul>
     </nav>
 {% endblock %}

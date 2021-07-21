@@ -951,6 +951,14 @@ article>header>div.links {
   margin-top: .5rem;
 }
 
+article>ul {
+  list-style-type: square;
+  padding: 0;
+  max-width: clamp(10vw, 66ch, 80vw);
+  hyphens: auto;
+  word-break: break-word;
+}
+
 ul.messagelist {
     padding: 0;
     margin: 0;
