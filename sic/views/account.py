@@ -144,14 +144,14 @@ def profile(request, username):
 @login_required
 def inbox(request):
     user = request.user
-    inbox_messages = user.received_messages.all()
+    inbox_messages = user.received_messages.all().order_by("-created")
     return render(request, "inbox.html", {"messages_": inbox_messages})
 
 
 @login_required
 def inbox_sent(request):
     user = request.user
-    inbox_messages = user.sent_messages.all()
+    inbox_messages = user.sent_messages.all().order_by("-created")
     return render(request, "inbox.html", {"messages_": inbox_messages})
 
 

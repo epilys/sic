@@ -2,6 +2,13 @@
 {% load utils %}
 {% block title %}{{user}} profile - sic{% endblock %}
 {% block content %}
+    <nav>
+        <ul>
+            {% if request.user.is_authenticated and request.user.pk != user.pk %}
+                <li><a href="{% url 'inbox_compose' %}?recipient={{ user|urlencode }}">Message user</a></li>
+            {% endif %}
+        </ul>
+    </nav>
     <div class="profile">
         <div id="avatar" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
             <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
