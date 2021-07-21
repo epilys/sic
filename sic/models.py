@@ -49,7 +49,7 @@ class StoryKind(models.Model):
         return val
 
     class Meta:
-        ordering = ['name', ]
+        ordering = ["name"]
 
 
 class Story(models.Model):
@@ -236,7 +236,7 @@ class Tag(models.Model):
             return None
 
     class Meta:
-        ordering = ['name', ]
+        ordering = ["name"]
 
 
 class Taggregation(models.Model):
@@ -291,7 +291,7 @@ class Taggregation(models.Model):
         )
 
     class Meta:
-        ordering = ['name', ]
+        ordering = ["name"]
 
 
 class TagFilter(models.Model):
@@ -642,3 +642,21 @@ class Notification(models.Model):
             messages.add_message(
                 request, messages.ERROR, f"Could not send notification. Error: {error}"
             )
+
+
+class Webmention(models.Model):
+    id = models.AutoField(primary_key=True)
+    story = models.ForeignKey(
+        Story, related_name="webmentions", on_delete=models.CASCADE
+    )
+    url = models.URLField(null=False, blank=False)
+    created = models.DateTimeField(auto_now_add=True)
+    was_received = models.BooleanField(
+        default=True, null=False
+    )  # did we sent it or did we receive it?
+
+    class Meta:
+        ordering = ["-created", "story"]
+
+    def __str__(self):
+        return f"{self.id} {self.story} {self.url}"

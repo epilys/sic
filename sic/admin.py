@@ -135,6 +135,7 @@ admin.site.register(Taggregation, TaggregationAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(Vote, VoteAdmin)
 admin.site.register(ModerationLogEntry)
+admin.site.register(Webmention)
 
 
 @admin.register(Permission)

@@ -66,5 +66,8 @@ class SicAppConfig(AppConfig):
 
     MENTION_TOKENIZER_NAME = "mention_tokenizer"
 
+    SEND_WEBMENTIONS = True
+
     def ready(self):
         import sic.notifications
+        import sic.webmention
