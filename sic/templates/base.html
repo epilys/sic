@@ -64,7 +64,7 @@
                     <nav class="menu user">
                         <ul>
                             <li><a href="{% url_with_next 'login' request %}" id="login_link">Login</a></li>
-                            <li><details id="signup-details" title="You will need an invitation from an existing user to join. Try joining our irc channel, #sic at libera.chat. See About page for more details."><summary><a href="">Sign up</a></summary><div>You will need an invitation from an existing user to join.<br/><br/>Try <a href="{% url 'about' %}">joining our irc channel, #sic at libera.chat</a>.</div></details></li>
+                            <li><a href="{% url 'signup_help' %}" id="signup_link">Sign up</a></li>
                         </ul>
                     </nav>
                 {% endif %}

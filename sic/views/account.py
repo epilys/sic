@@ -11,7 +11,16 @@ from django.contrib.sites.models import Site
 from django.views.decorators.http import require_http_methods
 from wand.image import Image
 from ..auth import AuthToken
-from ..models import User, Invitation, Story, StoryBookmark, Notification, Hat, Message
+from ..models import (
+    User,
+    Invitation,
+    Story,
+    StoryBookmark,
+    Notification,
+    Hat,
+    Message,
+    InvitationRequest,
+)
 from ..forms import (
     GenerateInviteForm,
     EditProfileForm,
@@ -22,6 +31,7 @@ from ..forms import (
     UserCreationForm,
     AnnotationForm,
     ComposeMessageForm,
+    InvitationRequestForm,
 )
 from ..apps import SicAppConfig as config
 from . import form_errors_as_string, HttpResponseNotImplemented
@@ -233,6 +243,7 @@ def generate_invite(request, invite_pk=None):
                     f"Successfully generated invitation to {address}.",
                 )
                 inv.send(request)
+                InvitationRequest.objects.filter(address=address).delete()
         else:
             error = form_errors_as_string(form.errors)
             messages.add_message(
@@ -523,3 +534,66 @@ def issue_token(request):
     if "next" in request.GET:
         return redirect(request.GET["next"])
     return redirect(reverse("account"))
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def invitation_requests(request):
+    user = request.user
+    if request.method == "POST":
+        try:
+            vote_pk = request.POST["vote-pk"]
+            if "submit" in request.POST:
+                choice = request.POST[f"choice-{vote_pk}"]
+                choice = True if choice == "yes" else False if choice == "no" else None
+                note = request.POST[f"note-{vote_pk}"]
+                InvitationRequest.objects.get(pk=int(vote_pk)).votes.create(
+                    user=user, in_favor=choice, note=note
+                )
+            elif "delete-vote" in request.POST:
+                InvitationRequest.objects.get(pk=int(vote_pk)).votes.filter(
+                    user__pk=user.pk
+                ).delete()
+        except Exception as exc:
+            messages.add_message(request, messages.ERROR, f"Exception: {exc}")
+    requests = list(InvitationRequest.objects.all())
+    for req in requests:
+        req.have_voted = False
+        if req.votes.filter(user__pk=user.pk).exists():
+            req.have_voted = True
+            continue
+    return render(
+        request,
+        "invitation_requests.html",
+        {"requests": requests},
+    )
+
+
+@require_http_methods(["GET", "POST"])
+def new_invitation_request(request):
+    if request.user.is_authenticated:
+        messages.add_message(request, messages.ERROR, "You already have an account.")
+        return redirect("account")
+    if request.method == "POST":
+        form = InvitationRequestForm(request.POST)
+        if form.is_valid():
+            messages.add_message(request, messages.SUCCESS, "Request submitted.")
+            try:
+                new_req = InvitationRequest(
+                    name=form.cleaned_data["name"],
+                    address=form.cleaned_data["address"],
+                    about=form.cleaned_data["about"],
+                )
+                new_req.save()
+            except Exception as exc:
+                print(exc)
+        return redirect("index")
+    else:
+        form = InvitationRequestForm()
+    return render(
+        request,
+        "new_invitation_request.html",
+        {
+            "form": form,
+        },
+    )

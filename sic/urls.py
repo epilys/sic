@@ -106,11 +106,26 @@ urlpatterns = [
     ),
     path("agg/new", new_aggregation, name="new_aggregation"),
     path("accounts/auth_token/new", issue_token, name="issue_token"),
+    path(
+        "accounts/invitations/requests/",
+        invitation_requests,
+        name="invitation_requests",
+    ),
+    path(
+        "accounts/invitations/requests/new/",
+        new_invitation_request,
+        name="new_invitation_request",
+    ),
     path("accounts/invitations/new", generate_invite, name="generate_invite"),
     path(
         "accounts/invitations/new/<uuid:invite_pk>",
         generate_invite,
         name="resend_invite",
+    ),
+    path(
+        "accounts/signup-help/",
+        TemplateView.as_view(template_name="signup_help.html"),
+        name="signup_help",
     ),
     path(
         "accounts/login/",

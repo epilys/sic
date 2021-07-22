@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}request an invite - sic{% endblock %}
+{% block content %}
+    <h1>request an invite</h1>
+    <p class="help-text">If your request is submitted successfuly, you will receive a confirmation e-mail. Check that you actually receive it, otherwise you can't be informed if the request is accepted.</p>
+    <form method="post" class="submit-story-form">
+        {% csrf_token %}
+        {% for field in form %}
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {% if field.help_text %}
+                <p class="help-text">{{ field.help_text }}</p>
+            {% endif %}
+            {{ field }}
+        {% endfor %}
+        <div class="button-flex-box">
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+{% endblock %}

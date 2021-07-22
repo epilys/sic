@@ -120,6 +120,16 @@ class StoryKindAdmin(ModelAdmin):
     list_display = ["name", "hex_color_html", "created"]
 
 
+class InvitationRequestVoteInline(admin.TabularInline):
+    model = InvitationRequestVote
+
+
+class InvitationRequestAdmin(ModelAdmin):
+    ordering = ["-created"]
+    list_display = ["name", "address", "created"]
+    inlines = [InvitationRequestVoteInline]
+
+
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Hat, HatAdmin)
@@ -135,6 +145,7 @@ admin.site.register(Taggregation, TaggregationAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(Vote, VoteAdmin)
 admin.site.register(ModerationLogEntry)
+admin.site.register(InvitationRequest, InvitationRequestAdmin)
 admin.site.register(Webmention)
 
 

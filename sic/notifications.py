@@ -3,8 +3,9 @@ from django.db.models.signals import post_save
 from django.db.models.expressions import RawSQL
 from django.db.backends.signals import connection_created
 from django.dispatch import receiver
+from django.core.mail import send_mail
 from .apps import SicAppConfig as config
-from .models import Comment, Story, User, Message, Notification
+from .models import Comment, Story, User, Message, Notification, InvitationRequest
 
 
 @receiver(post_save, sender=Comment)
@@ -107,3 +108,18 @@ def mention_setup(sender, connection, **kwargs):
             cursor.execute(
                 f"CREATE VIRTUAL TABLE IF NOT EXISTS {config.MENTION_TOKENIZER_NAME} USING fts3tokenize('unicode61');"
             )
+
+
+@receiver(post_save, sender=InvitationRequest)
+def new_invitation_request_receiver(
+    sender, instance, created, raw, using, update_fields, **kwargs
+):
+    req = instance
+    if created:
+        send_mail(
+            f"[sic] confirmation of your invitation request",
+            f"This message is just a confirmation we have received your request.",
+            config.NOTIFICATION_FROM,
+            [req.address],
+            fail_silently=False,
+        )

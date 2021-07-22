@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load utils %}
+{% block title %}active invitation requests - sic{% endblock %}
+{% block style %}
+    <style>
+        .invitation-requests {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .invitation-request {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #333;
+            padding: 1rem;
+            gap: 1rem;
+        }
+        .invitation-request>table {
+            width: 100%;
+            border: 0;
+        }
+        .invitation-request>table td {
+            border: 0;
+        }
+
+        .invitation-request>form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        span.success {
+            background-color: var(--message-success-bg);
+        }
+        span.error {
+            background-color: var(--message-error-bg);
+        }
+        span.warning {
+            background-color: var(--message-warning-bg);
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <ul class="invitation-requests">
+        {% for req in requests %}
+            <li class="invitation-request">
+                <form method="POST" action="{% url_with_next 'generate_invite' request %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="vote-pk" value="{{ req.pk }}">
+                    <input type="hidden" name="email" value="{{ req.address }}">
+                    <span><label for="certain-{{req.pk}}">I'm certain about this</label><input type="checkbox" name="certain-{{req.pk}}" required></span>
+                    <input type="submit" name="send-invite" value="Send invite">
+                </form>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <td>{{ req.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Address</th>
+                        <td>{{ req.address }}</td>
+                    </tr>
+                    <tr>
+                        <th>About</th>
+                        <td><p>{{ req.about|escape }}</p></td>
+                    </tr>
+                </table>
+                {% for vote in req.votes.all %}
+                    {% spaceless %}
+                        {% if vote.in_favor is not None %}
+                            <span class="{% if vote.in_favor %}success{% else %}error{%endif%}">{{ vote.user }} is {% if not vote.in_favor %}not {% endif %} in favour and notes: <q>{{ vote.note }}</q></span>
+                        {% else %}
+                            <span class="warning">{{ vote.user }} notes: <q>{{ vote.note }}</q></span>
+                        {% endif %}
+                    {% endspaceless %}
+                {% endfor %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="vote-pk" value="{{ req.pk }}">
+                    {% if req.have_voted %}
+                        <input type="submit" name="delete-vote" value="Delete my vote">
+                    {% else %}
+                        <span>
+                            <label for="choice-{{req.pk}}">Your vote:</label>
+                            <input type="radio" name="choice-{{req.pk}}" value="yes" />Yes
+                            <input type="radio" name="choice-{{req.pk}}" value="no" />No
+                            <input type="radio" name="choice-{{req.pk}}" value="none" />None
+                        </span>
+                        <label for="note-{{req.pk}}">Notes:</label>
+                        <textarea name="note-{{req.pk}}" cols="15" rows="2"></textarea>
+                        <input type="submit" name="submit" value="Submit">
+                    {% endif %}
+                </form>
+            </li>
+        {% empty %}
+            <li>None.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

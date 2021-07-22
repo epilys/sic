@@ -309,3 +309,32 @@ class BanUserForm(forms.Form):
             return user
         except User.DoesNotExist:
             raise ValidationError(f"User {value} not found.")
+
+
+CAPTCHA_CHOICES = [
+    ("fish", "Fishes."),
+    ("dog", "A dog."),
+    ("rock", "A rock."),
+]
+
+
+class InvitationRequestForm(forms.Form):
+    required_css_class = "required"
+    name = forms.CharField(label="internet handle", required=True, max_length=100)
+    address = forms.EmailField(required=True, label="e-mail")
+    about = forms.CharField(
+        required=True,
+        widget=forms.Textarea({"rows": 3, "cols": 15, "placeholder": ""}),
+        help_text="Insert evidence of your web presence like blog posts you've written and accounts on other communities to support your request",
+    )
+    choose_dead = forms.ChoiceField(
+        required=True,
+        label="choose what cannot be alive (you cannot change this after submission)",
+        choices=CAPTCHA_CHOICES,
+    )
+
+    def clean_choose_dead(self):
+        choice = self.cleaned_data["choose_dead"]
+        if choice != "rock":
+            raise ValidationError("")
+        return choice

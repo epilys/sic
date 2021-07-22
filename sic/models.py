@@ -302,6 +302,35 @@ class TagFilter(models.Model):
         return f"{self.name}"
 
 
+class InvitationRequest(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(null=False, blank=False, max_length=20)
+    address = models.EmailField(null=False, blank=False, unique=True)
+    about = models.TextField(null=False, blank=False)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.pk} {self.name} {self.address}"
+
+
+class InvitationRequestVote(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey("User", on_delete=models.SET_NULL, null=True, blank=False)
+    request = models.ForeignKey(
+        InvitationRequest,
+        related_name="votes",
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+    )
+    in_favor = models.BooleanField(default=True, null=True, blank=True)
+    note = models.TextField(null=False, blank=False)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [["user", "request"]]
+
+
 class Invitation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     inviter = models.ForeignKey(
