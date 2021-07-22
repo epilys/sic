@@ -27,6 +27,7 @@
         {% endif %}
         <link rel="alternate" type="application/rss+xml" href="{% url 'latest_stories_rss' %}" title="Latest Stories RSS">
         <link rel="alternate" type="application/atom+xml" href="{% url 'latest_stories_atom' %}" title="Latest Stories Atom">
+        <link rel="manifest" href="/static/manifest.webmanifest">
         <title>{% block title %}sic{% endblock %}</title>
         {% block style %}{% endblock %}
     </head>

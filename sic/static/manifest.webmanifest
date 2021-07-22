@@ -1,0 +1,15 @@
+{
+  "background_color": "#1e82be",
+  "description": "[sic] is a community about everything that piques your curiosity and interest.",
+  "display": "fullscreen",
+  "icons": [
+    {
+      "src": "/static/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "name": "sic",
+  "short_name": "sic",
+  "start_url": "/"
+}
