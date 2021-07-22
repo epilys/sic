@@ -342,8 +342,9 @@ class Invitation(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         default=None,
+        unique=True,
     )
-    address = models.EmailField(null=False, blank=False)
+    address = models.EmailField(null=False, blank=False, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     accepted = models.DateTimeField(null=True, blank=True)
 
@@ -393,6 +394,9 @@ class Vote(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ["user", "story", "comment"]
+
 
 class Moderation(models.Model):
     id = models.AutoField(primary_key=True)
@@ -407,6 +411,9 @@ class Hat(models.Model):
     )
     last_modified = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ["user", "name"]
 
 
 class UserManager(BaseUserManager):
