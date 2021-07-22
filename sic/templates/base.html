@@ -57,7 +57,7 @@
                             <li class="username"><a href="{% url 'account' %}" id="username_link">{{ request.user }}</a></li>
                             <li><a href="{% url 'submit' %}" id="submit_link">Post</a></li>
                             <li><a href="{% url 'inbox' %}" id="inbox_link">Inbox{% if unread_messages and unread_messages > 0 %} ({{ unread_messages }}){% endif %}</a></li>
-                            <li><a href="{% url_with_next 'logout' request %}" id="logout_link">Logout</a></li>
+                            <li><a href="{% url 'logout' %}" id="logout_link">Logout</a></li>
                         </ul>
                     </nav>
                 {% else %}
