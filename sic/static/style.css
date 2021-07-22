@@ -406,7 +406,7 @@ body>footer {
   width: 100%;
 }
 
-main {
+body>main {
   display: grid;
   grid-template-columns: 1fr;
   grid-auto-rows: min-content;
@@ -415,7 +415,7 @@ main {
   height: 100%;
 }
 
-main nav>ul{
+body>main nav>ul{
   list-style: none;
   column-gap: 1rem;
   row-gap: 8px;
@@ -492,18 +492,18 @@ body>footer>nav.feeds>ul>li {
   white-space: nowrap;
 }
 
-main>ul.posts {
+body>main>ul.posts {
   list-style: none;
   margin: 0;
   padding:0;
 }
 
-main>ul.posts li.story + li,
-main>ul.posts li.comment + li {
+body>main>ul.posts li.story + li,
+body>main>ul.posts li.comment + li {
   margin-top: 1rem;
 }
 
-main>ul.posts>li.story{
+body>main>ul.posts>li.story{
  display: inline-grid;
  width: 100%;
  grid-template-areas: "votes title" "votes links";
@@ -513,11 +513,11 @@ main>ul.posts>li.story{
  row-gap: .2rem;
 }
 
-main>ul.posts>li.story .votes{
+body>main>ul.posts>li.story .votes{
   grid-area: votes;
 }
 
-main>ul.posts>li.story div.title{
+body>main>ul.posts>li.story div.title{
   grid-area: title;
   display: flex;
   gap: 4px;
@@ -535,7 +535,7 @@ a.title {
  hyphens: auto;
 }
 
-main>ul.posts>li.story .links{
+body>main>ul.posts>li.story .links{
   grid-area: links;
 }
 
@@ -935,7 +935,7 @@ details#signup-details:not([open])>summary {
   list-style: none;
 }
 
-main>article {
+body>main>article {
   max-width: 80vw;
 }
 
@@ -960,7 +960,7 @@ article>header>div.links {
   margin-top: .5rem;
 }
 
-article>ul {
+article>ul, article>main>ul {
   list-style-type: square;
   padding: 0;
   max-width: clamp(10vw, 66ch, 80vw);
