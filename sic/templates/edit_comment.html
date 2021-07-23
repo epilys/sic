@@ -4,6 +4,6 @@
 {% block title %}Comments on {{story.title}} - sic {% endblock %}
 {% block content %}
     <ul class="posts">
-        {% include "comment.html" with comment=comment edit_comment_pk=edit_comment_pk edit_comment_form=edit_comment_form delete_comment=delete_comment delete_comment_form=delete_comment_form %}
+        {% include "comment.html" with comment=comment edit_comment_pk=edit_comment_pk edit_comment_form=edit_comment_form delete_comment=delete_comment delete_comment_form=delete_comment_form level=0 %}
     </ul>
 {% endblock %}

@@ -496,6 +496,7 @@ body>main>ul.posts {
   list-style: none;
   margin: 0;
   padding:0;
+  max-width: 80vw;
 }
 
 body>main>ul.posts li.story + li,
@@ -793,6 +794,7 @@ span.comment {
   text-align: justify;
   hyphens: auto;
   word-break: break-word;
+  overflow: auto;
 }
 
 span.comment.preview {
@@ -886,6 +888,8 @@ ul.tags>li {
 
 ul.posts {
   padding-inline-start: clamp(5px, 5vw, 40px);
+  --base: min(4rem, 5vw);
+  padding-inline-start: calc(var(--base) * (1 / (1 + var(--level))));
 }
 
 ul.posts li {

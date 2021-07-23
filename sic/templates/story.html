@@ -63,7 +63,7 @@
     <ul class="posts">
         {% for comment in comments.all %}
             {% if not comment.parent %}
-                {% include "comment.html" with comment=comment reply_form=reply_form %}
+                {% include "comment.html" with comment=comment reply_form=reply_form level=1 %}
             {% endif %}
         {% endfor %}
     </ul>

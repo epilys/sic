@@ -13,7 +13,7 @@
             {% if b.is_story %}
                 {% include "story_list_item.html" with story=b.story %}
             {% else %}
-                {% include "comment.html" with comment=b.comment reply_form=reply_form shallow=True %}
+                {% include "comment.html" with comment=b.comment reply_form=reply_form shallow=True level=0 %}
             {% endif %}
             <li class="bookmark-annotation">
                 <table>
