@@ -100,7 +100,7 @@ def story(request, story_pk, slug=None):
             return redirect(story_obj.get_absolute_url())
         form = SubmitCommentForm()
     reply_form = SubmitReplyForm()
-    comments = Comment.objects.filter(story=story_obj, parent=None)
+    comments = story_obj.comments.filter(parent=None)
     return render(
         request,
         "story.html",

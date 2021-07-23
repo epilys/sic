@@ -119,6 +119,9 @@ class Story(models.Model):
     def description_to_plain_text(self):
         return Textractor.extract(self.description_to_html()).strip()
 
+    def active_comments(self):
+        return self.comments.filter(deleted=False)
+
 
 class Message(models.Model):
     id = models.AutoField(primary_key=True)
