@@ -64,6 +64,11 @@
                         <form action="{% url 'edit_comment' comment.pk %}" method="POST" class="reply-form">
                     {% else %}
                         <form action="{% url 'reply' comment.pk %}" method="POST" class="reply-form">
+                            <label class="reply" for="reply-{{comment.pk}}" style="align-self: end; position: absolute;"><a href="">hide</a></label>
+                            <span class="reply-parent">
+                                <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}"> {{ comment.created|naturaltime }}</time>
+                                <span class="comment">{{ comment.text_to_html }}</span>
+                            </span>
                     {% endif %}
                     {% csrf_token %}
                     <input type="text" name="preview_comment_pk" value="{{comment.pk}}" hidden>

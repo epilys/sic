@@ -761,6 +761,10 @@ form.reply-form {
   width: max-content;
 }
 
+form.reply-form>span.reply-parent{
+  display: none;
+}
+
 textarea {
   resize: both;
 }
@@ -800,6 +804,10 @@ span.comment {
 span.comment.preview {
   outline: 1px dotted;
   outline-offset: 2px;
+}
+
+span.comment.preview+label {
+  margin-top: 0;
 }
 
 input[type="checkbox"].comment:checked~span.comment{
@@ -1303,6 +1311,21 @@ blockquote.message_body {
 
   article.story>header>.votes {
     transform: translateX(-140%) translateY(-.8ex);
+  }
+
+  form.reply-form {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    background: white;
+    outline: 1px solid Highlight;
+    padding: 1rem;
+    z-index: 1;
+  }
+
+  form.reply-form>span.reply-parent{
+    display: initial;
+    border-bottom: 1px dotted;
   }
 }
 
