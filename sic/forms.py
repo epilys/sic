@@ -6,7 +6,9 @@ from .models import Tag, User, StoryKind
 
 class SubmitStoryForm(forms.Form):
     required_css_class = "required"
-    title = forms.CharField(label="Story title", required=False, max_length=100)
+    title = forms.CharField(
+        label="Story title", required=False, max_length=200, min_length=2
+    )
     description = forms.CharField(
         required=False,
         widget=forms.Textarea({"rows": 3, "cols": 15, "placeholder": ""}),
@@ -39,7 +41,7 @@ class SubmitStoryForm(forms.Form):
 
 class SubmitCommentForm(forms.Form):
     text = forms.CharField(
-        required=True, label="Comment", max_length=500, widget=forms.Textarea
+        required=True, label="Comment", min_length=1, widget=forms.Textarea
     )
     text.widget.attrs.update({"rows": 6, "placeholder": ""})
 
@@ -59,14 +61,14 @@ class DeleteCommentForm(forms.Form):
 
 class SubmitReplyForm(forms.Form):
     text = forms.CharField(
-        required=True, label="Reply", max_length=500, widget=forms.Textarea
+        required=True, label="Reply", min_length=1, widget=forms.Textarea
     )
     text.widget.attrs.update({"rows": 3, "placeholder": ""})
 
 
 class EditReplyForm(forms.Form):
     text = forms.CharField(
-        required=True, label="Edit", max_length=500, widget=forms.Textarea
+        required=True, label="Edit", min_length=1, widget=forms.Textarea
     )
     text.widget.attrs.update({"rows": 3, "placeholder": ""})
     edit_reason = forms.CharField(
@@ -263,7 +265,9 @@ class ComposeMessageForm(forms.Form):
         required=True, label="recipient", validators=[validate_user]
     )
     subject = forms.CharField(required=True, label="subject", max_length=100)
-    body = forms.CharField(required=True, label="Message", widget=forms.Textarea)
+    body = forms.CharField(
+        required=True, label="Message", widget=forms.Textarea, min_length=1
+    )
     body.widget.attrs.update({"rows": 8, "placeholder": ""})
 
     def clean_recipient(self):
@@ -326,6 +330,7 @@ class InvitationRequestForm(forms.Form):
         required=True,
         widget=forms.Textarea({"rows": 3, "cols": 15, "placeholder": ""}),
         help_text="Insert evidence of your web presence like blog posts you've written and accounts on other communities to support your request",
+        min_length=20,
     )
     choose_dead = forms.ChoiceField(
         required=True,
