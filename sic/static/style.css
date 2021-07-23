@@ -1298,12 +1298,12 @@ blockquote.message_body {
     row-gap: 4px;
   }
 
-  .votes {
+  .story .votes {
     flex-direction: column;
     row-gap: 4px;
     transform: translateY(-.8ex);
   }
-  .votes .upvote {
+  .story .votes .upvote {
     margin-right: 0;
     border-width: 1ex;
     border-bottom-width: 1.8ex;
