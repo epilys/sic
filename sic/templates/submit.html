@@ -10,7 +10,7 @@
             <span>Preview:</span>
             <div class="title">
                 <a href="{{ preview.url }}" class="title">{{ preview.title }}</a>
-                {% if preview.domain %}<span class="netloc">{{ preview.domain }}</span>{% endif %}
+                <span class="netloc">{{ preview.domain|default_if_none:"text" }}</span>
                 {% if preview.publish_date %}<span>Published: <time datetime="{{ preview.publish_date | date:"Y-m-d" }}" title="{{ preview.publish_date }}">{{ preview.publish_date|naturalday }}</time></span>{% endif %}
                 {% include "story_tags.html" with tags=preview.tags %}
             </div>

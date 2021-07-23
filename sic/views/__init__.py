@@ -228,7 +228,9 @@ def submit_story(request):
                 "description": comment_to_html(request.POST["description"]),
                 "title": form.cleaned_data["title"],
                 "url": form.cleaned_data["url"],
-                "domain": form.cleaned_data["url"],
+                "domain": form.cleaned_data["url"]
+                if len(form.cleaned_data["url"]) > 0
+                else None,
                 "publish_date": form.cleaned_data["publish_date"],
                 "tags": form.cleaned_data["tags"],
             }
