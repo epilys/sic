@@ -25,7 +25,7 @@
             <span class="links"><span class="votes">
                 <span class="upvote{% if is_upvoted %} upvoted{% endif %}">
                     {% if request.user.is_authenticated %}
-                        <form action="{% url_with_next 'upvote_comment' comment.story.pk None comment.pk request %}" method="POST">
+                        <form action="{% url_with_next 'upvote_comment' comment.story.pk comment.story.slugify comment.pk request %}" method="POST">
                             {% csrf_token %}
                             <input type="submit" title="upvote comment" value="">
                         </form>
