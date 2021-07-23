@@ -1086,13 +1086,8 @@ span.comment a {
   white-space: pre-line;
 }
 
-li.notification, li.notification a:visited, li.notification a {
+nav.menu li.notification, nav.menu li.notification a:visited, nav.menu li.notification a {
   color: ActiveText;
-}
-
-tr.active-notification, tr.active-notification a {
-    background: Highlight;
-    color: HighlightText;
 }
 
 div.button-flex-box {

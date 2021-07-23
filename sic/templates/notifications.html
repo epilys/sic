@@ -1,43 +1,58 @@
 {% extends "base.html" %}
 {% block title %}Account notifications{% endblock %}
+{% block style %}
+    <style>
+        .active.notification {
+            border-left: 1rem solid Highlight;
+        }
+        ol {
+            padding:0;
+            margin:0;
+        }
+        li.notification>div {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem 2rem;
+        }
+        li.notification {
+            border: 2px solid black;
+        }
+        li.notification+li.notification {
+            margin-top: 2px;
+        }
+        li.notification>div>span:first-child {
+            margin-bottom: 1rem;
+        }
+        span.body {
+            background: whitesmoke;
+            padding: 1rem;
+        }
+        span.new {
+            color: ActiveText;
+        }
+    </style>
+{% endblock %}
 {% block content %}
-    <table>
-        <thead>
-            <tr>
-                <th>title</th>
-                <th>body</th>
-                <th>cause</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for n in active_notifications %}
-                <tr class="active-notification">
-                    <td>{{ n.name }}</td>
-                    <td><p>{{ n.body }}</p>
-                        <p>Link: <a href="{{ n.url }}">{{ n.url }}</a><p></td>
-                            <td class="subtable">
-                                <ul>
-                                    <li>{{ n.created }}</li>
-                                    <li>{{ n.get_kind_display }}</li>
-                                    <li>{% if n.caused_by %}<a href="{{ n.caused_by.get_absolute_url }}">{{ n.caused_by }}</a>{% else %}System{% endif %}</li>
-                                </ul>
-                            </td>
-                        </tr>
-            {% endfor %}
-            {% for n in rest_notifications %}
-                <tr>
-                    <td>{{ n.name }}</td>
-                    <td><p>{{ n.body }}</p>
-                        <p>Link: <a href="{{ n.url }}">{{ n.url }}</a><p></td>
-                            <td class="subtable">
-                                <ul>
-                                    <li>{{ n.created }}</li>
-                                    <li>{{ n.get_kind_display }}</li>
-                                    <li>{% if n.caused_by %}<a href="{{ n.caused_by.get_absolute_url }}">{{ n.caused_by }}</a>{% else %}System{% endif %}</li>
-                                </ul>
-                            </td>
-                        </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <ol>
+        {% for n in active_notifications %}
+            <li class="active notification">
+                <div>
+                    <span><span class="new">New!</span> {{ n.created }} {{ n.get_kind_display }} {% if n.caused_by %}<a href="{{ n.caused_by.get_absolute_url }}">{{ n.caused_by }}</a>{% else %}System{% endif %}</span>
+                    <span>{{ n.name }}</span>
+                    <span class="body"><p>{{ n.body }}</p>
+                        <p>Link: <a href="{{ n.url }}">{{ n.url }}</a><p></span>
+                        </div>
+                    </li>
+        {% endfor %}
+        {% for n in rest_notifications %}
+            <li class="notification">
+                <div>
+                    <span>{{ n.created }} {{ n.get_kind_display }} {% if n.caused_by %}<a href="{{ n.caused_by.get_absolute_url }}">{{ n.caused_by }}</a>{% else %}System{% endif %}</span>
+                    <span>{{ n.name }}</span>
+                    <span class="body"><p>{{ n.body }}</p>
+                        <p>Link: <a href="{{ n.url }}">{{ n.url }}</a><p></span>
+                        </div>
+                    </li>
+        {% endfor %}
+    </ol>
 {% endblock %}
