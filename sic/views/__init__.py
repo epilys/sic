@@ -474,6 +474,7 @@ def edit_story(request, story_pk, slug=None):
                 "title": story_obj.title,
                 "description": story_obj.description,
                 "url": story_obj.url,
+                "publish_date": story_obj.publish_date,
                 "user_is_author": story_obj.user_is_author,
                 "tags": story_obj.tags.all(),
                 "kind": story_obj.kind.all(),
@@ -485,6 +486,7 @@ def edit_story(request, story_pk, slug=None):
         {
             "form": form,
             "preview": preview,
+            "story": story_obj,
         },
     )
 
