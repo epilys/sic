@@ -1,6 +1,6 @@
 import urllib.request
 from http import HTTPStatus
-from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
@@ -14,7 +14,6 @@ from ..models import Story, StoryKind, Comment, User, Invitation
 from ..moderation import ModerationLogEntry
 from ..forms import (
     SubmitCommentForm,
-    SubmitReplyForm,
     EditReplyForm,
     DeleteCommentForm,
     SubmitStoryForm,
@@ -40,56 +39,64 @@ from .account import *
 from .tags import *
 
 
+@login_required
+def preview_comment(request):
+    if "next" not in request.GET:
+        return HttpResponseBadRequest("Request url should have a ?next= GET parameter.")
+    if "comment_preview" in request.session:
+        request.session["comment_preview"] = {}
+    # The preview is saved in the user's session, and then retrieved in
+    # the template by the tag `get_comment_preview` located in
+    # sic/templatetags/utils.py which puts the preview in the rendering
+    # context.
+    comment = None
+    try:
+        comment_pk = request.POST.get("preview_comment_pk", None)
+        if comment_pk:
+            comment = Comment.objects.get(pk=comment_pk)
+        else:
+            comment_pk = "null"
+        text = request.POST["text"]
+        request.session["comment_preview"] = {comment_pk: {}}
+        request.session["comment_preview"][comment_pk]["input"] = text
+        request.session["comment_preview"][comment_pk]["html"] = comment_to_html(text)
+        request.session.modified = True
+        if comment:
+            return redirect(request.GET["next"] + "#" + comment.slugify())
+        else:
+            return redirect(request.GET["next"])
+    except (Comment.DoesNotExist, KeyError):
+        return redirect(request.GET["next"])
+
+
 def story(request, story_pk, slug=None):
     try:
         story_obj = Story.objects.get(pk=story_pk)
     except Story.DoesNotExist:
         raise Http404("Story does not exist") from Story.DoesNotExist
-    if "reply_preview" in request.session:
-        request.session["reply_preview"] = {}
-    request.session.modified = True
-    ongoing_reply_form = None
     ongoing_reply_pk = None
+    try:
+        comment_pk = next(iter(request.session["comment_preview"].keys()))
+        comment_pk = comment_pk if comment_pk == "null" else int(comment_pk)
+        ongoing_reply_pk = comment_pk
+    except (StopIteration, KeyError, ValueError):
+        pass
     if request.method == "POST":
-        if "preview" in request.POST:
-            form = SubmitCommentForm()
-            if "preview_comment_pk" in request.POST:
-                comment_pk = request.POST["preview_comment_pk"]
-                ongoing_reply_form = SubmitReplyForm(request.POST)
-            else:
-                comment_pk = None
-                form = SubmitCommentForm(request.POST)
-                ongoing_reply_form = None
-            text = request.POST["text"]
-            if "reply_preview" not in request.session:
-                request.session["reply_preview"] = {}
-            request.session["reply_preview"][comment_pk] = comment_to_html(text)
-            request.session.modified = True
-            ongoing_reply_pk = int(comment_pk) if comment_pk else None
+        if not request.user.is_authenticated:
             messages.add_message(
-                request,
-                messages.INFO,
-                "You can view the formatting preview above the comment form.",
+                request, messages.ERROR, "You must be logged in to comment."
             )
         else:
             form = SubmitCommentForm(request.POST)
             if form.is_valid():
-                if request.user:
-                    new = Comment.objects.create(
-                        user=request.user,
-                        story=story_obj,
-                        parent=None,
-                        text=form.cleaned_data["text"],
-                    )
-                    new.save()
-                    messages.add_message(
-                        request, messages.SUCCESS, "Your comment was posted."
-                    )
-                    form = SubmitCommentForm()
-                else:
-                    messages.add_message(
-                        request, messages.ERROR, "You must be logged in to comment."
-                    )
+                comment = Comment.objects.create(
+                    user=request.user,
+                    story=story_obj,
+                    parent=None,
+                    text=form.cleaned_data["text"],
+                )
+                request.session["comment_preview"] = {}
+                return redirect(comment)
             else:
                 error = form_errors_as_string(form.errors)
                 messages.add_message(
@@ -99,7 +106,6 @@ def story(request, story_pk, slug=None):
         if slug != story_obj.slugify():
             return redirect(story_obj.get_absolute_url())
         form = SubmitCommentForm()
-    reply_form = SubmitReplyForm()
     comments = story_obj.comments.filter(parent=None)
     return render(
         request,
@@ -107,9 +113,7 @@ def story(request, story_pk, slug=None):
         {
             "story": story_obj,
             "comment_form": form,
-            "reply_form": reply_form,
             "comments": comments,
-            "ongoing_reply_form": ongoing_reply_form,
             "ongoing_reply_pk": ongoing_reply_pk,
         },
     )
@@ -123,15 +127,14 @@ def reply(request, comment_pk):
     except Comment.DoesNotExist:
         raise Http404("Comment does not exist") from Comment.DoesNotExist
     if request.method == "POST":
-        form = SubmitReplyForm(request.POST)
+        form = SubmitCommentForm(request.POST)
         if form.is_valid():
             text = form.cleaned_data["text"]
             comment = Comment.objects.create(
                 user=user, story=comment.story, parent=comment, text=text
             )
-            messages.add_message(
-                request, messages.SUCCESS, "You successfuly submitted a comment."
-            )
+            request.session["comment_preview"] = {}
+            return redirect(comment)
         else:
             error = form_errors_as_string(form.errors)
             messages.add_message(
@@ -326,7 +329,7 @@ def edit_comment(request, comment_pk):
                 )
                 comment_obj.text = form.cleaned_data["text"]
                 comment_obj.save()
-                messages.add_message(request, messages.SUCCESS, "Comment edit saved.")
+                return redirect(comment_obj)
             return redirect(comment_obj.story.get_absolute_url())
         else:
             error = form_errors_as_string(form.errors)
@@ -340,17 +343,13 @@ def edit_comment(request, comment_pk):
                 "text": comment_obj.text,
             },
         )
-        display_comment = comment_obj
-        if comment_obj.parent is not None:
-            display_comment = comment_obj.parent
         return render(
             request,
             "edit_comment.html",
             {
                 "story": comment_obj.story,
-                "comment": display_comment,
-                "edit_comment_pk": comment_pk,
-                "edit_comment_form": form,
+                "comment": comment_obj,
+                "form": form,
             },
         )
 
@@ -546,10 +545,7 @@ def recent_comments(request, page_num=1):
         return redirect(
             reverse("recent_comments_page", kwargs={"page_num": paginator.num_pages})
         )
-    reply_form = SubmitReplyForm()
-    return render(
-        request, "recent_comments.html", {"comments": page, "reply_form": reply_form}
-    )
+    return render(request, "recent_comments.html", {"comments": page})
 
 
 @cache_page(60 * 15)

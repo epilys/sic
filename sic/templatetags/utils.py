@@ -100,15 +100,19 @@ def increment_var(context, var: str):
     return ""
 
 
-@register.simple_tag()
-def get_comment_preview(request, comment_pk: int):
+@register.simple_tag(takes_context=True)
+def get_comment_preview(context, request, comment_pk: int):
+    context["preview_input"] = ""
     if isinstance(comment_pk, int):
         comment_pk = str(comment_pk)
     if (
-        "reply_preview" in request.session
-        and comment_pk in request.session["reply_preview"]
+        "comment_preview" in request.session
+        and comment_pk in request.session["comment_preview"]
     ):
-        return mark_safe(request.session["reply_preview"][comment_pk])
+        context["preview_input"] = request.session["comment_preview"][comment_pk][
+            "input"
+        ]
+        return mark_safe(request.session["comment_preview"][comment_pk]["html"])
     return None
 
 

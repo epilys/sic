@@ -59,13 +59,6 @@ class DeleteCommentForm(forms.Form):
     )
 
 
-class SubmitReplyForm(forms.Form):
-    text = forms.CharField(
-        required=True, label="Reply", min_length=1, widget=forms.Textarea
-    )
-    text.widget.attrs.update({"rows": 3, "placeholder": ""})
-
-
 class EditReplyForm(forms.Form):
     text = forms.CharField(
         required=True, label="Edit", min_length=1, widget=forms.Textarea

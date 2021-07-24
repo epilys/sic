@@ -3,7 +3,7 @@
 {% load utils %}
 {% block title %}{{story.title}} - sic {% endblock %}
 {% block content %}
-    {% get_comment_preview request None as preview  %}
+    {% get_comment_preview request 'null' as preview  %}
     {% story_is_bookmarked request.user story as is_bookmarked %}
     {% story_is_upvoted  as is_upvoted %}
     <article class="story">
@@ -43,13 +43,11 @@
                 <span class="comment preview">{{ preview }}</span>
             {% endif %}
             {% csrf_token %}
-            {% for field in comment_form %}
-                {{ field.errors }}
-                {{ field.label_tag }}
-                {{ field }}
-            {% endfor %}
+            {{ comment_form.text.errors }}
+            <label for="comment-textarea">comment:</label>
+            <textarea id=comment-textarea" name="text" cols="40" rows="6" minlength="1" placeholder="" required="">{{ preview_input }}</textarea>
             <div class="button-flex-box">
-                <input type="submit" name="preview" value="Preview">
+                <input formaction="{% url_with_next 'preview_comment' request %}" type="submit" name="preview" value="Preview">
                 <input type="submit" value="Submit">
                 <details class="formatting-help">
                     <summary>Formatting help</summary>

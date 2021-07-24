@@ -3,7 +3,47 @@
 {% load utils %}
 {% block title %}Comments on {{story.title}} - sic {% endblock %}
 {% block content %}
-    <ul class="posts">
-        {% include "comment.html" with comment=comment edit_comment_pk=edit_comment_pk edit_comment_form=edit_comment_form delete_comment=delete_comment delete_comment_form=delete_comment_form level=0 %}
-    </ul>
+    {% get_comment_preview request comment.pk as preview %}
+    {% if comment.parent and not delete_comment %}
+        <strong>in reply to:</strong>
+        <ul class="posts">
+            {% include "comment.html" with comment=comment.parent level=0 shallow=True %}
+        </ul>
+    {% elif delete_comment %}
+        <ul class="posts">
+            {% include "comment.html" with comment=comment level=0 shallow=True %}
+        </ul>
+    {% endif %}
+    {% if delete_comment %}
+        <form action="{% url 'delete_comment' edit_comment_pk %}" method="POST" class="delete-comment-form">
+            {% csrf_token %}
+            <table>
+                {{ delete_comment_form }}
+            </table>
+            <input type="submit" value="Permanently Delete">
+        </form>
+    {% else %}
+        <form action="{% url 'edit_comment' comment.pk %}" method="POST" class="submit-comment-form">
+            {% csrf_token %}
+            <input type="text" name="preview_comment_pk" value="{{comment.pk}}" hidden>
+            <strong>current comment:</strong>
+            <div style="border-left: 2px inset gray; padding-left: 5px;">{{ comment.text_to_html }}</div>
+            {% if preview %}
+                <strong>preview:</strong>
+                <span class="comment preview">{{ preview }}</span>
+            {% endif %}
+            {{ form.text.errors }}
+            <label for="edit-{{comment.pk}}-textarea">edit:</label>
+            <textarea id="edit-{{comment.pk}}-textarea" name="text" cols="40" rows="3" minlength="1" placeholder="" required="">{% if preview_input %}{{ preview_input }}{% else %}{{ comment.text }}{% endif %}</textarea>
+        </label>
+        <div class="button-flex-box">
+            <input formaction="{% url_with_next 'preview_comment' request %}" type="submit" name="preview" value="Preview">
+            <input type="submit" value="Save">
+            <details class="formatting-help">
+                <summary>Formatting help</summary>
+                <span>{% include "markdown_help.html" %}</span>
+            </details>
+        </div>
+        </form>
+    {% endif %}
 {% endblock %}

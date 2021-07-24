@@ -27,7 +27,6 @@ from ..forms import (
     EditAvatarForm,
     EditAccountSettings,
     EditHatForm,
-    SubmitReplyForm,
     UserCreationForm,
     AnnotationForm,
     ComposeMessageForm,
@@ -289,7 +288,7 @@ def profile_posts(request, username, page_num=1):
     return render(
         request,
         "profile_posts.html",
-        {"posts": page, "reply_form": SubmitReplyForm(), "user": user},
+        {"posts": page, "user": user},
     )
 
 
@@ -433,7 +432,7 @@ def bookmarks(request, page_num=1):
     return render(
         request,
         "bookmarks.html",
-        {"bookmarks": page, "reply_form": SubmitReplyForm(), "user": user},
+        {"bookmarks": page, "user": user},
     )
 
 
