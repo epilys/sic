@@ -114,7 +114,7 @@ urlpatterns = [
     ),
     path(
         "accounts/invitations/requests/new/",
-        new_invitation_request,
+        RedirectView.as_view(url="/accounts/signup-help/", permanent=False),
         name="new_invitation_request",
     ),
     path("accounts/invitations/new", generate_invite, name="generate_invite"),
@@ -125,7 +125,7 @@ urlpatterns = [
     ),
     path(
         "accounts/signup-help/",
-        TemplateView.as_view(template_name="signup_help.html"),
+        new_invitation_request,
         name="signup_help",
     ),
     path(

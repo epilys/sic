@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load cache %}
 {% load utils %}
 {% block title %}invitation tree | sic{% endblock %}
-{% block content %}
+{% block style %}
     <style>
         ul.tree,
         ul.tree ul {
@@ -45,8 +46,19 @@
             border-left: 1px solid rgb(100, 100, 100);
         }
     </style>
+{% endblock %}
+{% block content %}
+    <nav class="menu">
+        <ul>
+            {% if request.user.is_authenticated %}
+                <li><a href="{% url 'invitation_requests' %}">Invitation requests</a></li>
+            {% endif %}
+        </ul>
+    </nav>
     <h1>invitation tree</h1>
     <ul class="tree">
-        {% include "invitation_tree.html" with user=root_user depth=depth max_depth=max_depth %}
+        {% cache 1000 invitation_tree %}
+            {% include "invitation_tree.html" with user=root_user depth=depth max_depth=max_depth %}
+        {% endcache %}
     </ul>
 {% endblock %}

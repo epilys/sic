@@ -1,6 +1,11 @@
 import urllib.request
 from http import HTTPStatus
-from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseForbidden,
+    HttpResponseBadRequest,
+)
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
@@ -8,7 +13,6 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import PermissionDenied
-from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
 from ..models import Story, StoryKind, Comment, User, Invitation
 from ..moderation import ModerationLogEntry
@@ -550,7 +554,6 @@ def recent_comments(request, page_num=1):
     return render(request, "recent_comments.html", {"comments": page})
 
 
-@cache_page(60 * 15)
 def invitation_tree(request):
     root_user = User.objects.earliest("created")
 
