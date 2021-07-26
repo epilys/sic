@@ -25,7 +25,7 @@ def comment_save_receiver(
         plain_text_comment = comment.text_to_plain_text()
         Notification.objects.create(
             user=comment.parent.user if comment.parent else comment.story.user,
-            name="New reply",
+            name=f"New reply in {comment.story.title}",
             kind=Notification.Kind.REPLY,
             body=f"{comment.user} has replied to your {target}:\n\n{plain_text_comment}",
             caused_by=comment.user,
