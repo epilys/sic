@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.utils.functional import cached_property
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.sites.models import Site
 from .apps import SicAppConfig as config
@@ -355,13 +355,13 @@ class Invitation(models.Model):
         root_url = get_current_site(request).domain
         body = f"{config.INVITATION_BODY}\n\n{root_url}{self.get_absolute_url()}"
         try:
-            send_mail(
+            EmailMessage(
                 config.INVITATION_SUBJECT,
                 body,
                 config.INVITATION_FROM,
                 [self.address],
-                fail_silently=False,
-            )
+                headers={"Message-ID": config.make_msgid()},
+            ).send(fail_silently=False)
             messages.add_message(
                 request,
                 messages.SUCCESS,
@@ -670,13 +670,13 @@ class Notification(models.Model):
             body += self.body
         body += f"\n\nYou can disable email notifications in your account settings: {root_url}{reverse('edit_settings')}"
         try:
-            send_mail(
+            EmailMessage(
                 f"[sic] {self.name}",
                 body,
                 config.NOTIFICATION_FROM,
                 [self.user.email],
-                fail_silently=False,
-            )
+                headers={"Message-ID": config.make_msgid()},
+            ).send(fail_silently=False)
         except Exception as error:
             messages.add_message(
                 request, messages.ERROR, f"Could not send notification. Error: {error}"

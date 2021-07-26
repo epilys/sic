@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from django.db.models.expressions import RawSQL
 from django.db.backends.signals import connection_created
 from django.dispatch import receiver
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from .apps import SicAppConfig as config
 from .models import Comment, Story, User, Message, Notification, InvitationRequest
 
@@ -116,10 +116,10 @@ def new_invitation_request_receiver(
 ):
     req = instance
     if created:
-        send_mail(
+        EmailMessage(
             f"[sic] confirmation of your invitation request",
             f"This message is just a confirmation we have received your request.",
             config.NOTIFICATION_FROM,
             [req.address],
-            fail_silently=False,
-        )
+            headers={"Message-ID": config.make_msgid()},
+        ).send(fail_silently=False)

@@ -1,5 +1,7 @@
 from django.apps import AppConfig
 from django.conf import settings
+from functools import lru_cache
+from email.utils import make_msgid
 
 
 class SicAppConfig(AppConfig):
@@ -71,3 +73,15 @@ class SicAppConfig(AppConfig):
     def ready(self):
         import sic.notifications
         import sic.webmention
+
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def get_domain():
+        from .models import Site
+
+        return Site.objects.get_current().domain
+
+    @staticmethod
+    def make_msgid():
+        domain = SicAppConfig.get_domain()
+        return make_msgid(domain=domain)
