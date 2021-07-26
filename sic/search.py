@@ -4,6 +4,7 @@ from django.db.models.expressions import RawSQL
 from django.db.models.signals import post_save, pre_delete
 from django.db.backends.signals import connection_created
 from django.dispatch import receiver
+from django.conf import settings
 from .apps import SicAppConfig as config
 from .models import Comment, Story
 import html
@@ -40,7 +41,7 @@ def fts5_setup(sender, connection, **kwargs):
             cursor.execute(
                 f"ATTACH DATABASE :dbfname AS {config.FTS_DATABASE_NAME}",
                 {
-                    "dbfname": config.FTS_DATABASE_FILENAME,
+                    "dbfname": str(settings.BASE_DIR / config.FTS_DATABASE_FILENAME),
                 },
             )
         cursor.execute(
