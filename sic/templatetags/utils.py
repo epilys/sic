@@ -1,6 +1,7 @@
 from django import template
 from django.conf import settings
 from django.utils.http import urlencode
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.template.defaulttags import URLNode, url
 from django.template.exceptions import TemplateSyntaxError
@@ -84,8 +85,12 @@ def build_sha():
     )
     git_string = head.stdout.read().strip().decode("utf-8")
     [commit_sha, subject, date] = git_string.split("\n")
-    return mark_safe(
-        f'<span class="build"><a href="https://github.com/epilys/sic/commit/{commit_sha}"><code>[{commit_sha}]</code> {subject}</a> {date}</span>'
+    return format_html(
+        '<span class="build"><a href="https://github.com/epilys/sic/commit/{}"><code>[{}]</code> {}</a> {}</span>',
+        commit_sha,
+        commit_sha,
+        subject,
+        date,
     )
 
 
