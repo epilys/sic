@@ -2,11 +2,26 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.crypto import constant_time_compare
 from django.utils.http import base36_to_int
+from django.contrib.auth.forms import AuthenticationForm as DjangoAuthenticationForm
+from django.contrib.auth import authenticate
 from .apps import SicAppConfig as config
-from .models import Story, Hat
+from .models import Story, Hat, User
 
 
 class SicBackend(ModelBackend):
+    def authenticate(
+        self, request, username=None, password=None, username_as_alternative=False
+    ):
+        res = super().authenticate(request, username=username, password=password)
+        if res is None and username_as_alternative is True:
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                return None
+            res = self.authenticate(request, username=user.email, password=password)
+            return res
+        return res
+
     def has_perm(self, user_obj, perm, obj):
         if user_obj.is_staff or user_obj.is_superuser or user_obj.is_moderator:
             return True
@@ -82,3 +97,26 @@ class AuthToken(PasswordResetTokenGenerator):
         if not constant_time_compare(self._make_token_with_timestamp(user, ts), token):
             return False
         return token == user.auth_token
+
+
+class AuthenticationForm(DjangoAuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super(AuthenticationForm, self).__init__(*args, **kwargs)
+        self.fields["username"].label = "Email address or username"
+
+    def clean(self):
+        username = self.cleaned_data.get("username")
+        password = self.cleaned_data.get("password")
+
+        if username is not None and password:
+            self.user_cache = authenticate(
+                self.request,
+                username=username,
+                password=password,
+                username_as_alternative=True,
+            )
+            if self.user_cache is None:
+                raise self.get_invalid_login_error()
+            self.confirm_login_allowed(self.user_cache)
+
+        return self.cleaned_data

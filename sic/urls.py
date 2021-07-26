@@ -22,6 +22,7 @@ from django.views.generic import RedirectView
 from django.views.generic.base import TemplateView
 
 from .views import *
+from .auth import AuthenticationForm
 from .feeds import LatestStoriesRss, LatestStoriesAtom, user_feeds_rss, user_feeds_atom
 from .webfinger import webfinger
 
@@ -130,7 +131,9 @@ urlpatterns = [
     ),
     path(
         "accounts/login/",
-        auth_views.LoginView.as_view(template_name="login.html"),
+        auth_views.LoginView.as_view(
+            template_name="login.html", authentication_form=AuthenticationForm
+        ),
         name="login",
     ),
     path(
