@@ -40,9 +40,9 @@
                     <span><span class="new">New!</span> {{ n.created }} {{ n.get_kind_display }} {% if n.caused_by %}<a href="{{ n.caused_by.get_absolute_url }}">{{ n.caused_by }}</a>{% else %}System{% endif %}</span>
                     <span>{{ n.name }}</span>
                     <span class="body"><p>{{ n.body }}</p>
-                        <p>Link: <a href="{{ n.url }}">{{ n.url }}</a><p></span>
-                        </div>
-                    </li>
+                        <p>Link: <a href="{{ n.url }}">{{ n.url }}</a></p></span>
+                </div>
+            </li>
         {% endfor %}
         {% for n in rest_notifications %}
             <li class="notification">
@@ -50,9 +50,9 @@
                     <span>{{ n.created }} {{ n.get_kind_display }} {% if n.caused_by %}<a href="{{ n.caused_by.get_absolute_url }}">{{ n.caused_by }}</a>{% else %}System{% endif %}</span>
                     <span>{{ n.name }}</span>
                     <span class="body"><p>{{ n.body }}</p>
-                        <p>Link: <a href="{{ n.url }}">{{ n.url }}</a><p></span>
-                        </div>
-                    </li>
+                        <p>Link: <a href="{{ n.url }}">{{ n.url }}</a></p></span>
+                </div>
+            </li>
         {% endfor %}
     </ol>
 {% endblock %}
