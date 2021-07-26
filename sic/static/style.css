@@ -358,6 +358,7 @@ template {
   --message-success-bg: #dfd;
   --message-warning-bg: #ffc;
   --message-error-bg: #f77;
+  --main-width: 83.3vw;
 }
 
 
@@ -427,7 +428,7 @@ body>main nav>ul{
   margin: 0;
   width: max-content;
   padding: 0;
-  max-width: 80vw;
+  max-width: var(--main-width);
 }
 
 body>main>hr {
@@ -498,7 +499,7 @@ body>main>ul.posts {
   list-style: none;
   margin: 0;
   padding:0;
-  max-width: 80vw;
+  max-width: var(--main-width);
 }
 
 body>main>ul.posts li.story + li,
@@ -589,8 +590,8 @@ form.submit-story-form,form.submit-story-form>fieldset {
   flex-direction: column;
   row-gap: 4px;
   width: max-content;
-  width: clamp(10vw, 66ch, 80vw);
-  max-width: 80vw;
+  width: clamp(10vw, 66ch, var(--main-width));
+  max-width: var(--main-width);
 }
 
 form.submit-story-form textarea {
@@ -601,7 +602,7 @@ form.submit-story-form textarea {
 
 form.submit-comment-form {
   max-width: 66ch;
-  max-width: clamp(10vw, 66ch, 80vw);
+  max-width: clamp(10vw, 66ch, var(--main-width));
   width: max-content;
   display: flex;
   flex-direction: column;
@@ -782,7 +783,7 @@ input[type="checkbox"].reply:checked ~ form.reply-form:first-of-type {
   flex-direction: column;
   row-gap: 1rem;
   max-width: 66ch;
-  max-width: clamp(10vw, 66ch, 80vw);
+  max-width: clamp(10vw, 66ch, var(--main-width));
 }
 
 li.comment>span.links {
@@ -950,14 +951,14 @@ details#signup-details:not([open])>summary {
 }
 
 body>main>article {
-  max-width: 80vw;
+  max-width: var(--main-width);
 }
 
 p {
   text-align: justify;
   hyphens: auto;
   word-break: break-word;
-  max-width: clamp(10vw, 66ch, 80vw);
+  max-width: clamp(10vw, 66ch, var(--main-width));
 }
 
 article>header {
@@ -977,7 +978,7 @@ article>header>div.links {
 article>ul, article>main>ul {
   list-style-type: square;
   padding: 0;
-  max-width: clamp(10vw, 66ch, 80vw);
+  max-width: clamp(10vw, 66ch, var(--main-width));
   hyphens: auto;
   word-break: break-word;
 }
@@ -1011,7 +1012,7 @@ h1, h2, h3, h4, h5, h6 {
 
 table {
   width: max-content;
-  max-width: 80vw;
+  max-width: var(--main-width);
 }
 
 table,
@@ -1249,7 +1250,7 @@ blockquote.message_body {
   width: max-content;
   padding: 0.35em 0.75em 0.625em;
   margin: 0;
-  max-width: 80vw;
+  max-width: var(--main-width);
 }
 
 @media (max-width: 600px) {
@@ -1336,7 +1337,7 @@ form.order-by-form {
   flex-flow: wrap;
   gap: .5rem;
   width: max-content;
-  max-width: 80vw;
+  max-width: var(--main-width);
   align-content: flex-start;
 }
 
@@ -1411,8 +1412,8 @@ pre {
   width: min-content;
   overflow: auto;
   padding: 2px 7px;
-  max-width: clamp(10vw, 66ch, 80vw);
-  min-width: clamp(10vw, 66ch, 80vw);
+  max-width: clamp(10vw, 66ch, var(--main-width));
+  min-width: clamp(10vw, 66ch, var(--main-width));
 }
 
 
