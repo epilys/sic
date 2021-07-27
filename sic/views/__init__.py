@@ -563,22 +563,6 @@ def upvote_comment(request, story_pk, slug, comment_pk):
     return redirect(reverse("index"))
 
 
-def recent(request, page_num=1):
-    if page_num == 1 and request.get_full_path() != reverse("recent"):
-        # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
-        return redirect(reverse("recent"))
-    story_obj = Story.objects.order_by("-created", "title").filter(active=True)
-    paginator = Paginator(story_obj[:40], config.STORIES_PER_PAGE)
-    try:
-        page = paginator.page(page_num)
-    except InvalidPage:
-        # page_num is bigger than the actual number of pages
-        return redirect(
-            reverse("recent_page", kwargs={"page_num": paginator.num_pages})
-        )
-    return render(request, "index.html", {"stories": page})
-
-
 def recent_comments(request, page_num=1):
     if page_num == 1 and request.get_full_path() != reverse("recent_comments"):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
