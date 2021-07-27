@@ -187,15 +187,37 @@ def index(request, page_num=1):
 
 
 def all_stories(request, page_num=1):
+    if "order_by" in request.GET:
+        request.session["all_stories_order_by"] = request.GET["order_by"]
+    if "ordering" in request.GET:
+        request.session["all_stories_ordering"] = request.GET["ordering"]
+
     if page_num == 1 and request.get_full_path() != reverse("all_stories"):
         return redirect(reverse("all_stories"))
+
+    order_by = request.session.get("all_stories_order_by", "hotness")
+    ordering = request.session.get("all_stories_ordering", "desc")
+    order_by_field = ("-" if ordering == "desc" else "") + order_by
+
     story_obj = Story.objects.filter(active=True)
-    all_stories = sorted(
-        story_obj.order_by("-created", "title"),
-        key=lambda s: s.hotness()["score"],
-        reverse=True,
-    )
-    paginator = Paginator(all_stories, config.STORIES_PER_PAGE)
+    if order_by == "hotness":
+        stories = sorted(
+            story_obj.order_by("created", "title"),
+            key=lambda s: s.hotness()["score"],
+            reverse=ordering == "desc",
+        )
+    elif order_by == "last commented":
+        stories = sorted(
+            story_obj.order_by("created", "title"),
+            key=lambda s: s.active_comments().latest("created").created
+            if s.active_comments().exists()
+            else s.created,
+            reverse=ordering == "desc",
+        )
+    else:
+        stories = story_obj.order_by(order_by_field, "title")
+
+    paginator = Paginator(stories, config.STORIES_PER_PAGE)
     try:
         page = paginator.page(page_num)
     except InvalidPage:
@@ -203,7 +225,16 @@ def all_stories(request, page_num=1):
         return redirect(
             reverse("all_stories_page", kwargs={"page_num": paginator.num_pages})
         )
-    return render(request, "all_stories.html", {"stories": page})
+    order_by_form = OrderByForm(
+        fields=all_stories.ORDER_BY_FIELDS,
+        initial={"order_by": order_by, "ordering": ordering},
+    )
+    return render(
+        request, "all_stories.html", {"stories": page, "order_by_form": order_by_form}
+    )
+
+
+all_stories.ORDER_BY_FIELDS = ["hotness", "created", "last commented"]
 
 
 @login_required
