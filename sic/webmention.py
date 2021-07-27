@@ -6,6 +6,7 @@ from html.parser import HTMLParser
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.sites.models import Site
+from django.conf import settings
 
 from .apps import SicAppConfig as config
 from .models import Story, Webmention
@@ -24,7 +25,11 @@ def story_created_receiver(
             story.pk,
         )
     domain = Site.objects.get_current().domain
-    story_url = f"https://{domain}{story.get_absolute_url()}"
+    story_url = (
+        f"http://{domain}{story.get_absolute_url()}"
+        if settings.DEBUG
+        else f"https://{domain}{story.get_absolute_url()}"
+    )
     try:
         ret = post_webmention(story_url, story.url)
         if ret is not None:

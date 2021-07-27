@@ -2,6 +2,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonRespo
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
 from django.contrib.sites.models import Site
+from django.conf import settings
 from .models import User
 
 from email.utils import parseaddr
@@ -38,7 +39,9 @@ def webfinger(request):
             "links": [
                 {
                     "rel": "self",
-                    "href": f"http://{domain}{user.get_absolute_url()}",
+                    "href": f"http://{domain}{user.get_absolute_url()}"
+                    if settings.DEBUG
+                    else f"https://{domain}{user.get_absolute_url()}",
                 }
             ],
         }

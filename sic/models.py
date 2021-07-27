@@ -19,6 +19,7 @@ from django.utils.functional import cached_property
 from django.core.mail import EmailMessage
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.sites.models import Site
+from django.conf import settings
 from .apps import SicAppConfig as config
 from .markdown import comment_to_html, Textractor
 from .voting import story_hotness
@@ -867,7 +868,7 @@ class Notification(models.Model):
             domain = get_current_site(request).domain
         else:
             domain = Site.objects.get_current().domain
-        root_url = f"http://{domain}"
+        root_url = f"http://{domain}" if settings.DEBUG else f"https://{domain}"
         if self.caused_by:
             cause = str(self.caused_by)
         else:

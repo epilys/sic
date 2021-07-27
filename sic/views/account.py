@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core import serializers
 from django.core.paginator import Paginator, InvalidPage
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.views.decorators.http import require_http_methods
@@ -352,6 +353,7 @@ def bookmarks_json(request):
     user = request.user
     ret = []
     domain = Site.objects.get_current().domain
+    tls = "" if settings.DEBUG else "s"
     for b in user.saved_stories.through.objects.filter(story__active=True).order_by(
         "-created", "story__title"
     ):
@@ -361,7 +363,7 @@ def bookmarks_json(request):
             "title": b.story.title,
             "description": b.story.description,
             "url": b.story.url,
-            "sic_url": "http://" + domain + b.story.get_absolute_url(),
+            "sic_url": f"http{tls}://{domain}{b.story.get_absolute_url()}",
             "created": b.story.created,
             "publish_date": b.story.publish_date,
             "tags": list(map(lambda t: str(t), b.story.tags.all())),
