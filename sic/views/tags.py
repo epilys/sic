@@ -1,4 +1,5 @@
-from django.http import HttpResponseForbidden, Http404
+from django.http import HttpResponse, HttpResponseForbidden, Http404
+from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
 from django.db.models import Value, BooleanField
@@ -9,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.timezone import make_aware
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
+from django.views.decorators.cache import cache_page
 from ..models import Tag, Story, Taggregation
 from ..forms import EditTagForm, EditTaggregationForm, OrderByForm
 from . import form_errors_as_string
@@ -69,8 +71,16 @@ def browse_tags(request, page_num=1):
 browse_tags.ORDER_BY_FIELDS = ["name", "created", "active", "number of posts"]
 
 
-def tag_graph_svg(tags):
+@require_http_methods(["GET"])
+@cache_page(60 * 60 * 12)
+def tag_graph_svg(request):
     import graphviz
+
+    tag_pks = request.GET.getlist("tags")
+    if tag_pks is None or len(tag_pks) == 0:
+        tags = Tag.objects.all()
+    else:
+        tags = Tag.objects.filter(pk__in=tag_pks)
 
     dot = graphviz.Digraph(comment="tags", format="svg")
     dot.attr(size="18,5")
@@ -83,15 +93,7 @@ def tag_graph_svg(tags):
             dot.edge(str(p.id), str(t.id))
     dot = dot.unflatten(stagger=3, chain=5, fanout=True)
     svg = dot.pipe().decode("utf-8")
-    return svg
-
-
-def tag_graph(request):
-    return render(
-        request,
-        "tag_graph.html",
-        {"svg": mark_safe(tag_graph_svg(Tag.objects.all()))},
-    )
+    return HttpResponse(svg, content_type="image/svg+xml")
 
 
 def taggregation(request, taggregation_pk, slug=None):
@@ -122,16 +124,6 @@ def taggregation(request, taggregation_pk, slug=None):
             "taggregation": obj,
             "user_can_modify": obj.user_can_modify(request.user),
             "subscribed": subscribed,
-            "svg": mark_safe(
-                tag_graph_svg(
-                    functools.reduce(
-                        lambda a, b: a | b,
-                        map(
-                            lambda has: has.vertices(), obj.taggregationhastag_set.all()
-                        ),
-                    )
-                )
-            ),
         },
     )
 

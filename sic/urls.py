@@ -96,7 +96,12 @@ urlpatterns = [
     path("tags/page/<int:page_num>/", browse_tags, name="browse_tags_page"),
     path("tags/edit/<int:tag_pk>/<slug:slug>", edit_tag, name="edit_tag"),
     path("tags/add/", add_tag, name="add_tag"),
-    path("tags/graph", tag_graph, name="tag_graph"),
+    path(
+        "tags/graph",
+        TemplateView.as_view(template_name="tag_graph.html"),
+        name="tag_graph",
+    ),
+    path("tags/graph-svg", tag_graph_svg, name="tag_graph_svg"),
     path("aggs/", public_aggregations, name="public_aggregations"),
     path("aggs/page/<int:page_num>/", public_aggregations, name="browse_aggs_page"),
     path("agg/<int:taggregation_pk>/<slug:slug>/", taggregation, name="taggregation"),

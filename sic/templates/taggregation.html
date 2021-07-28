@@ -107,7 +107,7 @@
                 </tr>
             </table>
             <div class="tag-graph-svg">
-                {{ svg }}
+                <img src="{% url 'tag_graph_svg' %}?{% for tag in taggregation.tags.all %}tags={{ tag.pk }}{% if not forloop.last %}&{% endif %}{% endfor %}">
             </div>
         </div>
         <hr />

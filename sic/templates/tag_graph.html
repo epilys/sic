@@ -3,5 +3,5 @@
 {% load utils %}
 {% block title %}tag graph - sic{% endblock %}
 {% block content %}
-    {{ svg }}
+    <img src="{% url 'tag_graph_svg' %}">
 {% endblock %}
