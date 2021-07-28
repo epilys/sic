@@ -13,65 +13,102 @@
             grid-auto-rows: auto;
             width: 100%;
         }
+        .story_filters_grid > div {
+            width: min-content;
+        }
 
         div.tag-graph-svg svg {
             max-width: var(--main-width);
             height: min-content;
         }
+
+        table, td {
+            text-align: left;
+            border: 0;
+            border-collapse: collapse;
+            align-self: baseline;
+        }
+
+        td, th, td.subtable {
+            padding: 4px 5px;
+        }
+
+        thead, thead th {
+            background: none;
+            color: black;
+            font-weight: normal;
+            border-bottom: 1px solid #333;
+        }
+
+        div.agg-info {
+            display: flex;
+            flex-flow: wrap;
+            justify-content: left;
+            gap: 2rem;
+        }
     </style>
 {% endblock %}
 {% block content %}
     {% spaceless %}
+        <nav>
+            <ul>
+                <li><a href="{% url 'public_aggregations' %}">Browse public tag aggregations</a></li>
+                <li><a href="{% url 'agg_index' taggregation.pk taggregation.slugify %}">Aggregation frontpage</a></li>
+            </ul>
+        </nav>
         <h1>{{ taggregation.name }}{% if user_can_modify %} <small><a href="{% url_with_next 'edit_aggregation' taggregation.pk taggregation.slugify request %}">edit&hellip;</a></small>{% endif %}</h1>
         <form action="{% url 'taggregation_change_subscription' taggregation.pk %}" method="get">
             <input type="hidden" name="next" value="{{ request.get_full_path|urlencode}}" />
             <input type="submit" value="{% if subscribed %}un{% endif %}subscribe">
         </form>
-        <table>
-            <tr>
-                <th>Created by</th>
-                <td>
-                    <a href="{{ taggregation.creator.get_absolute_url }}">{{ taggregation.creator }}</a>
-                </td>
-            </tr>
-            <tr>
-                <th>Created at</th>
-                <td>
-                    {{ taggregation.created }}
-                </td>
-            </tr>
-            <tr>
-                <th>Last modified</th>
-                <td>
-                    {{ taggregation.last_modified }}
-                </td>
-            </tr>
-            <tr>
-                <th>Moderated by</th><td>{{ taggregation.moderators.all|join:", " }}</td>
-            </tr>
-            <tr>
-                <th>Is default</th><td>{{ taggregation.default|yesno }}</td>
-            </tr>
-            <tr>
-                <th>Is private</th><td>{{ taggregation.private|yesno }}</td>
-            </tr>
-            <tr>
-                <th>Is discoverable</th><td>{% if not taggregation.private %}{{ taggregation.discoverable|yesno }}{% else %}no{% endif %}</td>
-            </tr>
-            <tr>
-                <th>Subscribers</th><td>{{ taggregation.subscribers.count }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                {% if taggregation.description %}
-                    <td>{{ taggregation.description }}</td>
-                {% else %}
-                    <td><i>No description.</i></td>
-                {% endif %}
-            </tr>
-        </table>
-        <div class="tag-graph-svg">
-            {{ svg }}
+        <p class="help-text">For problems or suggestions about this aggregation, go to a moderator's profile and send them a message.</p>
+        <div class="agg-info">
+            <table>
+                <tr>
+                    <th>Created by</th>
+                    <td>
+                        <a href="{{ taggregation.creator.get_absolute_url }}">{{ taggregation.creator }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Created at</th>
+                    <td>
+                        {{ taggregation.created }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Last modified</th>
+                    <td>
+                        {{ taggregation.last_modified }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Moderated by</th><td>{{ taggregation.moderators.all|join:", " }}</td>
+                </tr>
+                <tr>
+                    <th>Is default</th><td>{{ taggregation.default|yesno }}</td>
+                </tr>
+                <tr>
+                    <th>Is private</th><td>{{ taggregation.private|yesno }}</td>
+                </tr>
+                <tr>
+                    <th>Is discoverable</th><td>{% if not taggregation.private %}{{ taggregation.discoverable|yesno }}{% else %}no{% endif %}</td>
+                </tr>
+                <tr>
+                    <th>Subscribers</th><td>{{ taggregation.subscribers.count }}</td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    {% if taggregation.description %}
+                        <td>{{ taggregation.description }}</td>
+                    {% else %}
+                        <td><i>No description.</i></td>
+                    {% endif %}
+                </tr>
+            </table>
+            <div class="tag-graph-svg">
+                {{ svg }}
+            </div>
         </div>
         <hr />
         <div>
@@ -80,13 +117,15 @@
                 {% for has in taggregation.taggregationhastag_set.all %}
                     <div>
                         <table>
-                            <tbody>
+                            <thead>
                                 <tr>
                                     <th></th>
-                                    <td>
+                                    <th>
                                         <div style="{% if show_colors %}{{ has.tag.color_vars_css }}{% endif %}" class="tag"><span class="tag-name">{{ has.tag.name }} {{ has.tag.stories.count }}</span></div>
-                                    </td>
+                                    </th>
                                 </tr>
+                            </thead>
+                            <tbody>
                                 <tr>
                                     <th>
                                         depth
@@ -183,7 +222,7 @@
         <hr />
         <div>
             <h2>latest stories</h2>
-            <p>Showing at most 10 stories. <a href="#">See all&hellip;</a></p>
+            <p>Showing at most 10 stories. <a href="{% url 'agg_index' taggregation.pk taggregation.slugify %}">See all&hellip;</a></p>
         </div>
         <ul class="posts">
             {% for story in taggregation.get_stories|slice:":10" %}

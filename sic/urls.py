@@ -55,6 +55,12 @@ urlpatterns = [
     path("moderation/", moderation, name="moderation"),
     path("", index, name="index"),
     path("page/<int:page_num>/", index, name="index_page"),
+    path("<int:taggregation_pk>/<slug:slug>/", agg_index, name="agg_index"),
+    path(
+        "<int:taggregation_pk>/<slug:slug>/page/<int:page_num>/",
+        agg_index,
+        name="agg_index_page",
+    ),
     path("all/", all_stories, name="all_stories"),
     path("all/page/<int:page_num>/", all_stories, name="all_stories_page"),
     path("comments", recent_comments, name="recent_comments"),

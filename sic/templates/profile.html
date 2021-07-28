@@ -4,7 +4,7 @@
 {% block content %}
     <nav>
         <ul>
-            {% if request.user.is_authenticated and request.user.pk != user.pk %}
+            {% if request.user.is_authenticated %}
                 <li><a href="{% url 'inbox_compose' %}?recipient={{ user|urlencode }}">Message user</a></li>
             {% endif %}
         </ul>

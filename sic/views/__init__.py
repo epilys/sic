@@ -147,6 +147,83 @@ def reply(request, comment_pk):
     return redirect(comment.story.get_absolute_url())
 
 
+def agg_index(request, taggregation_pk, slug, page_num=1):
+    if page_num == 1 and request.get_full_path() != reverse(
+        "agg_index", kwargs={"taggregation_pk": taggregation_pk, "slug": slug}
+    ):
+        return redirect(
+            reverse(
+                "agg_index", kwargs={"taggregation_pk": taggregation_pk, "slug": slug}
+            )
+        )
+    try:
+        agg = Taggregation.objects.get(pk=taggregation_pk)
+    except Taggregation.DoesNotExist:
+        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
+    if slug != agg.slugify():
+        return redirect(agg.get_absolute_url())
+    if not agg.user_has_access(request.user):
+        if request.user.is_authenticated:
+            raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
+        else:
+            return redirect(
+                reverse("login")
+                + "?"
+                + urlencode(
+                    {
+                        "next": reverse(
+                            "agg_index_page",
+                            kwargs={
+                                "taggregation_pk": taggregation_pk,
+                                "slug": slug,
+                                "page_num": page_num,
+                            },
+                        )
+                    }
+                )
+            )
+    stories = agg.get_stories()
+    # https://docs.python.org/3/howto/sorting.html#sort-stability-and-complex-sorts
+    all_stories = sorted(
+        stories,
+        key=lambda s: s.title,
+        reverse=True,
+    )
+    all_stories = sorted(
+        all_stories,
+        key=lambda s: s.created,
+    )
+    all_stories = sorted(
+        all_stories,
+        key=lambda s: s.hotness()["score"],
+        reverse=True,
+    )
+    paginator = Paginator(all_stories, config.STORIES_PER_PAGE)
+    try:
+        page = paginator.page(page_num)
+    except InvalidPage:
+        # page_num is bigger than the actual number of pages
+        return redirect(
+            reverse(
+                "agg_index_page",
+                kwargs={
+                    "taggregation_pk": taggregation_pk,
+                    "slug": slug,
+                    "page_num": paginator.num_pages,
+                },
+            )
+        )
+    return render(
+        request,
+        "index.html",
+        {
+            "stories": page,
+            "has_subscriptions": True,
+            "aggregation": agg,
+        },
+    )
+
+
 def index(request, page_num=1):
     if page_num == 1 and request.get_full_path() != reverse("index"):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
@@ -171,11 +248,11 @@ def index(request, page_num=1):
         reverse=True,
     )
     all_stories = sorted(
-        stories,
+        all_stories,
         key=lambda s: s.created,
     )
     all_stories = sorted(
-        stories,
+        all_stories,
         key=lambda s: s.hotness()["score"],
         reverse=True,
     )

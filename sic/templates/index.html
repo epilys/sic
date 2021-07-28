@@ -6,6 +6,8 @@
     {% if aggregations %}
         {% if not has_subscriptions %}<span class="showing-aggregations">You have no subscriptions, viewing default aggregations.</span>{% endif %}
         <span class="showing-aggregations">Showing stories from <ul class="inline-comma-sep-list">{% for agg in aggregations.list %}<li><a href="{{ agg.get_absolute_url }}">{{ agg.name }}</a></li>{% if forloop.last and aggregations.others %}<li><details><summary>{{ aggregations.others|length }} others</summary>:<ul class="inline-comma-sep-list">{% for agg in aggregations.others %}<li><a href="{{ agg.get_absolute_url }}">{{ agg.name }}</a></li>{% endfor %}</ul></details></li>{% endif %}{% endfor %}</ul></span>
+    {% elif aggregation %}
+        <span class="showing-aggregations">Showing stories from <a href="{{ aggregation.get_absolute_url }}">{{ aggregation.name }}</a></span>
     {% else %}
         {% if not has_subscriptions and request.user.is_authenticated %}<span class="showing-aggregations">You have no subscriptions, and there are no default tag aggregations available. Viewing all stories instead. <a href="{% url 'new_aggregation' %}">Create one</a> or <a href="{% url 'public_aggregations' %}">browse public ones from other users</a>.</span>{% elif not request.user.is_authenticated %}<span class="showing-aggregations">There are no default tag aggregations available. Viewing all stories.</span>{% endif %}
     {% endif %}

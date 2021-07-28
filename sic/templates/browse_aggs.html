@@ -4,7 +4,10 @@
 {% block title %}browse aggregations - sic{% endblock %}
 {% block style %}
     <style>
-        dl.aggregations { margin-left: 6px; }
+        dl.aggregations {
+            margin-top:0;
+            width: var(--main-width);
+        }
 
         dl.aggregations a.agg-name {
             font-family: monospace;
@@ -16,7 +19,6 @@
             font-weight: bold;
             color: #217ac0;
             font-size: 110%;
-            max-width: max-content;
         }
         dl.aggregations dd { margin-left: 16px }
 
@@ -42,6 +44,10 @@
             grid-auto-rows: min-content;
         }
 
+        dd dd > * {
+            vertical-align: middle;
+        }
+
     </style>
 {% endblock %}
 {% block content %}
@@ -60,16 +66,17 @@
             </form></li>
         </ul>
     </nav>
+    <p class="help-text">Aggregations are collections of tags you can subscribe to. They populate your frontpage. You can create your own private or public aggregations or subscribe to public ones.</p>
     {% spaceless %}
-        <dl class="aggregations" style="width: 80ch; max-width: 80vw;">
+        <dl class="aggregations">
             {% for agg in aggs %}
                 <dt><a href="{% url 'taggregation' agg.pk agg.slugify %}" class="agg-name">{{ agg.name }}</a> {{ agg.tags.count }} tag{{ agg.tags.count|pluralize}}</dt>
                 <dd>
                     <dl>
                         <dt>description</dt>
-                        <dd>{{ agg.description }}</dd>
+                        <dd><span>{{ agg.description }}</span></dd>
                         <dt>subscribers</dt>
-                        <dd>{{ agg.subscribers.count }}</dd>
+                        <dd><span>{{ agg.subscribers.count }}</span></dd>
                         <dt>tags</dt>
                         <dd>
                             <ul class="tags">
@@ -78,7 +85,7 @@
                                 {% endfor %}
                             </ul></dd>
                         <dt>created</dt>
-                        <dd>{{ agg.created|naturaltime }}</dd>
+                        <dd><span>{{ agg.created|naturaltime }}</span></dd>
                     </dl>
                 </dd>
             {% endfor %}
