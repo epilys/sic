@@ -126,7 +126,14 @@ def comment_is_upvoted(context):
     user = context["request"].user
     if not user.is_authenticated:
         return False
-    return user.votes.filter(comment=context["comment"].pk).exists()
+    return user.votes.filter(comment=context["comment"].pk, positive=True).exists()
+
+@register.simple_tag(takes_context=True)
+def comment_is_downvoted(context):
+    user = context["request"].user
+    if not user.is_authenticated:
+        return False
+    return user.votes.filter(comment=context["comment"].pk, positive=False).exists()
 
 
 @register.simple_tag(takes_context=True)
@@ -134,4 +141,11 @@ def story_is_upvoted(context):
     user = context["request"].user
     if not user.is_authenticated:
         return False
-    return user.votes.filter(story=context["story"].pk, comment=None).exists()
+    return user.votes.filter(story=context["story"].pk, comment=None, positive=True).exists()
+
+@register.simple_tag(takes_context=True)
+def story_is_downvoted(context):
+    user = context["request"].user
+    if not user.is_authenticated:
+        return False
+    return user.votes.filter(story=context["story"].pk, comment=None, positive=False).exists()

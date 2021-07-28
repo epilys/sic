@@ -72,6 +72,11 @@ urlpatterns = [
         name="upvote_comment",
     ),
     path(
+        "s/<int:story_pk>/<slug:slug>/downvote/<int:comment_pk>/",
+        downvote_comment,
+        name="downvote_comment",
+    ),
+    path(
         "s/<int:story_pk>/<slug:slug>/source/<int:comment_pk>/",
         comment_source,
         name="comment_source",
@@ -91,6 +96,7 @@ urlpatterns = [
     path("submit/", submit_story, name="submit"),
     path("reply/<int:comment_pk>", reply, name="reply"),
     path("upvote/<int:story_pk>/", upvote_story, name="upvote_story"),
+    path("downvote/<int:story_pk>/", downvote_story, name="downvote_story"),
     path("save/<int:story_pk>/", bookmark_story, name="bookmark_story"),
     path("tags/", browse_tags, name="browse_tags"),
     path("tags/page/<int:page_num>/", browse_tags, name="browse_tags_page"),

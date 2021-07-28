@@ -42,8 +42,11 @@ class SicAppConfig(AppConfig):
     # minimum karma required to be able to flag comments
     MIN_KARMA_TO_FLAG = 50
 
+    # minimum karma required to be able to downvote
+    MIN_KARMA_TO_DOWNVOTE = 10
+
     # minimum karma required to be able to submit new stories
-    MIN_KARMA_TO_SUBMIT_STORIES = -4
+    MIN_KARMA_TO_SUBMIT_STORIES = 0
 
     # minimum karma required to process invitation requests
     MIN_KARMA_FOR_INVITATION_REQUESTS = MIN_KARMA_TO_FLAG

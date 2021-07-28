@@ -412,8 +412,43 @@ def upvote_story(request, story_pk):
             vote, created = user.votes.get_or_create(
                 story=story_obj, comment=None, user=user
             )
-            if not created:
+            if not created and vote.positive:
                 vote.delete()
+            else:
+                vote.positive = True
+                vote.save(update_fields=["positive"])
+    if "next" in request.GET:
+        return redirect(request.GET["next"])
+    return redirect(reverse("index"))
+
+
+@login_required
+def downvote_story(request, story_pk):
+    if not request.user.can_downvote:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            "Your karma is too low for you to be able to downvote.",
+        )
+    elif request.method == "POST":
+        user = request.user
+        try:
+            story_obj = Story.objects.get(pk=story_pk)
+        except Story.DoesNotExist:
+            raise Http404("Story does not exist") from Story.DoesNotExist
+        if story_obj.user.pk == user.pk:
+            messages.add_message(
+                request, messages.ERROR, "You cannot vote on your own posts."
+            )
+        else:
+            vote, created = user.votes.get_or_create(
+                story=story_obj, comment=None, user=user
+            )
+            if not created and not vote.positive:
+                vote.delete()
+            else:
+                vote.positive = False
+                vote.save(update_fields=["positive"])
     if "next" in request.GET:
         return redirect(request.GET["next"])
     return redirect(reverse("index"))
@@ -633,8 +668,47 @@ def upvote_comment(request, story_pk, slug, comment_pk):
             vote, created = user.votes.filter(story=story_obj).get_or_create(
                 story=story_obj, comment=comment_obj, user=user
             )
-            if not created:
+            if not created and vote.positive:
                 vote.delete()
+            else:
+                vote.positive = True
+                vote.save(update_fields=["positive"])
+    if "next" in request.GET:
+        return redirect(request.GET["next"])
+    return redirect(reverse("index"))
+
+
+@login_required
+def downvote_comment(request, story_pk, slug, comment_pk):
+    if not request.user.can_downvote:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            "Your karma is too low for you to be able to downvote.",
+        )
+    elif request.method == "POST":
+        user = request.user
+        try:
+            story_obj = Story.objects.get(pk=story_pk)
+        except Story.DoesNotExist:
+            raise Http404("Story does not exist") from Story.DoesNotExist
+        try:
+            comment_obj = Comment.objects.get(pk=comment_pk)
+        except Comment.DoesNotExist:
+            raise Http404("Comment does not exist") from Comment.DoesNotExist
+        if comment_obj.user.pk == user.pk:
+            messages.add_message(
+                request, messages.ERROR, "You cannot vote on your own posts."
+            )
+        else:
+            vote, created = user.votes.filter(story=story_obj).get_or_create(
+                story=story_obj, comment=comment_obj, user=user
+            )
+            if not created and not vote.positive:
+                vote.delete()
+            else:
+                vote.positive = False
+                vote.save(update_fields=["positive"])
     if "next" in request.GET:
         return redirect(request.GET["next"])
     return redirect(reverse("index"))

@@ -664,7 +664,7 @@ figure#avatar-thumbnail figcaption {
   border-bottom-color: var(--upvote-arrow-upvoted-color);
 }
 
-.votes .upvote, .votes .flagger {
+.votes .upvote {
   border-color: transparent transparent var(--upvote-arrow-color) transparent;
   border-style: solid;
   border-width: 0.8ex;
@@ -679,6 +679,28 @@ figure#avatar-thumbnail figcaption {
   margin-right: 4px;
   vertical-align: sub;
   transform: translateY(.1ex);
+}
+
+.votes .downvote:hover, .votes .downvote.downvoted {
+  border-bottom-color: var(--upvote-arrow-upvoted-color);
+}
+
+
+.votes .downvote {
+  border-color: transparent transparent var(--upvote-arrow-color) transparent;
+  border-style: solid;
+  border-width: 0.8ex;
+  border-bottom-width: 1.6ex;
+  border-top-width: 0;
+  text-decoration: none;
+  width: 0px;
+  height: 0;
+  margin-bottom: 0px;
+  padding: 0;
+  display: inline;
+  margin-right: 4px;
+  vertical-align: sub;
+  transform: translateY(2px) rotateZ(180deg);
 }
 
 article.story>header>.votes {
@@ -727,7 +749,7 @@ li:hover a.feed:after {
 }
 
 
-.upvote input {
+.upvote input, .downvote input {
   background: none;
   border: none;
   cursor: pointer;

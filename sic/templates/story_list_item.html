@@ -4,15 +4,24 @@
     {% spaceless %}
         {% story_is_bookmarked request.user story as is_bookmarked %}
         {% story_is_upvoted  as is_upvoted %}
+        {% story_is_downvoted  as is_downvoted %}
         <div class="votes">
             <div class="upvote{% if is_upvoted %} upvoted{% endif %}">
                 {% if request.user.is_authenticated %}
                     <form>
                         {% csrf_token %}
-                        <input type="submit" formaction="{% url_with_next 'upvote_story' story.pk request %}" formmethod="POST" value="">
+                        <input type="submit" formaction="{% url_with_next 'upvote_story' story.pk request %}" formmethod="POST" value="" title="upvote story">
                     </form>
                 {% endif %}
             </div>
+                {% if request.user.is_authenticated and request.user.can_downvote %}
+                <span class="downvote{% if is_downvoted %} downvoted{% endif %}">
+                        <form>
+                            {% csrf_token %}
+                            <input type="submit" formaction="{% url_with_next 'downvote_story' story.pk request %}" formmethod="POST" value="" title="downvote story">
+                        </form>
+                </span>
+                        {% endif %}
             <div class="score">
                 {{story.karma}}
             </div>

@@ -97,7 +97,9 @@ class Story(models.Model):
         )
 
     def karma(self):
-        return self.votes.filter(comment=None).count()
+        return sum(
+            map(lambda v: 1 if v.positive else -1, self.votes.filter(comment=None))
+        )
 
     def get_listing_url(self):
         return (
@@ -199,7 +201,7 @@ class Comment(models.Model):
         return int(slug.translate(url_decode_translation))
 
     def karma(self):
-        return self.votes.count()
+        return sum(map(lambda v: 1 if v.positive else -1, self.votes.all()))
 
     def text_to_html(self):
         return comment_to_html(self.text)
@@ -616,6 +618,7 @@ class Vote(models.Model):
         Comment, related_name="votes", on_delete=models.CASCADE, null=True
     )
     created = models.DateTimeField(auto_now_add=True)
+    positive = models.BooleanField(default=True, null=False)
 
     class Meta:
         unique_together = ["user", "story", "comment"]
@@ -749,7 +752,12 @@ class User(PermissionsMixin, AbstractBaseUser):
         return self.username if self.username else self.email
 
     def karma(self):
-        return Vote.objects.all().filter(story__user=self, comment=None).count()
+        return sum(
+            map(
+                lambda v: 1 if v.positive else -1,
+                Vote.objects.filter(story__user=self, comment=None),
+            )
+        )
 
     def get_absolute_url(self):
         return reverse(
@@ -767,6 +775,10 @@ class User(PermissionsMixin, AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+    @property
+    def can_downvote(self):
+        return self.karma() >= config.MIN_KARMA_TO_DOWNVOTE
 
     def active_notifications(self):
         return self.notifications.filter(active=True).order_by("-created")

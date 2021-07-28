@@ -27,12 +27,11 @@ class SicBackend(ModelBackend):
             return True
         karma = user_obj.karma()
         if perm == "sic.add_tag":
-            return (
-                not user_obj.is_new_user()
-                and karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
-            )
+            return karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
         elif perm in ["sic.change_tag", "sic.delete_tag"]:
-            return not obj.stories.exists()
+            return (
+                not obj.stories.exists() or karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
+            )
         elif perm == "sic.add_story":
             return karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
         elif (
@@ -42,10 +41,7 @@ class SicBackend(ModelBackend):
         ):
             return True
         elif perm == "sic.add_hat":
-            return (
-                not user_obj.is_new_user()
-                and karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
-            )
+            return karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
         elif (
             perm in ["sic.change_hat", "sic.delete_hat"]
             and isinstance(obj, Hat)
