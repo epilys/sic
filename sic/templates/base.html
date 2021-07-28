@@ -25,6 +25,18 @@
                 }
             </style>
         {% endif %}
+        {% if font_size or vivid_colors %}
+            <style>
+                body {
+                    {% if font_size %}
+                        font-size: {{ font_size }}%;
+                    {% endif %}
+                    {% if not vivid_colors %}
+                        filter: grayscale(50%);
+                    {% endif %}
+                }
+            </style>
+        {% endif %}
         <link rel="alternate" type="application/rss+xml" href="{% url 'latest_stories_rss' %}" title="Latest Stories RSS">
         <link rel="alternate" type="application/atom+xml" href="{% url 'latest_stories_atom' %}" title="Latest Stories Atom">
         <link rel="manifest" href="/static/manifest.webmanifest">

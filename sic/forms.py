@@ -243,6 +243,30 @@ class EditAccountSettings(forms.Form):
     )
 
 
+class EditSessionSettings(forms.Form):
+    vivid_colors = forms.BooleanField(
+        initial=True,
+        help_text="If false, UI, tag and image colors are made less vivid.",
+        required=False,
+    )
+    font_size = forms.TypedChoiceField(
+        required=False,
+        label="Font size factor",
+        coerce=lambda c: int(c),
+        choices=[
+            ("100", "100%"),
+            ("115", "115%"),
+            ("125", "125%"),
+            ("135", "135%"),
+        ],
+        initial=100,
+        help_text="""<span style="font-size: 1rem;">100%</span>
+        <span style="font-size: 1.15rem;">115%</span>
+        <span style="font-size: 1.25rem;">125%</span>
+        <span style="font-size: 1.35rem;">135%</span>""",
+    )
+
+
 class EditHatForm(forms.Form):
     name = forms.CharField(
         required=True,

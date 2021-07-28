@@ -66,12 +66,16 @@ def auth_context(request):
             "unread_messages": request.user.received_messages.filter(
                 read_by_recipient=False
             ).count(),
+            "font_size": request.session.get("font_size", None),
+            "vivid_colors": request.session.get("vivid_colors", None),
         }
     return {
         "show_avatars": True,
         "show_story_previews": False,
         "show_submitted_story_threads": False,
         "show_colors": True,
+        "font_size": None,
+        "vivid_colors": None,
     }
 
 

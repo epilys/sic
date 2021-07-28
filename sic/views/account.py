@@ -27,6 +27,7 @@ from ..forms import (
     EditProfileForm,
     EditAvatarForm,
     EditAccountSettings,
+    EditSessionSettings,
     EditHatForm,
     UserCreationForm,
     AnnotationForm,
@@ -456,26 +457,48 @@ def edit_bookmark(request, bookmark_pk):
 @login_required
 def edit_settings(request):
     user = request.user
+    session_settings = {
+        "vivid_colors": request.session.get("vivid_colors", True),
+        "font_size": request.session.get("font_size", 100),
+    }
+    form = None
+    session_form = None
     if request.method == "POST":
-        form = EditAccountSettings(request.POST)
-        if form.is_valid():
-            user.email_notifications = form.cleaned_data["email_notifications"]
-            user.email_replies = form.cleaned_data["email_replies"]
-            user.email_messages = form.cleaned_data["email_messages"]
-            user.email_mentions = form.cleaned_data["email_mentions"]
-            user.show_avatars = form.cleaned_data["show_avatars"]
-            user.show_story_previews = form.cleaned_data["show_story_previews"]
-            user.show_submitted_story_threads = form.cleaned_data[
-                "show_submitted_story_threads"
-            ]
-            user.show_colors = form.cleaned_data["show_colors"]
-            user.save()
-            return redirect(reverse("account"))
-        error = form_errors_as_string(form.errors)
+        if "session-settings" in request.POST:
+            session_form = EditSessionSettings(request.POST)
+            if session_form.is_valid():
+                request.session["vivid_colors"] = session_form.cleaned_data[
+                    "vivid_colors"
+                ]
+                request.session["font_size"] = session_form.cleaned_data["font_size"]
+                return redirect(reverse("account"))
+            error = form_errors_as_string(session_form.errors)
+        else:
+            form = EditAccountSettings(request.POST)
+            if form.is_valid():
+                user.email_notifications = form.cleaned_data["email_notifications"]
+                user.email_replies = form.cleaned_data["email_replies"]
+                user.email_messages = form.cleaned_data["email_messages"]
+                user.email_mentions = form.cleaned_data["email_mentions"]
+                user.show_avatars = form.cleaned_data["show_avatars"]
+                user.show_story_previews = form.cleaned_data["show_story_previews"]
+                user.show_submitted_story_threads = form.cleaned_data[
+                    "show_submitted_story_threads"
+                ]
+                user.show_colors = form.cleaned_data["show_colors"]
+                user.save()
+                return redirect(reverse("account"))
+            error = form_errors_as_string(form.errors)
         messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
-    else:
+    if form is None:
         form = EditAccountSettings(initial=user._wrapped.__dict__)
-    return render(request, "edit_settings.html", {"user": user, "form": form})
+    if session_form is None:
+        session_form = EditSessionSettings(initial=session_settings)
+    return render(
+        request,
+        "edit_settings.html",
+        {"user": user, "form": form, "session_form": session_form},
+    )
 
 
 @login_required

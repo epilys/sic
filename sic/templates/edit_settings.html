@@ -2,11 +2,20 @@
 {% block title %}Edit settings{% endblock %}
 {% block content %}
     <h1>edit account settings</h1>
-    <form action="" method="post" class="submit-story-form">
+    <form method="POST" class="submit-story-form">
         {% csrf_token %}
         <table>
             {{ form }}
         </table>
         <input type="submit" value="Submit">
+    </form>
+    <h2>edit session settings</h2>
+    <p class="help-text">These settings are stored in your browser.</p>
+    <form method="POST" class="submit-story-form">
+        {% csrf_token %}
+        <table>
+            {{ session_form }}
+        </table>
+        <input type="submit" name="session-settings" value="Submit">
     </form>
 {% endblock %}
