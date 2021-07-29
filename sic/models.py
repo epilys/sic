@@ -20,6 +20,8 @@ from django.core.mail import EmailMessage
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.sites.models import Site
 from django.conf import settings
+from django.dispatch import receiver
+from django.db.backends.signals import connection_created
 from .apps import SicAppConfig as config
 from .markdown import comment_to_html, Textractor
 from .voting import story_hotness
@@ -308,16 +310,16 @@ class Taggregation(models.Model):
         return (user.pk == self.creator.pk) or (user in self.moderators.all())
 
     def get_stories(self):
-        ret = set()
-        for h in self.taggregationhastag_set.all():
-            ret |= h.get_stories()
-        return ret
+        return Story.objects.raw(
+            "SELECT DISTINCT s.id AS id FROM sic_story AS s JOIN sic_story_tags AS t ON t.story_id = s.id JOIN taggregation_tags AS v ON v.tag_id = t.tag_id WHERE v.taggregation_id = %s",
+            [self.pk],
+        )
 
     def vertices(self):
-        ret = set()
-        for h in self.taggregationhastag_set.all():
-            ret |= h.vertices()
-        return ret
+        return Tag.objects.raw(
+            "SELECT DISTINCT tag_id AS id FROM taggregation_tags WHERE taggregation_id = %s",
+            [self.pk],
+        )
 
     class Meta:
         ordering = ["name"]
@@ -927,3 +929,88 @@ class Webmention(models.Model):
 
     def __str__(self):
         return f"{self.id} {self.story} {self.url}"
+
+
+@receiver(connection_created)
+def taggregation_queries_setup(sender, connection, **kwargs):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """CREATE TEMPORARY VIEW taggregationhastag_exacttag AS
+SELECT
+    tag_id,
+    exclude_filter.taggregationhastag_id AS taggregationhastag_id
+FROM
+    sic_taggregationhastag_exclude_filters AS exclude_filter,
+    sic_exacttagfilter AS exact_tag
+WHERE
+    exclude_filter.storyfilter_id = exact_tag.storyfilter_ptr_id;"""
+        )
+
+        cursor.execute(
+            """CREATE TEMPORARY VIEW taggregation_tags AS WITH RECURSIVE w (
+    taggregation_id,
+    tag_id,
+    depth,
+    taggregationhastag_id
+) AS (
+    SELECT DISTINCT
+        taggregation_id,
+        tag_id,
+        depth,
+        id
+    FROM
+        sic_taggregationhastag
+    UNION ALL
+    SELECT
+        w.taggregation_id AS taggregation_id,
+        p.from_tag_id AS tag_id,
+        (
+            CASE w.depth
+            WHEN - 1 THEN
+                w.depth
+            ELSE
+                w.depth - 1
+            END),
+        taggregationhastag_id
+    FROM
+        sic_tag_parents AS p
+        JOIN w ON w.tag_id = p.to_tag_id
+    WHERE
+        w.depth != 0
+        AND p.from_tag_id NOT IN (
+            SELECT
+                tag_id
+            FROM
+                taggregationhastag_exacttag)
+) SELECT DISTINCT
+    taggregation_id,
+    tag_id
+FROM
+    w;"""
+        )
+
+        cursor.execute(
+            """CREATE TEMPORARY VIEW taggregationhastag_userfilter AS
+SELECT
+    user_id,
+    exclude_filter.taggregationhastag_id AS taggregationhastag_id
+FROM
+    sic_taggregationhastag_exclude_filters AS exclude_filter,
+    sic_userfilter AS userfilter
+WHERE
+    exclude_filter.storyfilter_id = userfilter.storyfilter_ptr_id;"""
+        )
+
+        cursor.execute(
+            """CREATE TEMPORARY VIEW taggregationhastag_domainfilter AS
+SELECT
+    match_string,
+    is_regexp,
+    exclude_filter.taggregationhastag_id AS taggregationhastag_id
+FROM
+    sic_taggregationhastag_exclude_filters AS exclude_filter,
+    sic_matchfilter AS matchfilter,
+    sic_domainfilter AS domainfilter
+WHERE
+    exclude_filter.storyfilter_id = matchfilter.storyfilter_ptr_id;"""
+        )
