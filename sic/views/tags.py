@@ -160,7 +160,7 @@ def edit_tag(request, tag_pk, slug=None):
         raise Http404("Tag does not exist") from Tag.DoesNotExist
     if slug != tag.slugify():
         return redirect(tag.get_absolute_url())
-    if not request.user.has_perm("sic.change_tag"):
+    if not request.user.has_perm("sic.change_tag", tag):
         return HttpResponseForbidden()
     if request.method == "POST":
         form = EditTagForm(request.POST)

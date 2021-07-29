@@ -5,7 +5,7 @@ from django.utils.http import base36_to_int
 from django.contrib.auth.forms import AuthenticationForm as DjangoAuthenticationForm
 from django.contrib.auth import authenticate
 from .apps import SicAppConfig as config
-from .models import Story, Hat, User
+from .models import Story, Hat, User, Tag
 
 
 class SicBackend(ModelBackend):
@@ -32,26 +32,18 @@ class SicBackend(ModelBackend):
                 and karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
             )
         elif perm in ["sic.change_tag", "sic.delete_tag"]:
-            return not obj.stories.exists()
+            return (not obj.stories.exists()) if isinstance(obj, Tag) else True
         elif perm == "sic.add_story":
             return karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
-        elif (
-            perm in ["sic.change_story", "sic.delete_story"]
-            and isinstance(obj, Story)
-            and obj.user == user_obj
-        ):
-            return True
+        elif perm in ["sic.change_story", "sic.delete_story"]:
+            return obj.user == user_obj if isinstance(obj, Story) else True
         elif perm == "sic.add_hat":
             return (
                 not user_obj.is_new_user()
                 and karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
             )
-        elif (
-            perm in ["sic.change_hat", "sic.delete_hat"]
-            and isinstance(obj, Hat)
-            and obj.user == user_obj
-        ):
-            return True
+        elif perm in ["sic.change_hat", "sic.delete_hat"]:
+            return obj.user == user_obj if isinstance(obj, Hat) else True
         else:
             return False
 

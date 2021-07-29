@@ -544,7 +544,7 @@ def edit_story(request, story_pk, slug=None):
         story_obj = Story.objects.get(pk=story_pk)
     except Story.DoesNotExist:
         raise Http404("Story does not exist") from Story.DoesNotExist
-    if not request.user.has_perm("sic.change_story"):
+    if not request.user.has_perm("sic.change_story", story_obj):
         raise PermissionDenied("Only the author of the story can edit it.")
     if request.method == "POST":
         if "fetch-title" in request.POST:
