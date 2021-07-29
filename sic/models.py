@@ -313,6 +313,12 @@ class Taggregation(models.Model):
             ret |= h.get_stories()
         return ret
 
+    def vertices(self):
+        ret = set()
+        for h in self.taggregationhastag_set.all():
+            ret |= h.vertices()
+        return ret
+
     class Meta:
         ordering = ["name"]
 
@@ -345,7 +351,7 @@ class TaggregationHasTag(models.Model):
             if depth == -1:
                 new_depth = -1
             else:
-                new_depth == depth - 1
+                new_depth = depth - 1
             for c in tag.children.all():
                 if c in seen_set:
                     continue
