@@ -4,7 +4,8 @@
 {% block title %}All stories - sic{% endblock %}
 {% block content %}
     <nav>
-        <ul>
+        <ul>{% if tag %}
+            <li><a href="{% url_with_next 'edit_tag' tag.pk tag.slugify request %}">Edit tag</a></li>{% endif %}
             <li><form method="get" class="order-by-form">
                 {% for f in order_by_form %}
                     {{ f.label_tag }}

@@ -19,7 +19,7 @@
         </ul>
     </nav>
     {% spaceless %}
-        <ul class="tags" style="width: 80ch; max-width: 80vw;">
+        <ul class="tags" style="width: 80ch; max-width: var(--main-width);">
             {% for tag in tags %}
                 <li style="{{ tag.color_vars_css }}"><div class="tag"><span class="tag-name"><a href="{% url_with_next 'edit_tag' tag.pk tag.slugify request %}">{{ tag.name }}</a> {{ tag.stories.count }}</span></div></li>
             {% endfor %}

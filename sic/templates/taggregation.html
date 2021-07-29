@@ -121,7 +121,7 @@
                                 <tr>
                                     <th></th>
                                     <th>
-                                        <div style="{% if show_colors %}{{ has.tag.color_vars_css }}{% endif %}" class="tag"><span class="tag-name">{{ has.tag.name }} {{ has.tag.stories.count }}</span></div>
+                                        <div style="{% if show_colors %}{{ has.tag.color_vars_css }}{% endif %}" class="tag"><span class="tag-name"><a href="{{ has.tag.get_absolute_url }}">{{ has.tag.name }} {{ has.tag.stories.count }}</a></span></div>
                                     </th>
                                 </tr>
                             </thead>

@@ -249,6 +249,12 @@ class Tag(models.Model):
         else:
             return None
 
+    def get_absolute_url(self):
+        return reverse(
+            "view_tag",
+            kwargs={"tag_pk": self.pk, "slug": self.slugify()},
+        )
+
     class Meta:
         ordering = ["name"]
 

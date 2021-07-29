@@ -2,7 +2,6 @@ from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
-from django.db.models import Value, BooleanField
 from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
@@ -13,6 +12,7 @@ from django.utils.safestring import mark_safe
 from django.views.decorators.cache import cache_page
 from ..models import Tag, Story, Taggregation
 from ..forms import EditTagForm, EditTaggregationForm, OrderByForm
+from ..apps import SicAppConfig as config
 from . import form_errors_as_string
 from datetime import datetime
 import random
@@ -50,7 +50,7 @@ def browse_tags(request, page_num=1):
     try:
         page = paginator.page(page_num)
     except InvalidPage:
-        # page_num BooleanFieldis bigger than the actual number of pages
+        # page_num is bigger than the actual number of pages
         return redirect(
             reverse(
                 "browse_tags_page",
@@ -341,7 +341,7 @@ def public_aggregations(request, page_num=1):
     try:
         page = paginator.page(page_num)
     except InvalidPage:
-        # page_num BooleanFieldis bigger than the actual number of pages
+        # page_num is bigger than the actual number of pages
         return redirect(
             reverse(
                 "browse_tags_page",
@@ -398,3 +398,82 @@ def gen_html(mix=None):
             g = int((g + mix[1]) / 2)
             b = int((b + mix[2]) / 2)
         yield f"#%02x%02x%02x" % (r, g, b)
+
+
+def view_tag(request, tag_pk, slug=None, page_num=1):
+    try:
+        obj = Tag.objects.get(pk=tag_pk)
+    except Tag.DoesNotExist:
+        raise Http404("Tag does not exist") from Tag.DoesNotExist
+    if "order_by" in request.GET:
+        request.session["tag_order_by"] = request.GET["order_by"]
+    if "ordering" in request.GET:
+        request.session["tag_ordering"] = request.GET["ordering"]
+    if page_num == 1 and request.get_full_path() != reverse(
+        "view_tag", kwargs={"tag_pk": tag_pk, "slug": slug}
+    ):
+        return redirect(reverse("view_tag", kwargs={"tag_pk": tag_pk, "slug": slug}))
+    if slug != obj.slugify():
+        return redirect(
+            reverse(
+                "view_tag_page",
+                kwargs={"tag_pk": tag_pk, "slug": obj.slugify(), "page_num": page_num},
+            )
+        )
+    order_by = request.session.get("tag_order_by", "created")
+    ordering = request.session.get("tag_ordering", "desc")
+
+    if order_by == "created":
+        stories = list(obj.get_stories())
+        stories = sorted(
+            stories,
+            key=lambda s: s.created,
+            reverse=ordering == "desc",
+        )
+    elif order_by == "active":
+        stories = list(obj.get_stories())
+        stories = sorted(
+            stories,
+            key=lambda s: s.active_comments().latest("created").created
+            if s.active_comments().exists()
+            else make_aware(datetime.fromtimestamp(0)),
+            reverse=ordering == "desc",
+        )
+
+    elif order_by == "number of comments":
+        stories = list(obj.get_stories())
+        stories = sorted(
+            stories,
+            key=lambda s: s.active_comments().count(),
+            reverse=ordering == "desc",
+        )
+    else:
+        stories = list(obj.get_stories())
+
+    paginator = Paginator(stories, config.STORIES_PER_PAGE)
+    try:
+        page = paginator.page(page_num)
+    except InvalidPage:
+        # page_num is bigger than the actual number of pages
+        return redirect(
+            reverse(
+                "view_tag_page",
+                kwargs={
+                    "tag_pk": tag_pk,
+                    "slug": obj.slugify(),
+                    "page_num": paginator.num_pages,
+                },
+            )
+        )
+    order_by_form = OrderByForm(
+        fields=view_tag.ORDER_BY_FIELDS,
+        initial={"order_by": order_by, "ordering": ordering},
+    )
+    return render(
+        request,
+        "all_stories.html",
+        {"stories": page, "order_by_form": order_by_form, "tag": obj},
+    )
+
+
+view_tag.ORDER_BY_FIELDS = ["created", "active", "number of comments"]

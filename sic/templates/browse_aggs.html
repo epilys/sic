@@ -81,7 +81,7 @@
                         <dd>
                             <ul class="tags">
                                 {% for tag in agg.tags.all %}
-                                    <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><div class="tag"><span class="tag-name">{{ tag.name }} {{ tag.stories.count }}</span></div></li>
+                                    <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><div class="tag"><span class="tag-name"><a href="{{ tag.get_absolute_url }}">{{ tag.name }} {{ tag.stories.count }}</a></span></div></li>
                                 {% endfor %}
                             </ul></dd>
                         <dt>created</dt>

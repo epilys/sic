@@ -92,6 +92,12 @@ urlpatterns = [
     path("reply/<int:comment_pk>", reply, name="reply"),
     path("upvote/<int:story_pk>/", upvote_story, name="upvote_story"),
     path("save/<int:story_pk>/", bookmark_story, name="bookmark_story"),
+    path("tag/<int:tag_pk>/<slug:slug>/", view_tag, name="view_tag"),
+    path(
+        "tag/<int:tag_pk>/<slug:slug>/page/<int:page_num>",
+        view_tag,
+        name="view_tag_page",
+    ),
     path("tags/", browse_tags, name="browse_tags"),
     path("tags/page/<int:page_num>/", browse_tags, name="browse_tags_page"),
     path("tags/edit/<int:tag_pk>/<slug:slug>", edit_tag, name="edit_tag"),
