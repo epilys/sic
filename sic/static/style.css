@@ -976,7 +976,7 @@ article>header>div.links {
   margin-top: .5rem;
 }
 
-article>ul, article>main>ul {
+article>ul, article>ul {
   list-style-type: square;
   padding: 0;
   max-width: clamp(10vw, 66ch, var(--main-width));
@@ -1130,7 +1130,8 @@ details.formatting-help summary {
   display: inline list-item;
 }
 
-details.formatting-help[open]>span {
+details.formatting-help[open]>div {
+  display: inline-block;
   position: absolute;
   padding: 1rem 2rem;
   background: #fff;
@@ -1141,7 +1142,7 @@ details.formatting-help[open]>span {
   left: 10vw;
   z-index: 2;
 }
-details.formatting-help[open]>span>table>caption{
+details.formatting-help[open]>div>table>caption{
   margin-bottom: 1rem;
 }
 
@@ -1245,13 +1246,14 @@ ul.inline-comma-sep-list>li>details>summary+ul.inline-comma-sep-list{
   margin-inline-start:.5rem;
 }
 
-span.showing-aggregations {
+div.showing-aggregations {
   font-size: 80%;
+  display: inline-block;
 }
 
-  body>header>div.logo {
-    display: inline-block;
-  }
+body>header>div.logo {
+  display: inline-block;
+}
 
 blockquote.message_body {
   outline: 1px solid;
