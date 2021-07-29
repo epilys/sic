@@ -2,6 +2,8 @@
 
 Link aggregator community organised by tags in `python3`/`django3` + `sqlite3`. Test instance at https://sic.pm and http://sicpm3hp7dtrwhmf4qlelycqlvie6flqa5qnjnt3snok5xydvxhs4xyd.onion/
 
+Follow the `[sic]` bot on Mastodon: https://botsin.space/@sic
+
 <table>
 	<tbody>
 		<tr>
