@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import argparse
 import sys
+import re
 import urllib.parse
 import urllib.request
 import http.cookiejar
@@ -38,6 +39,17 @@ optional arguments:
 """
 
 AUTHENTICATION_URL = "/admin/login/"
+IGNORE_URLS = [
+    "http",  # ignore external links
+    "https",
+    "mailto",
+    "/save/",  # don't bookmark stories
+    "/accounts/login",
+]
+
+VNU_REGEX = re.compile(
+    r"^:(?P<first_line>\d*).(?P<first_col>\d*)-(?P<end_line>\d*).(?P<end_col>\d*): (?P<kind>[^:]*): (?P<message>.*)"
+)
 
 
 def scrape(
@@ -175,6 +187,7 @@ def scrape(
         except Exception as exc:
             print(site, exc, file=sys.stderr)
             return False
+        source_lines = r.splitlines()
         print(HTTP_ROOT_URL + site)
         vnu_cmd = VNU_CMD
         if site.endswith(".rss") or site.endswith(".atom"):
@@ -182,15 +195,53 @@ def scrape(
                 print(site, "check_xml is false, ignoring", file=sys.stderr)
                 return
             vnu_cmd = VNU_CMD_XML
-        with Popen(vnu_cmd, stdin=PIPE) as proc:
-            proc.stdin.write(bytes(r, "utf-8"))
+        with Popen(vnu_cmd, stdin=PIPE, stderr=PIPE) as proc:
+            outs, errors = proc.communicate(input=bytes(r, "utf-8"))
+            errors = errors.decode("utf-8")
+        for line in errors.splitlines():
+            for match in VNU_REGEX.finditer(line):
+                d = match.groupdict()
+                padding = max(len(d["first_line"]), len(d["end_line"]))
+                start = int(d["first_line"])
+                if start > 2:
+                    start -= 2
+                else:
+                    start = 0
+                end = int(d["end_line"]) + 1
+                if end + 2 < len(source_lines):
+                    end += 2
+                else:
+                    end = len(source_lines)
+                print(d["kind"], d["message"])
+                print()
+                for l in range(start, end):
+                    if l >= int(d["first_line"]) and l <= int(d["end_line"]):
+                        print(
+                            " " * (padding - len(str(l))),
+                            l,
+                            "*| ",
+                            source_lines[l + 1][:80],
+                        )
+                    else:
+                        print(
+                            " " * (padding - len(str(l))),
+                            l,
+                            " | ",
+                            source_lines[l + 1][:80],
+                        )
+                print()
         s = BeautifulSoup(r, "html.parser")
 
         for i in s.find_all("a"):
             href = i.attrs["href"]
             if href.startswith("/"):
                 site = href
-                if site not in urls and not site.startswith("http"):
+                if site not in urls:
+                    ignore = False
+                    for ignore_url in IGNORE_URLS:
+                        ignore |= site.startswith(ignore_url)
+                    if ignore:
+                        continue
                     urls.append(site)
                     rec_scrape(site, depth - 1)
         return True
