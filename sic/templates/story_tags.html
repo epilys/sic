@@ -1,7 +1,7 @@
 {% spaceless %}
     <ul class="tags">
         {% for tag in tags %}
-            <li class="tag" style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><span class="tag-name"><a href="{{ tag.get_absolute_url }}">{{ tag.name }}</a></span></li>
+            <li class="tag" style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><span class="tag-name"><a href="{{ tag.get_absolute_url }}"{% if in_article %} rel="tag"{% endif %}>{{ tag.name }}</a></span></li>
         {% endfor %}
     </ul>
 {% endspaceless %}
