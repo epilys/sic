@@ -3,5 +3,10 @@
 {% load utils %}
 {% block title %}tag graph - sic{% endblock %}
 {% block content %}
-    <img src="{% url 'tag_graph_svg' %}">
+    <object data="{% url 'tag_graph_svg' %}" type="image/svg+xml">
+        <img src="{% url 'tag_graph_svg' %}" alt="tag graph">
+    </object>
+    <noscript>
+        <img src="{% url 'tag_graph_svg' %}" alt="tag graph">
+    </noscript>
 {% endblock %}

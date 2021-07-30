@@ -11,6 +11,7 @@ from django.utils.timezone import make_aware
 from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.views.decorators.cache import cache_page
+from django.views.decorators.clickjacking import xframe_options_exempt
 from ..models import Tag, Story, Taggregation
 from ..forms import EditTagForm, EditTaggregationForm, OrderByForm
 from ..apps import SicAppConfig as config
@@ -18,6 +19,7 @@ from . import form_errors_as_string
 from datetime import datetime
 import random
 import functools
+import re
 
 
 def browse_tags(request, page_num=1):
@@ -71,9 +73,36 @@ def browse_tags(request, page_num=1):
 
 browse_tags.ORDER_BY_FIELDS = ["name", "created", "active", "number of posts"]
 
+SVG_FONT_SIZE_PT: int = 12.0
+SVG_STYLE = f"""1999/xlink">
+<style>
+div {{
+font-size: {SVG_FONT_SIZE_PT-4}pt;
+  border: 1px solid #0000005e;
+  border-radius: 5px;
+  color: #555;
+  padding: 0px 0.4em 1px 0.4em;
+  text-decoration: none;
+  vertical-align: middle;
+
+  --aa-brightness: ((var(--red) * 299) + (var(--green) * 587) + (var(--blue) * 114)) / 1000;
+  --aa-color: calc((var(--aa-brightness) - 128) * -1000);
+  background: rgb(var(--red), var(--green), var(--blue));
+  color: rgb(var(--aa-color), var(--aa-color), var(--aa-color));
+  width: max-content;
+}}
+  </style>"""
+
+
+SVG_TAG_PATTERN = re.compile(
+    r"""(?P<header><title>(?P<id>\d+)</title>.*?)<text [^>]*?x="(?P<x>[^"]*?)" y="(?P<y>[^"]*?)"[^>]*?>(?P<tag>[^<]*?)</text>""",
+    re.MULTILINE | re.DOTALL,
+)
+
 
 @require_http_methods(["GET"])
 @cache_page(60 * 60 * 12)
+@xframe_options_exempt
 def tag_graph_svg(request):
     import graphviz
 
@@ -83,10 +112,18 @@ def tag_graph_svg(request):
     else:
         tags = Tag.objects.filter(pk__in=tag_pks)
 
-    dot = graphviz.Digraph(comment="tags", format="svg")
+    dot = graphviz.Digraph(
+        comment="tags",
+        format="svg",
+        node_attr={
+            "shape": "none",
+            "fontsize": str(SVG_FONT_SIZE_PT),
+            "target": "_parent",
+        },
+    )
     dot.attr(size="18,5")
     for t in tags:
-        dot.node(str(t.id), t.name)
+        dot.node(str(t.id), label=t.name, href=t.get_absolute_url())
     for t in tags:
         for p in t.parents.all():
             if p not in tags:
@@ -94,6 +131,29 @@ def tag_graph_svg(request):
             dot.edge(str(p.id), str(t.id))
     dot = dot.unflatten(stagger=3, chain=5, fanout=True)
     svg = dot.pipe().decode("utf-8")
+    svg = svg.replace('1999/xlink">', SVG_STYLE)
+    svg = re.sub(
+        r"""svg width="(\d*)pt" """,
+        lambda matchobj: f"""svg width="{int(matchobj[1])*1.2}pt" """,
+        svg,
+        count=1,
+    )
+    tags = {t.pk: t for t in tags}
+
+    def node_repl(matchobj):
+        x = float(matchobj["x"])
+        y = float(matchobj["y"])
+        tag_name = matchobj["tag"]
+        tag = tags[int(matchobj["id"])]
+        width = (SVG_FONT_SIZE_PT - 4) * len(tag_name) * 0.77 + 20
+        height = SVG_FONT_SIZE_PT * 2 * 1.33
+        x -= width / 2 - 5
+        y -= height / 4
+        return f"""{matchobj['header']}<foreignObject x="{x}" y="{y}" width="{width}" height="{height}">
+    <div xmlns="http://www.w3.org/1999/xhtml" style="{tag.color_vars_css()}">{tag_name}</div>
+    </foreignObject>"""
+
+    svg = re.sub(SVG_TAG_PATTERN, node_repl, svg)
     return HttpResponse(svg, content_type="image/svg+xml")
 
 

@@ -112,7 +112,12 @@
                 </tr>
             </table>
             <div class="tag-graph-svg">
-                <img src="{% url 'tag_graph_svg' %}?{% for tag in taggregation.vertices %}tags={{ tag.pk }}{% if not forloop.last %}&{% endif %}{% endfor %}">
+                <object data="{% url 'tag_graph_svg' %}?{% for tag in taggregation.vertices %}tags={{ tag.pk }}{% if not forloop.last %}&{% endif %}{% endfor %}" type="image/svg+xml">
+                    <img src="{% url 'tag_graph_svg' %}?{% for tag in taggregation.vertices %}tags={{ tag.pk }}{% if not forloop.last %}&{% endif %}{% endfor %}" alt="tag graph">
+                </object>
+                <noscript>
+                    <img src="{% url 'tag_graph_svg' %}?{% for tag in taggregation.vertices %}tags={{ tag.pk }}{% if not forloop.last %}&{% endif %}{% endfor %}" alt="tag graph">
+                </noscript>
             </div>
         </div>
         <hr />
