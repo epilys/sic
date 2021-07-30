@@ -57,10 +57,15 @@
             </ul>
         </nav>
         <h1>{{ taggregation.name }}{% if user_can_modify %} <small><a href="{% url_with_next 'edit_aggregation' taggregation.pk taggregation.slugify request %}">edit&hellip;</a></small>{% endif %}</h1>
-        <form action="{% url 'taggregation_change_subscription' taggregation.pk %}" method="get">
-            <input type="hidden" name="next" value="{{ request.get_full_path|urlencode}}" />
-            <input type="submit" value="{% if subscribed %}un{% endif %}subscribe">
-        </form>
+        <div class="button-flex-box" style="width: max-content;">
+            <form action="{% url 'copy_taggregation' taggregation.pk %}" method="get">
+                <input type="submit" value="create a copy">
+            </form>
+            <form action="{% url 'taggregation_change_subscription' taggregation.pk %}" method="get">
+                <input type="hidden" name="next" value="{{ request.get_full_path|urlencode}}" />
+                <input type="submit" value="{% if subscribed %}un{% endif %}subscribe">
+            </form>
+        </div>
         <p class="help-text">For problems or suggestions about this aggregation, go to a moderator's profile and send them a message.</p>
         <div class="agg-info">
             <table>

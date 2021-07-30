@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, redirect
@@ -129,6 +130,35 @@ def taggregation(request, taggregation_pk, slug=None):
 
 
 @login_required
+@transaction.atomic
+def copy_taggregation(request, taggregation_pk):
+    user = request.user
+    try:
+        obj = Taggregation.objects.get(pk=taggregation_pk)
+    except Taggregation.DoesNotExist:
+        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
+    if not obj.user_has_access(user):
+        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
+    new = Taggregation.objects.create(
+        creator=user,
+        name=f"{obj.name} copy",
+        description=obj.description,
+    )
+    for has in obj.taggregationhastag_set.all():
+        has.pk = None
+        has.save()
+        new.taggregationhastag_set.add(has)
+    new.moderators.add(user)
+    new.save()
+    user.taggregation_subscriptions.add(new)
+    messages.add_message(
+        request, messages.SUCCESS, f"You have created and been subscribed to {new}."
+    )
+    return redirect(new)
+
+
+@login_required
+@transaction.atomic
 def taggregation_change_subscription(request, taggregation_pk):
     user = request.user
     try:
@@ -197,6 +227,7 @@ def edit_tag(request, tag_pk, slug=None):
 
 
 @login_required
+@transaction.atomic
 def add_tag(request):
     if not request.user.has_perm("sic.add_tag"):
         return HttpResponseForbidden()
@@ -228,6 +259,7 @@ def add_tag(request):
 
 
 @login_required
+@transaction.atomic
 def new_aggregation(request):
     if request.method == "POST":
         form = EditTaggregationForm(request.POST)
@@ -240,7 +272,6 @@ def new_aggregation(request):
                 discoverable=form.cleaned_data["discoverable"],
                 private=form.cleaned_data["private"],
             )
-            new.tags.set(form.cleaned_data["tags"])
             new.moderators.add(request.user)
             new.save()
             if subscribed:
@@ -260,6 +291,7 @@ def new_aggregation(request):
 
 
 @login_required
+@transaction.atomic
 def edit_aggregation(request, taggregation_pk, slug=None):
     try:
         obj = Taggregation.objects.get(pk=taggregation_pk)
@@ -293,7 +325,6 @@ def edit_aggregation(request, taggregation_pk, slug=None):
             obj.description = form.cleaned_data["description"]
             obj.discoverable = form.cleaned_data["discoverable"]
             obj.private = form.cleaned_data["private"]
-            obj.tags.set(form.cleaned_data["tags"])
             obj.save()
             if "next" in request.GET:
                 return redirect(request.GET["next"])

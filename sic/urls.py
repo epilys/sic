@@ -117,6 +117,11 @@ urlpatterns = [
         name="taggregation_change_subscription",
     ),
     path(
+        "agg/copy/<int:taggregation_pk>/",
+        copy_taggregation,
+        name="copy_taggregation",
+    ),
+    path(
         "agg/edit/<int:taggregation_pk>/<slug:slug>/",
         edit_aggregation,
         name="edit_aggregation",
