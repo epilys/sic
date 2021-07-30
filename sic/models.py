@@ -6,6 +6,7 @@ import itertools
 import abc
 import collections
 from django.db import models
+from django.db.models.expressions import RawSQL
 from django.contrib.auth.models import (
     BaseUserManager,
     AbstractBaseUser,
@@ -226,16 +227,69 @@ class Tag(models.Model):
         return f"--red: {r}; --green:{g}; --blue:{b};"
 
     def get_stories(self, depth=0):
-        if depth == 0:
-            return set(self.stories.all())
         if depth == -1:
-            new_depth = depth
+            return Story.objects.filter(
+                tags__pk__in=RawSQL(
+                    """WITH RECURSIVE w (
+    root_tag_id,
+    tag_id,
+    depth
+) AS (
+    SELECT DISTINCT
+        id,
+        id,
+        0
+    FROM
+        sic_tag
+    UNION ALL
+    SELECT
+        w.root_tag_id,
+        p.from_tag_id,
+        w.depth + 1
+    FROM
+        sic_tag_parents AS p
+        JOIN w ON w.tag_id = p.to_tag_id
+) SELECT DISTINCT
+    tag_id
+FROM
+    w
+WHERE
+    root_tag_id = %s""",
+                    [self.pk],
+                )
+            )
         else:
-            new_depth = depth - 1
-        ret = set(self.stories.all())
-        for c in self.children.all():
-            ret |= c.get_stories(new_depth)
-        return ret
+            return Story.objects.filter(
+                tags__pk__in=RawSQL(
+                    """WITH RECURSIVE w (
+    root_tag_id,
+    tag_id,
+    depth
+) AS (
+    SELECT DISTINCT
+        id,
+        id,
+        0
+    FROM
+        sic_tag
+    UNION ALL
+    SELECT
+        w.root_tag_id,
+        p.from_tag_id,
+        w.depth + 1
+    FROM
+        sic_tag_parents AS p
+        JOIN w ON w.tag_id = p.to_tag_id
+) SELECT DISTINCT
+    tag_id
+FROM
+    w
+WHERE
+    root_tag_id = %s AND
+    depth <= %s""",
+                    [self.pk, depth],
+                )
+            )
 
     def slugify(self):
         return slugify(self.name, allow_unicode=True)
@@ -310,15 +364,20 @@ class Taggregation(models.Model):
         return (user.pk == self.creator.pk) or (user in self.moderators.all())
 
     def get_stories(self):
-        return Story.objects.raw(
-            "SELECT DISTINCT s.id AS id FROM sic_story AS s JOIN sic_story_tags AS t ON t.story_id = s.id JOIN taggregation_tags AS v ON v.tag_id = t.tag_id WHERE v.taggregation_id = %s",
-            [self.pk],
+        # TODO: This generates a SELECT .. IN (SELECT DISTINCT ...) which definitely can be improved
+        return Story.objects.filter(
+            id__in=RawSQL(
+                "SELECT DISTINCT s.id AS id FROM sic_story AS s JOIN sic_story_tags AS t ON t.story_id = s.id JOIN taggregation_tags AS v ON v.tag_id = t.tag_id WHERE v.taggregation_id = %s",
+                [self.pk],
+            )
         )
 
     def vertices(self):
-        return Tag.objects.raw(
-            "SELECT DISTINCT tag_id AS id FROM taggregation_tags WHERE taggregation_id = %s",
-            [self.pk],
+        return Tag.objects.filter(
+            id__in=RawSQL(
+                "SELECT DISTINCT tag_id AS id FROM taggregation_tags WHERE taggregation_id = %s",
+                [self.pk],
+            )
         )
 
     class Meta:
@@ -338,15 +397,19 @@ class TaggregationHasTag(models.Model):
         return f"{self.taggregation} {self.tag} depth={self.depth}"
 
     def vertices(self):
-        return Tag.objects.raw(
-            "SELECT DISTINCT tag_id AS id FROM taggregation_tags WHERE taggregationhastag_id = %s",
-            [self.pk],
+        return Tag.objects.filter(
+            id__in=RawSQL(
+                "SELECT DISTINCT tag_id AS id FROM taggregation_tags WHERE taggregationhastag_id = %s",
+                [self.pk],
+            )
         )
 
     def get_stories(self):
-        return Story.objects.raw(
-            "SELECT DISTINCT s.id AS id FROM sic_story AS s JOIN sic_story_tags AS t ON t.story_id = s.id JOIN taggregation_tags AS v ON v.tag_id = t.tag_id WHERE v.taggregationhastag_id = %s",
-            [self.pk],
+        return Story.objects.filter(
+            id__in=RawSQL(
+                "SELECT DISTINCT s.id AS id FROM sic_story AS s JOIN sic_story_tags AS t ON t.story_id = s.id JOIN taggregation_tags AS v ON v.tag_id = t.tag_id WHERE v.taggregationhastag_id = %s",
+                [self.pk],
+            )
         )
 
 
@@ -730,9 +793,13 @@ class User(PermissionsMixin, AbstractBaseUser):
     def frontpage(self):
         taggregations = None
         if self.taggregation_subscriptions.exists():
-            stories = set()
-            for t in self.taggregation_subscriptions.all():
-                stories |= t.get_stories()
+            # Perform raw query directly instead of UNIONing all taggregation frontpages
+            stories = Story.objects.filter(
+                id__in=RawSQL(
+                    "SELECT DISTINCT s.id AS id FROM sic_story AS s JOIN sic_story_tags AS t ON t.story_id = s.id JOIN taggregation_tags AS v ON v.tag_id = t.tag_id JOIN sic_user_taggregation_subscriptions as subs WHERE v.taggregation_id = subs.taggregation_id AND subs.user_id = %s",
+                    [self.pk],
+                )
+            )
             taggregations = list(self.taggregation_subscriptions.all())
             if len(taggregations) > 5:
                 others = taggregations[5:]
