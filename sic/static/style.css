@@ -421,7 +421,7 @@ body>main {
 body>main nav>ul{
   list-style: none;
   column-gap: 1rem;
-  row-gap: 8px;
+  row-gap: 4px;
   display: flex;
   justify-content: start;
   flex-flow:wrap;
@@ -429,6 +429,17 @@ body>main nav>ul{
   width: max-content;
   padding: 0;
   max-width: var(--main-width);
+}
+
+body > main nav > ul > li > a {
+  border: 1px outset gray;
+  padding: 4px 5px;
+  border-radius: 3px;
+  max-width: var(--main-width);
+  word-wrap: break-word;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  display: inline-block;
 }
 
 body>main>hr {
