@@ -933,6 +933,10 @@ class Webmention(models.Model):
 
 @receiver(connection_created)
 def taggregation_queries_setup(sender, connection, **kwargs):
+    from django.db import migrations
+
+    if getattr(migrations, "MIGRATION_OPERATION_IN_PROGRESS", False):
+        return
     with connection.cursor() as cursor:
         cursor.execute(
             """CREATE TEMPORARY VIEW taggregationhastag_exacttag AS
