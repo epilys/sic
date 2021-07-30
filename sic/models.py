@@ -227,7 +227,7 @@ class Tag(models.Model):
         return f"--red: {r}; --green:{g}; --blue:{b};"
 
     def get_stories(self, depth=0):
-        if depth == -1:
+        if depth is None:
             return Story.objects.filter(
                 tags__pk__in=RawSQL(
                     """WITH RECURSIVE w (
@@ -388,7 +388,7 @@ class TaggregationHasTag(models.Model):
     id = models.AutoField(primary_key=True)
     taggregation = models.ForeignKey(Taggregation, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, null=True, blank=True, on_delete=models.CASCADE)
-    depth = models.IntegerField(default=0, null=False, blank=False)
+    depth = models.PositiveIntegerField(default=0, null=True, blank=True)
     exclude_filters = models.ManyToManyField(
         "StoryFilter", blank=True, related_name="excluded_in"
     )
@@ -963,7 +963,7 @@ WHERE
         p.from_tag_id AS tag_id,
         (
             CASE w.depth
-            WHEN - 1 THEN
+            WHEN NULL THEN
                 w.depth
             ELSE
                 w.depth - 1
@@ -973,7 +973,7 @@ WHERE
         sic_tag_parents AS p
         JOIN w ON w.tag_id = p.to_tag_id
     WHERE
-        w.depth != 0
+        (w.depth != 0 OR w.depth ISNULL)
         AND p.from_tag_id NOT IN (
             SELECT
                 tag_id
