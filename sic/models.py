@@ -330,9 +330,6 @@ class TaggregationHasTag(models.Model):
     taggregation = models.ForeignKey(Taggregation, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, null=True, blank=True, on_delete=models.CASCADE)
     depth = models.IntegerField(default=0, null=False, blank=False)
-    include_filters = models.ManyToManyField(
-        "StoryFilter", blank=True, related_name="included_in"
-    )
     exclude_filters = models.ManyToManyField(
         "StoryFilter", blank=True, related_name="excluded_in"
     )
@@ -341,65 +338,16 @@ class TaggregationHasTag(models.Model):
         return f"{self.taggregation} {self.tag} depth={self.depth}"
 
     def vertices(self):
-        if self.depth == 0:
-            return set([self.tag])
-        queue = collections.deque([(self.depth, self.tag)])
-        seen_set = set()
-        while len(queue) != 0:
-            depth, tag = queue.pop()
-            seen_set.add(tag)
-            if depth == 0:
-                continue
-            if depth == -1:
-                new_depth = -1
-            else:
-                new_depth = depth - 1
-            for c in tag.children.all():
-                if c in seen_set:
-                    continue
-                queue.append((new_depth, c))
-        return seen_set
+        return Tag.objects.raw(
+            "SELECT DISTINCT tag_id AS id FROM taggregation_tags WHERE taggregationhastag_id = %s",
+            [self.pk],
+        )
 
     def get_stories(self):
-        stories_exc = self.tag.get_stories(self.depth)
-        # keep copy for include filters; these override the exclude filters
-        stories_inc = stories_exc
-
-        exclude = StoryFilter.filter_story_attributes(
-            stories_exc, self.exclude_filters.all()
+        return Story.objects.raw(
+            "SELECT DISTINCT s.id AS id FROM sic_story AS s JOIN sic_story_tags AS t ON t.story_id = s.id JOIN taggregation_tags AS v ON v.tag_id = t.tag_id WHERE v.taggregationhastag_id = %s",
+            [self.pk],
         )
-        if exclude["tags"]:
-            stories_exc = itertools.filterfalse(
-                lambda story_obj: len(set(story_obj.tags.all()) & exclude["tags"]) > 0,
-                stories_exc,
-            )
-        if exclude["users"]:
-            stories_exc = itertools.filterfalse(
-                lambda story_obj: story_obj.user in exclude["users"], stories_exc
-            )
-        stories_exc = set(stories_exc)
-
-        include = StoryFilter.filter_story_attributes(
-            stories_inc, self.include_filters.all()
-        )
-
-        if not include["tags"] and not include["users"]:
-            stories_inc = set()
-
-        if include["tags"]:
-            stories_inc = filter(
-                lambda story_obj: len(set(story_obj.tags.all()) & include["tags"]) > 0,
-                stories_inc,
-            )
-        if include["users"]:
-            stories_inc = filter(
-                lambda story_obj: story_obj.user in include["users"], stories_inc
-            )
-        stories_inc = set(stories_inc)
-
-        if stories_inc:
-            return stories_exc | stories_inc
-        return stories_exc
 
 
 class StoryFilter(models.Model):
@@ -454,28 +402,6 @@ class StoryFilter(models.Model):
             "user_filters": user_filters,
             "domain_filters": domain_filters,
         }
-
-    @staticmethod
-    def filter_story_attributes(stories, filters):
-        filters = StoryFilter.filter_filters(filters)
-        tag_set = set()
-        if len(filters["tag_filters"]) > 0:
-            result = set()
-            for s in stories:
-                tag_set |= set(s.tags.all())
-            for t in filters["tag_filters"]:
-                result |= set(filter(t.match(), tag_set))
-            tag_set = set(result)
-        user_set = set()
-        if len(filters["user_filters"]) > 0:
-            result = set()
-            for s in stories:
-                user_set.add(s.user)
-            for u in filters["user_filters"]:
-                result |= set(filter(u.match(), user_set))
-            user_set = set(result)
-
-        return {"users": user_set, "tags": tag_set}
 
 
 class MatchFilter(StoryFilter):
@@ -988,7 +914,9 @@ WHERE
                 taggregationhastag_exacttag)
 ) SELECT DISTINCT
     taggregation_id,
-    tag_id
+    tag_id,
+    depth,
+    taggregationhastag_id
 FROM
     w;"""
         )
