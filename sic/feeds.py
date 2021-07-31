@@ -115,7 +115,7 @@ class UserLatestStoriesFeed(Feed):
     def __call__(self, request, *args, **kwargs):
         if "token" in request.GET:
             token = request.GET["token"]
-            if AuthToken().check_token(request.user, token):
+            if AuthToken().check_token(self.user, token):
                 return super().__call__(request, *args, **kwargs)
         return HttpResponseForbidden("Forbidden.")
 
