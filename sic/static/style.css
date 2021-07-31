@@ -1244,7 +1244,7 @@ ul.inline-comma-sep-list>li:nth-last-child(2){
   list-style-type: ' and ';
   direction: rtl;
 }
-ul.inline-comma-sep-list>li:last-child {
+ul.inline-comma-sep-list > li:last-child:not(:first-child) {
   margin-left:3ch;
 }
 

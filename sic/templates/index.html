@@ -5,7 +5,7 @@
 {% block content %}
     {% if aggregations %}
         {% if not has_subscriptions %}<div class="showing-aggregations">You have no subscriptions, viewing default aggregations.</div>{% endif %}
-        <div class="showing-aggregations">Showing stories from <ul class="inline-comma-sep-list">{% for agg in aggregations.list %}<li><a href="{{ agg.get_absolute_url }}">{{ agg.name }}</a></li>{% if forloop.last and aggregations.others %}<li><details><summary>{{ aggregations.others|length }} others</summary>:<ul class="inline-comma-sep-list">{% for agg in aggregations.others %}<li><a href="{{ agg.get_absolute_url }}">{{ agg.name }}</a></li>{% endfor %}</ul></details></li>{% endif %}{% endfor %}</ul></div>
+        <div class="showing-aggregations">Showing stories from <ul class="inline-comma-sep-list">{% for agg in aggregations|slice:":5" %}<li><a href="{{ agg.get_absolute_url }}">{{ agg.name }}</a></li>{% if forloop.last and aggregations|length > 5 %}<li><details><summary>{{ aggregations|slice:"5:"|length }} others</summary>:<ul class="inline-comma-sep-list">{% for agg in aggregations|slice:"5:" %}<li><a href="{{ agg.get_absolute_url }}">{{ agg.name }}</a></li>{% endfor %}</ul></details></li>{% endif %}{% endfor %}</ul></div>
     {% elif aggregation %}
         <div class="showing-aggregations">Showing stories from <a href="{{ aggregation.get_absolute_url }}">{{ aggregation.name }}</a></div>
     {% else %}

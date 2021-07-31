@@ -226,6 +226,15 @@ class Tag(models.Model):
         r, g, b = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
         return f"--red: {r}; --green:{g}; --blue:{b};"
 
+    def in_taggregations(self):
+        return Taggregation.objects.filter(
+            id__in=RawSQL(
+                "SELECT DISTINCT taggregation_id AS id FROM taggregation_tags WHERE tag_id = %s",
+                [self.pk],
+            ),
+            private=False,
+        )
+
     def get_stories(self, depth=0):
         if depth is None:
             return Story.objects.filter(
@@ -800,16 +809,7 @@ class User(PermissionsMixin, AbstractBaseUser):
                     [self.pk],
                 )
             )
-            taggregations = list(self.taggregation_subscriptions.all())
-            if len(taggregations) > 5:
-                others = taggregations[5:]
-                taggregations = taggregations[:5]
-            else:
-                others = None
-            taggregations = {
-                "list": taggregations,
-                "others": others,
-            }
+            taggregations = self.taggregation_subscriptions.all()
         else:
             stories = Story.objects.filter(active=True)
         return {

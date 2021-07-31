@@ -15,6 +15,9 @@
             </form></li>
         </ul>
     </nav>
+    {% if tag %}
+        <div class="showing-aggregations">Tag is in the following public aggregations: <ul class="inline-comma-sep-list">{% with tag.in_taggregations as aggregations %}{% for agg in aggregations|slice:":5" %}<li>{{agg.taggregation}}<a href="{{ agg.get_absolute_url }}">{{ agg.name }}</a></li>{% if forloop.last and aggregations|length > 5 %}<li><details><summary>{{ aggregations|slice:"5:"|length }} others</summary>:<ul class="inline-comma-sep-list">{% for agg in aggregations|slice:"5:" %}<li><a href="{{ agg.get_absolute_url }}">{{ agg.name }}</a></li>{% endfor %}</ul></details></li>{% endif %}{% endfor %}{% endwith %}</ul></div>
+    {% endif %}
     <ul class="posts">
         {% for story in stories %}
             {% include "story_list_item.html" with story=story %}
