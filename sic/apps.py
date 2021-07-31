@@ -36,6 +36,9 @@ class SicAppConfig(AppConfig):
     # days old accounts are considered new for
     NEW_USER_DAYS = 70
 
+    # minimum karma required to be able to add/change Tag objects
+    MIN_KARMA_TO_EDIT_TAGS = 5
+
     # minimum karma required to be able to offer title/tag suggestions
     MIN_KARMA_TO_SUGGEST = 10
 
