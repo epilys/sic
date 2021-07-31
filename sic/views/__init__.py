@@ -87,12 +87,23 @@ def story(request, story_pk, slug=None):
     except (StopIteration, KeyError, ValueError):
         pass
     if request.method == "POST":
+        form = SubmitCommentForm(request.POST)
         if not request.user.is_authenticated:
             messages.add_message(
                 request, messages.ERROR, "You must be logged in to comment."
             )
+        elif not request.user.has_perm("sic.add_comment"):
+            if request.user.banned_by_user is not None:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "You are banned and not allowed to comment.",
+                )
+            else:
+                messages.add_message(
+                    request, messages.ERROR, "You are not allowed to comment."
+                )
         else:
-            form = SubmitCommentForm(request.POST)
             if form.is_valid():
                 comment = Comment.objects.create(
                     user=request.user,
@@ -133,7 +144,18 @@ def reply(request, comment_pk):
         raise Http404("Comment does not exist") from Comment.DoesNotExist
     if request.method == "POST":
         form = SubmitCommentForm(request.POST)
-        if form.is_valid():
+        if not user.has_perm("sic.add_comment"):
+            if user.banned_by_user is not None:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "You are banned and not allowed to comment.",
+                )
+            else:
+                messages.add_message(
+                    request, messages.ERROR, "You are not allowed to comment."
+                )
+        elif form.is_valid():
             text = form.cleaned_data["text"]
             comment = Comment.objects.create(
                 user=user, story=comment.story, parent=comment, text=text
@@ -367,7 +389,20 @@ def submit_story(request):
         else:
             form = SubmitStoryForm(request.POST)
             form.fields["title"].required = True
-            if form.is_valid():
+            if not user.has_perm("sic.add_story"):
+                if user.banned_by_user is not None:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        "You are banned and not allowed to submit stories.",
+                    )
+                else:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        "You are not allowed to submit stories.",
+                    )
+            elif form.is_valid():
                 title = form.cleaned_data["title"]
                 description = form.cleaned_data["description"]
                 url = form.cleaned_data["url"]
