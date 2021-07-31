@@ -1236,16 +1236,14 @@ ul.inline-comma-sep-list>li{
 
 ul.inline-comma-sep-list>li:not(:last-child,:nth-last-child(2)){
   list-style: square;
-  list-style-type: ', ';
+  list-style-type: ',';
   direction: rtl;
 }
 ul.inline-comma-sep-list>li:nth-last-child(2){
   list-style: square;
   list-style-type: ' and ';
   direction: rtl;
-}
-ul.inline-comma-sep-list > li:last-child:not(:first-child) {
-  margin-left:3ch;
+  margin-right:3ch;
 }
 
 ul.inline-comma-sep-list>li>details>summary {
