@@ -1,5 +1,6 @@
 import urllib.request
 from http import HTTPStatus
+import datetime
 from django.http import (
     Http404,
     HttpResponse,
@@ -339,6 +340,10 @@ def submit_story(request):
                     parsr.feed(text)
                     title = parsr.title
                     qdict["title"] = title
+                    if parsr.ogtitle is not None:
+                        qdict["title"] = parsr.ogtitle
+                    if parsr.publish_date is not None:
+                        qdict["publish_date"] = parsr.publish_date
                 except Exception as exc:
                     messages.add_message(
                         request, messages.ERROR, f"Could not fetch title. Error: {exc}"
@@ -557,6 +562,10 @@ def edit_story(request, story_pk, slug=None):
                     parsr.feed(text)
                     title = parsr.title
                     qdict["title"] = title
+                    if parsr.ogtitle is not None:
+                        qdict["title"] = parsr.ogtitle
+                    if parsr.publish_date is not None:
+                        qdict["publish_date"] = parsr.publish_date
                 except Exception as exc:
                     messages.add_message(
                         request, messages.ERROR, f"Could not fetch title. Error: {exc}"
@@ -702,11 +711,32 @@ class TitleHTMLExtractor(HTMLParser):
     def __init__(self):
         super(TitleHTMLExtractor, self).__init__()
         self.title = ""
+        self.ogtitle = None
+        self.publish_date = None
         self.in_title = False
 
     def handle_starttag(self, tag, attrs):
         if tag == "title":
             self.in_title = True
+        elif tag == "meta":
+            attrs = {a[0]: a[1] for a in attrs}
+            if (
+                "content" in attrs
+                and "property" in attrs
+                and attrs["property"] == "article:published_time"
+            ):
+                try:
+                    if attrs["content"].endswith("Z"):
+                        attrs["content"] = attrs["content"][:-1]
+                    self.publish_date = datetime.fromisoformat(attrs["content"]).date()
+                except:
+                    pass
+            if (
+                "content" in attrs
+                and "property" in attrs
+                and attrs["property"] == "og:title"
+            ):
+                self.ogtitle = attrs["content"]
 
     def handle_endtag(self, tag):
         if tag == "title":
