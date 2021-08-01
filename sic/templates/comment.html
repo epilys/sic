@@ -3,7 +3,7 @@
 
 {% get_comment_preview request comment.pk as preview %}
 {% comment_is_upvoted as is_upvoted %}
-<li class="comment{% if not comment.replies.exists %} no-children{% endif %}" id="{{comment.slugify}}">
+<li class="comment{% if not comment.replies.exists %} no-children{% endif %}{% if level == 1 %} root{% endif %}" id="{{comment.slugify}}">
     {% spaceless %}
         {%if comment.deleted %}
             <span class="comment">

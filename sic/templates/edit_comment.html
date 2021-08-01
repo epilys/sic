@@ -34,7 +34,7 @@
             {% endif %}
             {{ form.text.errors }}
             <label for="edit-{{comment.pk}}-textarea">edit:</label>
-            <textarea id="edit-{{comment.pk}}-textarea" name="text" cols="40" rows="3" minlength="1" placeholder="" required="">{% if preview_input %}{{ preview_input }}{% else %}{{ comment.text }}{% endif %}</textarea>
+            <textarea id="edit-{{comment.pk}}-textarea" name="text" cols="40" rows="11" minlength="1" placeholder="" required="">{% if preview_input %}{{ preview_input }}{% else %}{{ comment.text }}{% endif %}</textarea>
         </label>
         <div class="button-flex-box">
             <input formaction="{% url_with_next 'preview_comment' request %}" type="submit" name="preview" value="Preview">

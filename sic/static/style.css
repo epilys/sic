@@ -1,5 +1,9 @@
 /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
 
+* {
+  box-sizing: border-box;
+}
+
 /* Document
    ========================================================================== */
 
@@ -404,11 +408,6 @@ body>* {
   max-width: 100%;
 }
 
-body>footer {
-  padding: .6rem;
-  width: 100%;
-}
-
 body>main {
   display: grid;
   grid-template-columns: 1fr;
@@ -474,6 +473,7 @@ body>header>nav.user {
 }
 
 body>footer {
+  width: 100%;
   display: flex;
   flex-flow: row;
   padding-top: 2rem;
@@ -514,8 +514,7 @@ body>main>ul.posts {
   max-width: var(--main-width);
 }
 
-body>main>ul.posts li.story + li,
-body>main>ul.posts li.comment + li {
+body>main>ul.posts li.story + li {
   margin-top: 1rem;
 }
 
@@ -557,8 +556,9 @@ body>main>ul.posts>li.story .links{
 
 .votes {
   display: inline-flex;
-  vertical-align: middle;
   flex-direction: row;
+  margin-inline-start: -2px;
+  margin-inline-end: 1px;
 }
 
 .votes>.score {
@@ -680,7 +680,7 @@ figure#avatar-thumbnail figcaption {
   border-color: transparent transparent var(--upvote-arrow-color) transparent;
   border-style: solid;
   border-width: 0.8ex;
-  border-bottom-width: 1.6ex;
+  border-bottom-width: 1.4ex;
   border-top-width: 0;
   text-decoration: none;
   width: 0px;
@@ -690,12 +690,12 @@ figure#avatar-thumbnail figcaption {
   display: inline;
   margin-right: 4px;
   vertical-align: sub;
-  transform: translateY(.1ex);
+  transform: translateY(3px);
 }
 
 article.story>header>.votes {
   position: absolute;
-  transform: translateX(-112%);
+  transform: translateX(-120%);
 }
 
 .avatar-small {
@@ -744,7 +744,7 @@ li:hover a.feed:after {
   border: none;
   cursor: pointer;
   height: 1.8ex;
-  transform: translateX(-4px);
+  transform: translateX(-7px);
   display: block;
   width: 1rem;
 }
@@ -802,18 +802,27 @@ li.comment>span.links {
   vertical-align: top;
   display: inline-flex;
   column-gap: 4px;
-  margin-right: 4px;
-  margin-left: 2rem;
+  margin-left: 4px;
   flex-flow: wrap;
 }
 
 span.comment {
-  padding-top: .5rem;
-  padding-bottom: .5rem;
   text-align: justify;
   hyphens: auto;
   word-break: break-word;
   overflow: auto;
+  padding-bottom: 1rem;
+  margin-left: 2px;
+}
+
+span.comment ul li {
+  text-align: justify;
+  hyphens: auto;
+  word-break: break-word;
+  max-width: clamp(10vw, 66ch, var(--main-width));
+}
+span.comment ul li + li {
+  margin-top: .5rem;
 }
 
 span.comment.preview {
@@ -833,6 +842,7 @@ input[type="checkbox"].comment:checked~span.comment{
   padding: 0;
   width: 30ch;
   margin: 0;
+  margin-bottom: 2rem;
   outline: 1px dotted black;
   max-width: max-content;
   max-height: 1rem;
@@ -843,13 +853,17 @@ input[type="checkbox"].comment:checked~span.comment * {
 
 input[type="checkbox"].comment~span.comment{
   max-width: 66ch;
-  margin-left: 2rem;
   display: block;
 }
 
 label.comment {
   position: absolute;
-  }
+  margin-top: 1px;
+  font-size: 92%;
+  margin-left: -29px;
+  background: white;
+  cursor: pointer;
+}
 
 
 input[type="checkbox"].comment {
@@ -858,14 +872,12 @@ input[type="checkbox"].comment {
 input[type="checkbox"].comment:checked~label.comment:before{
   content: '[+]';
   padding: 2px; /* increase hit area*/
-  cursor: pointer;
   font-family: monospace;
 }
 
 input[type="checkbox"].comment:not(:checked)~label.comment:before{
   content: '[-]';
   padding: 2px; /* increase hit area*/
-  cursor: pointer;
   font-family: monospace;
 }
 
@@ -915,14 +927,14 @@ ul.posts {
   padding-inline-start: calc(var(--base) * (1 / (1 + var(--level))));
 }
 
-ul.posts li {
+ul.posts>li {
   list-style: none;
 }
 
 ul.posts li.story + li,
 ul.posts li.comment + li {
   padding-top: 1rem;
-  border-top: 1px solid cadetblue;
+  border-top: 1px outset #c7ddde;
 }
 
 li.comment:target>span.comment {
@@ -932,6 +944,17 @@ li.comment:target>span.comment {
 li.comment li.comment {
   border-left: 1px dotted gray;
   padding-left: 8px;
+}
+
+li.root > label.comment::after {
+  content: "⏚";
+  height: 0;
+  display: block;
+  position: absolute;
+  z-index: 1;
+  margin-top: -4px;
+  width: 100%;
+  text-align: center;
 }
 
 li.comment>div.replies>li.comment {
@@ -983,16 +1006,28 @@ article>header>* {
 }
 
 article>header>ul.tags,
+article>header>span.publish_date,
 article>header>div.links {
   margin-top: .5rem;
 }
 
-article>ul, article>ul {
+article>fieldset {
+  max-width: max-content;
+  margin-left: -1em;
+  margin-right: -1.5em;
+}
+
+article>fieldset>ul {
   list-style-type: square;
+  list-style-position: inside;
   padding: 0;
   max-width: clamp(10vw, 66ch, var(--main-width));
   hyphens: auto;
   word-break: break-word;
+}
+
+article>fieldset>legend {
+  font-weight: normal;
 }
 
 ul.messagelist {
@@ -1116,7 +1151,7 @@ select {
 }
 
 span.comment a {
-  word-break: break-all;
+  word-break: break-word;
   white-space: pre-line;
 }
 
@@ -1329,6 +1364,7 @@ blockquote.message_body {
     margin-right: 0;
     border-width: 1ex;
     border-bottom-width: 1.8ex;
+    transform: none;
   }
 
   article.story>header>.votes {
