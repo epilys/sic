@@ -267,6 +267,7 @@ def edit_tag(request, tag_pk, slug=None):
     else:
         form = EditTagForm(
             initial={
+                "pk": tag,
                 "name": tag.name,
                 "hex_color": tag.hex_color,
                 "parents": tag.parents.all(),

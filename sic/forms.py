@@ -175,7 +175,29 @@ class AnnotationForm(forms.Form):
     text.widget.attrs.update({"rows": 3, "placeholder": ""})
 
 
+class ParentsSelect(forms.SelectMultiple):
+    def create_option(
+        self, name, value, label, selected, index, subindex=None, attrs=None
+    ):
+        option = super().create_option(
+            name, value, label, selected, index, subindex, attrs
+        )
+        try:
+            disabled = value.instance._disabled
+            if disabled:
+                option["attrs"]["disabled"] = "disabled"
+        except AttributeError:
+            pass
+        return option
+
+
 class EditTagForm(forms.Form):
+    pk = forms.ModelChoiceField(
+        queryset=Tag.objects.all(),
+        widget=forms.HiddenInput,
+        required=False,
+        initial=None,
+    )
     name = forms.CharField(required=True, label="Name", max_length=40)
     hex_color = forms.CharField(
         max_length=7,
@@ -185,10 +207,35 @@ class EditTagForm(forms.Form):
     )
     parents = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(),
+        widget=ParentsSelect(attrs={"size": "10"}),
         label="parents",
         required=False,
         help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        edited_tag = None
+        try:
+            edited_tag = kwargs["initial"]["pk"]
+        except:
+            pass
+        into = lambda t: forms.models.ModelChoiceIteratorValue(t.pk, t)
+        if edited_tag is not None:
+            parents = []
+            others = []
+            for t in Tag.objects.all().prefetch_related("children"):
+                if edited_tag in t.children.all():
+                    parents.append((into(t), t.name))
+                else:
+                    if t.pk == edited_tag.pk:
+                        t._disabled = True
+                    others.append((into(t), t.name))
+            self.fields["parents"].choices = (("current", parents), ("others", others))
+        else:
+            self.fields["parents"].choices = [
+                (into(t), t.name) for t in Tag.objects.all()
+            ]
 
 
 class EditTaggregationForm(forms.Form):
