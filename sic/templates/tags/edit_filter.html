@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load utils %}
+{% block title %}{% if has %}edit {{ agg.name }} filter {% else %}new {{ agg.name }} filter{% endif %} | sic{% endblock %}
+{% block content %}
+    <h1>{% if has %}edit {{ agg.name }} filter{% else %}new {{ agg.name }} filter{% endif %}</h1>
+    <nav>
+        <ul>
+            <li><a href="{% if next %}{{ next }}{% elif agg %}{{ agg.get_absolute_url }}{% else %}{% url 'account' %}{% endif %}">go back</a></li>
+        </ul>
+    </nav>
+    <form method="POST" class="submit-comment-form">
+        {% csrf_token %}
+        {% for field in form %}
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {{ field.help_text }}
+            {{ field }}
+        {% endfor %}
+        <div class="button-flex-box">
+            <input type="submit" value="Save">
+        </div>
+    </form>
+    {% if delete_form %}
+        <h2>delete filter</h2>
+        <form action="{% url 'delete_aggregation_filter' agg.pk %}" method="POST" class="submit-comment-form">
+            {% csrf_token %}
+            {% for field in delete_form %}
+                {% if not field.is_hidden %}
+                    {{ field.errors }}
+                    {{ field.label_tag }}
+                    {{ field.help_text }}
+                {% endif %}
+                {{ field }}
+            {% endfor %}
+            <div class="button-flex-box">
+                <input type="submit" value="Delete">
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}

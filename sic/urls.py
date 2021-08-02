@@ -128,6 +128,21 @@ urlpatterns = [
         edit_aggregation,
         name="edit_aggregation",
     ),
+    path(
+        "agg/edit/<int:taggregation_pk>/<slug:slug>/<int:taggregationhastag_id>",
+        edit_aggregation_filter,
+        name="edit_aggregation_filter",
+    ),
+    path(
+        "agg/edit/<int:taggregation_pk>/<slug:slug>/new",
+        new_aggregation_filter,
+        name="new_aggregation_filter",
+    ),
+    path(
+        "agg/edit/<int:taggregation_pk>/delete-filter",
+        delete_aggregation_filter,
+        name="delete_aggregation_filter",
+    ),
     path("agg/new", new_aggregation, name="new_aggregation"),
     path("accounts/auth_token/new", issue_token, name="issue_token"),
     path(

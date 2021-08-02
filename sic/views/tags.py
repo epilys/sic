@@ -12,8 +12,14 @@ from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.views.decorators.cache import cache_page
 from django.views.decorators.clickjacking import xframe_options_exempt
-from ..models import Tag, Story, Taggregation
-from ..forms import EditTagForm, EditTaggregationForm, OrderByForm
+from ..models import Tag, Story, Taggregation, TaggregationHasTag
+from ..forms import (
+    EditTagForm,
+    EditTaggregationForm,
+    OrderByForm,
+    EditTaggregationHasTagForm,
+    DeleteTaggregationHasTagForm,
+)
 from ..apps import SicAppConfig as config
 from . import form_errors_as_string
 from datetime import datetime
@@ -411,6 +417,131 @@ def edit_aggregation(request, taggregation_pk, slug=None):
             "agg": obj,
         },
     )
+
+
+@login_required
+@transaction.atomic
+def edit_aggregation_filter(request, taggregation_pk, slug, taggregationhastag_id):
+    try:
+        obj = Taggregation.objects.get(pk=taggregation_pk)
+    except Taggregation.DoesNotExist:
+        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
+    if not obj.user_has_access(request.user):
+        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
+    if not obj.user_can_modify(request.user):
+        return HttpResponseForbidden()
+    if slug != obj.slugify():
+        return redirect(
+            reverse(
+                "edit_aggregation_filter",
+                args=[taggregation_pk, obj.slugify(), taggregationhastag_id],
+            )
+        )
+    try:
+        has = TaggregationHasTag.objects.get(
+            taggregation__pk=taggregation_pk, id=taggregationhastag_id
+        )
+    except TaggregationHasTag.DoesNotExist:
+        raise Http404(
+            "Taggregation filter does not exist"
+        ) from TaggregationHasTag.DoesNotExist
+    user = request.user
+
+    if request.method == "POST":
+        form = EditTaggregationHasTagForm(request.POST)
+        if form.is_valid():
+            has.tag = form.cleaned_data["tag"]
+            has.depth = form.cleaned_data["depth"]
+            has.exclude_filters.set(form.cleaned_data["exclude_filters"])
+            has.save(update_fields=["tag", "depth"])
+            messages.add_message(request, messages.SUCCESS, "Filter edited succesfuly.")
+            return redirect(obj)
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = EditTaggregationHasTagForm(
+            initial={
+                "tag": has.tag,
+                "depth": has.depth,
+                "exclude_filters": has.exclude_filters.all(),
+            }
+        )
+    return render(
+        request,
+        "tags/edit_filter.html",
+        {
+            "form": form,
+            "agg": obj,
+            "has": has,
+            "delete_form": DeleteTaggregationHasTagForm(initial={"pk": has}),
+        },
+    )
+
+
+@login_required
+@transaction.atomic
+def new_aggregation_filter(request, taggregation_pk, slug):
+    try:
+        obj = Taggregation.objects.get(pk=taggregation_pk)
+    except Taggregation.DoesNotExist:
+        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
+    if not obj.user_has_access(request.user):
+        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
+    if not obj.user_can_modify(request.user):
+        return HttpResponseForbidden()
+    if slug != obj.slugify():
+        return redirect(
+            reverse("new_aggregation_filter", args=[taggregation_pk, obj.slugify()])
+        )
+    user = request.user
+
+    if request.method == "POST":
+        form = EditTaggregationHasTagForm(request.POST)
+        if form.is_valid():
+            has = TaggregationHasTag(
+                taggregation=obj,
+                tag=form.cleaned_data["tag"],
+                depth=form.cleaned_data["depth"],
+            )
+            has.save()
+            has.exclude_filters.set(form.cleaned_data["exclude_filters"])
+            messages.add_message(
+                request, messages.SUCCESS, "Filter created succesfuly."
+            )
+            return redirect(obj)
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = EditTaggregationHasTagForm()
+    return render(
+        request,
+        "tags/edit_filter.html",
+        {
+            "form": form,
+            "agg": obj,
+            "has": None,
+        },
+    )
+
+
+@login_required
+@transaction.atomic
+@require_http_methods(["POST"])
+def delete_aggregation_filter(request, taggregation_pk):
+    try:
+        obj = Taggregation.objects.get(pk=taggregation_pk)
+    except Taggregation.DoesNotExist:
+        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
+    if not obj.user_has_access(request.user):
+        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
+    if not obj.user_can_modify(request.user):
+        return HttpResponseForbidden()
+
+    form = DeleteTaggregationHasTagForm(request.POST)
+    if form.is_valid():
+        has = form.cleaned_data["pk"]
+        has.delete()
+    return redirect(obj)
 
 
 def public_aggregations(request, page_num=1):

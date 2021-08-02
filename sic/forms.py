@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .apps import SicAppConfig as config
-from .models import Tag, User, StoryKind, StoryFilter
+from .models import Tag, User, StoryKind, StoryFilter, TaggregationHasTag
 
 
 class SubmitStoryForm(forms.Form):
@@ -240,7 +240,10 @@ class EditTagForm(forms.Form):
 
 class EditTaggregationForm(forms.Form):
     name = forms.CharField(required=True, label="Name", max_length=40)
-    description = forms.CharField(required=False)
+    description = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"rows": 8, "placeholder": ""})
+    )
+
     discoverable = forms.BooleanField(
         label="Is discoverable",
         required=False,
@@ -254,24 +257,34 @@ class EditTaggregationForm(forms.Form):
     subscribed = forms.BooleanField(required=False)
 
 
-class EditTaggregationHasTag(forms.Form):
+class EditTaggregationHasTagForm(forms.Form):
     tag = forms.ModelChoiceField(
         queryset=Tag.objects.all(),
         label="tag",
         required=True,
     )
-    depth = forms.IntegerField(initial=0, required=True)
+    depth = forms.IntegerField(
+        min_value=0, initial=0, required=False, help_text="leave empty for no depth."
+    )
     exclude_filters = forms.ModelMultipleChoiceField(
         queryset=StoryFilter.objects.all(),
         label="exclude filters",
         required=False,
         help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
     )
-    include_filters = forms.ModelMultipleChoiceField(
-        queryset=StoryFilter.objects.all(),
-        label="include filters (override exclude filters)",
-        required=False,
-        help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
+
+
+class DeleteTaggregationHasTagForm(forms.Form):
+    pk = forms.ModelChoiceField(
+        queryset=TaggregationHasTag.objects.all(),
+        widget=forms.HiddenInput,
+        required=True,
+    )
+    confirm_delete = forms.BooleanField(
+        required=True,
+        initial=None,
+        label="Really Delete this filter?",
+        help_text="Check this box to permanently delete this filter.",
     )
 
 

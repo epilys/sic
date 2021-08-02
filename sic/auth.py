@@ -5,7 +5,7 @@ from django.utils.http import base36_to_int
 from django.contrib.auth.forms import AuthenticationForm as DjangoAuthenticationForm
 from django.contrib.auth import authenticate
 from .apps import SicAppConfig as config
-from .models import Story, Hat, User, Tag
+from .models import Story, Hat, User, Tag, TaggregationHasTag
 
 
 class SicBackend(ModelBackend):
@@ -46,6 +46,15 @@ class SicBackend(ModelBackend):
             return obj.user == user_obj if isinstance(obj, Hat) else True
         elif perm in ["sic.add_comment", "sic.add_story"]:
             return not is_banned
+        elif perm in ["change_taggregationhastag", "sic.delete_taggregationhastag"]:
+            if is_banned:
+                return False
+            if isinstance(obj, TaggregationHasTag):
+                return (
+                    user_obj == obj.taggregation.creator
+                    or user_obj in obj.taggregation.moderators.all()
+                )
+            return False
         else:
             return False
 

@@ -123,13 +123,14 @@
         <hr />
         <div>
             <h2>story filters</h2>
+            <a href="{% url 'new_aggregation_filter' taggregation.pk taggregation.slugify %}">add new</a>
             <div class="story_filters_grid">
                 {% for has in taggregation.taggregationhastag_set.all %}
                     <div>
                         <table>
                             <thead>
                                 <tr>
-                                    <th></th>
+                                    <th><a href="{% url 'edit_aggregation_filter' taggregation.pk taggregation.slugify has.id %}">edit</a></th>
                                     <th>
                                         <div style="{% if show_colors %}{{ has.tag.color_vars_css }}{% endif %}" class="tag"><span class="tag-name"><a href="{{ has.tag.get_absolute_url }}">{{ has.tag.name }} {{ has.tag.stories.count }}</a></span></div>
                                     </th>
