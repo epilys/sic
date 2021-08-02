@@ -578,7 +578,6 @@ header div.logo {
   font-weight: 800;
   background-color: var(--theme-color);
   color: white;
-  border: 5px solid var(--theme-color);
   height: min-content;
   width: min-content;
   margin-bottom: -5px;
@@ -587,14 +586,13 @@ header div.logo {
   min-width: auto;
 }
 
-header .logo span {
-  background-color: var(--theme-color);
-}
-
-header .logo span a,
-header .logo span a:visited {
+header .logo a,
+header .logo a:visited {
   text-decoration: none;
   color: white;
+  background-color: var(--theme-color);
+  padding: 5px;
+  padding-bottom: 6px;
 }
 
 form.submit-story-form,form.submit-story-form>fieldset {
@@ -1308,9 +1306,10 @@ blockquote.message_body {
 }
 
 @media (max-width: 600px) {
-  body>header>div.logo {
+  body>header>div.logo a {
     font-size: 70%;
-    border-width: 2px;
+    padding: 2px;
+    padding-bottom: 3px;
   }
   body>header {
     font-size: 90%;
@@ -1338,7 +1337,7 @@ blockquote.message_body {
     display: inline-block;
   }
 
-  nav.menu>ul>li.username {
+  nav.menu ul>li.account {
     grid-row: 1 / span 1;
     grid-column: 1/ span 2;
     text-align: center;
