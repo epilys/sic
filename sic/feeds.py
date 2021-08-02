@@ -1,6 +1,7 @@
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.syndication.views import Feed
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404
+from django.core.exceptions import PermissionDenied
 from django.utils.encoding import iri_to_uri
 from django.utils.feedgenerator import Atom1Feed, Rss201rev2Feed
 from django.views.decorators.http import require_http_methods
@@ -117,7 +118,7 @@ class UserLatestStoriesFeed(Feed):
             token = request.GET["token"]
             if AuthToken().check_token(self.user, token):
                 return super().__call__(request, *args, **kwargs)
-        return HttpResponseForbidden("Forbidden.")
+        raise PermissionDenied("Forbidden.")
 
 
 class UserLatestStoriesRss(UserLatestStoriesFeed, LatestStoriesRss):

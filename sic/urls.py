@@ -20,6 +20,8 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 from django.views.generic.base import TemplateView
+from django.shortcuts import render
+from django.views.decorators.cache import cache_page
 
 from .views import *
 from .auth import AuthenticationForm
@@ -222,3 +224,29 @@ urlpatterns = [
     ),
     path(".well-known/webfinger", webfinger, name="webfinger"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+@cache_page(60 * 60 * 24)
+def response_400_handler(request, exception=None):
+    return render(request, "400.html", status=400, context={"exception": exception})
+
+
+@cache_page(60 * 60 * 24)
+def response_403_handler(request, exception=None):
+    return render(request, "403.html", status=403, context={"exception": exception})
+
+
+@cache_page(60 * 60 * 24)
+def response_404_handler(request, exception=None):
+    return render(request, "404.html", status=404)
+
+
+@cache_page(60 * 60 * 24)
+def response_500_handler(request, exception=None):
+    return render(request, "500.html", status=500)
+
+
+handler400 = "sic.urls.response_400_handler"
+handler403 = "sic.urls.response_403_handler"
+handler404 = "sic.urls.response_404_handler"
+handler500 = "sic.urls.response_500_handler"

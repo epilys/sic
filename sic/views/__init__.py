@@ -4,7 +4,6 @@ import datetime
 from django.http import (
     Http404,
     HttpResponse,
-    HttpResponseForbidden,
     HttpResponseBadRequest,
 )
 from django.shortcuts import render, redirect
@@ -809,7 +808,7 @@ def moderation_log(request, page_num=1):
 @login_required
 def moderation(request):
     if (not request.user.is_moderator) and (not request.user.is_admin):
-        return HttpResponseForbidden()
+        raise PermissionDenied("You are not a moderator.")
     if request.method == "POST":
         if "set-ban" in request.POST:
             ban_user_form = BanUserForm(request.POST)

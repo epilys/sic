@@ -1,4 +1,5 @@
-from django.http import HttpResponseForbidden, Http404, JsonResponse
+from django.http import Http404, JsonResponse
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
 from django.db.models import Value, BooleanField
@@ -230,7 +231,7 @@ def generate_invite(request, invite_pk=None):
         except Invitation.DoesNotExist:
             raise Http404("Invitation URL is not valid") from Invitation.DoesNotExist
         if inv.inviter != request.user:
-            return HttpResponseForbidden()
+            raise PermissionDenied("This is not your invite.")
         if not inv.is_valid():
             messages.add_message(request, messages.ERROR, "Invitation has expired.")
         else:
@@ -530,7 +531,7 @@ def edit_hat(request, hat_pk=None):
     user = request.user
 
     if hat and not user.has_perm("sic.change_hat", hat):
-        return HttpResponseForbidden()
+        raise PermissionDenied("This is not your hat.")
     if request.method == "POST":
         form = EditHatForm(request.POST)
         if form.is_valid():
