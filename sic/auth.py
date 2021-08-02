@@ -4,8 +4,10 @@ from django.utils.crypto import constant_time_compare
 from django.utils.http import base36_to_int
 from django.contrib.auth.forms import AuthenticationForm as DjangoAuthenticationForm
 from django.contrib.auth import authenticate
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from .apps import SicAppConfig as config
-from .models import Story, Hat, User, Tag, TaggregationHasTag
+from .models import Story, Hat, User, Tag, Taggregation, TaggregationHasTag
 
 
 class SicBackend(ModelBackend):
@@ -57,6 +59,15 @@ class SicBackend(ModelBackend):
             return False
         else:
             return False
+
+
+@receiver(post_save, sender=User)
+def user_save_receiver(sender, instance, created, raw, using, update_fields, **kwargs):
+    if not created:
+        return
+    defaults = Taggregation.objects.filter(default=True)
+    instance.taggregation_subscriptions.set(defaults)
+    instance.save()
 
 
 def auth_context(request):
