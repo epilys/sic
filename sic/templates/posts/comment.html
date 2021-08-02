@@ -76,7 +76,7 @@
                         <input type="submit" value="Submit">
                         <details class="formatting-help">
                             <summary>Formatting help</summary>
-                            <div>{% include "markdown_help.html" %}</div>
+                            <div>{% include "posts/markdown_help.html" %}</div>
                         </details>
                     </div>
                 </form>
@@ -86,7 +86,7 @@
             {% if comment.replies.exists and not shallow and not delete_comment %}
                 <ul class="posts" style="--level: {{ level }}">
                     {% for reply in comment.replies.all %}
-                        {% include "comment.html" with comment=reply edit_comment_pk=edit_comment_pk edit_comment_form=edit_comment_form level=level|add:"1" %}
+                        {% include "posts/comment.html" with comment=reply edit_comment_pk=edit_comment_pk edit_comment_form=edit_comment_form level=level|add:"1" %}
                     {% endfor %}
                 </ul>
             {% endif %}

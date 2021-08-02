@@ -28,26 +28,28 @@ from .webfinger import webfinger
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("about/", TemplateView.as_view(template_name="about.html"), name="about"),
+    path(
+        "about/", TemplateView.as_view(template_name="about/about.html"), name="about"
+    ),
     path(
         "about/purpose",
-        TemplateView.as_view(template_name="purpose.html"),
+        TemplateView.as_view(template_name="about/purpose.html"),
         name="purpose",
     ),
     path(
         "about/contact",
-        TemplateView.as_view(template_name="about_contact.html"),
+        TemplateView.as_view(template_name="about/about_contact.html"),
         name="about_contact",
     ),
     path(
         "about/code-of-conduct",
-        TemplateView.as_view(template_name="coc.html"),
+        TemplateView.as_view(template_name="about/coc.html"),
         name="code_of_conduct",
     ),
     path("about/invitation-tree/", invitation_tree, name="invitation_tree"),
     path(
         "about/privacy/",
-        TemplateView.as_view(template_name="privacy.html"),
+        TemplateView.as_view(template_name="about/privacy.html"),
         name="about_privacy",
     ),
     path("moderation-log/", moderation_log, name="moderation_log"),
@@ -104,7 +106,7 @@ urlpatterns = [
     path("tags/add/", add_tag, name="add_tag"),
     path(
         "tags/graph",
-        TemplateView.as_view(template_name="tag_graph.html"),
+        TemplateView.as_view(template_name="tags/tag_graph.html"),
         name="tag_graph",
     ),
     path("tags/graph-svg", tag_graph_svg, name="tag_graph_svg"),
@@ -152,7 +154,7 @@ urlpatterns = [
     path(
         "accounts/login/",
         auth_views.LoginView.as_view(
-            template_name="login.html", authentication_form=AuthenticationForm
+            template_name="account/login.html", authentication_form=AuthenticationForm
         ),
         name="login",
     ),
@@ -163,14 +165,16 @@ urlpatterns = [
     ),
     path(
         "accounts/password-reset/",
-        auth_views.PasswordResetView.as_view(template_name="password_reset.html"),
+        auth_views.PasswordResetView.as_view(
+            template_name="account/password_reset.html"
+        ),
         name="password_reset",
     ),
     path("accounts/", view_account, name="account"),
     path(
         "accounts/password-change/",
         auth_views.PasswordChangeView.as_view(
-            template_name="password_change.html", success_url="/accounts"
+            template_name="account/password_change.html", success_url="/accounts"
         ),
         name="password_change",
     ),

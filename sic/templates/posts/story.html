@@ -2,6 +2,7 @@
 {% load humanize %}
 {% load utils %}
 {% block title %}{{story.title}} - sic {% endblock %}
+{% block meta_description %}{% with story.active_comments.count as active_comments %}{% if story.description %}{{ story.user }} wrote&hairsp;: {{story.description_to_plain_text|truncatewords:20}}{% else %}{{story.get_listing_url}}{% endif %} | {{ active_comments }} comment{{ active_comments|pluralize }}{% endwith %}{% endblock %}
 {% block content %}
     {% get_comment_preview request 'null' as preview  %}
     {% story_is_bookmarked request.user story as is_bookmarked %}
@@ -23,7 +24,7 @@
             </div>
             <h1 class="story-title"><a href="{{story.get_listing_url}}" rel="external nofollow noreferrer">{{ story.title }}</a>{% with story.get_domain as domain %} <span class="netloc">{{ domain|default_if_none:"text" }}</span>{% endwith %}</h1>
             {% if story.publish_date %}<span class="publish_date">Published: <time datetime="{{ story.publish_date | date:"Y-m-d" }}" title="{{ story.publish_date }}">{{ story.publish_date|naturalday }}</time></span>{% endif %}
-            {% include "story_tags.html" with tags=story.tags.all in_article=True %}
+            {% include "posts/story_tags.html" with tags=story.tags.all in_article=True %}
             {% if not story.tags.exists and request.user == story.user %}
                 <ul class="messagelist">
                     <li class="warning">A story <em>should</em> have at least one tag. Add some tags by <a href="{% url 'edit_story' story_pk=story.pk slug=story.slugify %}">editing the story</a>.</li>
@@ -53,7 +54,7 @@
                 <input type="submit" value="Submit">
                 <details class="formatting-help">
                     <summary>Formatting help</summary>
-                    <div>{% include "markdown_help.html" %}</div>
+                    <div>{% include "posts/markdown_help.html" %}</div>
                 </details>
             </div>
         </form>
@@ -63,7 +64,7 @@
     <ul class="posts">
         {% for comment in comments.all %}
             {% if not comment.parent %}
-                {% include "comment.html" with comment=comment reply_form=reply_form level=1 %}
+                {% include "posts/comment.html" with comment=comment reply_form=reply_form level=1 %}
             {% endif %}
         {% endfor %}
     </ul>

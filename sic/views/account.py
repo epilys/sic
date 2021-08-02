@@ -47,7 +47,7 @@ def login(request):
             auth_login(request, user)
             return redirect(reverse("index"))
         messages.add_message(request, messages.ERROR, "Could not login.")
-    return render(request, "login.html")
+    return render(request, "account/login.html")
 
 
 @login_required
@@ -60,7 +60,7 @@ def view_account(request):
         hats = user.hats.all()
     return render(
         request,
-        "account.html",
+        "account/account.html",
         {
             "user": request.user,
             "generate_invite_form": generate_invite_form,
@@ -100,7 +100,9 @@ def edit_profile(request):
             initial[field] = user._wrapped.__dict__[field]
             initial[label] = user._wrapped.__dict__[label]
         form = EditProfileForm(initial=initial)
-    return render(request, "edit_profile.html", {"user": request.user, "form": form})
+    return render(
+        request, "account/edit_profile.html", {"user": request.user, "form": form}
+    )
 
 
 @login_required
@@ -138,7 +140,9 @@ def edit_avatar(request):
         messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
     else:
         form = EditAvatarForm()
-    return render(request, "edit_avatar.html", {"user": request.user, "form": form})
+    return render(
+        request, "account/edit_avatar.html", {"user": request.user, "form": form}
+    )
 
 
 def profile(request, username):
@@ -149,21 +153,21 @@ def profile(request, username):
             user = User.objects.get(pk=int(username))
         except:
             raise Http404("User does not exist") from User.DoesNotExist
-    return render(request, "profile.html", {"user": user})
+    return render(request, "account/profile.html", {"user": user})
 
 
 @login_required
 def inbox(request):
     user = request.user
     inbox_messages = user.received_messages.all().order_by("-created")
-    return render(request, "inbox.html", {"messages_": inbox_messages})
+    return render(request, "account/inbox.html", {"messages_": inbox_messages})
 
 
 @login_required
 def inbox_sent(request):
     user = request.user
     inbox_messages = user.sent_messages.all().order_by("-created")
-    return render(request, "inbox.html", {"messages_": inbox_messages})
+    return render(request, "account/inbox.html", {"messages_": inbox_messages})
 
 
 @login_required
@@ -203,7 +207,7 @@ def inbox_compose(request, in_reply_to=None):
             )
         else:
             form = ComposeMessageForm(initial=request.GET)
-    return render(request, "inbox_compose.html", {"form": form})
+    return render(request, "account/inbox_compose.html", {"form": form})
 
 
 @login_required
@@ -215,7 +219,7 @@ def inbox_message(request, message_pk):
     if msg.recipient == request.user:
         msg.read_by_recipient = True
         msg.save(update_fields=["read_by_recipient"])
-    return render(request, "inbox_message.html", {"msg": msg})
+    return render(request, "account/inbox_message.html", {"msg": msg})
 
 
 @login_required
@@ -289,7 +293,7 @@ def profile_posts(request, username, page_num=1):
         )
     return render(
         request,
-        "profile_posts.html",
+        "account/profile_posts.html",
         {"posts": page, "user": user},
     )
 
@@ -328,7 +332,7 @@ def accept_invite(request, invite_pk):
             return redirect(reverse("account"))
     else:
         return redirect(reverse("index"))
-    return render(request, "signup.html", {"form": form})
+    return render(request, "account/signup.html", {"form": form})
 
 
 @login_required
@@ -434,7 +438,7 @@ def bookmarks(request, page_num=1):
         )
     return render(
         request,
-        "bookmarks.html",
+        "account/bookmarks.html",
         {"bookmarks": page, "user": user},
     )
 
@@ -496,7 +500,7 @@ def edit_settings(request):
         session_form = EditSessionSettings(initial=session_settings)
     return render(
         request,
-        "edit_settings.html",
+        "account/edit_settings.html",
         {"user": user, "form": form, "session_form": session_form},
     )
 
@@ -509,7 +513,7 @@ def notifications(request):
     user.notifications.filter(active=True).update(active=False)
     return render(
         request,
-        "notifications.html",
+        "account/notifications.html",
         {"user": user, "active_notifications": actives, "rest_notifications": rest},
     )
 
@@ -545,7 +549,9 @@ def edit_hat(request, hat_pk=None):
         form = EditHatForm(
             initial={"name": hat.name, "hex_color": hat.hex_color} if hat else {}
         )
-    return render(request, "edit_hat.html", {"user": user, "form": form, "hat": hat})
+    return render(
+        request, "account/edit_hat.html", {"user": user, "form": form, "hat": hat}
+    )
 
 
 @login_required
@@ -588,7 +594,7 @@ def invitation_requests(request):
             continue
     return render(
         request,
-        "invitation_requests.html",
+        "account/invitation_requests.html",
         {"requests": requests},
     )
 
@@ -616,7 +622,7 @@ def new_invitation_request(request):
         form = InvitationRequestForm()
     return render(
         request,
-        "new_invitation_request.html",
+        "account/new_invitation_request.html",
         {
             "form": form,
         },

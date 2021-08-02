@@ -7,11 +7,11 @@
     {% if comment.parent and not delete_comment %}
         <strong>in reply to:</strong>
         <ul class="posts">
-            {% include "comment.html" with comment=comment.parent level=0 shallow=True %}
+            {% include "posts/comment.html" with comment=comment.parent level=0 shallow=True %}
         </ul>
     {% elif delete_comment %}
         <ul class="posts">
-            {% include "comment.html" with comment=comment level=0 shallow=True %}
+            {% include "posts/comment.html" with comment=comment level=0 shallow=True %}
         </ul>
     {% endif %}
     {% if delete_comment %}
@@ -41,7 +41,7 @@
             <input type="submit" value="Save">
             <details class="formatting-help">
                 <summary>Formatting help</summary>
-                <span>{% include "markdown_help.html" %}</span>
+                <span>{% include "posts/markdown_help.html" %}</span>
             </details>
         </div>
         </form>

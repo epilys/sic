@@ -236,7 +236,7 @@
         </div>
         <ul class="posts">
             {% for story in taggregation.get_stories|slice:":10" %}
-                {% include "story_list_item.html" with story=story %}
+                {% include "posts/story_list_item.html" with story=story %}
             {% endfor %}
         </ul>
     {% endspaceless %}

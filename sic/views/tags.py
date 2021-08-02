@@ -66,7 +66,7 @@ def browse_tags(request, page_num=1):
     )
     return render(
         request,
-        "browse_tags.html",
+        "tags/browse_tags.html",
         {"tags": page, "order_by_form": order_by_form},
     )
 
@@ -180,7 +180,7 @@ def taggregation(request, taggregation_pk, slug=None):
 
     return render(
         request,
-        "taggregation.html",
+        "tags/taggregation.html",
         {
             "taggregation": obj,
             "user_can_modify": obj.user_can_modify(request.user),
@@ -278,7 +278,7 @@ def edit_tag(request, tag_pk, slug=None):
     form.fields["parents"].queryset = Tag.objects.exclude(pk=tag_pk)
     return render(
         request,
-        "edit_tag.html",
+        "tags/edit_tag.html",
         {
             "tag": tag,
             "form": form,
@@ -311,7 +311,7 @@ def add_tag(request):
         form = EditTagForm(initial={"hex_color": colors[0]})
     return render(
         request,
-        "edit_tag.html",
+        "tags/edit_tag.html",
         {
             "form": form,
             "colors": colors,
@@ -344,7 +344,7 @@ def new_aggregation(request):
         form = EditTaggregationForm()
     return render(
         request,
-        "edit_aggregation.html",
+        "tags/edit_aggregation.html",
         {
             "form": form,
         },
@@ -405,7 +405,7 @@ def edit_aggregation(request, taggregation_pk, slug=None):
         )
     return render(
         request,
-        "edit_aggregation.html",
+        "tags/edit_aggregation.html",
         {
             "form": form,
             "agg": obj,
@@ -446,7 +446,7 @@ def public_aggregations(request, page_num=1):
     )
     return render(
         request,
-        "browse_aggs.html",
+        "tags/browse_aggs.html",
         {"aggs": page, "order_by_form": order_by_form},
     )
 
@@ -563,7 +563,7 @@ def view_tag(request, tag_pk, slug=None, page_num=1):
     )
     return render(
         request,
-        "all_stories.html",
+        "posts/all_stories.html",
         {"stories": page, "order_by_form": order_by_form, "tag": obj},
     )
 

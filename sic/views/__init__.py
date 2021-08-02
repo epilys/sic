@@ -125,7 +125,7 @@ def story(request, story_pk, slug=None):
     comments = story_obj.comments.filter(parent=None)
     return render(
         request,
-        "story.html",
+        "posts/story.html",
         {
             "story": story_obj,
             "comment_form": form,
@@ -340,7 +340,9 @@ def all_stories(request, page_num=1):
         initial={"order_by": order_by, "ordering": ordering},
     )
     return render(
-        request, "all_stories.html", {"stories": page, "order_by_form": order_by_form}
+        request,
+        "posts/all_stories.html",
+        {"stories": page, "order_by_form": order_by_form},
     )
 
 
@@ -428,7 +430,7 @@ def submit_story(request):
         form = SubmitStoryForm(initial={"kind": StoryKind.default_value()})
     return render(
         request,
-        "submit.html",
+        "posts/submit.html",
         {
             "form": form,
             "preview": preview,
@@ -507,7 +509,7 @@ def edit_comment(request, comment_pk):
         )
         return render(
             request,
-            "edit_comment.html",
+            "posts/edit_comment.html",
             {
                 "story": comment_obj.story,
                 "comment": comment_obj,
@@ -563,7 +565,7 @@ def delete_comment(request, comment_pk):
         form = DeleteCommentForm()
         return render(
             request,
-            "edit_comment.html",
+            "posts/edit_comment.html",
             {
                 "story": comment_obj.story,
                 "comment": comment_obj,
@@ -648,7 +650,7 @@ def edit_story(request, story_pk, slug=None):
         )
     return render(
         request,
-        "submit.html",
+        "posts/submit.html",
         {
             "form": form,
             "preview": preview,
@@ -697,7 +699,7 @@ def recent_comments(request, page_num=1):
         return redirect(
             reverse("recent_comments_page", kwargs={"page_num": paginator.num_pages})
         )
-    return render(request, "recent_comments.html", {"comments": page})
+    return render(request, "posts/recent_comments.html", {"comments": page})
 
 
 def invitation_tree(request):
@@ -705,7 +707,7 @@ def invitation_tree(request):
 
     return render(
         request,
-        "about_invitation_tree.html",
+        "about/about_invitation_tree.html",
         {
             "root_user": root_user,
             "depth": 0,
@@ -736,7 +738,7 @@ def search(request):
             results = query_comments(form.cleaned_data["text"])
     else:
         form = SearchCommentsForm()
-    return render(request, "search.html", {"form": form, "results": results})
+    return render(request, "posts/search.html", {"form": form, "results": results})
 
 
 from html.parser import HTMLParser
@@ -797,7 +799,7 @@ def moderation_log(request, page_num=1):
         )
     return render(
         request,
-        "moderation_log.html",
+        "moderation/moderation_log.html",
         {
             "logs": page,
         },
@@ -845,4 +847,6 @@ def moderation(request):
             ban_user_form = BanUserForm()
     else:
         ban_user_form = BanUserForm()
-    return render(request, "moderation.html", {"ban_user_form": ban_user_form})
+    return render(
+        request, "moderation/moderation.html", {"ban_user_form": ban_user_form}
+    )

@@ -18,7 +18,7 @@
                 <a href="{{ preview.url }}" class="title">{{ preview.title }}</a>
                 <span class="netloc">{{ preview.domain|default_if_none:"text" }}</span>
                 {% if preview.publish_date %}<span>Published: <time datetime="{{ preview.publish_date | date:"Y-m-d" }}" title="{{ preview.publish_date }}">{{ preview.publish_date|naturalday }}</time></span>{% endif %}
-                {% include "story_tags.html" with tags=preview.tags %}
+                {% include "posts/story_tags.html" with tags=preview.tags %}
             </div>
             <span class="comment preview">{{ preview.description }}</span>
         {% endif %}
@@ -46,7 +46,7 @@
             {{ form.description }}
             <details class="formatting-help">
                 <summary>Formatting help</summary>
-                <span>{% include "markdown_help.html" %}</span>
+                <span>{% include "posts/markdown_help.html" %}</span>
             </details>
         </fieldset>
         <fieldset>
