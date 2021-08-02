@@ -3,7 +3,7 @@
 <li class="story">
     {% spaceless %}
         {% story_is_bookmarked request.user story as is_bookmarked %}
-        {% story_is_upvoted  as is_upvoted %}
+        {% story_is_upvoted as is_upvoted %}
         <div class="votes">
             <div class="upvote{% if is_upvoted %} upvoted{% endif %}">
                 {% if request.user.is_authenticated %}
@@ -17,7 +17,11 @@
                 {{story.karma}}
             </div>
         </div>
-        <div class="title">
+        <div class="title{% if story.context_warning %} context-warning{% endif %}">
+            {% if story.context_warning %}
+                <label for="context-warning-{{ story.pk }}">{{ story.context_warning }}</label>
+                <input id="context-warning-{{ story.pk }}" type="checkbox"{% if show_stories_with_context_warning %} checked="checked"{% endif %}>
+            {% endif %}
             <a href="{{story.get_listing_url}}" class="title">{{ story.title }}</a>
             {% with story.get_domain as domain %}<span class="netloc">{{ domain|default_if_none:"text" }}</span>{% endwith %}
             {% if story.publish_date %}<span>Published: <time datetime="{{ story.publish_date | date:"Y-m-d" }}" title="{{ story.publish_date }}">{{ story.publish_date|naturalday }}</time></span>{% endif %}

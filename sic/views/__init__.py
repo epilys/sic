@@ -416,6 +416,7 @@ def submit_story(request):
                     description=description,
                     user=user,
                     user_is_author=user_is_author,
+                    context_warning=form.cleaned_data["context_warning"],
                 )
                 new_story.tags.set(form.cleaned_data["tags"])
                 new_story.save()
@@ -629,6 +630,7 @@ def edit_story(request, story_pk, slug=None):
                 story_obj.user_is_author = form.cleaned_data["user_is_author"]
                 story_obj.tags.set(form.cleaned_data["tags"])
                 story_obj.kind.set(form.cleaned_data["kind"])
+                story_obj.context_warning = form.cleaned_data["context_warning"]
                 story_obj.save()
                 return redirect(story_obj.get_absolute_url())
             error = form_errors_as_string(form.errors)
@@ -645,6 +647,7 @@ def edit_story(request, story_pk, slug=None):
                 "user_is_author": story_obj.user_is_author,
                 "tags": story_obj.tags.all(),
                 "kind": story_obj.kind.all(),
+                "context_warning": story_obj.context_warning,
             }
         )
     return render(

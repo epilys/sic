@@ -37,6 +37,11 @@ class SubmitStoryForm(forms.Form):
         required=True,
         help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
     )
+    context_warning = forms.CharField(
+        required=False,
+        max_length=30,
+        help_text="Optionally add context warning for sensitive media",
+    )
 
 
 class SubmitCommentForm(forms.Form):
@@ -296,6 +301,7 @@ class EditAccountSettings(forms.Form):
     show_avatars = forms.BooleanField(initial=True, required=False)
     show_story_previews = forms.BooleanField(initial=True, required=False)
     show_submitted_story_threads = forms.BooleanField(initial=True, required=False)
+    show_stories_with_context_warning = forms.BooleanField(initial=True, required=False)
     show_colors = forms.BooleanField(
         initial=True,
         help_text="If false, UI and tag colors are not shown, and if avatars are displayed, they are in monochrome.",

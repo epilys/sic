@@ -77,6 +77,7 @@ def auth_context(request):
             "show_story_previews": request.user.show_story_previews,
             "show_submitted_story_threads": request.user.show_submitted_story_threads,
             "show_colors": request.user.show_colors,
+            "show_stories_with_context_warning": request.user.show_stories_with_context_warning,
             "unread_messages": request.user.received_messages.filter(
                 read_by_recipient=False
             ).count(),
@@ -87,6 +88,7 @@ def auth_context(request):
         "show_avatars": True,
         "show_story_previews": False,
         "show_submitted_story_threads": False,
+        "show_stories_with_context_warning": False,
         "show_colors": True,
         "font_size": None,
         "vivid_colors": None,
