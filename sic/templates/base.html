@@ -56,6 +56,9 @@
                         <li><a href="{% url 'public_aggregations' %}" id="aggregations_link">Aggregations</a></li>
                         <li><a href="{% url 'browse_tags' %}" id="browse_tags_link">Tags</a></li>
                         <li><a href="{% url 'search' %}" id="search_link">Search</a></li>
+                        {% if request.user.is_authenticated %}
+                            <li><a href="{% url 'account' %}#generate-invite" id="generate_invite_link">Invite user</a></li>
+                        {% endif %}
                     </ul>
                 </nav>
                 {% if request.user.is_authenticated %}

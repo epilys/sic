@@ -110,9 +110,9 @@
                 You haven't invited anyone yet.
             {% endfor %}
         </div>
-        <div class="generate_an_invite">
+        <div class="generate_an_invite" id="generate-invite">
             <h2>Invite a new user</h2>
-            <form method="POST" action="{% url_with_next 'generate_invite' request %}">
+            <form class="submit-comment-form" method="POST" action="{% url_with_next 'generate_invite' request %}">
                 {% csrf_token %}
                 <table>
                     {{ generate_invite_form }}
