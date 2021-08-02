@@ -251,18 +251,18 @@ def index(request, page_num=1):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
         return redirect(reverse("index"))
     stories = None
-    taggregations = None
+    taggregations = Taggregation.objects.filter(default=True)
     has_subscriptions = False
     # Figure out what to show in the index
     # If user is authenticated AND has subscribed aggregations, show the set union of them
     # otherwise show every story.
     if request.user.is_authenticated:
         frontpage = request.user.frontpage()
-        stories = frontpage["stories"]
-        taggregations = frontpage["taggregations"]
-        has_subscriptions = taggregations is not None
-    if not stories:
-        stories = Story.objects.filter(active=True).order_by("-created", "title")
+        has_subscriptions = frontpage["taggregations"] is not None
+    else:
+        frontpage = Taggregation.default_frontpage()
+    stories = frontpage["stories"]
+    taggregations = frontpage["taggregations"]
     # https://docs.python.org/3/howto/sorting.html#sort-stability-and-complex-sorts
     all_stories = sorted(
         stories,

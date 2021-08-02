@@ -389,6 +389,27 @@ class Taggregation(models.Model):
             )
         )
 
+    @staticmethod
+    def default_frontpage():
+        taggregations = Taggregation.objects.filter(default=True)
+        if not taggregations.exists():
+            return {
+                "stories": Story.objects.filter(active=True),
+                "taggregations": Taggregation.objects.none(),
+            }
+
+        # Perform raw query directly instead of UNIONing all taggregation frontpages
+        stories = Story.objects.filter(
+            id__in=RawSQL(
+                "SELECT DISTINCT s.id AS id FROM sic_story AS s JOIN sic_story_tags AS t ON t.story_id = s.id JOIN taggregation_tags AS v ON v.tag_id = t.tag_id JOIN sic_taggregation as agg ON v.taggregation_id = agg.id WHERE agg.'default' = 1",
+                [],
+            )
+        )
+        return {
+            "stories": stories,
+            "taggregations": taggregations,
+        }
+
     class Meta:
         ordering = ["name"]
 
