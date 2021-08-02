@@ -1343,6 +1343,10 @@ blockquote.message_body {
     text-align: center;
   }
 
+  nav.menu ul>li.profile {
+    margin-left: auto;
+  }
+
   nav.main.menu {
     width: 40vw;
   }
