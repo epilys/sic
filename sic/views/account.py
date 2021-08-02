@@ -313,7 +313,7 @@ def accept_invite(request, invite_pk):
         messages.add_message(request, messages.ERROR, "Invitation has expired.")
         return redirect("index")
     if request.method == "GET":
-        form = UserCreationForm()
+        form = UserCreationForm(initial={"email": inv.address})
     elif request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
