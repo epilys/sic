@@ -712,7 +712,7 @@ article.story>header>.votes {
   transform-origin: top left;
 }
 
-div.links>.avatar-small:hover {
+.avatar-small:hover {
   transition: all .2s .3s ease;
   transform: scale(6);
   border-radius: 0%;
