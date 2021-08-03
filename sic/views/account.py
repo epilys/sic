@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.views.decorators.http import require_http_methods
+import functools, operator
 from wand.image import Image
 from ..auth import AuthToken
 from ..models import (
@@ -23,11 +24,13 @@ from ..models import (
     Message,
     InvitationRequest,
 )
+from ..mail import Digest
 from ..forms import (
     GenerateInviteForm,
     EditProfileForm,
     EditAvatarForm,
     EditAccountSettings,
+    WeeklyDigestForm,
     EditSessionSettings,
     EditHatForm,
     UserCreationForm,
@@ -468,6 +471,7 @@ def edit_settings(request):
     }
     form = None
     session_form = None
+    digest_form = None
     if request.method == "POST":
         if "session-settings" in request.POST:
             session_form = EditSessionSettings(request.POST)
@@ -478,6 +482,33 @@ def edit_settings(request):
                 request.session["font_size"] = session_form.cleaned_data["font_size"]
                 return redirect(reverse("account"))
             error = form_errors_as_string(session_form.errors)
+        elif "digest-form" in request.POST:
+            digest_form = WeeklyDigestForm(request.POST)
+            if digest_form.is_valid():
+                digest, _ = Digest.objects.get_or_create(user=user)
+                digest.on_days = functools.reduce(
+                    operator.__or__,
+                    map(
+                        lambda t: (1 if digest_form.cleaned_data[t[1]] else 0) << t[0],
+                        enumerate(
+                            [
+                                "on_monday",
+                                "on_tuesday",
+                                "on_wednesday",
+                                "on_thursday",
+                                "on_friday",
+                                "on_saturday",
+                                "on_sunday",
+                            ]
+                        ),
+                    ),
+                )
+                digest.active = digest_form.cleaned_data["active"]
+                digest.all_stories = digest_form.cleaned_data["all_stories"]
+                digest.last_run = digest_form.cleaned_data["last_run"]
+                digest.save()
+                return redirect(reverse("account"))
+            error = form_errors_as_string(digest_form.errors)
         else:
             form = EditAccountSettings(request.POST)
             if form.is_valid():
@@ -499,10 +530,40 @@ def edit_settings(request):
         form = EditAccountSettings(initial=user._wrapped.__dict__)
     if session_form is None:
         session_form = EditSessionSettings(initial=session_settings)
+    if digest_form is None:
+        digest, _ = Digest.objects.get_or_create(user=user)
+        initial = {
+            "active": digest.active,
+            "all_stories": digest.all_stories,
+            "last_run": digest.last_run,
+        }
+        initial.update(
+            {
+                d[1]: d[0]
+                for d in zip(
+                    digest.days_list,
+                    [
+                        "on_monday",
+                        "on_tuesday",
+                        "on_wednesday",
+                        "on_thursday",
+                        "on_friday",
+                        "on_saturday",
+                        "on_sunday",
+                    ],
+                )
+            }
+        )
+        digest_form = WeeklyDigestForm(initial=initial)
     return render(
         request,
         "account/edit_settings.html",
-        {"user": user, "form": form, "session_form": session_form},
+        {
+            "user": user,
+            "form": form,
+            "session_form": session_form,
+            "digest_form": digest_form,
+        },
     )
 
 

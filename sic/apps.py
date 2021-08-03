@@ -57,6 +57,7 @@ class SicAppConfig(AppConfig):
     # minimum number of submitted stories before checking self promotion
     MIN_STORIES_CHECK_SELF_PROMOTION = 2
 
+    DIGEST_SUBJECT = "[sic] digest for"
     INVITATION_SUBJECT = "Your invitation to sic"
     INVITATION_BODY = "Visit the following url to complete your registration:"
     INVITATION_FROM = settings.DEFAULT_FROM_EMAIL
@@ -76,6 +77,7 @@ class SicAppConfig(AppConfig):
     def ready(self):
         import sic.notifications
         import sic.webmention
+        import sic.mail
 
     @staticmethod
     @lru_cache(maxsize=None)

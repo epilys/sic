@@ -309,6 +309,42 @@ class EditAccountSettings(forms.Form):
     )
 
 
+class WeeklyDigestForm(forms.Form):
+    active = forms.BooleanField(
+        required=False,
+    )
+    all_stories = forms.BooleanField(
+        required=False,
+        help_text="If false, only stories from subscribed aggregations will be considered for the digest.",
+    )
+    last_run = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date"}),
+        help_text="The last time a digest was sent. Clear to receive it again, or set to other date to change what stories you will receive in your next digest.",
+    )
+    on_monday = forms.BooleanField(
+        required=False,
+    )
+    on_tuesday = forms.BooleanField(
+        required=False,
+    )
+    on_wednesday = forms.BooleanField(
+        required=False,
+    )
+    on_thursday = forms.BooleanField(
+        required=False,
+    )
+    on_friday = forms.BooleanField(
+        required=False,
+    )
+    on_saturday = forms.BooleanField(
+        required=False,
+    )
+    on_sunday = forms.BooleanField(
+        required=False,
+    )
+
+
 class EditSessionSettings(forms.Form):
     vivid_colors = forms.BooleanField(
         initial=True,

@@ -4,6 +4,7 @@ from django.forms import ModelForm
 from django.forms.widgets import TextInput
 from django.utils.safestring import mark_safe
 from .models import *
+from .mail import Digest
 from .moderation import ModerationLogEntry
 
 
@@ -162,6 +163,7 @@ class DomainFilterAdmin(MatchFilterAdmin):
 
 
 admin.site.register(Comment, CommentAdmin)
+admin.site.register(Digest)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Hat, HatAdmin)
 admin.site.register(Invitation, InvitationAdmin)

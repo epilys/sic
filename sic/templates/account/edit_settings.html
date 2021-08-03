@@ -9,6 +9,15 @@
         </table>
         <input type="submit" value="Submit">
     </form>
+    <h2>edit weekly digest settings</h2>
+    <p class="help-text">On every selected day, you will receive a list of every story created since the last time you received a digest.</p>
+    <form method="POST" class="submit-story-form">
+        {% csrf_token %}
+        <table>
+            {{ digest_form }}
+        </table>
+        <input type="submit" name="digest-form" value="Submit">
+    </form>
     <h2>edit session settings</h2>
     <p class="help-text">These settings are stored in your browser.</p>
     <form method="POST" class="submit-story-form">
