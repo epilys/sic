@@ -116,6 +116,11 @@ class AuthToken(PasswordResetTokenGenerator):
             return False
         return token == user.auth_token
 
+    def _make_hash_value(self, user, timestamp):
+        email_field = user.get_email_field_name()
+        email = getattr(user, email_field, "") or ""
+        return f"{user.pk}{user.password}{timestamp}{email}"
+
 
 class AuthenticationForm(DjangoAuthenticationForm):
     def __init__(self, *args, **kwargs):
