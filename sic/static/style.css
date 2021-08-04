@@ -1125,11 +1125,14 @@ table.filters {
   border-collapse: collapse;
 }
 
-span.netloc {
+span.netloc,
+span.netloc a,
+span.netloc a:visited {
   color: darkslategray;
   font-style: italic;
   user-select: all;
   white-space: nowrap;
+  text-decoration: none;
 }
 
 span.netloc:before {

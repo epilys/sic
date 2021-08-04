@@ -102,6 +102,8 @@ urlpatterns = [
         view_tag,
         name="view_tag_page",
     ),
+    path("domain/<str:slug>/", domain, name="domain"),
+    path("domain/<str:slug>/page/<int:page_num>", domain, name="domain_page"),
     path("tags/", browse_tags, name="browse_tags"),
     path("tags/page/<int:page_num>/", browse_tags, name="browse_tags_page"),
     path("tags/edit/<int:tag_pk>/<slug:slug>", edit_tag, name="edit_tag"),

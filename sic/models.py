@@ -1,4 +1,4 @@
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote_plus, quote_plus
 from datetime import datetime, timedelta
 import string
 import uuid
@@ -23,6 +23,8 @@ from django.contrib.sites.models import Site
 from django.conf import settings
 from django.dispatch import receiver
 from django.db.backends.signals import connection_created
+from django.core.exceptions import ValidationError
+from django.core.validators import MinLengthValidator
 from .apps import SicAppConfig as config
 from .markdown import comment_to_html, Textractor
 from .voting import story_hotness
@@ -32,8 +34,40 @@ url_encode_translation = str.maketrans(string.digits, string.ascii_lowercase[:10
 
 
 class Domain(models.Model):
-    id = models.AutoField(primary_key=True)
-    url = models.URLField(null=False, blank=False)
+    url = models.URLField(
+        null=False, blank=False, primary_key=True, validators=[MinLengthValidator(5)]
+    )
+
+    def save(self, *args, **kwargs):
+        if len(self.url) == 0:
+            raise ValidationError(f"Domain can't be empty.")
+        try:
+            o = urlparse(self.url).netloc
+            if o.startswith("www."):
+                o = o[4:]
+            if len(o) > 0:
+                if o != self.url and Domain.objects.filter(url=o).exists():
+                    raise ValidationError(f"Domain already exists as {o}.")
+                self.url = o
+        except:
+            pass
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.url
+
+    def slugify(self):
+        return quote_plus(self.url)
+
+    @staticmethod
+    def deslugify(slug):
+        return unquote_plus(slug)
+
+    def get_absolute_url(self):
+        return reverse(
+            "domain",
+            args=[self.slugify()],
+        )
 
 
 class StoryKind(models.Model):
@@ -67,10 +101,12 @@ class Story(models.Model):
     title = models.CharField(null=False, blank=False, max_length=100)
     description = models.TextField(null=True, blank=True)
     url = models.URLField(null=True)
+    domain = models.ForeignKey(
+        Domain, on_delete=models.SET_NULL, null=True, default=None, blank=True
+    )
     created = models.DateTimeField(auto_now_add=True)
     publish_date = models.DateField(null=True, blank=True)
 
-    domain = models.ForeignKey(Domain, on_delete=models.SET_NULL, null=True, blank=True)
     merged_into = models.ForeignKey(
         "Story", on_delete=models.CASCADE, null=True, blank=True
     )
@@ -111,12 +147,11 @@ class Story(models.Model):
         )
 
     def get_domain(self):
-        if not self.url:
+        if not self.url or len(self.url) == 0:
             return None
-        o = urlparse(self.url).netloc
-        if o.startswith("www."):
-            o = o[4:]
-        return o
+        if self.domain_id is None:
+            self.save()
+        return self.domain
 
     def hotness(self):
         return story_hotness(self)
@@ -129,6 +164,15 @@ class Story(models.Model):
 
     def active_comments(self):
         return self.comments.filter(deleted=False)
+
+    def save(self, *args, **kwargs):
+        o = urlparse(self.url).netloc
+        if o.startswith("www."):
+            o = o[4:]
+        if len(o) > 0:
+            domain_obj, _ = Domain.objects.get_or_create(url=o)
+            self.domain = domain_obj
+        super().save(*args, **kwargs)
 
 
 class Message(models.Model):

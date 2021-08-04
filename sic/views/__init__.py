@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
-from ..models import Story, StoryKind, Comment, User, Invitation
+from ..models import Story, StoryKind, Comment, User, Invitation, Domain
 from ..moderation import ModerationLogEntry
 from ..forms import (
     SubmitCommentForm,
@@ -860,3 +860,51 @@ def moderation(request):
     return render(
         request, "moderation/moderation.html", {"ban_user_form": ban_user_form}
     )
+
+
+def domain(request, slug, page_num=1):
+    try:
+        domain_obj = Domain.objects.get(url=Domain.deslugify(slug))
+    except Domain.DoesNotExist:
+        raise Http404("Domain does not exist") from Domain.DoesNotExist
+    if "order_by" in request.GET:
+        request.session["domain_order_by"] = request.GET["order_by"]
+    if "ordering" in request.GET:
+        request.session["domain_ordering"] = request.GET["ordering"]
+    if page_num == 1 and request.get_full_path() != reverse("domain", args=[slug]):
+        return redirect(reverse("domain", args=[slug]))
+    order_by = request.session.get("domain_order_by", "created")
+    if order_by not in domain.ORDER_BY_FIELDS:
+        order_by = domain.ORDER_BY_FIELDS[0]
+    ordering = request.session.get("domain_ordering", "desc")
+    order_by_field = ("-" if ordering == "desc" else "") + order_by
+    stories = Story.objects.filter(active=True, domain=domain_obj).order_by(
+        order_by_field
+    )
+    paginator = Paginator(stories, config.STORIES_PER_PAGE)
+    try:
+        page = paginator.page(page_num)
+    except InvalidPage:
+        # page_num is bigger than the actual number of pages
+        return redirect(
+            reverse(
+                "domain_page",
+                args=[slug],
+                kwargs={
+                    "page_num": paginator.num_pages,
+                },
+            )
+        )
+
+    order_by_form = OrderByForm(
+        fields=domain.ORDER_BY_FIELDS,
+        initial={"order_by": order_by, "ordering": ordering},
+    )
+    return render(
+        request,
+        "posts/all_stories.html",
+        {"stories": page, "order_by_form": order_by_form, "domain": domain_obj},
+    )
+
+
+domain.ORDER_BY_FIELDS = ["created", "title"]

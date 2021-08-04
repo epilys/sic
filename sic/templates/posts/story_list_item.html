@@ -23,7 +23,7 @@
                 <input id="context-warning-{{ story.pk }}" type="checkbox"{% if show_stories_with_context_warning %} checked="checked"{% endif %}>
             {% endif %}
             <a href="{{story.get_listing_url}}" class="title">{{ story.title }}</a>
-            {% with story.get_domain as domain %}<span class="netloc">{{ domain|default_if_none:"text" }}</span>{% endwith %}
+            {% with story.get_domain as domain %}{% if domain is None %}<span class="netloc">{{ domain|default_if_none:"text" }}</span>{% else %}<span class="netloc"><a href="{{ domain.get_absolute_url }}">{{ domain }}</a></span>{% endif %}{% endwith %}
             {% if story.publish_date %}<span>Published: <time datetime="{{ story.publish_date | date:"Y-m-d" }}" title="{{ story.publish_date }}">{{ story.publish_date|naturalday }}</time></span>{% endif %}
             {% include "posts/story_tags.html" with tags=story.tags.all %}
             {% if DEBUG %}
