@@ -419,6 +419,7 @@ def submit_story(request):
                     context_warning=form.cleaned_data["context_warning"],
                 )
                 new_story.tags.set(form.cleaned_data["tags"])
+                new_story.kind.set(form.cleaned_data["kind"])
                 new_story.save()
                 return redirect(new_story.get_absolute_url())
             form.fields["title"].required = False
