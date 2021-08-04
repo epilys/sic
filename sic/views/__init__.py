@@ -26,7 +26,7 @@ from ..forms import (
 )
 from ..apps import SicAppConfig as config
 from ..markdown import comment_to_html
-from ..search import query_comments
+from ..search import query_comments, query_stories
 
 
 class HttpResponseNotImplemented(HttpResponse):
@@ -733,14 +733,22 @@ def comment_source(request, story_pk, slug, comment_pk):
 
 @require_http_methods(["GET"])
 def search(request):
-    results = None
+    comments = None
+    stories = None
     if "text" in request.GET:
         form = SearchCommentsForm(request.GET)
         if form.is_valid():
-            results = query_comments(form.cleaned_data["text"])
+            if form.cleaned_data["search_in"] in ["comments", "both"]:
+                comments = query_comments(form.cleaned_data["text"])
+            if form.cleaned_data["search_in"] in ["stories", "both"]:
+                stories = query_stories(form.cleaned_data["text"])
     else:
         form = SearchCommentsForm()
-    return render(request, "posts/search.html", {"form": form, "results": results})
+    return render(
+        request,
+        "posts/search.html",
+        {"form": form, "comments": comments, "stories": stories},
+    )
 
 
 from html.parser import HTMLParser

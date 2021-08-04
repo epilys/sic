@@ -1182,6 +1182,14 @@ div.button-flex-box {
   row-gap: .5rem;
 }
 
+div.button-flex-box-rev {
+  display: flex;
+  flex-flow: wrap;
+  flex-direction: row;
+  column-gap: 1rem;
+  row-gap: .5rem;
+}
+
 details.formatting-help li {
   list-style: revert;
 }

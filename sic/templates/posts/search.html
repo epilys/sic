@@ -2,17 +2,31 @@
 {% load humanize %}
 {% load utils %}
 {% block title %}search | sic{% endblock %}
+{% block style %}
+    <style>
+        table, td {
+            border: none;
+            text-align: left;
+        }
+
+        td>ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+    </style>
+{% endblock %}
 {% block content %}
-    <h1>comment search</h1>
-    <form action="" method="get" class="submit-story-form">
+    <h1>search</h1>
+    <form method="GET" class="submit-story-form">
         <table>
             {{ form }}
         </table>
-        <input type="submit" value="Search">
+        <div class="button-flex-box-rev"><input type="submit" value="Search"></div>
     </form>
-    {% if results %}
+    {% if comments %}
         <ul class="posts">
-            {% for comment in results %}
+            {% for comment in comments %}
                 <li class="comment no-children" id="{{comment.slugify}}">
                     <span class="links"><span class="votes">
                         <span class="score">
@@ -25,6 +39,17 @@
                     </span>
                     <span class="comment">{{ comment.snippet|escape }}</span>
                     <a href="{{ comment.get_absolute_url }}">go to comment</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% if stories %}
+        <ul class="posts">
+            {% for story in stories %}
+                {% include "posts/story_list_item.html" with story=story %}
+                <li>
+                    <span class="comment">{{ story.snippet|escape }}</span>
+                    <a href="{{ story.get_absolute_url }}">go to story</a>
                 </li>
             {% endfor %}
         </ul>

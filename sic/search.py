@@ -8,6 +8,20 @@ from django.conf import settings
 from .apps import SicAppConfig as config
 from .models import Comment, Story
 import html
+import re
+
+_escape_fts_re = re.compile(r'\s+|(".*?")')
+
+
+def escape_fts(query):
+    # If query has unbalanced ", add one at end
+    if query.count('"') % 2:
+        query += '"'
+    bits = _escape_fts_re.split(query)
+    bits = [b for b in bits if b and b != '""']
+    return " ".join(
+        '"{}"'.format(bit) if not bit.startswith('"') else bit for bit in bits
+    )
 
 
 def run_once(f):
@@ -31,8 +45,6 @@ def fts5_setup(sender, connection, **kwargs):
     with connection.cursor() as cursor:
         cursor.execute("PRAGMA database_list;")
         has_fts = False
-        fts5_comments_table_exists = False
-        fts5_stories_table_exists = False
         for row in cursor.fetchall():
             if row[1] == config.FTS_DATABASE_NAME:
                 has_fts = True
@@ -45,27 +57,62 @@ def fts5_setup(sender, connection, **kwargs):
                 },
             )
         cursor.execute(
-            f"SELECT name FROM {config.FTS_DATABASE_NAME}.sqlite_master WHERE name = '{config.FTS_COMMENTS_TABLE_NAME}'"
+            f"CREATE VIRTUAL TABLE IF NOT EXISTS {config.FTS_DATABASE_NAME}.{config.FTS_COMMENTS_TABLE_NAME} USING fts5(id UNINDEXED, text);"
         )
-        try:
-            fts5_comments_table_exists = len(cursor.fetchone()) != 0
-        except:
-            pass
-        if not fts5_comments_table_exists:
-            cursor.execute(
-                f"CREATE VIRTUAL TABLE {config.FTS_DATABASE_NAME}.{config.FTS_COMMENTS_TABLE_NAME} USING fts5(id UNINDEXED, text);"
-            )
         cursor.execute(
-            f"SELECT name FROM {config.FTS_DATABASE_NAME}.sqlite_master WHERE name = '{config.FTS_STORIES_TABLE_NAME}'"
+            f"CREATE TABLE IF NOT EXISTS {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}_content (id INTEGER PRIMARY KEY, title TEXT, description TEXT, url TEXT, remote_content TEXT);"
         )
-        try:
-            fts5_stories_table_exists = len(cursor.fetchone()) != 0
-        except:
-            pass
-        if not fts5_stories_table_exists:
-            cursor.execute(
-                f"CREATE VIRTUAL TABLE {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME} USING fts5(id UNINDEXED, title, description);"
-            )
+        cursor.execute(
+            f"CREATE VIRTUAL TABLE IF NOT EXISTS {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME} USING fts5(id UNINDEXED, title, description, url, remote_content, content={config.FTS_STORIES_TABLE_NAME}_content, content_rowid=id);"
+        )
+
+
+#        cursor.execute(
+#            f"""CREATE TEMP TRIGGER IF NOT EXISTS on_insert_story_ins AFTER INSERT ON main.sic_storyremotecontent FOR EACH ROW
+# BEGIN
+#    INSERT OR IGNORE INTO {config.FTS_STORIES_TABLE_NAME}_content (id) VALUES (NEW.story_id);
+#    UPDATE {config.FTS_STORIES_TABLE_NAME}_content SET remote_content = NEW.content WHERE id = NEW.story_id;
+#    UPDATE {config.FTS_STORIES_TABLE_NAME} SET remote_content = NEW.content WHERE id = NEW.story_id;
+# END;"""
+#        )
+#        cursor.execute(
+#            f"""CREATE TEMP TRIGGER IF NOT EXISTS on_insert_story_upd AFTER UPDATE of content ON main.sic_storyremotecontent FOR EACH ROW
+# BEGIN
+#    INSERT OR IGNORE INTO {config.FTS_STORIES_TABLE_NAME}_content (id) VALUES (NEW.story_id);
+#    UPDATE {config.FTS_STORIES_TABLE_NAME}_content SET remote_content = NEW.content WHERE id = NEW.story_id;
+#    UPDATE {config.FTS_STORIES_TABLE_NAME} SET remote_content = NEW.content WHERE id = NEW.story_id;
+# END;"""
+#        )
+#        cursor.execute(
+#            f"""CREATE TEMP TRIGGER IF NOT EXISTS on_insert_story_del AFTER DELETE ON main.sic_storyremotecontent FOR EACH ROW
+# BEGIN
+#    INSERT OR IGNORE INTO {config.FTS_STORIES_TABLE_NAME}_content (id) VALUES (NEW.story_id);
+#    UPDATE {config.FTS_STORIES_TABLE_NAME}_content SET remote_content = NULL WHERE id = NEW.story_id;
+#    UPDATE {config.FTS_STORIES_TABLE_NAME} SET remote_content = NULL WHERE id = NEW.story_id;
+# END;"""
+#        )
+#        cursor.execute(
+#            f"""CREATE TRIGGER IF NOT EXISTS {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}_content_ai AFTER INSERT ON {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}_content
+# BEGIN
+#    INSERT INTO {config.FTS_STORIES_TABLE_NAME}(id, title, description, url, remote_content)
+#        VALUES (NEW.id, NEW.title, NEW.description, NEW.url, NULL);
+# END;"""
+#        )
+#        cursor.execute(
+#            f"""CREATE TRIGGER IF NOT EXISTS {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}_content_ad AFTER DELETE ON {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}_content
+# BEGIN
+#    DELETE FROM {config.FTS_STORIES_TABLE_NAME} WHERE id = OLD.id;
+# END;"""
+#        )
+#
+#        cursor.execute(
+#            f"""CREATE TRIGGER IF NOT EXISTS {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}_content_au AFTER UPDATE ON {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}_content
+# BEGIN
+#    DELETE FROM {config.FTS_STORIES_TABLE_NAME} WHERE id = OLD.id;
+#    INSERT INTO {config.FTS_STORIES_TABLE_NAME}(id, title, description, url, remote_content)
+#        VALUES (NEW.id, NEW.title, NEW.description, NEW.url, NULL);
+# END;"""
+#        )
 
 
 def index_comment(obj: Comment):
@@ -78,10 +125,29 @@ def index_comment(obj: Comment):
 
 
 def index_story(obj: Story):
+    try:
+        remote_content = obj.remote_content.content
+    except:
+        remote_content = None
     with connections["default"].cursor() as cursor:
         cursor.execute(
-            f"INSERT OR REPLACE INTO {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}(id, title, description) VALUES (:id, :title, :description)",
-            {"id": obj.pk, "title": obj.title, "description": obj.description},
+            f"INSERT OR REPLACE INTO {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}_content(id, title, description, remote_content) VALUES (:id, :title, :description, :remote_content)",
+            {
+                "id": obj.pk,
+                "title": obj.title,
+                "description": obj.description_to_plain_text().strip(),
+                "remote_content": remote_content,
+            },
+        )
+        cursor.execute(
+            f"INSERT OR REPLACE INTO {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}(id, title, description, url, remote_content) VALUES (:id, :title, :description, :url, :remote_content)",
+            {
+                "id": obj.pk,
+                "title": obj.title,
+                "description": obj.description_to_plain_text().strip(),
+                "url": obj.url,
+                "remote_content": remote_content,
+            },
         )
 
 
@@ -91,8 +157,8 @@ def query_comments(query_string: str):
         Comment.objects.all()
         .filter(
             id__in=RawSQL(
-                f"select id from {config.FTS_DATABASE_NAME}.{config.FTS_COMMENTS_TABLE_NAME}('\"{escaped}\"')",
-                (),
+                f"select id from {config.FTS_DATABASE_NAME}.{config.FTS_COMMENTS_TABLE_NAME}('\"{escape_fts(escaped)}\"')",
+                [],
             ),
             deleted=False,
         )
@@ -106,6 +172,29 @@ def query_comments(query_string: str):
         for obj in comments:
             obj.snippet = mark_safe(snippets[obj.pk])
     return comments
+
+
+def query_stories(query_string: str):
+    escaped = html.escape(query_string)
+    stories = (
+        Story.objects.all()
+        .filter(
+            id__in=RawSQL(
+                f"select id from {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}('\"{escaped}\"')",
+                (),
+            ),
+            active=True,
+        )
+        .order_by("-created")
+    )
+    with connections["default"].cursor() as cursor:
+        cursor.execute(
+            f"select id, snippet({config.FTS_STORIES_TABLE_NAME},-1,'<mark>','</mark>','\u200a[…]\u200a',36) as snippet from {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}('\"{escaped}\"')"
+        )
+        snippets = {i[0]: i[1] for i in cursor.fetchall()}
+        for obj in stories:
+            obj.snippet = mark_safe(snippets[obj.pk])
+    return stories
 
 
 @receiver(post_save, sender=Comment)

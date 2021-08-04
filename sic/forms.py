@@ -385,6 +385,21 @@ class EditHatForm(forms.Form):
 
 class SearchCommentsForm(forms.Form):
     text = forms.CharField(required=True, label="full text query", max_length=500)
+    search_in = forms.ChoiceField(
+        required=True,
+        label="search in",
+        choices=[("comments", "comments"), ("stories", "stories") , ("both", "both")],
+        initial="both",
+        widget=forms.RadioSelect
+    )
+    order_by = forms.ChoiceField(required=True, label="order by", choices=[("newest", "newest"), ("karma", "karma"), ("relevance", "relevance"), ], initial="relevance")
+    ordering = forms.TypedChoiceField(
+        required=True,
+        label="",
+        coerce=lambda c: c == "asc",
+        choices=[("asc", "ascending"), ("desc", "descending")],
+        initial="desc",
+    )
 
 
 def validate_user(value):
