@@ -1036,3 +1036,20 @@ FROM
 WHERE
     exclude_filter.storyfilter_id = matchfilter.storyfilter_ptr_id;"""
         )
+
+
+class StoryRemoteContent(models.Model):
+    story = models.OneToOneField(
+        "Story",
+        related_name="remote_content",
+        on_delete=models.CASCADE,
+        null=False,
+        unique=True,
+        primary_key=True,
+    )
+    url = models.URLField(null=False, blank=False)
+    content = models.TextField(null=False, blank=False)
+    retrieved_at = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.story} {self.url} {len(self.content)} bytes"
