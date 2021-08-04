@@ -534,14 +534,7 @@ body>main>ul.posts>li.story .votes{
 
 body>main>ul.posts>li.story div.title{
   grid-area: title;
-  display: flex;
-  gap: 4px;
-  flex-flow: wrap;
   max-width: max-content;
-}
-
-div.title>ul.tags {
-  margin-left: auto;
 }
 
 a.title {
@@ -569,6 +562,11 @@ div.context-warning:before{
 
 body>main>ul.posts>li.story .links{
   grid-area: links;
+  color: #4d4d4d;
+}
+body>main>ul.posts>li.story .links a,
+body>main>ul.posts>li.story .links a:visited {
+  color: #4141c7;
 }
 
 .votes {
@@ -908,15 +906,23 @@ span.comment {
   display: block;
 }
 
+ul.tags.inline {
+  display: contents;
+}
+
 ul.tags {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: inline-flex;
-  flex-flow: wrap;
-  row-gap: 4px;
-  column-gap: 3px;
   height: max-content;
+  vertical-align: bottom;
+  display: flex;
+  gap: 4px;
+  flex-flow: row wrap;
+}
+
+ul.tags li.tag:not(:nth-last-child(1)) {
+  margin-right: 3px;
 }
 
 .tag {
@@ -1136,7 +1142,7 @@ span.netloc a:visited {
 }
 
 span.netloc:before {
-  content:"( ";
+  content:"(";
   font-style: normal;
 }
 
@@ -1148,6 +1154,7 @@ span.netloc:after {
 span.tag-name a {
   text-decoration: none;
   color: inherit;
+  vertical-align:middle;
 }
 
 span.build, span.build a:visited {
