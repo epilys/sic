@@ -631,6 +631,7 @@ def edit_story(request, story_pk, slug=None):
                 story_obj.user_is_author = form.cleaned_data["user_is_author"]
                 story_obj.tags.set(form.cleaned_data["tags"])
                 story_obj.kind.set(form.cleaned_data["kind"])
+                story_obj.publish_date = form.cleaned_data["publish_date"]
                 story_obj.context_warning = form.cleaned_data["context_warning"]
                 story_obj.save()
                 return redirect(story_obj.get_absolute_url())
