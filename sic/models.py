@@ -471,6 +471,20 @@ class Taggregation(models.Model):
             else None
         )
 
+    @staticmethod
+    def last_actives(taggregations):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"SELECT MAX(last_active) FROM taggregation_last_active WHERE taggregation_id IN ({','.join([str(t.pk) for t in taggregations])})",
+                [],
+            )
+            last_active = cursor.fetchone()
+        return (
+            make_aware(datetime.fromisoformat(last_active[0]))
+            if (last_active and last_active[0])
+            else None
+        )
+
     class Meta:
         ordering = ["name"]
 

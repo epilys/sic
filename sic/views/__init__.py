@@ -15,6 +15,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods, condition
+from django.db.models import Max
 from ..models import Story, StoryKind, Comment, User, Invitation, Domain
 from ..moderation import ModerationLogEntry
 from ..forms import (
@@ -283,12 +284,86 @@ def agg_index(request, taggregation_pk, slug, page_num=1):
     )
 
 
+def index_etag_fn(request, page_num=1):
+    # This resource depends on the following:
+    #
+    # ├─ notification count in nav menu (if new messages arrive or existing messages are read, the count changes)
+    # ├─ last_modified of all aggregations (name, description etc)
+    # ├─ last_active of all stories of all aggregations
+    # └─ last_modified of all tags of all aggregations (name, hex_color) (currently ignored/not computed)
+    #
+
+    default = True
+    last_modifieds = None
+    last_actives = None
+    notifications_active = None
+    m = hashlib.sha256()
+
+    if request.user.is_authenticated:
+        m.update(bytes(request.user.get_session_auth_hash(), "utf-8"))
+        latest = Notification.latest(request.user)
+        if latest:
+            notifications_active = latest
+        taggregations = request.user.taggregation_subscriptions.all()
+        if taggregations.exists():
+            default = False
+            last_actives = Taggregation.last_actives(taggregations)
+            last_modifieds = taggregations.aggregate(m=Max("last_modified"))["m"]
+
+    if default:
+        taggregations = Taggregation.objects.filter(default=True)
+        if not taggregations.exists():
+            latest = Story.objects.filter(active=True).latest("last_active")
+            last_actives = latest.last_active if latest else make_aware(datetime.now())
+        last_actives = Taggregation.last_actives(taggregations)
+        last_modifieds = taggregations.aggregate(m=Max("last_modified"))["m"]
+
+    if last_actives:
+        m.update(bytes(str(last_actives.timestamp()), "utf-8"))
+    if last_modifieds:
+        m.update(bytes(str(last_modifieds.timestamp()), "utf-8"))
+    if notifications_active:
+        m.update(bytes(str(notifications_active.timestamp()), "utf-8"))
+
+    return m.hexdigest()
+
+
+def index_last_modified_fn(request, page_num=1):
+    default = True
+    notifications_active = None
+
+    if request.user.is_authenticated:
+        latest = Notification.latest(request.user)
+        if latest:
+            notifications_active = latest
+        taggregations = request.user.taggregation_subscriptions.all()
+        if taggregations.exists():
+            default = False
+            last_actives = Taggregation.last_actives(taggregations)
+            last_modifieds = taggregations.aggregate(m=Max("last_modified"))["m"]
+
+    if default:
+        taggregations = Taggregation.objects.filter(default=True)
+        if not taggregations.exists():
+            latest = Story.objects.filter(active=True).latest("last_active")
+            return latest.last_active if latest else make_aware(datetime.now())
+        last_actives = Taggregation.last_actives(taggregations)
+        last_modifieds = taggregations.aggregate(m=Max("last_modified"))["m"]
+        notifications_active = last_actives or last_modifieds
+
+    return (
+        max(last_modifieds, last_actives, notifications_active)
+        if notifications_active
+        else None
+    )
+
+
+@condition(etag_func=index_etag_fn, last_modified_func=index_last_modified_fn)
 def index(request, page_num=1):
     if page_num == 1 and request.get_full_path() != reverse("index"):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
         return redirect(reverse("index"))
     stories = None
-    taggregations = Taggregation.objects.filter(default=True)
     has_subscriptions = False
     # Figure out what to show in the index
     # If user is authenticated AND has subscribed aggregations, show the set union of them
