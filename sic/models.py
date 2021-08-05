@@ -105,6 +105,7 @@ class Story(models.Model):
         Domain, on_delete=models.SET_NULL, null=True, default=None, blank=True
     )
     created = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now_add=True)
     publish_date = models.DateField(null=True, blank=True)
 
     merged_into = models.ForeignKey(
@@ -220,6 +221,7 @@ class Comment(models.Model):
     )
     deleted = models.BooleanField(default=False, null=False, blank=True)
     created = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now_add=True)
     text = models.TextField(null=True, blank=False)
 
     def __str__(self):
@@ -890,6 +892,7 @@ class CommentBookmark(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now_add=True)
     annotation = models.TextField(null=True, blank=True)
 
     class Meta:
@@ -901,6 +904,7 @@ class StoryBookmark(models.Model):
     story = models.ForeignKey(Story, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now_add=True)
     annotation = models.TextField(null=True, blank=True)
 
     class Meta:
