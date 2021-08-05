@@ -846,6 +846,50 @@ def upvote_comment(request, story_pk, slug, comment_pk):
     return redirect(reverse("index"))
 
 
+def recent_comments_etag_fn(request, page_num=1):
+    # This resource depends on the following:
+    #
+    # ├─ notification count in nav menu (if new messages arrive or existing messages are read, the count changes)
+    # └─ last_active of all stories of all comments
+    #
+
+    m = hashlib.sha256()
+
+    if request.user.is_authenticated:
+        m.update(bytes(request.user.get_session_auth_hash(), "utf-8"))
+        latest = Notification.latest(request.user)
+        if latest:
+            m.update(bytes(str(latest.timestamp()), "utf-8"))
+
+    latest = Comment.objects.filter(deleted=False).latest("story__last_active")
+    if latest:
+        m.update(bytes(str(latest.story.last_active.timestamp()), "utf-8"))
+
+    return m.hexdigest()
+
+
+def recent_comments_last_modified_fn(request, page_num=1):
+    notifications_active = None
+
+    if request.user.is_authenticated:
+        l = Notification.latest(request.user)
+        if l:
+            notifications_active = l
+    latest = Comment.objects.filter(deleted=False).latest("story__last_active")
+    latest = latest.story.last_active if latest else None
+
+    if notifications_active and latest:
+        return max(latest, notifications_active)
+    elif notifications_active:
+        return notifications_active
+    else:
+        return latest
+
+
+@condition(
+    etag_func=recent_comments_etag_fn,
+    last_modified_func=recent_comments_last_modified_fn,
+)
 def recent_comments(request, page_num=1):
     if page_num == 1 and request.get_full_path() != reverse("recent_comments"):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
