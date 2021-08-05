@@ -10,8 +10,10 @@ from django.core.paginator import Paginator, InvalidPage
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
+from django.utils.timezone import make_aware
 from django.views.decorators.http import require_http_methods
 import functools, operator
+from datetime import datetime
 from wand.image import Image
 from ..auth import AuthToken
 from ..models import (
@@ -330,7 +332,6 @@ def accept_invite(request, invite_pk):
                 body=f"You can view {user}'s profile at {user.get_absolute_url()}.",
                 caused_by=user,
                 url=user.get_absolute_url(),
-                active=True,
             )
             messages.add_message(request, messages.SUCCESS, "Welcome")
             return redirect(reverse("account"))
@@ -570,9 +571,9 @@ def edit_settings(request):
 @login_required
 def notifications(request):
     user = request.user
-    actives = list(user.notifications.filter(active=True).order_by("-created"))
-    rest = list(user.notifications.filter(active=False).order_by("-created"))
-    user.notifications.filter(active=True).update(active=False)
+    actives = list(user.notifications.filter(read__isnull=True).order_by("-created"))
+    rest = list(user.notifications.filter(read__isnull=False).order_by("-created"))
+    user.notifications.filter(read__isnull=True).update(read=make_aware(datetime.now()))
     return render(
         request,
         "account/notifications.html",

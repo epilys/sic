@@ -5,7 +5,7 @@ import uuid
 import itertools
 import abc
 import collections
-from django.db import models
+from django.db import models, connection
 from django.db.models.expressions import RawSQL
 from django.contrib.auth.models import (
     BaseUserManager,
@@ -106,6 +106,7 @@ class Story(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True)
+    last_active = models.DateTimeField(auto_now_add=True, null=False)
     publish_date = models.DateField(null=True, blank=True)
 
     merged_into = models.ForeignKey(
@@ -456,6 +457,19 @@ class Taggregation(models.Model):
             "stories": stories,
             "taggregations": taggregations,
         }
+
+    def last_active(self):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT last_active FROM taggregation_last_active WHERE taggregation_id = %s",
+                [self.pk],
+            )
+            last_active = cursor.fetchone()
+        return (
+            make_aware(datetime.fromisoformat(last_active[0]))
+            if (last_active and last_active[0])
+            else None
+        )
 
     class Meta:
         ordering = ["name"]
@@ -850,7 +864,7 @@ class User(PermissionsMixin, AbstractBaseUser):
         return self.is_admin
 
     def active_notifications(self):
-        return self.notifications.filter(active=True).order_by("-created")
+        return self.notifications.filter(read__isnull=True).order_by("-created")
 
     def metadata_fields(self):
         ret = []
@@ -935,7 +949,7 @@ class Notification(models.Model):
         choices=Kind.choices,
         default=Kind.OTHER,
     )
-    active = models.BooleanField(default=False, null=False)
+    read = models.DateTimeField(default=None, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -975,6 +989,20 @@ class Notification(models.Model):
             messages.add_message(
                 request, messages.ERROR, f"Could not send notification. Error: {error}"
             )
+
+    @staticmethod
+    def latest(user):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT MAX(MAX(created), MAX(read)) FROM sic_notification WHERE user_id = %s;",
+                [user.pk],
+            )
+            latest = cursor.fetchone()
+        return (
+            make_aware(datetime.fromisoformat(latest[0]))
+            if (latest and latest[0])
+            else None
+        )
 
 
 class Webmention(models.Model):
@@ -1083,6 +1111,90 @@ FROM
     sic_domainfilter AS domainfilter
 WHERE
     exclude_filter.storyfilter_id = matchfilter.storyfilter_ptr_id;"""
+        )
+
+
+@receiver(connection_created)
+def last_modified_triggers(sender, connection, **kwargs):
+    from django.db import migrations
+
+    if getattr(migrations, "MIGRATION_OPERATION_IN_PROGRESS", False):
+        return
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_aggregation AFTER UPDATE OF name, description, 'default', discoverable, private ON sic_taggregation FOR EACH ROW
+BEGIN
+    UPDATE sic_taggregation
+    SET last_modified = strftime('%Y-%m-%d %H:%M:%f000', 'now')
+WHERE
+    id = NEW.id;
+END;"""
+        )
+        cursor.execute(
+            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_story_on_insert_comment AFTER INSERT ON sic_comment FOR EACH ROW
+BEGIN
+    UPDATE sic_story
+    SET last_active = NEW.last_modified
+WHERE
+    id = NEW.story_id;
+END;"""
+        )
+        cursor.execute(
+            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_story_on_update_comment AFTER UPDATE OF last_modified ON sic_comment FOR EACH ROW
+BEGIN
+    UPDATE sic_story
+    SET last_active = NEW.last_modified
+WHERE
+    id = NEW.story_id;
+END;"""
+        )
+        cursor.execute(
+            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_story_on_delete_comment AFTER DELETE ON sic_comment FOR EACH ROW
+BEGIN
+    UPDATE sic_story
+    SET last_active = strftime('%Y-%m-%d %H:%M:%f000', 'now')
+WHERE
+    id = OLD.story_id;
+END;"""
+        )
+        cursor.execute(
+            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_story_on_insert_vote AFTER INSERT ON sic_vote FOR EACH ROW
+BEGIN
+    UPDATE sic_story
+    SET last_active = NEW.created
+WHERE
+    id = NEW.story_id;
+END;"""
+        )
+        cursor.execute(
+            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_story_on_update_vote AFTER UPDATE ON sic_vote FOR EACH ROW
+BEGIN
+    UPDATE sic_story
+    SET last_active = strftime('%Y-%m-%d %H:%M:%f000', 'now')
+WHERE
+    id = NEW.story_id;
+END;"""
+        )
+        cursor.execute(
+            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_story_on_delete_vote AFTER DELETE ON sic_vote FOR EACH ROW
+BEGIN
+    UPDATE sic_story
+    SET last_active = strftime ('%Y-%m-%d %H:%M:%f000', 'now')
+WHERE
+    id = OLD.story_id;
+END;"""
+        )
+        cursor.execute(
+            """CREATE TEMPORARY VIEW taggregation_last_active AS
+SELECT
+    MAX(s.last_active) AS last_active,
+    v.taggregation_id AS taggregation_id
+FROM
+    sic_story AS s
+    JOIN sic_story_tags AS t ON t.story_id = s.id
+    JOIN taggregation_tags AS v ON v.tag_id = t.tag_id
+GROUP BY
+    taggregation_id;"""
         )
 
 

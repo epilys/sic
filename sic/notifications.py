@@ -30,7 +30,6 @@ def comment_save_receiver(
             body=f"{comment.user} has replied to your {target}:\n\n{plain_text_comment}",
             caused_by=comment.user,
             url=comment.get_absolute_url(),
-            active=True,
         )
     with connections["default"].cursor() as cursor:
         mentioned_users = User.objects.filter(
@@ -53,7 +52,6 @@ def comment_save_receiver(
                     body=f"{comment.user} has mentioned you:\n\n{plain_text_comment}",
                     caused_by=comment.user,
                     url=comment.get_absolute_url(),
-                    active=True,
                 )
 
 
@@ -70,7 +68,6 @@ def message_sent_receiver(
             body=message.body if message.body else "",
             caused_by=message.author,
             url=message.get_absolute_url(),
-            active=True,
         )
 
 
