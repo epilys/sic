@@ -10,18 +10,15 @@ from .models import Comment, Story
 import html
 import re
 
-_escape_fts_re = re.compile(r'\s+|(".*?")')
-
-
 def escape_fts(query):
-    # If query has unbalanced ", add one at end
-    if query.count('"') % 2:
-        query += '"'
-    bits = _escape_fts_re.split(query)
-    bits = [b for b in bits if b and b != '""']
-    return " ".join(
-        '"{}"'.format(bit) if not bit.startswith('"') else bit for bit in bits
-    )
+    query = query.replace("'", "")
+    query = query.replace("&", "")
+    query = query.replace("!", "")
+    query = query.replace("#", "")
+    query = query.replace("$", "")
+    query = query.replace("%", "")
+    query = query.replace('"', "")
+    return query
 
 
 def run_once(f):
@@ -152,12 +149,11 @@ def index_story(obj: Story):
 
 
 def query_comments(query_string: str):
-    escaped = html.escape(query_string)
     comments = (
         Comment.objects.all()
         .filter(
             id__in=RawSQL(
-                f"select id from {config.FTS_DATABASE_NAME}.{config.FTS_COMMENTS_TABLE_NAME}('\"{escape_fts(escaped)}\"')",
+                f"select id from {config.FTS_DATABASE_NAME}.{config.FTS_COMMENTS_TABLE_NAME}('\"{escape_fts(query_string)}\"')",
                 [],
             ),
             deleted=False,
@@ -166,7 +162,7 @@ def query_comments(query_string: str):
     )
     with connections["default"].cursor() as cursor:
         cursor.execute(
-            f"select id, snippet({config.FTS_COMMENTS_TABLE_NAME},-1,'<mark>','</mark>','\u200a[…]\u200a',36) as snippet from {config.FTS_DATABASE_NAME}.{config.FTS_COMMENTS_TABLE_NAME}('\"{escaped}\"')"
+            f"select id, snippet({config.FTS_COMMENTS_TABLE_NAME},-1,'<mark>','</mark>','\u200a[…]\u200a',36) as snippet from {config.FTS_DATABASE_NAME}.{config.FTS_COMMENTS_TABLE_NAME}('\"{escape_fts(query_string)}\"')"
         )
         snippets = {i[0]: i[1] for i in cursor.fetchall()}
         for obj in comments:
@@ -175,12 +171,11 @@ def query_comments(query_string: str):
 
 
 def query_stories(query_string: str):
-    escaped = html.escape(query_string)
     stories = (
         Story.objects.all()
         .filter(
             id__in=RawSQL(
-                f"select id from {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}('\"{escaped}\"')",
+                f"select id from {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}('\"{escape_fts(query_string)}\"')",
                 (),
             ),
             active=True,
@@ -189,7 +184,7 @@ def query_stories(query_string: str):
     )
     with connections["default"].cursor() as cursor:
         cursor.execute(
-            f"select id, snippet({config.FTS_STORIES_TABLE_NAME},-1,'<mark>','</mark>','\u200a[…]\u200a',36) as snippet from {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}('\"{escaped}\"')"
+            f"select id, snippet({config.FTS_STORIES_TABLE_NAME},-1,'<mark>','</mark>','\u200a[…]\u200a',36) as snippet from {config.FTS_DATABASE_NAME}.{config.FTS_STORIES_TABLE_NAME}('\"{escape_fts(query_string)}\"')"
         )
         snippets = {i[0]: i[1] for i in cursor.fetchall()}
         for obj in stories:
