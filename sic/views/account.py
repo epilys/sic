@@ -333,8 +333,12 @@ def accept_invite(request, invite_pk):
                 caused_by=user,
                 url=user.get_absolute_url(),
             )
-            messages.add_message(request, messages.SUCCESS, "Welcome")
-            return redirect(reverse("account"))
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                "Welcome aboard! You can familiarise yourself with the website by reading this page.",
+            )
+            return redirect(reverse("help"))
     else:
         return redirect(reverse("index"))
     return render(request, "account/signup.html", {"form": form})

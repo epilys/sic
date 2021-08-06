@@ -34,6 +34,11 @@ urlpatterns = [
         "about/", TemplateView.as_view(template_name="about/about.html"), name="about"
     ),
     path(
+        "about/help/",
+        TemplateView.as_view(template_name="about/help.html"),
+        name="help",
+    ),
+    path(
         "about/purpose",
         TemplateView.as_view(template_name="about/purpose.html"),
         name="purpose",

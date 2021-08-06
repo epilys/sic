@@ -1,0 +1,253 @@
+<svg id="svg" version="1.1" viewBox="0 0 475 256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="ad">
+      <path d="m36 36h770v524h-770z"/>
+    </clipPath>
+    <clipPath id="o">
+      <path d="m312 51h22v13h-22z"/>
+    </clipPath>
+    <clipPath id="n">
+      <path d="m316 51h13c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-13c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3z"/>
+    </clipPath>
+    <clipPath id="j">
+      <path d="m312 51h22v13h-22z"/>
+    </clipPath>
+    <clipPath id="c">
+      <path d="m225 113h39v13h-39z"/>
+    </clipPath>
+    <clipPath id="b">
+      <path d="m229 113h31c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-31c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3z"/>
+    </clipPath>
+    <clipPath id="a">
+      <path d="m225 113h40v13h-40z"/>
+    </clipPath>
+    <clipPath id="ak">
+      <path d="m441 113h26v13h-26z"/>
+    </clipPath>
+    <clipPath id="aj">
+      <path d="m445 113h18c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-18c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3z"/>
+    </clipPath>
+    <clipPath id="ai">
+      <path d="m441 113h27v13h-27z"/>
+    </clipPath>
+    <clipPath id="ah">
+      <path d="m361 113h53v13h-53z"/>
+    </clipPath>
+    <clipPath id="ag">
+      <path d="m366 113h44c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-44c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3z"/>
+    </clipPath>
+    <clipPath id="af">
+      <path d="m361 113h54v13h-54z"/>
+    </clipPath>
+    <clipPath id="ae">
+      <path d="m284 113h68v13h-68z"/>
+    </clipPath>
+    <clipPath id="ac">
+      <path d="m289 113h59c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-59c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3z"/>
+    </clipPath>
+    <clipPath id="ab">
+      <path d="m284 113h69v13h-69z"/>
+    </clipPath>
+    <clipPath id="aa">
+      <path d="m215 175h62v13h-62z"/>
+    </clipPath>
+    <clipPath id="z">
+      <path d="m219 175h53c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-53c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3z"/>
+    </clipPath>
+    <clipPath id="y">
+      <path d="m214 175h63v14h-63z"/>
+    </clipPath>
+    <clipPath id="x">
+      <path d="m372 175h39v13h-39z"/>
+    </clipPath>
+    <clipPath id="w">
+      <path d="m376 175h30c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-30c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3z"/>
+    </clipPath>
+    <clipPath id="v">
+      <path d="m372 175h39v14h-39z"/>
+    </clipPath>
+    <clipPath id="u">
+      <path d="m375 51h36v13h-36z"/>
+    </clipPath>
+    <clipPath id="t">
+      <path d="m379 51h27c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-27c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3z"/>
+    </clipPath>
+    <clipPath id="s">
+      <path d="m374 51h37v13h-37z"/>
+    </clipPath>
+    <clipPath id="r">
+      <path d="m492 113h44v13h-44z"/>
+    </clipPath>
+    <clipPath id="q">
+      <path d="m497 113h36c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-36c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3z"/>
+    </clipPath>
+    <clipPath id="p">
+      <path d="m492 113h45v13h-45z"/>
+    </clipPath>
+    <clipPath id="m">
+      <path d="m433 51h42v13h-42z"/>
+    </clipPath>
+    <clipPath id="l">
+      <path d="m437 51h33c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-33c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3z"/>
+    </clipPath>
+    <clipPath id="k">
+      <path d="m433 51h42v13h-42z"/>
+    </clipPath>
+    <clipPath id="i">
+      <path d="m220 51h49v13h-49z"/>
+    </clipPath>
+    <clipPath id="h">
+      <path d="m224 51h40c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-40c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3z"/>
+    </clipPath>
+    <clipPath id="g">
+      <path d="m220 51h49v13h-49z"/>
+    </clipPath>
+    <clipPath id="f">
+      <path d="m495 51h41v13h-41z"/>
+    </clipPath>
+    <clipPath id="e">
+      <path d="m499 51h32c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-32c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3z"/>
+    </clipPath>
+    <clipPath id="d">
+      <path d="m495 51h41v13h-41z"/>
+    </clipPath>
+  </defs>
+  <g transform="matrix(1.3 0 0 1.3 -264 -48)">
+    <g transform="matrix(.46 0 0 .37 181 23)">
+      <g clip-path="url(#ad)">
+        <path d="m36 36h770v524h-770z" fill="#fff"/>
+      </g>
+    </g>
+    <g clip-path="url(#o)">
+      <g clip-path="url(#n)">
+        <path d="m311 51h22v13h-22z" fill="#00599a"/>
+      </g>
+    </g>
+    <g clip-path="url(#j)">
+      <path d="m316 51h13c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-13c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3zm13 0.57h-13c-2.1 0-3.7 1.7-3.7 3.7v4.3c0 2.1 1.7 3.7 3.7 3.7h13c2.1 0 3.7-1.7 3.7-3.7v-4.3c0-2.1-1.7-3.7-3.7-3.7z" fill-opacity=".37"/>
+      <text transform="translate(316 60)" fill="#ffffff" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0 5.4826069 9.8797312" y="0">art</tspan></text>
+    </g>
+    <g clip-path="url(#c)">
+      <g clip-path="url(#b)">
+        <path d="m225 113h39v13h-39z" fill="#fff"/>
+      </g>
+    </g>
+    <g clip-path="url(#a)">
+      <path d="m229 113h31c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-31c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3zm31 0.57h-31c-2.1 0-3.7 1.7-3.7 3.7v4.3c0 2.1 1.7 3.7 3.7 3.7h31c2.1 0 3.7-1.7 3.7-3.7v-4.3c0-2.1-1.7-3.7-3.7-3.7z" fill-opacity=".37"/>
+      <text transform="translate(229 122)" fill="#000000" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0 5.8873634 11.323976 16.043064 18.977547 24.86491" y="0">design</tspan></text>
+    </g>
+    <path d="m304 71c-9.7 7.6-21 17-32 25" fill="none" stroke="#000" stroke-width=".86"/>
+    <path d="m274 98-8.6 3 4.9-7.7z" stroke="#000" stroke-width=".86"/>
+    <g clip-path="url(#ak)">
+      <g clip-path="url(#aj)">
+        <path d="m441 113h26v13h-26z" fill="#474747"/>
+      </g>
+    </g>
+    <g clip-path="url(#ai)">
+      <path d="m445 113h18c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-18c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3zm18 0.57h-18c-2.1 0-3.7 1.7-3.7 3.7v4.3c0 2.1 1.7 3.7 3.7 3.7h18c2.1 0 3.7-1.7 3.7-3.7v-4.3c0-2.1-1.7-3.7-3.7-3.7z" fill-opacity=".37"/>
+      <text transform="translate(445 122)" fill="#ffffff" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0" y="0">ﬁ</tspan></text>
+      <text transform="translate(451 122)" fill="#ffffff" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0 2.9344826" y="0">lm</tspan></text>
+    </g>
+    <path d="m347 65c19 8.6 46 21 77 36" fill="none" stroke="#000" stroke-width=".86"/>
+    <path d="m426 99 6.5 6.5-9.1-1z" stroke="#000" stroke-width=".86"/>
+    <g clip-path="url(#ah)">
+      <g clip-path="url(#ag)">
+        <path d="m361 113h53v13h-53z" fill="#5fad47"/>
+      </g>
+    </g>
+    <g clip-path="url(#af)">
+      <path d="m366 113h44c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-44c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3zm44 0.57h-44c-2.1 0-3.7 1.7-3.7 3.7v4.3c0 2.1 1.7 3.7 3.7 3.7h44c2.1 0 3.7-1.7 3.7-3.7v-4.3c0-2.1-1.7-3.7-3.7-3.7z" fill-opacity=".37"/>
+      <text transform="translate(366 122)" fill="#000000" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0 2.9344826 5.8689651 9.557766 14.994378 19.391502 24.874109 28.56291 34.487068 38.884193" y="0">literature</tspan></text>
+    </g>
+    <path d="m341 71c8.2 7.5 18 17 27 25" fill="none" stroke="#000" stroke-width=".86"/>
+    <path d="m370 93 4.3 8-8.4-3.6z" stroke="#000" stroke-width=".86"/>
+    <g clip-path="url(#ae)">
+      <g clip-path="url(#ac)">
+        <path d="m284 113h68v13h-68z" fill="#fff"/>
+      </g>
+    </g>
+    <g clip-path="url(#ab)">
+      <path d="m289 113h59c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-59c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3zm59 0.57h-59c-2.1 0-3.7 1.7-3.7 3.7v4.3c0 2.1 1.7 3.7 3.7 3.7h59c2.1 0 3.7-1.7 3.7-3.7v-4.3c0-2.1-1.7-3.7-3.7-3.7z" fill-opacity=".37"/>
+      <text transform="translate(289 122)" fill="#000000" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0 5.8873634 11.811522 17.349323 21.038124 26.575926 32.463287 36.860413 42.343021 48.230385 54.154541" y="0">photography</tspan></text>
+    </g>
+    <path d="m322 71c-0.64 6.6-1.4 15-2.1 22" fill="none" stroke="#000" stroke-width=".86"/>
+    <path d="m323 93-3.8 8.3-2.2-8.9z" stroke="#000" stroke-width=".86"/>
+    <g clip-path="url(#aa)">
+      <g clip-path="url(#z)">
+        <path d="m215 175h62v13h-62z" fill="#3d3d3d"/>
+      </g>
+    </g>
+    <g clip-path="url(#y)">
+      <path d="m219 175h53c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-53c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3zm53 0.57h-53c-2.1 0-3.7 1.7-3.7 3.7v4.3c0 2.1 1.7 3.7 3.7 3.7h53c2.1 0 3.7-1.7 3.7-3.7v-4.3c0-2.1-1.7-3.7-3.7-3.7z" fill-opacity=".37"/>
+      <text transform="translate(219 184)" fill="#ffffff" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0 3.6888011 8.8770399 14.764403 20.302204 26.189568 30.586691 36.069298 41.956661 47.880821" y="0">typography</tspan></text>
+    </g>
+    <path d="m245 133v22" fill="none" stroke="#000" stroke-width=".86"/>
+    <path d="m248 155-3 8.6-3-8.6z" stroke="#000" stroke-width=".86"/>
+    <g clip-path="url(#x)">
+      <g clip-path="url(#w)">
+        <path d="m372 175h39v13h-39z" fill="#e07365"/>
+      </g>
+    </g>
+    <g clip-path="url(#v)">
+      <path d="m376 175h30c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-30c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3zm30 0.57h-30c-2.1 0-3.7 1.7-3.7 3.7v4.3c0 2.1 1.7 3.7 3.7 3.7h30c2.1 0 3.7-1.7 3.7-3.7v-4.3c0-2.1-1.7-3.7-3.7-3.7z" fill-opacity=".37"/>
+      <text transform="translate(376 184)" fill="#000000" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0 5.8873634 11.425164 16.861776 20.550577 24.947702" y="0">poetry</tspan></text>
+    </g>
+    <path d="m392 133v22" fill="none" stroke="#000" stroke-width=".86"/>
+    <path d="m395 155-3 8.6-3-8.6z" stroke="#000" stroke-width=".86"/>
+    <g clip-path="url(#u)">
+      <g clip-path="url(#t)">
+        <path d="m375 51h36v13h-36z" fill="#eeecd4"/>
+      </g>
+    </g>
+    <g clip-path="url(#s)">
+      <path d="m379 51h27c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-27c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3zm27 0.57h-27c-2.1 0-3.7 1.7-3.7 3.7v4.3c0 2.1 1.7 3.7 3.7 3.7h27c2.1 0 3.7-1.7 3.7-3.7v-4.3c0-2.1-1.7-3.7-3.7-3.7z" fill-opacity=".37"/>
+      <text transform="translate(379 60)" fill="#000000" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0 5.8873634 11.425164 16.962965 22.528364" y="0">books</tspan></text>
+    </g>
+    <path d="m392 71v22" fill="none" stroke="#000" stroke-width=".86"/>
+    <path d="m395 93-3 8.6-3-8.6z" stroke="#000" stroke-width=".86"/>
+    <g clip-path="url(#r)">
+      <g clip-path="url(#q)">
+        <path d="m492 113h44v13h-44z" fill="#d73920"/>
+      </g>
+    </g>
+    <g clip-path="url(#p)">
+      <path d="m497 113h36c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-36c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3zm36 0.57h-36c-2.1 0-3.7 1.7-3.7 3.7v4.3c0 2.1 1.7 3.7 3.7 3.7h36c2.1 0 3.7-1.7 3.7-3.7v-4.3c0-2.1-1.7-3.7-3.7-3.7z" fill-opacity=".37"/>
+      <text transform="translate(497 122)" fill="#ffffff" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0 5.151443 8.0859251 13.568532 18.287622 23.006712 25.941195 31.092636" y="0">classics</tspan></text>
+    </g>
+    <g clip-path="url(#m)">
+      <g clip-path="url(#l)">
+        <path d="m433 51h42v13h-42z" fill="#ffe4d5"/>
+      </g>
+    </g>
+    <g clip-path="url(#k)">
+      <path d="m437 51h33c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-33c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3zm33 0.57h-33c-2.1 0-3.7 1.7-3.7 3.7v4.3c0 2.1 1.7 3.7 3.7 3.7h33c2.1 0 3.7-1.7 3.7-3.7v-4.3c0-2.1-1.7-3.7-3.7-3.7z" fill-opacity=".37"/>
+      <text transform="translate(437 60)" fill="#000000" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0 5.151443 11.075602 14.010084 17.698885 23.623045 28.020168" y="0">culture</tspan></text>
+    </g>
+    <path d="m456 71v22" fill="none" stroke="#000" stroke-width=".86"/>
+    <path d="m459 93-3 8.6-3-8.6z" stroke="#000" stroke-width=".86"/>
+    <path d="m471 71 24 24" fill="none" stroke="#000" stroke-width=".86"/>
+    <path d="m498 93 4 8.2-8.2-4z" stroke="#000" stroke-width=".86"/>
+    <g clip-path="url(#i)">
+      <g clip-path="url(#h)">
+        <path d="m220 51h49v13h-49z" fill="#fff"/>
+      </g>
+    </g>
+    <g clip-path="url(#g)">
+      <path d="m224 51h40c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-40c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3zm40 0.57h-40c-2.1 0-3.7 1.7-3.7 3.7v4.3c0 2.1 1.7 3.7 3.7 3.7h40c2.1 0 3.7-1.7 3.7-3.7v-4.3c0-2.1-1.7-3.7-3.7-3.7z" fill-opacity=".37"/>
+      <text transform="translate(224 60)" fill="#000000" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0 5.8873634 10.284488 15.767095 21.654457 27.578617 30.5131 35.664543" y="0">graphics</tspan></text>
+    </g>
+    <path d="m245 71v22" fill="none" stroke="#000" stroke-width=".86"/>
+    <path d="m248 93-3 8.6-3-8.6z" stroke="#000" stroke-width=".86"/>
+    <g clip-path="url(#f)">
+      <g clip-path="url(#e)">
+        <path d="m495 51h41v13h-41z" fill="#c7c7c7"/>
+      </g>
+    </g>
+    <g clip-path="url(#d)">
+      <path d="m499 51h32c2.4 0 4.3 1.9 4.3 4.3v4.3c0 2.4-1.9 4.3-4.3 4.3h-32c-2.4 0-4.3-1.9-4.3-4.3v-4.3c0-2.4 1.9-4.3 4.3-4.3zm32 0.57h-32c-2.1 0-3.7 1.7-3.7 3.7v4.3c0 2.1 1.7 3.7 3.7 3.7h32c2.1 0 3.7-1.7 3.7-3.7v-4.3c0-2.1-1.7-3.7-3.7-3.7z" fill-opacity=".37"/>
+      <text transform="translate(499 60)" fill="#000000" font-family="'DejaVu Serif'" font-size="9.2px"><tspan x="0 5.924159 8.8586416 13.577731 17.266533 22.804333 27.201458" y="0">history</tspan></text>
+    </g>
+    <path d="m518 71v22" fill="none" stroke="#000" stroke-width=".86"/>
+    <path d="m521 93-3 8.6-3-8.6z" stroke="#000" stroke-width=".86"/>
+  </g>
+</svg>

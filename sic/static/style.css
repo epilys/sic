@@ -493,7 +493,7 @@ body>footer>nav>ul {
   margin: 0;
   width: 100%;
   padding: 0;
-  row-gap: 2px;
+  row-gap: 4px;
 }
 
 body>footer>nav.feeds {
@@ -737,6 +737,7 @@ a.feed, a.feed:visited {
   color: #dc3545;
   padding: 0px 2px;
   vertical-align: sub;
+  border: none;
 }
 
 li:hover a.feed:after {

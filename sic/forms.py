@@ -388,11 +388,20 @@ class SearchCommentsForm(forms.Form):
     search_in = forms.ChoiceField(
         required=True,
         label="search in",
-        choices=[("comments", "comments"), ("stories", "stories") , ("both", "both")],
+        choices=[("comments", "comments"), ("stories", "stories"), ("both", "both")],
         initial="both",
-        widget=forms.RadioSelect
+        widget=forms.RadioSelect,
     )
-    order_by = forms.ChoiceField(required=True, label="order by", choices=[("newest", "newest"), ("karma", "karma"), ("relevance", "relevance"), ], initial="relevance")
+    order_by = forms.ChoiceField(
+        required=True,
+        label="order by",
+        choices=[
+            ("newest", "newest"),
+            ("karma", "karma"),
+            ("relevance", "relevance"),
+        ],
+        initial="relevance",
+    )
     ordering = forms.TypedChoiceField(
         required=True,
         label="",
@@ -473,12 +482,21 @@ CAPTCHA_CHOICES = [
 
 class InvitationRequestForm(forms.Form):
     required_css_class = "required"
-    name = forms.CharField(label="internet handle", required=True, max_length=100)
-    address = forms.EmailField(required=True, label="e-mail")
+    name = forms.CharField(
+        label="internet handle",
+        required=True,
+        max_length=100,
+        help_text="something for us to call you",
+    )
+    address = forms.EmailField(
+        required=True,
+        label="e-mail",
+        help_text="Doesn't have to be the same address you will use for your account.",
+    )
     about = forms.CharField(
         required=True,
         widget=forms.Textarea({"rows": 3, "cols": 15, "placeholder": ""}),
-        help_text="Insert evidence of your web presence like blog posts you've written and accounts on other communities to support your request",
+        help_text="Insert evidence of your web presence like blog posts you've written and accounts on other communities to support your request. (this is just to make sure you're not a spammer, no need to add a lot of stuff)",
         min_length=20,
     )
     choose_dead = forms.ChoiceField(

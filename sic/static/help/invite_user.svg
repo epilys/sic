@@ -1,0 +1,46 @@
+<svg id="svg" version="1.1" viewBox="0 0 388 131" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="d">
+      <path d="m145 568h167v17h-167z"/>
+    </clipPath>
+    <clipPath id="c">
+      <path d="m145 568h167v17h-167z"/>
+    </clipPath>
+    <clipPath id="b">
+      <path d="m50 594h272v17h-272z"/>
+    </clipPath>
+    <clipPath id="a">
+      <path d="m50 594h272v17h-272z"/>
+    </clipPath>
+  </defs>
+  <g transform="matrix(1.3 0 0 1.3 -51 -698)">
+    <path d="m38 524h291v98h-291z" fill="#fff"/>
+    <g>
+      <text transform="translate(50 547)" fill="#000000" font-family="Inter" font-size="16px" font-weight="bold"><tspan x="0 4.4099998 13.86 23.07375 27.35775 33.374249 42.777 46.415249 55.550251 59.188499 68.969254 78.308998 91.696503 95.334747 105.1155 113.95125 123.354" y="0">Invite a new user</tspan></text>
+      <g fill="#333">
+        <path d="m141 566h179v0.5h-179z"/>
+        <path d="m320 566h0.5v20h-0.5z"/>
+        <path d="m141 587h179v0.5h-179z"/>
+        <path d="m141 567h0.5v20h-0.5z"/>
+        <path d="m50 564h272v0.5h-272z"/>
+        <path d="m322 564h0.5v24h-0.5z"/>
+        <path d="m50 589h272v0.5h-272z"/>
+        <path d="m50 565h0.5v24h-0.5z"/>
+      </g>
+      <text transform="translate(55 580)" fill="#000000" font-family="Inter" font-size="10px" font-weight="bold"><tspan x="0 6.0900002 12.2535 18.417 24.8535 31.374001 37.862999 41.937 44.362499 50.631001 55.544998 65.110497 71.2005 74.056503 76.912498" y="0">account e-mail:</tspan></text>
+    </g>
+    <g clip-path="url(#d)">
+      <path d="m147 568h164c0.69 0 1.2 0.56 1.2 1.2v14c0 0.69-0.56 1.2-1.2 1.2h-164c-0.69 0-1.2-0.56-1.2-1.2v-14c0-0.69 0.56-1.2 1.2-1.2z" fill="#fff"/>
+    </g>
+    <g clip-path="url(#c)">
+      <path d="m147 568h164c0.69 0 1.2 0.56 1.2 1.2v14c0 0.69-0.56 1.2-1.2 1.2h-164c-0.69 0-1.2-0.56-1.2-1.2v-14c0-0.69 0.56-1.2 1.2-1.2z" fill="none" stroke="#8f8f9d" stroke-miterlimit="10" stroke-width=".5"/>
+    </g>
+    <g clip-path="url(#b)">
+      <path d="m53 595h266c1.5 0 2.8 1.2 2.8 2.8v11c0 1.5-1.2 2.8-2.8 2.8h-266c-1.5 0-2.8-1.2-2.8-2.8v-11c0-1.5 1.2-2.8 2.8-2.8z" fill="#e9e9ed"/>
+    </g>
+    <g clip-path="url(#a)">
+      <path d="m53 595h266c1.5 0 2.8 1.2 2.8 2.8v11c0 1.5-1.2 2.8-2.8 2.8h-266c-1.5 0-2.8-1.2-2.8-2.8v-11c0-1.5 1.2-2.8 2.8-2.8z" fill="none" stroke="#8f8f9d" stroke-miterlimit="10" stroke-width=".5"/>
+      <text transform="translate(164 606)" fill="#000000" font-family="Inter" font-size="10px"><tspan x="0 6.3944998 12.5055 18.648001 24.759001 28.665001 34.5765 38.346001" y="0">generate</tspan></text>
+    </g>
+  </g>
+</svg>

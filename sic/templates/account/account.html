@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% load utils %}
-{% block title %}sic{% endblock %}
+{% block title %}{{ user }} account - sic{% endblock %}
+{% block style %}
+    <style>
+        nav.feeds {
+            margin-top: 1rem;
+        }
+    </style>
+{% endblock %}
 {% block content %}
     <div style="grid-row: 1/ span 1;">
         <nav>
@@ -144,7 +151,7 @@
             {% endif %}
         {% endif %}
     </div>
-    <div class="taggregations">
+    <div class="taggregations" id="taggregations">
         <h2>Aggregations</h2>
         <nav>
             <ul>
@@ -181,7 +188,7 @@
         </ul>
     </div>
     <div>
-        <h2>Personalised feeds</h2>
+        <h2 id="feeds">Personalised feeds</h2>
         <form method="GET" action="{% url_with_next 'issue_token' request %}">
             <input type="submit" value="{% if user.auth_token%}re{% endif %}issue token">
         </form>
