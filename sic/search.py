@@ -113,7 +113,7 @@ def fts5_setup(sender, connection, **kwargs):
 
 
 def index_comment(obj: Comment):
-    text = html.escape(obj.text_to_plain_text())
+    text = html.escape(obj.text_to_plain_text)
     with connections["default"].cursor() as cursor:
         cursor.execute(
             f"INSERT OR REPLACE INTO {config.FTS_DATABASE_NAME}.{config.FTS_COMMENTS_TABLE_NAME}(id, text) VALUES (:id, :text)",
@@ -132,7 +132,7 @@ def index_story(obj: Story):
             {
                 "id": obj.pk,
                 "title": obj.title,
-                "description": obj.description_to_plain_text().strip(),
+                "description": obj.description_to_plain_text.strip(),
                 "remote_content": remote_content,
             },
         )
@@ -141,7 +141,7 @@ def index_story(obj: Story):
             {
                 "id": obj.pk,
                 "title": obj.title,
-                "description": obj.description_to_plain_text().strip(),
+                "description": obj.description_to_plain_text.strip(),
                 "url": obj.url,
                 "remote_content": remote_content,
             },

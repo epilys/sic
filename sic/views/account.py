@@ -370,7 +370,7 @@ def bookmarks_json(request):
             "id": b.story.pk,
             "user": str(b.story.user),
             "title": b.story.title,
-            "description": b.story.description,
+            "description": b.story.description_to_plain_text,
             "url": b.story.url,
             "sic_url": f"http{tls}://{domain}{b.story.get_absolute_url()}",
             "created": b.story.created,
@@ -394,7 +394,7 @@ def bookmarks_json(request):
             "user": str(b.comment.user),
             "story_id": b.comment.story.pk,
             "story_title": b.comment.story.title,
-            "text": b.comment.text_to_plain_text(),
+            "text": b.comment.text_to_plain_text,
             "sic_url": "http://" + domain + b.comment.get_absolute_url(),
             "parent": ("http://" + domain + b.comment.parent.get_absolute_url())
             if b.comment.parent

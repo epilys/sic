@@ -68,7 +68,7 @@ def preview_comment(request):
         request.session["comment_preview"][comment_pk]["html"] = comment_to_html(text)
         request.session.modified = True
         if comment:
-            return redirect(request.GET["next"] + "#" + comment.slugify())
+            return redirect(request.GET["next"] + "#" + comment.slugify)
         else:
             return redirect(request.GET["next"])
     except (Comment.DoesNotExist, KeyError):
@@ -120,7 +120,7 @@ def story(request, story_pk, slug=None):
                     request, messages.ERROR, f"Invalid comment form. Error: {error}"
                 )
     else:
-        if slug != story_obj.slugify():
+        if slug != story_obj.slugify:
             return redirect(story_obj.get_absolute_url())
         form = SubmitCommentForm()
     comments = story_obj.comments.filter(parent=None)
@@ -220,7 +220,7 @@ def agg_index(request, taggregation_pk, slug, page_num=1):
         agg = Taggregation.objects.get(pk=taggregation_pk)
     except Taggregation.DoesNotExist:
         raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
-    if slug != agg.slugify():
+    if slug != agg.slugify:
         return redirect(agg.get_absolute_url())
     if not agg.user_has_access(request.user):
         if request.user.is_authenticated:
@@ -255,7 +255,7 @@ def agg_index(request, taggregation_pk, slug, page_num=1):
     )
     all_stories = sorted(
         all_stories,
-        key=lambda s: s.hotness()["score"],
+        key=lambda s: s.hotness["score"],
         reverse=True,
     )
     paginator = Paginator(all_stories, config.STORIES_PER_PAGE)
@@ -387,7 +387,7 @@ def index(request, page_num=1):
     )
     all_stories = sorted(
         all_stories,
-        key=lambda s: s.hotness()["score"],
+        key=lambda s: s.hotness["score"],
         reverse=True,
     )
     paginator = Paginator(all_stories, config.STORIES_PER_PAGE)
@@ -468,7 +468,7 @@ def all_stories(request, page_num=1):
     if order_by == "hotness":
         stories = sorted(
             story_obj.order_by("created", "title"),
-            key=lambda s: s.hotness()["score"],
+            key=lambda s: s.hotness["score"],
             reverse=ordering == "desc",
         )
     elif order_by == "last commented":

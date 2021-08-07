@@ -52,7 +52,7 @@ class LatestStories(Feed):
         return item.title
 
     def item_description(self, item):
-        return item.description
+        return item.description_to_html
 
     def item_author_name(self, item):
         return str(item.user)
@@ -64,7 +64,7 @@ class LatestStories(Feed):
         return map(lambda t: str(t), item.tags.all())
 
     def item_link(self, item):
-        return item.get_listing_url()
+        return item.get_listing_url
 
     def get_context_data(self, **kwargs):
         # Bit of a hack, get_context_data() is called by the Feed view in

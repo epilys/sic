@@ -27,7 +27,7 @@ class SicBackend(ModelBackend):
     def has_perm(self, user_obj, perm, obj):
         if user_obj.is_staff or user_obj.is_superuser or user_obj.is_moderator:
             return True
-        karma = user_obj.karma()
+        karma = user_obj.karma
         is_banned = user_obj.banned_by_user is not None
         if perm in ["sic.add_tag", "sic.change_tag"]:
             return karma >= config.MIN_KARMA_TO_EDIT_TAGS and not is_banned

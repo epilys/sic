@@ -22,7 +22,7 @@ def comment_save_receiver(
         and not comment.deleted
     ):
         target = "comment" if comment.parent else "story"
-        plain_text_comment = comment.text_to_plain_text()
+        plain_text_comment = comment.text_to_plain_text
         Notification.objects.create(
             user=comment.parent.user if comment.parent else comment.story.user,
             name=f"New reply in {comment.story.title}",
@@ -43,7 +43,7 @@ def comment_save_receiver(
         else:
             mentioned_users = mentioned_users.exclude(id=comment.story.user.pk)
         if mentioned_users.exists():
-            plain_text_comment = comment.text_to_plain_text()
+            plain_text_comment = comment.text_to_plain_text
             for user in mentioned_users:
                 Notification.objects.create(
                     user=user,

@@ -169,7 +169,7 @@ def taggregation(request, taggregation_pk, slug=None):
         obj = Taggregation.objects.get(pk=taggregation_pk)
     except Taggregation.DoesNotExist:
         raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
-    if slug != obj.slugify():
+    if slug != obj.slugify:
         return redirect(obj.get_absolute_url())
     if not obj.user_has_access(request.user):
         if request.user.is_authenticated:
@@ -255,7 +255,7 @@ def edit_tag(request, tag_pk, slug=None):
         tag = Tag.objects.get(pk=tag_pk)
     except Tag.DoesNotExist:
         raise Http404("Tag does not exist") from Tag.DoesNotExist
-    if slug != tag.slugify():
+    if slug != tag.slugify:
         return redirect(tag.get_absolute_url())
     if not request.user.has_perm("sic.change_tag", tag):
         raise PermissionDenied("You don't have permissions to change this tag.")
@@ -365,7 +365,7 @@ def edit_aggregation(request, taggregation_pk, slug=None):
         obj = Taggregation.objects.get(pk=taggregation_pk)
     except Taggregation.DoesNotExist:
         raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
-    if slug != obj.slugify():
+    if slug != obj.slugify:
         return redirect(obj.get_absolute_url())
     if not obj.user_has_access(request.user):
         raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
@@ -431,11 +431,11 @@ def edit_aggregation_filter(request, taggregation_pk, slug, taggregationhastag_i
         raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
     if not obj.user_can_modify(request.user):
         raise PermissionDenied("You don't have permissions to edit this aggregation.")
-    if slug != obj.slugify():
+    if slug != obj.slugify:
         return redirect(
             reverse(
                 "edit_aggregation_filter",
-                args=[taggregation_pk, obj.slugify(), taggregationhastag_id],
+                args=[taggregation_pk, obj.slugify, taggregationhastag_id],
             )
         )
     try:
@@ -490,9 +490,9 @@ def new_aggregation_filter(request, taggregation_pk, slug):
         raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
     if not obj.user_can_modify(request.user):
         raise PermissionDenied("You don't have permissions to edit this aggregation.")
-    if slug != obj.slugify():
+    if slug != obj.slugify:
         return redirect(
-            reverse("new_aggregation_filter", args=[taggregation_pk, obj.slugify()])
+            reverse("new_aggregation_filter", args=[taggregation_pk, obj.slugify])
         )
     user = request.user
 
@@ -651,11 +651,11 @@ def view_tag(request, tag_pk, slug=None, page_num=1):
         "view_tag", kwargs={"tag_pk": tag_pk, "slug": slug}
     ):
         return redirect(reverse("view_tag", kwargs={"tag_pk": tag_pk, "slug": slug}))
-    if slug != obj.slugify():
+    if slug != obj.slugify:
         return redirect(
             reverse(
                 "view_tag_page",
-                kwargs={"tag_pk": tag_pk, "slug": obj.slugify(), "page_num": page_num},
+                kwargs={"tag_pk": tag_pk, "slug": obj.slugify, "page_num": page_num},
             )
         )
     order_by = request.session.get("tag_order_by", "created")
@@ -698,7 +698,7 @@ def view_tag(request, tag_pk, slug=None, page_num=1):
                 "view_tag_page",
                 kwargs={
                     "tag_pk": tag_pk,
-                    "slug": obj.slugify(),
+                    "slug": obj.slugify,
                     "page_num": paginator.num_pages,
                 },
             )

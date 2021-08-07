@@ -58,6 +58,7 @@ class Domain(models.Model):
     def __str__(self):
         return self.url
 
+    @cached_property
     def slugify(self):
         return quote_plus(self.url)
 
@@ -68,7 +69,7 @@ class Domain(models.Model):
     def get_absolute_url(self):
         return reverse(
             "domain",
-            args=[self.slugify()],
+            args=[self.slugify],
         )
 
 
@@ -130,6 +131,7 @@ class Story(models.Model):
     def __str__(self):
         return f"{self.title}"
 
+    @cached_property
     def slugify(self):
         return slugify(self.title, allow_unicode=True)
 
@@ -137,12 +139,14 @@ class Story(models.Model):
 
         return reverse(
             "story",
-            kwargs={"story_pk": self.pk, "slug": self.slugify()},
+            kwargs={"story_pk": self.pk, "slug": self.slugify},
         )
 
+    @cached_property
     def karma(self):
         return self.votes.filter(comment=None).count()
 
+    @cached_property
     def get_listing_url(self):
         return (
             self.get_absolute_url()
@@ -150,6 +154,7 @@ class Story(models.Model):
             else self.url
         )
 
+    @cached_property
     def get_domain(self):
         if not self.url or len(self.url) == 0:
             return None
@@ -157,15 +162,19 @@ class Story(models.Model):
             self.save()
         return self.domain
 
+    @cached_property
     def hotness(self):
         return story_hotness(self)
 
+    @cached_property
     def description_to_html(self):
         return comment_to_html(self.description)
 
+    @cached_property
     def description_to_plain_text(self):
-        return Textractor.extract(self.description_to_html()).strip()
+        return Textractor.extract(self.description_to_html).strip()
 
+    @cached_property
     def active_comments(self):
         return self.comments.filter(deleted=False)
 
@@ -242,8 +251,9 @@ class Comment(models.Model):
         return entry
 
     def get_absolute_url(self):
-        return self.story.get_absolute_url() + f"#{self.slugify()}"
+        return self.story.get_absolute_url() + f"#{self.slugify}"
 
+    @cached_property
     def slugify(self) -> str:
         return str(self.id).translate(url_encode_translation)
 
@@ -251,14 +261,17 @@ class Comment(models.Model):
     def deslugify(slug: str):
         return int(slug.translate(url_decode_translation))
 
+    @cached_property
     def karma(self):
         return self.votes.count()
 
+    @cached_property
     def text_to_html(self):
         return comment_to_html(self.text)
 
+    @cached_property
     def text_to_plain_text(self):
-        return Textractor.extract(self.text_to_html()).strip()
+        return Textractor.extract(self.text_to_html).strip()
 
 
 class Tag(models.Model):
@@ -350,6 +363,7 @@ WHERE
                 )
             )
 
+    @cached_property
     def slugify(self):
         return slugify(self.name, allow_unicode=True)
 
@@ -367,7 +381,7 @@ WHERE
     def get_absolute_url(self):
         return reverse(
             "view_tag",
-            kwargs={"tag_pk": self.pk, "slug": self.slugify()},
+            kwargs={"tag_pk": self.pk, "slug": self.slugify},
         )
 
     class Meta:
@@ -400,13 +414,14 @@ class Taggregation(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+    @cached_property
     def slugify(self):
         return slugify(self.name, allow_unicode=True)
 
     def get_absolute_url(self):
         return reverse(
             "taggregation",
-            kwargs={"taggregation_pk": self.pk, "slug": self.slugify()},
+            kwargs={"taggregation_pk": self.pk, "slug": self.slugify},
         )
 
     def user_has_access(self, user):
@@ -431,6 +446,7 @@ class Taggregation(models.Model):
             )
         )
 
+    @cached_property
     def vertices(self):
         return Tag.objects.filter(
             id__in=RawSQL(
@@ -537,6 +553,7 @@ class TaggregationHasTag(models.Model):
     def __str__(self):
         return f"{self.taggregation} {self.tag} depth={self.depth}"
 
+    @cached_property
     def vertices(self):
         return Tag.objects.filter(
             id__in=RawSQL(
@@ -893,6 +910,7 @@ class User(PermissionsMixin, AbstractBaseUser):
     def __str__(self):
         return self.username if self.username else self.email
 
+    @cached_property
     def karma(self):
         return Vote.objects.all().filter(story__user=self, comment=None).count()
 

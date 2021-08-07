@@ -47,7 +47,7 @@ class ModerationLogEntry(models.Model):
             change=json.dumps(
                 {
                     "before": before_text,
-                    "after": comment_obj.text_to_plain_text(),
+                    "after": comment_obj.text_to_plain_text,
                 }
             ),
             content_type=ContentType.objects.get(app_label="sic", model="comment"),
