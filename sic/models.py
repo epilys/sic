@@ -2,16 +2,15 @@ from urllib.parse import urlparse, unquote_plus, quote_plus
 from datetime import datetime, timedelta
 import string
 import uuid
-import itertools
 import abc
-import collections
-from django.db import models, connection
+from django.db import models, connection, migrations
 from django.db.models.expressions import RawSQL
 from django.contrib.auth.models import (
     BaseUserManager,
     AbstractBaseUser,
     PermissionsMixin,
 )
+from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from django.urls import reverse
 from django.utils import timezone
@@ -27,6 +26,8 @@ from django.dispatch import receiver
 from django.db.backends.signals import connection_created
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
+
+
 from .apps import SicAppConfig as config
 from .markdown import comment_to_html, Textractor
 from .voting import story_hotness
@@ -42,15 +43,15 @@ class Domain(models.Model):
 
     def save(self, *args, **kwargs):
         if len(self.url) == 0:
-            raise ValidationError(f"Domain can't be empty.")
+            raise ValidationError("Domain can't be empty.")
         try:
-            o = urlparse(self.url).netloc
-            if o.startswith("www."):
-                o = o[4:]
-            if len(o) > 0:
-                if o != self.url and Domain.objects.filter(url=o).exists():
-                    raise ValidationError(f"Domain already exists as {o}.")
-                self.url = o
+            netloc = urlparse(self.url).netloc
+            if netloc.startswith("www."):
+                netloc = netloc[4:]
+            if len(netloc) > 0:
+                if netloc != self.url and Domain.objects.filter(url=netloc).exists():
+                    raise ValidationError(f"Domain already exists as {netloc}.")
+                self.url = netloc
         except:
             pass
         super().save(*args, **kwargs)
@@ -83,9 +84,9 @@ class StoryKind(models.Model):
         return f"{self.name}"
 
     def color_vars_css(self):
-        h = self.hex_color.lstrip("#")
-        r, g, b = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
-        return f"--red: {r}; --green:{g}; --blue:{b};"
+        hex_ = self.hex_color.lstrip("#")
+        red, green, blue = tuple(int(hex_[i : i + 2], 16) for i in (0, 2, 4))
+        return f"--red: {red}; --green:{green}; --blue:{blue};"
 
     @staticmethod
     def default_value():
@@ -179,11 +180,11 @@ class Story(models.Model):
         return self.comments.filter(deleted=False)
 
     def save(self, *args, **kwargs):
-        o = urlparse(self.url).netloc
-        if o.startswith("www."):
-            o = o[4:]
-        if len(o) > 0:
-            domain_obj, _ = Domain.objects.get_or_create(url=o)
+        netloc = urlparse(self.url).netloc
+        if netloc.startswith("www."):
+            netloc = netloc[4:]
+        if len(netloc) > 0:
+            domain_obj, _ = Domain.objects.get_or_create(url=netloc)
             self.domain = domain_obj
         super().save(*args, **kwargs)
 
@@ -241,7 +242,6 @@ class Comment(models.Model):
 
     def last_log_entry(self):
         from .moderation import ModerationLogEntry
-        from django.contrib.contenttypes.models import ContentType
 
         entry = ModerationLogEntry.objects.filter(
             object_id=self.id,
@@ -285,9 +285,9 @@ class Tag(models.Model):
         return f"{self.name}"
 
     def color_vars_css(self):
-        h = self.hex_color.lstrip("#")
-        r, g, b = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
-        return f"--red: {r}; --green:{g}; --blue:{b};"
+        hex_ = self.hex_color.lstrip("#")
+        red, green, blue = tuple(int(hex_[i : i + 2], 16) for i in (0, 2, 4))
+        return f"--red: {red}; --green:{green}; --blue:{blue};"
 
     def in_taggregations(self):
         return Taggregation.objects.filter(
@@ -330,10 +330,9 @@ WHERE
                     [self.pk],
                 )
             )
-        else:
-            return Story.objects.filter(
-                tags__pk__in=RawSQL(
-                    """WITH RECURSIVE w (
+        return Story.objects.filter(
+            tags__pk__in=RawSQL(
+                """WITH RECURSIVE w (
     root_tag_id,
     tag_id,
     depth
@@ -359,9 +358,9 @@ FROM
 WHERE
     root_tag_id = %s AND
     depth <= %s""",
-                    [self.pk, depth],
-                )
+                [self.pk, depth],
             )
+        )
 
     @cached_property
     def slugify(self):
@@ -375,8 +374,7 @@ WHERE
         stories = self.get_stories(-1)
         if stories.exists():
             return stories.latest("created")
-        else:
-            return None
+        return None
 
     def get_absolute_url(self):
         return reverse(
@@ -429,8 +427,7 @@ class Taggregation(models.Model):
             return (not self.private) or (
                 (user.pk == self.creator.pk) or (user in self.moderators.all())
             )
-        else:
-            return not self.private
+        return not self.private
 
     def user_can_modify(self, user):
         if not self.user_has_access(user):
@@ -586,38 +583,38 @@ class StoryFilter(models.Model):
     def content(self):
         ...
 
-    def inner(self):
-        try:
-            return self.exacttagfilter
-        except:
-            pass
-        try:
-            return self.nametagfilter
-        except:
-            pass
-        try:
-            return self.domaintagfilter
-        except:
-            pass
-        try:
-            return self.userfilter
-        except:
-            pass
-        return None
+    # def into_inner(self):
+    #    try:
+    #        return self.exacttagfilter
+    #    except:
+    #        pass
+    #    try:
+    #        return self.nametagfilter
+    #    except:
+    #        pass
+    #    try:
+    #        return self.domaintagfilter
+    #    except:
+    #        pass
+    #    try:
+    #        return self.userfilter
+    #    except:
+    #        pass
+    #    return None
 
     @staticmethod
     def filter_filters(filters):
         tag_filters = []
         domain_filters = []
         user_filters = []
-        for f in filters:
-            f = f.inner()
-            if isinstance(f, TagNameFilter) or isinstance(f, ExactTagFilter):
-                tag_filters.append(f)
-            elif isinstance(f, DomainFilter):
-                domain_filters.append(f)
-            elif isinstance(f, UserFilter):
-                user_filters.append(f)
+        for filter_ in filters:
+            filter_ = filter_.inner()
+            if isinstance(filter_, (TagNameFilter, ExactTagFilter)):
+                tag_filters.append(filter_)
+            elif isinstance(filter_, DomainFilter):
+                domain_filters.append(filter_)
+            elif isinstance(filter_, UserFilter):
+                user_filters.append(filter_)
         return {
             "tag_filters": tag_filters,
             "user_filters": user_filters,
@@ -628,6 +625,12 @@ class StoryFilter(models.Model):
 class MatchFilter(StoryFilter):
     match_string = models.TextField(null=False, blank=False)
     is_regexp = models.BooleanField(null=False, blank=False, default=False)
+
+    def content(self):
+        return self.match_string
+
+    def kind(self):
+        return "match filter"
 
 
 class ExactTagFilter(StoryFilter):
@@ -1093,8 +1096,6 @@ class Webmention(models.Model):
 
 @receiver(connection_created)
 def taggregation_queries_setup(sender, connection, **kwargs):
-    from django.db import migrations
-
     if getattr(migrations, "MIGRATION_OPERATION_IN_PROGRESS", False):
         return
     with connection.cursor() as cursor:
@@ -1184,8 +1185,6 @@ WHERE
 
 @receiver(connection_created)
 def last_modified_triggers(sender, connection, **kwargs):
-    from django.db import migrations
-
     if getattr(migrations, "MIGRATION_OPERATION_IN_PROGRESS", False):
         return
     with connection.cursor() as cursor:

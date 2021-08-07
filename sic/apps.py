@@ -1,7 +1,7 @@
-from django.apps import AppConfig
-from django.conf import settings
 from functools import lru_cache
 from email.utils import make_msgid
+from django.apps import AppConfig
+from django.conf import settings
 
 
 class SicAppConfig(AppConfig):

@@ -21,7 +21,7 @@
     {% spaceless %}
         <ul class="tags" style="width: 80ch; max-width: var(--main-width);">
             {% for tag in tags %}
-                <li style="{{ tag.color_vars_css }}"><div class="tag"><span class="tag-name"><a href="{{ tag.get_absolute_url }}">{{ tag.name }}</a> {{ tag.stories.count }}</span></div></li>
+                <li style="{{ tag.color_vars_css }}"><div class="tag"><span class="tag-name"><a href="{{ tag.get_absolute_url }}">{{ tag.name }} {{ tag.stories.count }}</a></span></div></li>
             {% endfor %}
         </ul>
     {% endspaceless %}

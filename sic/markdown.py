@@ -1,19 +1,18 @@
+from html.parser import HTMLParser
+import re
 from markdown_it import MarkdownIt
 from markdown_it.rules_inline import StateInline
 from django.utils.safestring import mark_safe
 from django.urls import reverse
-from html.parser import HTMLParser
-import re
 
 
 def link_render(self, tokens, idx, options, env):
-    tok = tokens[idx]
     return self.renderToken(tokens, idx, options, env)
 
 
 def make_link_rule(tag: str, url_fn, exists_fn):
-    def _func(md):
-        def link_def(state: StateInline, silent: bool) -> bool:
+    def _func(markdown):
+        def link_def(state: StateInline, _silent: bool) -> bool:
             pos = state.pos
 
             if not state.src[pos:].startswith(f"</{tag}/"):
@@ -28,11 +27,11 @@ def make_link_rule(tag: str, url_fn, exists_fn):
                 if pos >= maximum:
                     return False
 
-                ch = state.srcCharCode[pos]
+                char = state.srcCharCode[pos]
 
-                if ch == 0x3C:  # /* < */
+                if char == 0x3C:  # /* < */
                     return False
-                if ch == 0x3E:  # /* > */
+                if char == 0x3E:  # /* > */
                     break
 
             objname = state.src[start + 1 : pos]
@@ -59,8 +58,8 @@ def make_link_rule(tag: str, url_fn, exists_fn):
             state.pos += len(objname) + len(f"</{tag}/>")
             return True
 
-        md.inline.ruler.after("autolink", f"{tag}_link_def", link_def)
-        md.add_render_rule(f"{tag}_link_open", link_render, fmt="html")
+        markdown.inline.ruler.after("autolink", f"{tag}_link_def", link_def)
+        markdown.add_render_rule(f"{tag}_link_open", link_render, fmt="html")
 
     return _func
 
@@ -91,7 +90,7 @@ def comment_to_html(input_):
     return mark_safe(MarkdownRenderer.render(input_))
 
 
-"""Extract plain text from HTML. """
+# Extract plain text from HTML.
 
 
 class Textractor(HTMLParser):
