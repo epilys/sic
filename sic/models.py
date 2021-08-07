@@ -438,7 +438,7 @@ class Taggregation(models.Model):
         # TODO: This generates a SELECT .. IN (SELECT DISTINCT ...) which definitely can be improved
         return Story.objects.filter(
             id__in=RawSQL(
-                "SELECT DISTINCT s.id AS id FROM sic_story AS s JOIN sic_story_tags AS t ON t.story_id = s.id JOIN taggregation_tags AS v ON v.tag_id = t.tag_id WHERE v.taggregation_id = %s",
+                "SELECT id FROM taggregation_stories WHERE taggregation_id = %s",
                 [self.pk],
             )
         )
@@ -464,7 +464,7 @@ class Taggregation(models.Model):
         # Perform raw query directly instead of UNIONing all taggregation frontpages
         stories = Story.objects.filter(
             id__in=RawSQL(
-                "SELECT DISTINCT s.id AS id FROM sic_story AS s JOIN sic_story_tags AS t ON t.story_id = s.id JOIN taggregation_tags AS v ON v.tag_id = t.tag_id JOIN sic_taggregation as agg ON v.taggregation_id = agg.id WHERE agg.'default' = 1",
+                "SELECT DISTINCT s.id AS id FROM taggregation_stories AS s JOIN sic_taggregation as agg ON s.taggregation_id = agg.id WHERE agg.'default' = 1",
                 [],
             )
         )
@@ -554,15 +554,7 @@ class TaggregationHasTag(models.Model):
     def vertices(self):
         return Tag.objects.filter(
             id__in=RawSQL(
-                "SELECT DISTINCT tag_id AS id FROM taggregation_tags WHERE taggregationhastag_id = %s",
-                [self.pk],
-            )
-        )
-
-    def get_stories(self):
-        return Story.objects.filter(
-            id__in=RawSQL(
-                "SELECT DISTINCT s.id AS id FROM sic_story AS s JOIN sic_story_tags AS t ON t.story_id = s.id JOIN taggregation_tags AS v ON v.tag_id = t.tag_id WHERE v.taggregationhastag_id = %s",
+                "SELECT DISTINCT tag_id AS id FROM taggregation_tags WHERE has_id = %s",
                 [self.pk],
             )
         )
@@ -972,7 +964,7 @@ class User(PermissionsMixin, AbstractBaseUser):
             # Perform raw query directly instead of UNIONing all taggregation frontpages
             stories = Story.objects.filter(
                 id__in=RawSQL(
-                    "SELECT DISTINCT s.id AS id FROM sic_story AS s JOIN sic_story_tags AS t ON t.story_id = s.id JOIN taggregation_tags AS v ON v.tag_id = t.tag_id JOIN sic_user_taggregation_subscriptions as subs WHERE v.taggregation_id = subs.taggregation_id AND subs.user_id = %s",
+                    "SELECT DISTINCT s.id AS id FROM taggregation_stories AS s JOIN sic_user_taggregation_subscriptions as subs WHERE s.taggregation_id = subs.taggregation_id AND subs.user_id = %s",
                     [self.pk],
                 )
             )
@@ -1116,7 +1108,7 @@ def taggregation_queries_setup(sender, connection, **kwargs):
             """CREATE TEMPORARY VIEW taggregationhastag_exacttag AS
 SELECT
     tag_id,
-    exclude_filter.taggregationhastag_id AS taggregationhastag_id
+    exclude_filter.taggregationhastag_id AS has_id
 FROM
     sic_taggregationhastag_exclude_filters AS exclude_filter,
     sic_exacttagfilter AS exact_tag
@@ -1164,16 +1156,16 @@ WHERE
     taggregation_id,
     tag_id,
     depth,
-    taggregationhastag_id
+    taggregationhastag_id as has_id
 FROM
     w;"""
         )
 
         cursor.execute(
-            """CREATE TEMPORARY VIEW taggregationhastag_userfilter AS
+            """CREATE TEMPORARY VIEW userfilter AS
 SELECT
     user_id,
-    exclude_filter.taggregationhastag_id AS taggregationhastag_id
+    exclude_filter.taggregationhastag_id AS has_id
 FROM
     sic_taggregationhastag_exclude_filters AS exclude_filter,
     sic_userfilter AS userfilter
@@ -1182,17 +1174,53 @@ WHERE
         )
 
         cursor.execute(
-            """CREATE TEMPORARY VIEW taggregationhastag_domainfilter AS
+            """CREATE TEMPORARY VIEW domainfilter AS
 SELECT
     match_string,
     is_regexp,
-    exclude_filter.taggregationhastag_id AS taggregationhastag_id
+    exclude_filter.taggregationhastag_id AS has_id
 FROM
     sic_taggregationhastag_exclude_filters AS exclude_filter,
     sic_matchfilter AS matchfilter,
     sic_domainfilter AS domainfilter
 WHERE
     exclude_filter.storyfilter_id = matchfilter.storyfilter_ptr_id;"""
+        )
+
+        cursor.execute(
+            """CREATE TEMPORARY VIEW taggregation_stories AS SELECT DISTINCT
+    s.id AS id,
+    v.has_id AS has_id,
+    v.taggregation_id AS taggregation_id
+FROM
+    sic_story AS s
+    JOIN sic_story_tags AS t ON t.story_id = s.id
+    JOIN taggregation_tags AS v ON v.tag_id = t.tag_id
+WHERE
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            domainfilter AS df
+        WHERE
+            df.has_id = v.has_id
+            AND ((df.match_string = s.domain_id AND NOT df.is_regexp)))
+    AND NOT EXISTS (
+        SELECT
+            1
+        FROM
+            domainfilter AS df
+        WHERE
+            df.has_id = v.has_id
+            AND ((REGEXP (df.match_string, s.domain_id) AND df.is_regexp)))
+    AND NOT EXISTS (
+        SELECT
+            1
+        FROM
+            userfilter AS uf
+        WHERE
+            uf.has_id = v.has_id
+            AND uf.user_id = s.user_id);"""
         )
 
 
@@ -1268,13 +1296,12 @@ END;"""
             """CREATE TEMPORARY VIEW taggregation_last_active AS
 SELECT
     MAX(s.last_active) AS last_active,
-    v.taggregation_id AS taggregation_id
+    t.taggregation_id AS taggregation_id
 FROM
     sic_story AS s
-    JOIN sic_story_tags AS t ON t.story_id = s.id
-    JOIN taggregation_tags AS v ON v.tag_id = t.tag_id
+    JOIN taggregation_stories AS t ON t.id = s.id
 GROUP BY
-    taggregation_id;"""
+    t.taggregation_id;"""
         )
 
 
