@@ -119,8 +119,18 @@ urlpatterns = [
         name="tag_graph",
     ),
     path("tags/graph-svg", tag_graph_svg, name="tag_graph_svg"),
-    path("aggs/", public_aggregations, name="public_aggregations"),
-    path("aggs/page/<int:page_num>/", public_aggregations, name="browse_aggs_page"),
+    path("aggs/", default_aggregations, name="default_aggregations"),
+    path(
+        "aggs/page/<int:page_num>/",
+        default_aggregations,
+        name="default_aggregations_page",
+    ),
+    path("aggs/all", public_aggregations, name="public_aggregations"),
+    path(
+        "aggs/all/page/<int:page_num>/",
+        public_aggregations,
+        name="public_aggregations_page",
+    ),
     path("agg/<int:taggregation_pk>/<slug:slug>/", taggregation, name="taggregation"),
     path(
         "agg/change-subscription/<int:taggregation_pk>/",

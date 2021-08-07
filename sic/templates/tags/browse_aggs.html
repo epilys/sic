@@ -4,56 +4,58 @@
 {% block title %}browse aggregations - sic{% endblock %}
 {% block style %}
     <style>
-        dl.aggregations {
+        div.aggregations {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            grid-gap: 20px;
             margin-top:0;
             width: var(--main-width);
         }
 
-        dl.aggregations a.agg-name {
+        div.aggregations article {
+            display: grid;
+            grid-template-rows: max-content max-content 1fr;
+            grid-gap: 10px;
+            border: 1px solid gray;
+            border-radius: 3px;
+            padding: 1rem 1.5rem;
+        }
+        div.aggregations article span.description {
+            height: 6rem;
+            overflow: auto;
+            outline: 1px solid cadetblue;
+            outline-offset: 5px;
+        }
+        div.aggregations article ul.tags {
+            max-height: 4rem;
+            overflow: auto;
+            height: max-content;
+        }
+        div.aggregations>article>header{
+            display: block;
+            margin: 0;
+        }
+        div.aggregations>article .created {
+            position: relative;
+            bottom: -8px;
+            font-size: 74%;
+            text-align: center;
+            width: 100%;
+        }
+
+        .aggregations a.agg-name {
             font-family: monospace;
-        }
-        dl.aggregations>dd dd {
-            display: inline-block;
-        }
-        dl.aggregations dt {
             font-weight: bold;
-            color: #217ac0;
             font-size: 110%;
         }
-        dl.aggregations dd { margin-left: 16px }
-
-        dl.aggregations>dd + dt {
-            margin-top: 1rem;
-            border-top: 2px inset gray;
-            padding-top: 1rem;
-        }
-        dl.aggregations>dd dt {
-            width: max-content;
-            height: min-content;
-            border: 1px solid black;
-            background: white;
-            border-radius: 3px;
-            padding: 2px 5px;
-        }
-
-
-        dl.aggregations dl {
-            margin-top: 1rem;
-            display: grid;
-            grid-template-columns: min-content 1fr;
-            grid-auto-rows: min-content;
-        }
-
-        dd dd > * {
-            vertical-align: middle;
-        }
-
     </style>
 {% endblock %}
 {% block content %}
     <nav>
         <ul>
             <li><a href="{% url 'browse_tags' %}">Browse tags</a></li>
+            <li><a href="{% url 'default_aggregations' %}">Browse default aggregations</a></li>
+            <li><a href="{% url 'public_aggregations' %}">Browse public aggregations</a></li>
             {% if request.user.is_authenticated %}
                 <li><a href="{% url 'new_aggregation' %}">Create aggregation</a></li>
             {% endif %}
@@ -66,47 +68,68 @@
             </form></li>
         </ul>
     </nav>
+    {% if default %}
+        <h1>Default aggregations</h1>
+    {% else %}
+        <h1>Public aggregations</h1>
+    {% endif %}
     <p class="help-text">Aggregations are collections of tags you can subscribe to. They populate your frontpage. You can create your own private or public aggregations or subscribe to public ones.</p>
     {% spaceless %}
-        <dl class="aggregations">
+        <div class="aggregations">
             {% for agg in aggs %}
-                <dt><a href="{% url 'taggregation' agg.pk agg.slugify %}" class="agg-name">{{ agg.name }}</a> {{ agg.tags.count }} tag{{ agg.tags.count|pluralize}}</dt>
-                <dd>
-                    <dl>
-                        <dt>description</dt>
-                        <dd><span>{{ agg.description }}</span></dd>
-                        <dt>subscribers</dt>
-                        <dd><span>{{ agg.subscribers.count }}</span></dd>
-                        <dt>tags</dt>
-                        <dd>
-                            <ul class="tags">
-                                {% for tag in agg.tags.all %}
-                                    <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><div class="tag"><span class="tag-name"><a href="{{ tag.get_absolute_url }}">{{ tag.name }} {{ tag.stories.count }}</a></span></div></li>
-                                {% endfor %}
-                            </ul></dd>
-                        <dt>created</dt>
-                        <dd><span>{{ agg.created|naturaltime }}</span></dd>
-                    </dl>
-                </dd>
+                <article>
+                    <header><a href="{% url 'taggregation' agg.pk agg.slugify %}" class="agg-name">{{ agg.name }}</a> {{ agg.tags.count }} tag{{ agg.tags.count|pluralize}}</header>
+                    <span>{{ agg.subscribers.count }} subscribers</span>
+                    <span class="description">{% if agg.description %}{{ agg.description }}{% else %}No description{% endif %}</span>
+                    <ul class="tags">
+                        {% for tag in agg.tags.all %}
+                            <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><div class="tag"><span class="tag-name"><a href="{{ tag.get_absolute_url }}">{{ tag.name }} {{ tag.stories.count }}</a></span></div></li>
+                        {% endfor %}
+                    </ul>
+                    <span class="created">created {{ agg.created|naturaltime }}</span>
+                </article>
+            {% empty %}
+                {% if default %}
+                    <p>No default aggregations. <a href="{% url 'public_aggregations' %}">Browse public aggregations</a></p>
+                {% else %}
+                    <p>No public aggregations. {% if request.user.is_authenticated %}<a href="{% url 'new_aggregation' %}">Create your own</a>.{% endif %}</p>
+                {% endif %}
             {% endfor %}
-        </dl>
+        </div>
 
     {% endspaceless %}
     <div class="pagination">
         <span class="step-links">
-            {% if aggs.has_previous %}
-                <a href="{% url 'browse_aggs' %}">&laquo; first</a>
-                <a href="{% url 'browse_aggs_page' page_num=aggs.previous_page_number %}">&lt; previous</a>
-            {% endif %}
+            {% if default %}
+                {% if aggs.has_previous %}
+                    <a href="{% url 'default_aggregations' %}">&laquo; first</a>
+                    <a href="{% url 'default_aggregations_page' page_num=aggs.previous_page_number %}">&lt; previous</a>
+                {% endif %}
 
-            <span class="current">
-                Page {{ aggs.number }}
-            </span>
+                <span class="current">
+                    Page {{ aggs.number }}
+                </span>
 
-            {% if aggs.has_next %}
-                <a href="{% url 'browse_aggs_page' page_num=aggs.next_page_number %}">next &gt;</a>
+                {% if aggs.has_next %}
+                    <a href="{% url 'default_aggregations_page' page_num=aggs.next_page_number %}">next &gt;</a>
+                {% else %}
+                    (of {{aggs.number}})
+                {% endif %}
             {% else %}
-                (of {{aggs.number}})
+                {% if aggs.has_previous %}
+                    <a href="{% url 'public_aggregations' %}">&laquo; first</a>
+                    <a href="{% url 'public_aggregations_page' page_num=aggs.previous_page_number %}">&lt; previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ aggs.number }}
+                </span>
+
+                {% if aggs.has_next %}
+                    <a href="{% url 'public_aggregations_page' page_num=aggs.next_page_number %}">next &gt;</a>
+                {% else %}
+                    (of {{aggs.number}})
+                {% endif %}
             {% endif %}
         </span>
     </div>

@@ -545,7 +545,7 @@ def delete_aggregation_filter(request, taggregation_pk):
     return redirect(obj)
 
 
-def public_aggregations(request, page_num=1):
+def browse_aggs(request, page_num=1, default=False):
     if "order_by" in request.GET:
         request.session["agg_order_by"] = request.GET["order_by"]
     if "ordering" in request.GET:
@@ -554,13 +554,19 @@ def public_aggregations(request, page_num=1):
     ordering = request.session.get("agg_ordering", "desc")
     order_by_field = ("-" if ordering == "desc" else "") + order_by
 
-    if page_num == 1 and request.get_full_path() != reverse("public_aggregations"):
-        return redirect(reverse("public_aggregations"))
+    if default:
+        if page_num == 1 and request.get_full_path() != reverse("default_aggregations"):
+            return redirect(reverse("default_aggregations"))
+    else:
+        if page_num == 1 and request.get_full_path() != reverse("public_aggregations"):
+            return redirect(reverse("public_aggregations"))
     taggs = (
         Taggregation.objects.exclude(discoverable=False)
         .exclude(private=True)
         .order_by(order_by_field, "name")
     )
+    if default:
+        taggs = taggs.filter(default=True)
     paginator = Paginator(taggs, 250)
     try:
         page = paginator.page(page_num)
@@ -568,22 +574,30 @@ def public_aggregations(request, page_num=1):
         # page_num is bigger than the actual number of pages
         return redirect(
             reverse(
-                "browse_tags_page",
+                "default_aggregations_page" if default else "public_aggregations_page",
                 kwargs={"page_num": paginator.num_pages},
             )
         )
     order_by_form = OrderByForm(
-        fields=public_aggregations.ORDER_BY_FIELDS,
+        fields=browse_aggs.ORDER_BY_FIELDS,
         initial={"order_by": order_by, "ordering": ordering},
     )
     return render(
         request,
         "tags/browse_aggs.html",
-        {"aggs": page, "order_by_form": order_by_form},
+        {"aggs": page, "order_by_form": order_by_form, "default": default},
     )
 
 
-public_aggregations.ORDER_BY_FIELDS = ["name", "created"]
+browse_aggs.ORDER_BY_FIELDS = ["name", "created"]
+
+
+def public_aggregations(request, page_num=1):
+    return browse_aggs(request, page_num, default=False)
+
+
+def default_aggregations(request, page_num=1):
+    return browse_aggs(request, page_num, default=True)
 
 
 # HSV values in [0..1[
