@@ -41,7 +41,7 @@
                 {%endif%}
                 | <a href="{{comment.get_absolute_url}}">link</a>
                 | <label class="reply" for="reply-{{comment.pk}}"><a href="">reply</a></label>{% if show_story %} | on <a href="{{ comment.story.get_absolute_url }}">{{ comment.story.title }}</a>{% endif %}
-                | <a href="{% url 'comment_source' comment.story.pk 'test' comment.pk %}">source</a>
+                | <a href="{% url 'comment_source' comment.story.pk comment.story.slugify comment.pk %}">source</a>
                 {% if request.user.is_authenticated %}
                     {%if request.user == comment.user or request.user.is_moderator %}
                         | <a href="{% url 'edit_comment' comment.pk %}">edit</a>
@@ -70,7 +70,7 @@
                         <span class="comment preview">{{ preview }}</span>
                     {% endif %}
                     <label for="reply-{{comment.pk}}-textarea">reply</label>
-                    <textarea id="reply-{{comment.pk}}-textarea" name="text" cols="40" rows="3" minlength="1" placeholder="" required="">{{ preview_input }}</textarea>
+                    <textarea id="reply-{{comment.pk}}-textarea" name="text" cols="40" rows="6" minlength="1" placeholder="" required="">{{ preview_input }}</textarea>
                     <div class="button-flex-box">
                         <input formaction="{% url_with_next 'preview_comment' request %}" type="submit" name="preview" value="Preview">
                         <input type="submit" value="Submit">

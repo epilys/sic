@@ -921,11 +921,15 @@ def invitation_tree(request):
 
 
 @require_http_methods(["GET"])
-def comment_source(request, story_pk, slug, comment_pk):
+def comment_source(request, story_pk, slug, comment_pk=None):
     try:
         story_obj = Story.objects.get(pk=story_pk)
     except Story.DoesNotExist:
         raise Http404("Story does not exist") from Story.DoesNotExist
+    if comment_pk is None:
+        return HttpResponse(
+            story_obj.description, content_type="text/plain; charset=utf-8"
+        )
     try:
         comment_obj = Comment.objects.get(pk=comment_pk)
     except Comment.DoesNotExist:

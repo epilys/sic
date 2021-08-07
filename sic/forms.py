@@ -11,7 +11,7 @@ class SubmitStoryForm(forms.Form):
     )
     description = forms.CharField(
         required=False,
-        widget=forms.Textarea({"rows": 3, "cols": 15, "placeholder": ""}),
+        widget=forms.Textarea({"rows": 5, "cols": 15, "placeholder": ""}),
         help_text="Write additional context for the submitted link, or your content if your post has no URL.",
     )
     url = forms.URLField(required=False)
@@ -68,7 +68,7 @@ class EditReplyForm(forms.Form):
     text = forms.CharField(
         required=True, label="Edit", min_length=1, widget=forms.Textarea
     )
-    text.widget.attrs.update({"rows": 3, "placeholder": ""})
+    text.widget.attrs.update({"rows": 6, "placeholder": ""})
     edit_reason = forms.CharField(
         required=False,
         label="Reason",

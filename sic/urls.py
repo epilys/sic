@@ -81,6 +81,11 @@ urlpatterns = [
         name="upvote_comment",
     ),
     path(
+        "s/<int:story_pk>/<slug:slug>/source/",
+        comment_source,
+        name="story_source",
+    ),
+    path(
         "s/<int:story_pk>/<slug:slug>/source/<int:comment_pk>/",
         comment_source,
         name="comment_source",
