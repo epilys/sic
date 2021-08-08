@@ -46,7 +46,7 @@ class TagAdmin(ModelAdmin):
 
 class StoryAdmin(ModelAdmin):
     ordering = ["-created", "title"]
-    list_display = ["title", "user", "created", "url"]
+    list_display = ["title", "user", "created", "url", "last_modified"]
     list_filter = [
         "tags",
     ]
@@ -54,7 +54,7 @@ class StoryAdmin(ModelAdmin):
 
 class CommentAdmin(ModelAdmin):
     ordering = ["-created"]
-    list_display = ["user", "story", "parent", "created", "text"]
+    list_display = ["user", "story", "parent", "created", "text", "last_modified"]
 
 
 class HatAdmin(ModelAdmin):
@@ -107,6 +107,7 @@ class UserAdmin(ModelAdmin):
         "username",
         "email",
         "created",
+        "last_login",
         "is_active",
         "is_admin",
         "is_moderator",
@@ -162,8 +163,42 @@ class DomainFilterAdmin(MatchFilterAdmin):
     pass
 
 
+class DigestAdmin(ModelAdmin):
+    ordering = ["-id"]
+    list_display = ["user", "active", "all_stories", "last_run"]
+
+
+class StoryRemoteContentAdmin(ModelAdmin):
+    ordering = ["-retrieved_at"]
+    list_display = ["story", "url", "retrieved_at"]
+
+
+class TaggregationHasTagAdmin(ModelAdmin):
+    ordering = ["-id"]
+    list_display = ["taggregation", "tag", "depth"]
+
+
+class ModerationLogEntryAdmin(ModelAdmin):
+    ordering = ["-action_time"]
+    list_display = [
+        "action_time",
+        "user",
+        "action",
+        "reason",
+        "content_type",
+        "is_public",
+        "change_is_public",
+    ]
+    list_filter = ["user", "content_type", "is_public"]
+
+
+class WebmentionAdmin(ModelAdmin):
+    ordering = ["-created"]
+    list_display = ["story", "url", "created", "was_received"]
+
+
 admin.site.register(Comment, CommentAdmin)
-admin.site.register(Digest)
+admin.site.register(Digest, DigestAdmin)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Hat, HatAdmin)
 admin.site.register(Invitation, InvitationAdmin)
@@ -172,20 +207,19 @@ admin.site.register(Moderation)
 admin.site.register(Notification, NotificationAdmin)
 admin.site.register(Story, StoryAdmin)
 admin.site.register(StoryKind, StoryKindAdmin)
-admin.site.register(StoryRemoteContent)
+admin.site.register(StoryRemoteContent, StoryRemoteContentAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(StoryFilter, StoryFilterAdmin)
 admin.site.register(ExactTagFilter, ExactTagFilterAdmin)
 admin.site.register(UserFilter, UserFilterAdmin)
-admin.site.register(TagNameFilter, TagNameFilterAdmin)
 admin.site.register(DomainFilter, DomainFilterAdmin)
 admin.site.register(Taggregation, TaggregationAdmin)
-admin.site.register(TaggregationHasTag)
+admin.site.register(TaggregationHasTag, TaggregationHasTagAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(Vote, VoteAdmin)
-admin.site.register(ModerationLogEntry)
+admin.site.register(ModerationLogEntry, ModerationLogEntryAdmin)
 admin.site.register(InvitationRequest, InvitationRequestAdmin)
-admin.site.register(Webmention)
+admin.site.register(Webmention, WebmentionAdmin)
 
 
 @admin.register(Permission)
