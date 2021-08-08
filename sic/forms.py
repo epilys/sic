@@ -1,3 +1,4 @@
+import functools, operator
 from django import forms
 from django.core.exceptions import ValidationError
 from .apps import SicAppConfig as config
@@ -117,6 +118,14 @@ class EditProfileForm(forms.Form):
         required=False, label="Metadata 4 label", max_length=200
     )
     metadata_4 = forms.CharField(required=False, label="Metadata 4", max_length=200)
+    metadata_1_label.widget.attrs.update({"placeholder": "metadata 1 label"})
+    metadata_1.widget.attrs.update({"placeholder": "metadata 1 value"})
+    metadata_2_label.widget.attrs.update({"placeholder": "metadata 2 label"})
+    metadata_2.widget.attrs.update({"placeholder": "metadata 2 value"})
+    metadata_3_label.widget.attrs.update({"placeholder": "metadata 3 label"})
+    metadata_3.widget.attrs.update({"placeholder": "metadata 3 value"})
+    metadata_4_label.widget.attrs.update({"placeholder": "metadata 4 label"})
+    metadata_4.widget.attrs.update({"placeholder": "metadata 4 value"})
 
 
 class GenerateInviteForm(forms.Form):
@@ -343,6 +352,27 @@ class WeeklyDigestForm(forms.Form):
     on_sunday = forms.BooleanField(
         required=False,
     )
+
+    def calculate_on_days(self):
+        if not self.is_valid():
+            return None
+        return functools.reduce(
+            operator.__or__,
+            map(
+                lambda t: (1 if self.cleaned_data[t[1]] else 0) << t[0],
+                enumerate(
+                    [
+                        "on_monday",
+                        "on_tuesday",
+                        "on_wednesday",
+                        "on_thursday",
+                        "on_friday",
+                        "on_saturday",
+                        "on_sunday",
+                    ]
+                ),
+            ),
+        )
 
 
 class EditSessionSettings(forms.Form):

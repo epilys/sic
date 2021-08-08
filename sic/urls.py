@@ -191,6 +191,11 @@ urlpatterns = [
         name="signup_help",
     ),
     path(
+        "accounts/welcome/",
+        welcome,
+        name="welcome",
+    ),
+    path(
         "accounts/login/",
         auth_views.LoginView.as_view(
             template_name="account/login.html", authentication_form=AuthenticationForm

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Welcome! Setup your details.{% endblock %}
+{% block style %}
+    <style>
+        fieldset.digest-set>div {
+            display: grid;
+            grid-template-columns: 19fr 1fr;
+        }
+        fieldset.digest-set>div>div.label {
+            display: flex;
+            flex-direction: column;
+        }
+        fieldset.week {
+            display: grid;
+            grid-template-rows: auto auto;
+            grid-template-columns: repeat(7, max-content);
+            width: max-content;
+            align-self: center;
+        }
+        fieldset.week label {
+            margin: 1rem 2px;
+            writing-mode: sideways-lr;
+        }
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 5px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <h1>Welcome! Setup your details</h1>
+    <form enctype="multipart/form-data" class="submit-story-form" method="POST">
+        {% csrf_token %}
+        <fieldset class="avatar-set">
+            <legend>Add an avatar (optional)</legend>
+            {{ avatar_form.new_avatar.label_tag }}
+            {{ avatar_form.new_avatar.errors }}
+            {{ avatar_form.new_avatar }}
+
+            {{ avatar_form.avatar_title.label_tag }}
+            {{ avatar_form.avatar_title.help_text }}
+            {{ avatar_form.avatar_title.errors }}
+            {{ avatar_form.avatar_title }}
+        </fieldset>
+        <fieldset class="profile-set">
+            <legend>Edit your profile details</legend>
+            {% csrf_token %}
+            {{ edit_profile_form.homepage.label_tag }}
+            {{ edit_profile_form.homepage.help_text }}
+            {{ edit_profile_form.homepage.errors }}
+            {{ edit_profile_form.homepage }}
+            {{ edit_profile_form.git_repository.label_tag }}
+            {{ edit_profile_form.git_repository.help_text }}
+            {{ edit_profile_form.git_repository.errors }}
+            {{ edit_profile_form.git_repository }}
+            {{ edit_profile_form.about.label_tag }}
+            {{ edit_profile_form.about.help_text }}
+            {{ edit_profile_form.about.errors }}
+            {{ edit_profile_form.about }}
+            <label>metadata</label>
+            <p class="help-text">Add up to four entries of links and other info in your profile.</p>
+            <div class="metadata-grid">
+                {{ edit_profile_form.metadata_1_label.help_text }}
+                {{ edit_profile_form.metadata_1_label.errors }}
+                {{ edit_profile_form.metadata_1_label }}
+                {{ edit_profile_form.metadata_1.help_text }}
+                {{ edit_profile_form.metadata_1.errors }}
+                {{ edit_profile_form.metadata_1 }}
+                {{ edit_profile_form.metadata_2_label.help_text }}
+                {{ edit_profile_form.metadata_2_label.errors }}
+                {{ edit_profile_form.metadata_2_label }}
+                {{ edit_profile_form.metadata_2.help_text }}
+                {{ edit_profile_form.metadata_2.errors }}
+                {{ edit_profile_form.metadata_2 }}
+                {{ edit_profile_form.metadata_3_label.help_text }}
+                {{ edit_profile_form.metadata_3_label.errors }}
+                {{ edit_profile_form.metadata_3_label }}
+                {{ edit_profile_form.metadata_3.help_text }}
+                {{ edit_profile_form.metadata_3.errors }}
+                {{ edit_profile_form.metadata_3 }}
+                {{ edit_profile_form.metadata_4_label.help_text }}
+                {{ edit_profile_form.metadata_4_label.errors }}
+                {{ edit_profile_form.metadata_4_label }}
+                {{ edit_profile_form.metadata_4.help_text }}
+                {{ edit_profile_form.metadata_4.errors }}
+                {{ edit_profile_form.metadata_4 }}
+            </div>
+        </fieldset>
+        {% csrf_token %}
+        <fieldset class="digest-set">
+            <legend>Edit your weekly email digest</legend>
+            <div>
+                <div class="label">
+                    {{ digest_form.active.label_tag }}
+                    {{ digest_form.active.errors }}
+                    {{ digest_form.active.help_text }}
+                </div>
+                <div>
+                    {{ digest_form.active }}
+                </div>
+            </div>
+            <div>
+                <div class="label">
+                    {{ digest_form.all_stories.label_tag }}
+                    {{ digest_form.all_stories.errors }}
+                    {{ digest_form.all_stories.help_text }}
+                </div>
+                <div>
+                    {{ digest_form.all_stories }}
+                </div>
+            </div>
+            <fieldset class="week">
+                <legend>schedule</legend>
+                <label for="id_on_monday">Mon</label>
+                <label for="id_on_tuesday">Tue</label>
+                <label for="id_on_wednesday">Wed</label>
+                <label for="id_on_thursday">Thu</label>
+                <label for="id_on_friday">Fri</label>
+                <label for="id_on_saturday">Sat</label>
+                <label for="id_on_sunday">Sun</label>
+                {{ digest_form.on_monday }}
+                {{ digest_form.on_tuesday }}
+                {{ digest_form.on_wednesday }}
+                {{ digest_form.on_thursday }}
+                {{ digest_form.on_friday }}
+                {{ digest_form.on_saturday }}
+                {{ digest_form.on_sunday }}
+            </fieldset>
+        </fieldset>
+        <div class="button-flex-box">
+            <input type="submit" value="Next">
+        </div>
+    </form>
+{% endblock %}

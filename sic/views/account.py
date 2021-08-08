@@ -2,6 +2,7 @@ from django.http import Http404, JsonResponse
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
+from django.db import transaction
 from django.db.models import Value, BooleanField
 from django.urls import reverse
 from django.contrib import messages
@@ -12,7 +13,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.utils.timezone import make_aware
 from django.views.decorators.http import require_http_methods
-import functools, operator
 from datetime import datetime
 from wand.image import Image
 from ..auth import AuthToken
@@ -42,6 +42,18 @@ from ..forms import (
 )
 from ..apps import SicAppConfig as config
 from . import form_errors_as_string, HttpResponseNotImplemented
+
+# Convert image to data:image/... in order to save avatars as strings in database
+def generate_image_thumbnail(blob):
+    with Image(blob=blob) as i:
+        with i.convert("webp") as page:
+            page.alpha_channel = False
+            width = page.width
+            height = page.height
+            ratio = 100.0 / (width * 1.0)
+            new_height = int(ratio * height)
+            page.thumbnail(width=100, height=new_height)
+            return page.data_url()
 
 
 def login(request):
@@ -113,19 +125,6 @@ def edit_profile(request):
 
 @login_required
 def edit_avatar(request):
-    # Convert image to data:image/... in order to save avatars as strings in database
-
-    def generate_image_thumbnail(blob):
-        with Image(blob=blob) as i:
-            with i.convert("webp") as page:
-                page.alpha_channel = False
-                width = page.width
-                height = page.height
-                ratio = 100.0 / (width * 1.0)
-                new_height = int(ratio * height)
-                page.thumbnail(width=100, height=new_height)
-                return page.data_url()
-
     if request.method == "POST":
         if "delete-image" in request.POST:
             request.user.avatar = None
@@ -134,7 +133,6 @@ def edit_avatar(request):
         form = EditAvatarForm(request.POST, request.FILES)
         if form.is_valid():
             img = form.cleaned_data["new_avatar"]
-            print(img)
             avatar_title = form.cleaned_data["avatar_title"]
             if img:
                 data_url = generate_image_thumbnail(img)
@@ -333,12 +331,7 @@ def accept_invite(request, invite_pk):
                 caused_by=user,
                 url=user.get_absolute_url(),
             )
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                "Welcome aboard! You can familiarise yourself with the website by reading this page.",
-            )
-            return redirect(reverse("help"))
+            return redirect(reverse("welcome"))
     else:
         return redirect(reverse("index"))
     return render(request, "account/signup.html", {"form": form})
@@ -491,23 +484,7 @@ def edit_settings(request):
             digest_form = WeeklyDigestForm(request.POST)
             if digest_form.is_valid():
                 digest, _ = Digest.objects.get_or_create(user=user)
-                digest.on_days = functools.reduce(
-                    operator.__or__,
-                    map(
-                        lambda t: (1 if digest_form.cleaned_data[t[1]] else 0) << t[0],
-                        enumerate(
-                            [
-                                "on_monday",
-                                "on_tuesday",
-                                "on_wednesday",
-                                "on_thursday",
-                                "on_friday",
-                                "on_saturday",
-                                "on_sunday",
-                            ]
-                        ),
-                    ),
-                )
+                digest.on_days = digest_form.calculate_on_days()
                 digest.active = digest_form.cleaned_data["active"]
                 digest.all_stories = digest_form.cleaned_data["all_stories"]
                 digest.last_run = digest_form.cleaned_data["last_run"]
@@ -692,5 +669,109 @@ def new_invitation_request(request):
         "account/new_invitation_request.html",
         {
             "form": form,
+        },
+    )
+
+
+@login_required
+@transaction.atomic
+def welcome(request):
+    avatar_form = None
+    digest_form = None
+    edit_profile_form = None
+    user = request.user
+    if request.method == "POST":
+        avatar_form = EditAvatarForm(request.POST, request.FILES)
+        edit_profile_form = EditProfileForm(request.POST)
+        digest_form = WeeklyDigestForm(request.POST)
+        if (
+            avatar_form.is_valid()
+            and edit_profile_form.is_valid()
+            and digest_form.is_valid()
+        ):
+            img = avatar_form.cleaned_data["new_avatar"]
+            avatar_title = avatar_form.cleaned_data["avatar_title"]
+            if img:
+                data_url = generate_image_thumbnail(img)
+                user.avatar = data_url
+            user.avatar_title = avatar_title if len(avatar_title) > 0 else None
+            user.homepage = edit_profile_form.cleaned_data["homepage"]
+            user.git_repository = edit_profile_form.cleaned_data["git_repository"]
+            user.about = edit_profile_form.cleaned_data["about"]
+            for i in range(1, 5):
+                field = f"metadata_{i}"
+                label = field + "_label"
+                user._wrapped.__dict__[field] = edit_profile_form.cleaned_data[field]
+                user._wrapped.__dict__[label] = edit_profile_form.cleaned_data[label]
+            user.save()
+            digest, _ = Digest.objects.get_or_create(user=user)
+            digest.on_days = digest_form.calculate_on_days()
+            digest.active = digest_form.cleaned_data["active"]
+            digest.all_stories = digest_form.cleaned_data["all_stories"]
+            digest.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                "Welcome aboard! You can familiarise yourself with the website by reading this page.",
+            )
+            return redirect(reverse("help"))
+        error = []
+        for form in [avatar_form, digest_form, edit_profile_form]:
+            if not form.is_valid():
+                error.append(form_errors_as_string(form.errors))
+        messages.add_message(
+            request, messages.ERROR, f"Invalid form. Error: {','.join(error)}"
+        )
+
+    if avatar_form is None:
+        avatar_form = EditAvatarForm()
+
+    if digest_form is None:
+        digest, created = Digest.objects.get_or_create(user=user)
+        initial = {
+            "active": created or digest.active,
+            "all_stories": digest.all_stories,
+            "last_run": digest.last_run,
+        }
+        initial.update(
+            {
+                d[1]: d[0]
+                for d in zip(
+                    digest.days_list,
+                    [
+                        "on_monday",
+                        "on_tuesday",
+                        "on_wednesday",
+                        "on_thursday",
+                        "on_friday",
+                        "on_saturday",
+                        "on_sunday",
+                    ],
+                )
+            }
+        )
+        digest_form = WeeklyDigestForm(initial=initial)
+
+    if edit_profile_form is None:
+        initial = {
+            "homepage": user.homepage,
+            "git_repository": user.git_repository,
+            "about": user.about,
+        }
+        for i in range(1, 5):
+            field = f"metadata_{i}"
+            label = field + "_label"
+            initial[field] = user._wrapped.__dict__[field]
+            initial[label] = user._wrapped.__dict__[label]
+        edit_profile_form = EditProfileForm(initial=initial)
+
+    return render(
+        request,
+        "account/after_signup.html",
+        {
+            "user": request.user,
+            "avatar_form": avatar_form,
+            "edit_profile_form": edit_profile_form,
+            "digest_form": digest_form,
         },
     )

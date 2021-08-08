@@ -619,7 +619,8 @@ form.submit-story-form,form.submit-story-form>fieldset {
 }
 
 form.submit-story-form textarea {
-  max-width: 100%;
+  width: 100%;
+  max-width: var(--main-width);
   min-width: 100%;
   resize: both;
 }
