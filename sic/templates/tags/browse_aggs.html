@@ -7,11 +7,11 @@
         .sparklines {
             position: absolute;
             margin-top: -2rem;
-            transform: scaleX(150%) translateX(15%);
+            transform: scaleX(150%) translateX(10%);
         }
         div.aggregations {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             grid-gap: 20px;
             margin-top:0;
             width: var(--main-width);
@@ -19,11 +19,11 @@
 
         div.aggregations article {
             display: grid;
-            grid-template-rows: max-content max-content 1fr;
+            grid-template-rows: max-content max-content max-content max-content 1fr;
             grid-gap: 10px;
             border: 1px solid gray;
             border-radius: 3px;
-            padding: 1rem 1.5rem;
+            padding: 1rem 1.5rem .5rem 1.5rem;
         }
         div.aggregations article span.description {
             height: 6rem;
@@ -41,11 +41,11 @@
             margin: 0;
         }
         div.aggregations>article .created {
-            position: relative;
-            bottom: -8px;
             font-size: 74%;
             text-align: center;
             width: 100%;
+            align-self: end;
+            color: #535353;
         }
 
         .aggregations a.agg-name {
@@ -83,8 +83,8 @@
         <div class="aggregations">
             {% for agg in aggs %}
                 <article>
-                    <header><a href="{% url 'taggregation' agg.pk agg.slugify %}" class="agg-name">{{ agg.name }}</a> {{ agg.vertices|length }} tag{{ agg.vertices|pluralize}}</header>
-                    <span>{{ agg.subscribers.count }} subscribers</span>
+                    <header><a href="{% url 'taggregation' agg.pk agg.slugify %}" class="agg-name">{{ agg.name }}</a>&#32;<code>{{ agg.vertices|length }}</code>&#32;tag{{ agg.vertices|pluralize}}</header>
+                    <span><code>{{ agg.subscribers.count }}</code> subscribers</span>
                     <span class="sparklines" title="activity for last 14 days">{{ agg.last_14_days }}</span>
                     <span class="description">{% if agg.description %}{{ agg.description }}{% else %}No description{% endif %}</span>
                     <ul class="tags">

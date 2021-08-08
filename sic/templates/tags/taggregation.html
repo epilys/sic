@@ -100,7 +100,7 @@
                     <th>Is discoverable</th><td>{% if not taggregation.private %}{{ taggregation.discoverable|yesno }}{% else %}no{% endif %}</td>
                 </tr>
                 <tr>
-                    <th>Subscribers</th><td>{{ taggregation.subscribers.count }}</td>
+                    <th>Subscribers</th><td><code>{{ taggregation.subscribers.count }}</code></td>
                 </tr>
                 <tr>
                     <th>Description</th>
@@ -148,7 +148,7 @@
                                 <tr>
                                     <th>total children tags</th>
                                     <td>
-                                        {% with has.vertices as vertices %}{{ vertices|length }} tag{{vertices|pluralize}} in subtree{%endwith%}
+                                        {% with has.vertices as vertices %}<code>{{ vertices|length }}</code> tag{{vertices|pluralize}} in subtree{%endwith%}
                                     </td>
                                 </tr>
                                 <tr>

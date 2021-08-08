@@ -6,6 +6,11 @@
         nav.feeds {
             margin-top: 1rem;
         }
+
+        table.no-border,
+        table.no-border td {
+            border: none;
+        }
     </style>
 {% endblock %}
 {% block content %}
@@ -71,7 +76,7 @@
     <div class="settings">
         <h2>settings</h2>
         {% spaceless %}
-            <table>
+            <table class="no-border">
                 <tbody>
                     <tr>
                         <th>email notifications</th>
@@ -121,7 +126,7 @@
             <h2>Invite a new user</h2>
             <form class="submit-comment-form" method="POST" action="{% url_with_next 'generate_invite' request %}">
                 {% csrf_token %}
-                <table>
+                <table class="no-border">
                     {{ generate_invite_form }}
                 </table>
                 <input type="submit" value="generate">

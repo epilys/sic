@@ -428,6 +428,7 @@ body>main nav>ul{
   width: max-content;
   padding: 0;
   max-width: var(--main-width);
+  align-items: center;
 }
 
 body > main nav > ul > li > a {
@@ -459,7 +460,7 @@ body>header>nav>ul {
   list-style: none;
   column-gap: 1rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: left;
   flex-flow:wrap;
   margin: 0;
   width: 100%;
@@ -469,6 +470,9 @@ body>header>nav>ul {
 body>header>nav.user {
   text-align: right;
   margin-left: auto;
+}
+body>header>nav.user>ul{
+  justify-content: right;
 }
 
 body>footer {
@@ -1087,6 +1091,10 @@ table {
 table,
 td {
     border: 1px solid #333;
+}
+
+th {
+  text-align: right;
 }
 
 th, td {
