@@ -1,13 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Edit hat{% endblock %}
+{% block title %}{% if hat %}Edit hat{% else %}Create hat {% endif %}{% endblock %}
 {% block content %}
-    <h1>edit hat</h1>
-    <div>
-        <span>Current hat:
-            <span class="hat" style="--hat-color: {{ hat.hex_color }}">{{ hat.name }}</span>
-        </span>
-    </div>
-    <form method="post" class="submit-story-form">
+    {% if hat %}
+        <h1>edit hat</h1>
+    {% else %}
+        <h1>create hat</h1>
+    {% endif %}
+    {% if hat %}
+        <div>
+            <span>Current hat:
+                <span class="hat" style="--hat-color: {{ hat.hex_color }}">{{ hat.name }}</span>
+            </span>
+        </div>
+    {% endif %}
+    <form method="POST" class="submit-story-form">
         {% csrf_token %}
         <table>
             {{ form }}

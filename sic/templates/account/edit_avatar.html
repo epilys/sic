@@ -7,12 +7,14 @@
         {% if user.avatar %}<img src="{{ user.avatar }}">{% else %}<div>None.</div>{% endif %}
         <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }}</figcaption>
     </figure>
-    <form enctype="multipart/form-data" method="post" action="">
+    <form enctype="multipart/form-data" class="submit-story-form" method="POST">
         {% csrf_token %}
         <table>
             {{ form }}
         </table>
-        <input type="submit" name="delete-image" value="Delete image">
-        <input type="submit" value="Submit">
+        <div class="button-flex-box">
+            <input type="submit" value="Submit">
+            <input type="submit" name="delete-image" value="Delete image">
+        </div>
     </form>
 {% endblock %}

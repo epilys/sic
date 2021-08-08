@@ -1093,7 +1093,7 @@ th, td {
   padding: 2px 5px;
 }
 
-td input {
+td input:not([type="color"]) {
   width: max-content;
   max-width: 98%;
 }
