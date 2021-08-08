@@ -1,493 +1,194 @@
-<svg id="svg" width="162mm" height="109mm" version="1.1" viewBox="0 0 162 109" xmlns="http://www.w3.org/2000/svg">
+<svg version="1.1" id="svg" viewBox="0 0 659 409" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <clipPath id="bo">
-      <path d="m36 36h524v770h-524z"/>
-    </clipPath>
-    <clipPath id="bn">
-      <path d="m80 39h2.2v2.2h-2.2z"/>
-    </clipPath>
-    <clipPath id="bm">
-      <path d="m139 39h2.2v2.2h-2.2z"/>
-    </clipPath>
-    <clipPath id="bl">
-      <path d="m141 39v17l-8.6-8.6z"/>
-    </clipPath>
-    <clipPath id="bk">
-      <path d="m139 39h2.2v2.2h-2.2z"/>
-    </clipPath>
-    <clipPath id="bj">
-      <path d="m80 39h61l-8.6 8.6h-44z"/>
-    </clipPath>
-    <clipPath id="bi">
-      <path d="m139 54h2.2v2.2h-2.2z"/>
-    </clipPath>
-    <clipPath id="bh">
-      <path d="m80 54h2.2v2.2h-2.2z"/>
-    </clipPath>
-    <clipPath id="bg">
-      <path d="m80 56v-17l8.6 8.6z"/>
-    </clipPath>
-    <clipPath id="bf">
-      <path d="m80 54h2.2v2.2h-2.2z"/>
-    </clipPath>
-    <clipPath id="be">
-      <path d="m141 56h-61l8.6-8.6h44z"/>
-    </clipPath>
-    <clipPath id="bd">
-      <path d="m82 39h57v0.44h-57z"/>
-    </clipPath>
-    <clipPath id="bc">
-      <path d="m141 41h0.44v13h-0.44z"/>
-    </clipPath>
-    <clipPath id="bb">
-      <path d="m82 55h57v0.44h-57z"/>
-    </clipPath>
-    <clipPath id="ba">
-      <path d="m80 41h0.44v13h-0.44z"/>
-    </clipPath>
-    <clipPath id="az">
-      <path d="m150 39h2.2v2.2h-2.2z"/>
-    </clipPath>
-    <clipPath id="ay">
-      <path d="m240 39h2.2v2.2h-2.2z"/>
-    </clipPath>
-    <clipPath id="ax">
-      <path d="m242 39v17l-8.6-8.6z"/>
-    </clipPath>
-    <clipPath id="aw">
-      <path d="m240 39h2.2v2.2h-2.2z"/>
-    </clipPath>
-    <clipPath id="av">
-      <path d="m150 39h92l-8.6 8.6h-75z"/>
-    </clipPath>
-    <clipPath id="au">
-      <path d="m240 54h2.2v2.2h-2.2z"/>
-    </clipPath>
-    <clipPath id="at">
-      <path d="m150 54h2.2v2.2h-2.2z"/>
-    </clipPath>
-    <clipPath id="as">
-      <path d="m150 56v-17l8.6 8.6z"/>
-    </clipPath>
-    <clipPath id="ar">
-      <path d="m150 54h2.2v2.2h-2.2z"/>
-    </clipPath>
-    <clipPath id="aq">
-      <path d="m242 56h-92l8.6-8.6h75z"/>
-    </clipPath>
-    <clipPath id="ap">
-      <path d="m153 39h87v0.44h-87z"/>
-    </clipPath>
-    <clipPath id="ao">
-      <path d="m242 41h0.44v13h-0.44z"/>
-    </clipPath>
-    <clipPath id="an">
-      <path d="m153 55h87v0.44h-87z"/>
-    </clipPath>
-    <clipPath id="am">
-      <path d="m150 41h0.44v13h-0.44z"/>
-    </clipPath>
-    <clipPath id="al">
-      <path d="m296 36h53v15h-53z"/>
-    </clipPath>
     <clipPath id="ak">
-      <path d="m359 36h71v15h-71z"/>
-    </clipPath>
-    <clipPath id="aj">
-      <path d="m359 36h71v15h-71z"/>
-    </clipPath>
-    <clipPath id="ai">
-      <path d="m363 39h51v10h-51z"/>
-    </clipPath>
-    <clipPath id="ah">
-      <path d="m434 36h25v15h-25z"/>
-    </clipPath>
-    <clipPath id="ag">
-      <path d="m80 209h384v1.3h-384z"/>
-    </clipPath>
-    <clipPath id="af">
-      <path d="m90 137h64v16h-64z"/>
-    </clipPath>
-    <clipPath id="ae">
-      <path d="m92 137h60c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-60c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2z"/>
-    </clipPath>
-    <clipPath id="ad">
-      <path d="m90 153h67v16h-67z"/>
-    </clipPath>
-    <clipPath id="ac">
-      <path d="m92 153h63c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-63c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2z"/>
-    </clipPath>
-    <clipPath id="ab">
-      <path d="m90 169h29v16h-29z"/>
-    </clipPath>
-    <clipPath id="aa">
-      <path d="m92 169h26c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-26c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2z"/>
-    </clipPath>
-    <clipPath id="z">
-      <path d="m168 170h22v10h-22z"/>
-    </clipPath>
-    <clipPath id="y">
-      <path d="m171 170h16c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-16c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3z"/>
-    </clipPath>
-    <clipPath id="x">
-      <path d="m193 170h35v10h-35z"/>
-    </clipPath>
-    <clipPath id="w">
-      <path d="m196 170h29c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-29c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3z"/>
-    </clipPath>
-    <clipPath id="v">
-      <path d="m231 170h24v10h-24z"/>
-    </clipPath>
-    <clipPath id="u">
-      <path d="m234 170h17c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-17c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3z"/>
-    </clipPath>
-    <clipPath id="t">
-      <path d="m257 170h42v10h-42z"/>
-    </clipPath>
-    <clipPath id="s">
-      <path d="m260 170h35c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-35c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3z"/>
-    </clipPath>
-    <clipPath id="r">
-      <path d="m301 170h54v10h-54z"/>
-    </clipPath>
-    <clipPath id="q">
-      <path d="m304 170h48c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-48c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3z"/>
-    </clipPath>
-    <clipPath id="p">
-      <path d="m358 170h50v10h-50z"/>
+      <path d="m291 81h0.5v15h-0.5z"/>
     </clipPath>
     <clipPath id="o">
-      <path d="m361 170h43c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-43c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3z"/>
+      <path d="m66 350h25v12h-25z"/>
     </clipPath>
-    <clipPath id="n">
-      <path d="m90 184h46v16h-46z"/>
+    <clipPath id="p">
+      <path d="m70 350h18c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-18c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8z"/>
     </clipPath>
-    <clipPath id="m">
-      <path d="m92 184h42c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-42c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2z"/>
+    <clipPath id="q">
+      <path d="m66 349h26v13h-26z"/>
     </clipPath>
-    <clipPath id="l">
-      <path d="m90 241h64v16h-64z"/>
+    <clipPath id="r">
+      <path d="m94 350h40v12h-40z"/>
     </clipPath>
-    <clipPath id="k">
-      <path d="m92 241h60c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-60c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2z"/>
+    <clipPath id="s">
+      <path d="m98 350h32c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-32c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8z"/>
     </clipPath>
-    <clipPath id="j">
-      <path d="m90 257h67v16h-67z"/>
+    <clipPath id="t">
+      <path d="m137 350h27v12h-27z"/>
     </clipPath>
-    <clipPath id="i">
-      <path d="m92 257h63c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-63c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2z"/>
+    <clipPath id="u">
+      <path d="m141 350h20c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-20c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8z"/>
     </clipPath>
-    <clipPath id="h">
-      <path d="m90 273h29v16h-29z"/>
+    <clipPath id="v">
+      <path d="m167 350h47v12h-47z"/>
     </clipPath>
-    <clipPath id="g">
-      <path d="m92 273h26c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-26c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2z"/>
+    <clipPath id="w">
+      <path d="m171 350h40c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-40c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8z"/>
     </clipPath>
-    <clipPath id="f">
-      <path d="m168 274h30v10h-30z"/>
+    <clipPath id="x">
+      <path d="m66 366h62v12h-62z"/>
     </clipPath>
-    <clipPath id="e">
-      <path d="m171 274h23c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-23c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3z"/>
+    <clipPath id="y">
+      <path d="m70 366h54c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-54c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8z"/>
     </clipPath>
-    <clipPath id="d">
-      <path d="m200 274h68v10h-68z"/>
+    <clipPath id="ad">
+      <path d="m66 365h62v13h-62z"/>
     </clipPath>
-    <clipPath id="c">
-      <path d="m203 274h61c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-61c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3z"/>
+    <clipPath id="aj">
+      <path d="m131 366h57v12h-57z"/>
     </clipPath>
-    <clipPath id="b">
-      <path d="m90 289h46v16h-46z"/>
+    <clipPath id="al">
+      <path d="m134 366h49c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-49c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8z"/>
     </clipPath>
-    <clipPath id="a">
-      <path d="m92 289h42c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-42c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2z"/>
+    <clipPath id="z">
+      <path d="m130 365h58v13h-58z"/>
+    </clipPath>
+    <clipPath id="aa">
+      <path d="m322 280h69v9h-69z"/>
+    </clipPath>
+    <clipPath id="ab">
+      <path d="m322 366h34v12h-34z"/>
+    </clipPath>
+    <clipPath id="ac">
+      <path d="m325 366h26c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-26c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8z"/>
+    </clipPath>
+    <clipPath id="ae">
+      <path d="m322 365h34v13h-34z"/>
+    </clipPath>
+    <clipPath id="af">
+      <path d="m358 366h77v12h-77z"/>
+    </clipPath>
+    <clipPath id="ah">
+      <path d="m362 366h69c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-69c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8z"/>
+    </clipPath>
+    <clipPath id="ai">
+      <path d="m358 365h77v13h-77z"/>
     </clipPath>
   </defs>
-  <g transform="translate(-.18 -16)">
-    <g transform="matrix(.31 0 0 .14 -11 11)">
-      <g clip-path="url(#bo)">
-        <path d="m36 36h524v770h-524z" fill="#fff"/>
+  <g transform="matrix(1.3 0 0 1.3 -57 -170)">
+    <g transform="matrix(.99 0 0 .82 .46 74)">
+      <path d="m44 70h512v337h-512z" fill="#fff"/>
+    </g>
+    <g clip-path="url(#ak)">
+      <path d="m294 79h142c1.2 0 2.2 1 2.2 2.2v15c0 1.2-1 2.2-2.2 2.2h-142c-1.2 0-2.2-1-2.2-2.2v-15c0-1.2 1-2.2 2.2-2.2zm142 0.5h-142c-0.96 0-1.8 0.78-1.8 1.8v15c0 0.96 0.78 1.8 1.8 1.8h142c0.96 0 1.8-0.79 1.8-1.8v-15c0-0.96-0.78-1.8-1.8-1.8z" fill="#808080"/>
+    </g>
+    <g font-family="Inter">
+      <text transform="translate(50,156)" font-size="21px" font-weight="bold"><tspan x="0 13.587 26.628 39.963001 45.674999 51.387001 63.714001 68.565002 80.745003 94.038002 107.331 115.374 127.911 141.20399 153.384 161.532 167.244 180.117 193.158" y="0">Public aggregations</tspan></text>
+      <g font-size="10px">
+        <text transform="translate(50,179)"><tspan x="0 7.098 13.4925 19.886999 23.6145 29.7255 36.119999 42.031502 45.842999 48.331501 54.5895 60.731998 66.8535 70.4655 76.376999 80.1045 86.876999 90.488998 96.348 102.606 105.0945 107.583 113.694 119.553 123.3645 125.853 132.11099 138.25349 144.3645 147.9765 154.2345 158.67599 162.28799 166.0995 172.011 178.4055 184.548 188.13901 193.767 200.02499 206.7765 210.3885 216.2475 222.159 228.9735 232.58549 238.0665 244.15649 250.6665 256.14749 262.0065 265.91251 268.401 274.91101 281.66251 285.26401 289.02301 295.28101 298.82999 302.43149 309.17249 315.36749 321.29999 327.7995 331.401 337.7955 344.0535 350.448 356.53799 359.02649 364.93799 368.69699 375.45901 379.07101 384.69901 390.957 397.047 401.625 405.2265 409.0065 412.73401 418.992 425.13449" y="0">Aggregations are collections of tags you can subscribe to. They populate your front</tspan></text>
+        <text transform="translate(479,179)"><tspan x="0" y="0">‐</tspan></text>
+        <text transform="translate(50,192)"><tspan x="0 6.3944998 12.306 18.7005 24.811501 28.4025 32.056499 38.220001 44.478001 51.282001 54.946499 60.8055 66.717003 73.573502 77.237999 83.097 86.824501 92.935501 98.847 102.606 109.4205 113.085 118.713 124.971 131.061 135.681 139.33501 145.40401 153.92999 160.797 164.4615 170.856 174.76199 177.2505 182.91 188.8215 192.58051 199.395 203.049 209.30701 213.927 217.58099 223.97549 230.06551 236.5755 239.064 241.55251 248.11501 251.7795 257.69101 264.08551 270.48001 274.20749 280.31851 286.71301 292.62451 296.436 298.9245 305.1825 311.32501 317.51999 321.17401 327.43201 332.052 335.71649 341.19751 347.28751 353.79749 359.2785 365.13751 369.04349 371.53201 378.04199 384.85651 388.5105 392.2695 399.24149 402.89551 409.29001 415.38 421.89001 424.37851 426.867" y="0">page. You can create your own private or public aggregations or subscribe to public</tspan> <tspan x="0 6.2579999 12.4005 18.511499 23.9925" y="12.599989">ones.</tspan></text>
       </g>
     </g>
-  </g>
-  <g transform="translate(-.18 -16)">
-    <g transform="matrix(.35 0 0 .35 -13 9.8)">
-      <g clip-path="url(#bn)">
-        <path d="m82 39h58c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-58c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm58 0.44h-58c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h58c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#808080"/>
-      </g>
-      <g clip-path="url(#bm)">
-        <g clip-path="url(#bl)">
-          <path d="m82 39h58c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-58c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm58 0.44h-58c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h58c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#555"/>
-        </g>
-      </g>
-      <g clip-path="url(#bk)">
-        <g clip-path="url(#bj)">
-          <path d="m82 39h58c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-58c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm58 0.44h-58c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h58c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#808080"/>
-        </g>
-      </g>
-      <g clip-path="url(#bi)">
-        <path d="m82 39h58c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-58c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm58 0.44h-58c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h58c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#555"/>
-      </g>
-      <g clip-path="url(#bh)">
-        <g clip-path="url(#bg)">
-          <path d="m82 39h58c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-58c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm58 0.44h-58c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h58c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#808080"/>
-        </g>
-      </g>
-      <g clip-path="url(#bf)">
-        <g clip-path="url(#be)">
-          <path d="m82 39h58c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-58c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm58 0.44h-58c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h58c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#555"/>
-        </g>
-      </g>
-      <g clip-path="url(#bd)">
-        <path d="m82 39h58c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-58c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm58 0.44h-58c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h58c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#808080"/>
-      </g>
-      <g clip-path="url(#bc)">
-        <path d="m82 39h58c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-58c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm58 0.44h-58c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h58c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#555"/>
-      </g>
-      <g clip-path="url(#bb)">
-        <path d="m82 39h58c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-58c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm58 0.44h-58c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h58c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#555"/>
-      </g>
-      <g clip-path="url(#ba)">
-        <path d="m82 39h58c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-58c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm58 0.44h-58c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h58c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#808080"/>
-      </g>
-      <path d="m84 52h44" fill="none" stroke="#551a8b" stroke-miterlimit="10" stroke-width=".44"/>
-      <path d="m132 52h5.3" fill="none" stroke="#551a8b" stroke-miterlimit="10" stroke-width=".44"/>
-      <text transform="translate(83 51)" fill="#551a8b" font-family="Inter" font-size="9.2px"><tspan x="0 6.006 9.2769604 14.61768 22.12056 26.94384 32.321522 34.917961 38.272079 43.474201 49.10136" y="0">Browse tags</tspan></text>
-      <g clip-path="url(#az)">
-        <path d="m152 39h88c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-88c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm88 0.44h-88c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h88c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#808080"/>
-      </g>
-      <g clip-path="url(#ay)">
-        <g clip-path="url(#ax)">
-          <path d="m152 39h88c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-88c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm88 0.44h-88c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h88c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#555"/>
-        </g>
-      </g>
-      <g clip-path="url(#aw)">
-        <g clip-path="url(#av)">
-          <path d="m152 39h88c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-88c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm88 0.44h-88c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h88c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#808080"/>
-        </g>
-      </g>
-      <g clip-path="url(#au)">
-        <path d="m152 39h88c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-88c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm88 0.44h-88c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h88c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#555"/>
-      </g>
-      <g clip-path="url(#at)">
-        <g clip-path="url(#as)">
-          <path d="m152 39h88c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-88c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm88 0.44h-88c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h88c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#808080"/>
-        </g>
-      </g>
-      <g clip-path="url(#ar)">
-        <g clip-path="url(#aq)">
-          <path d="m152 39h88c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-88c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm88 0.44h-88c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h88c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#555"/>
-        </g>
-      </g>
-      <g clip-path="url(#ap)">
-        <path d="m152 39h88c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-88c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm88 0.44h-88c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h88c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#808080"/>
-      </g>
-      <g clip-path="url(#ao)">
-        <path d="m152 39h88c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-88c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm88 0.44h-88c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h88c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#555"/>
-      </g>
-      <g clip-path="url(#an)">
-        <path d="m152 39h88c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-88c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm88 0.44h-88c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h88c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#555"/>
-      </g>
-      <g clip-path="url(#am)">
-        <path d="m152 39h88c1.1 0 2 0.89 2 2v13c0 1.1-0.89 2-2 2h-88c-1.1 0-2-0.89-2-2v-13c0-1.1 0.89-2 2-2zm88 0.44h-88c-0.85 0-1.5 0.69-1.5 1.5v13c0 0.85 0.69 1.5 1.5 1.5h88c0.85 0 1.5-0.69 1.5-1.5v-13c0-0.85-0.69-1.5-1.5-1.5z" fill="#808080"/>
-      </g>
-      <path d="m154 52h38" fill="none" stroke="#551a8b" stroke-miterlimit="10" stroke-width=".44"/>
-      <path d="m196 52h1.3" fill="none" stroke="#551a8b" stroke-miterlimit="10" stroke-width=".44"/>
-      <path d="m202 52h9.7" fill="none" stroke="#551a8b" stroke-miterlimit="10" stroke-width=".44"/>
-      <path d="m216 52h22" fill="none" stroke="#551a8b" stroke-miterlimit="10" stroke-width=".44"/>
-      <text transform="translate(154 51)" fill="#551a8b" font-family="Inter" font-size="9.2px"><tspan x="0 6.7174802 9.9976797 15.37536 20.57748 23.885401 29.263081 31.85952 37.061642 42.688801 48.31596 51.586922 56.9646 62.591759 67.793877 71.148003 73.337883 78.844917" y="0">Create aggregation</tspan></text>
-      <text transform="translate(251 45)" fill="#000000" font-family="Inter" font-size="9.2px" font-weight="bold"><tspan x="0 5.6641202 9.1938 15.0612 20.57748 24.347401 26.48184 32.182919 37.588322" y="0">order by:</tspan></text>
-      <g clip-path="url(#al)">
-        <path d="m299 36h48c1.3 0 2.4 1.1 2.4 2.4v9.7c0 1.3-1.1 2.4-2.4 2.4h-48c-1.3 0-2.4-1.1-2.4-2.4v-9.7c0-1.3 1.1-2.4 2.4-2.4z" fill="#e9e9ed" stroke="#8f8f9d" stroke-miterlimit="10" stroke-width=".44"/>
-        <text transform="translate(300 47)" fill="#000000" font-family="Inter" font-size="9.2px"><tspan x="0 5.15592 8.43612 13.8138 19.015921 22.323839 27.701521" y="0">created</tspan></text>
-        <path d="m340 43 2.3 2.6h0.66l2.3-2.6v-0.66h-0.66l-2 2.3-2-2.3h-0.66"/>
-      </g>
-      <g clip-path="url(#ak)">
-        <path d="m362 36h65c1.3 0 2.4 1.1 2.4 2.4v9.7c0 1.3-1.1 2.4-2.4 2.4h-65c-1.3 0-2.4-1.1-2.4-2.4v-9.7c0-1.3 1.1-2.4 2.4-2.4z" fill="#e9e9ed"/>
-      </g>
-      <g clip-path="url(#aj)">
-        <path d="m362 36h65c1.3 0 2.4 1.1 2.4 2.4v9.7c0 1.3-1.1 2.4-2.4 2.4h-65c-1.3 0-2.4-1.1-2.4-2.4v-9.7c0-1.3 1.1-2.4 2.4-2.4z" fill="none" stroke="#8f8f9d" stroke-miterlimit="10" stroke-width=".44"/>
-      </g>
-      <g clip-path="url(#ai)">
-        <text transform="translate(363 47)" fill="#000000" font-family="Inter" font-size="9.2px"><tspan x="0 5.7287998 11.10648 15.92976 21.08568 26.46336 31.868759 37.597561 39.787441 45.192841" y="0">descending</tspan></text>
-      </g>
-      <path d="m420 43 2.3 2.6h0.66l2.3-2.6v-0.66h-0.66l-2 2.3-2-2.3h-0.66"/>
-      <g clip-path="url(#ah)">
-        <path d="m437 36h20c1.3 0 2.4 1.1 2.4 2.4v9.7c0 1.3-1.1 2.4-2.4 2.4h-20c-1.3 0-2.4-1.1-2.4-2.4v-9.7c0-1.3 1.1-2.4 2.4-2.4z" fill="#e9e9ed" stroke="#8f8f9d" stroke-miterlimit="10" stroke-width=".44"/>
-        <text transform="translate(438 47)" fill="#000000" font-family="Inter" font-size="9.2px"><tspan x="0 4.8232799 10.33032 14.08176" y="0">sort</tspan></text>
-      </g>
-      <g fill="#000000" font-family="Inter" font-size="9.2px">
-        <text transform="translate(80 75)"><tspan x="0 6.2462401 11.8734 17.500561 20.78076 26.15844 31.785601 36.98772 40.341839 42.531719 48.038761 53.44416 58.831081 62.00964 67.211761 70.491959 76.451759 79.630318 84.78624 90.293282 92.483162 94.673042 100.05072 105.20664 108.56076 110.75064 116.25768 121.66308 127.04076 130.21931 135.72636 139.63487 142.81345 146.16756 151.36967 156.99684 162.40224 165.56232 170.51495 176.022 181.96332 185.14188 190.29781 195.49992 201.49667 204.67525 209.49852 214.85773 220.58652 225.40981 230.56572 234.00301 236.19289 241.92168 247.86301 251.03232 254.34024 259.84729 262.9704 266.13971 272.07181 277.52341 282.74399 288.46356 291.63287 297.26004 302.76709 308.39423 313.75345 315.94333 321.14545 324.45337 330.40393 333.58249 338.53513 344.04214 349.40137 353.42999 356.59933 359.92572 363.20593 368.71295 374.11835" y="0">Aggregations are collections of tags you can subscribe to. They populate your front</tspan></text>
-        <text transform="translate(457 75)"><tspan x="0" y="0">‐</tspan></text>
-        <text transform="translate(80 86)"><tspan x="0 5.6271601 10.82928 16.45644 21.83412 24.9942 28.209721 33.633598 39.14064 45.128159 48.352921 53.508839 58.71096 64.744682 67.969437 73.125359 76.405563 81.783241 86.985359 90.293282 96.290039 99.514801 104.46744 109.97448 115.33368 119.39928 122.6148 127.95552 135.4584 141.50136 144.72612 150.35329 153.79056 155.98044 160.9608 166.16292 169.47084 175.46761 178.68312 184.19016 188.25575 191.47128 197.09843 202.45764 208.18645 210.37633 212.56619 218.3412 221.56596 226.76808 232.39523 238.0224 241.3026 246.68028 252.30743 257.50955 260.86368 263.05356 268.56061 273.966 279.4176 282.63312 288.14017 292.20575 295.43051 300.25381 305.61301 311.3418 316.16507 321.32101 324.75827 326.94815 332.67697 338.67371 341.88925 345.19717 351.33252 354.54803 360.1752 365.53439 371.26321 373.45309 375.64297" y="0">page. You can create your own private or public aggregations or subscribe to public</tspan> <tspan x="0 5.50704 10.91244 16.290119 21.1134" y="11.088">ones.</tspan></text>
-      </g>
-      <g clip-path="url(#ag)">
-        <path d="m80 209h384v1.3h-384z" fill="#555"/>
-      </g>
-      <path d="m80 126h25" fill="none" stroke="#551a8b" stroke-miterlimit="10" stroke-width=".44"/>
-      <text transform="translate(80 125)" fill="#551a8b" font-family="'DejaVu Sans Mono'" font-size="10px" font-weight="bold"><tspan x="0 6.1187282 12.237456 18.356184" y="0">arts</tspan></text>
-      <text transform="translate(106 125)" fill="#217ac0" font-family="Inter" font-size="10px" font-weight="bold"><tspan x="0 6.70824 9.0561237 12.999756 18.894876 25.328688" y="0">6 tags</tspan></text>
-      <g clip-path="url(#af)">
-        <g clip-path="url(#ae)">
-          <path d="m90 137h64v16h-64z" fill="#fff"/>
-        </g>
-      </g>
-      <g>
-        <path d="m92 137h60c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-60c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2zm60 0.44h-60c-0.85 0-1.5 0.69-1.5 1.5v12c0 0.85 0.69 1.5 1.5 1.5h60c0.85 0 1.5-0.69 1.5-1.5v-12c0-0.85-0.69-1.5-1.5-1.5z"/>
-        <text transform="translate(94 149)" fill="#217ac0" font-family="Inter" font-size="10px" font-weight="bold"><tspan x="0 6.4541402 12.522048 18.224052 24.190319 28.337233 31.101839 37.52549 41.46912 44.233727 50.46426" y="0">description</tspan></text>
-      </g>
-      <g clip-path="url(#ad)">
-        <g clip-path="url(#ac)">
-          <path d="m90 153h67v16h-67z" fill="#fff"/>
-        </g>
-      </g>
-      <g>
-        <path d="m92 153h63c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-63c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2zm63 0.44h-63c-0.85 0-1.5 0.69-1.5 1.5v12c0 0.85 0.69 1.5 1.5 1.5h63c0.85 0 1.5-0.69 1.5-1.5v-12c0-0.85-0.69-1.5-1.5-1.5z"/>
-        <text transform="translate(94 164)" fill="#217ac0" font-family="Inter" font-size="10px" font-weight="bold"><tspan x="0 5.702004 12.013848 18.467987 24.169992 30.136259 34.283173 37.047779 43.501919 49.569828 53.71674" y="0">subscribers</tspan></text>
-        <text transform="translate(168 163)" fill="#000000" font-family="Inter" font-size="9.2px"><tspan x="0" y="0">1</tspan></text>
-      </g>
-      <g clip-path="url(#ab)">
-        <g clip-path="url(#aa)">
-          <path d="m90 169h29v16h-29z" fill="#fff"/>
-        </g>
-      </g>
-      <g>
-        <path d="m92 169h26c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-26c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2zm26 0.44h-26c-0.85 0-1.5 0.69-1.5 1.5v12c0 0.85 0.69 1.5 1.5 1.5h26c0.85 0 1.5-0.69 1.5-1.5v-12c0-0.85-0.69-1.5-1.5-1.5z"/>
-        <text transform="translate(94 180)" fill="#217ac0" font-family="Inter" font-size="10px" font-weight="bold"><tspan x="0 3.9436319 9.8387518 16.272564" y="0">tags</tspan></text>
-      </g>
-      <g clip-path="url(#z)">
-        <g clip-path="url(#y)">
-          <path d="m168 170h22v10h-22z" fill="#00599a"/>
-        </g>
-      </g>
-      <g>
-        <path d="m171 170h16c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-16c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3zm16 0.44h-16c-1.6 0-2.9 1.3-2.9 2.9v3.9c0 1.6 1.3 2.9 2.9 2.9h16c1.6 0 2.9-1.3 2.9-2.9v-3.9c0-1.6-1.3-2.9-2.9-2.9z" fill-opacity=".37"/>
-        <text transform="translate(171 177)" fill="#ffffff" font-family="Inter" font-size="7px"><tspan x="0 3.9635201 6.8217602 9.3772802 11.35552" y="0">art 4</tspan></text>
-      </g>
-      <g clip-path="url(#x)">
-        <g clip-path="url(#w)">
-          <path d="m193 170h35v10h-35z" fill="#fff"/>
-        </g>
-      </g>
-      <g>
-        <path d="m196 170h29c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-29c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3zm29 0.44h-29c-1.6 0-2.9 1.3-2.9 2.9v3.9c0 1.6 1.3 2.9 2.9 2.9h29c1.6 0 2.9-1.3 2.9-2.9v-3.9c0-1.6-1.3-2.9-2.9-2.9z" fill-opacity=".37"/>
-        <text transform="translate(196 177)" fill="#000000" font-family="Inter" font-size="7px"><tspan x="0 4.3648 8.46208 12.13696 13.80544 18.0928 22.211201 24.18944" y="0">design 0</tspan></text>
-      </g>
-      <g clip-path="url(#v)">
-        <g clip-path="url(#u)">
-          <path d="m231 170h24v10h-24z" fill="#474747"/>
-        </g>
-      </g>
-      <g>
-        <path d="m234 170h17c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-17c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3zm17 0.44h-17c-1.6 0-2.9 1.3-2.9 2.9v3.9c0 1.6 1.3 2.9 2.9 2.9h17c1.6 0 2.9-1.3 2.9-2.9v-3.9c0-1.6-1.3-2.9-2.9-2.9z" fill-opacity=".37"/>
-        <text transform="translate(234 177)" fill="#ffffff" font-family="Inter" font-size="7px"><tspan x="0 2.5344 4.2028799 5.8713598 11.98912 13.96736" y="0">film 1</tspan></text>
-      </g>
-      <g clip-path="url(#t)">
-        <g clip-path="url(#s)">
-          <path d="m257 170h42v10h-42z" fill="#5fad47"/>
-        </g>
-      </g>
-      <g>
-        <path d="m260 170h35c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-35c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3zm35 0.44h-35c-1.6 0-2.9 1.3-2.9 2.9v3.9c0 1.6 1.3 2.9 2.9 2.9h35c1.6 0 2.9-1.3 2.9-2.9v-3.9c0-1.6-1.3-2.9-2.9-2.9z" fill-opacity=".37"/>
-        <text transform="translate(260 177)" fill="#000000" font-family="Inter" font-size="7px"><tspan x="0 1.66848 3.3369601 5.8572798 9.9545603 12.57344 16.536961 19.09248 23.17568 25.674879 29.77216 31.750401" y="0">literature 1</tspan></text>
-      </g>
-      <g clip-path="url(#r)">
-        <g clip-path="url(#q)">
-          <path d="m301 170h54v10h-54z" fill="#fff"/>
-        </g>
-      </g>
-      <g>
-        <path d="m304 170h48c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-48c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3zm48 0.44h-48c-1.6 0-2.9 1.3-2.9 2.9v3.9c0 1.6 1.3 2.9 2.9 2.9h48c1.6 0 2.9-1.3 2.9-2.9v-3.9c0-1.6-1.3-2.9-2.9-2.9z" fill-opacity=".37"/>
-        <text transform="translate(304 177)" fill="#000000" font-family="Inter" font-size="7px"><tspan x="0 4.2873602 8.4409599 12.6368 15.15008 19.345921 23.63328 26.252159 30.215679 34.50304 38.515839 42.43008 44.408321" y="0">photography 1</tspan></text>
-      </g>
+    <path d="m52 226h236c1.2 0 2.2 1 2.2 2.2v176c0 1.2-1 2.2-2.2 2.2h-236c-1.2 0-2.2-1-2.2-2.2v-176c0-1.2 1-2.2 2.2-2.2zm236 0.5h-236c-0.97 0-1.8 0.79-1.8 1.8v176c0 0.96 0.78 1.8 1.8 1.8h236c0.97 0 1.8-0.78 1.8-1.8v-176c0-0.96-0.78-1.8-1.8-1.8z" fill="#808080"/>
+    <path d="m66 248h28" fill="none" stroke="#551a8b" stroke-miterlimit="10" stroke-width=".5"/>
+    <text transform="translate(66,248)" fill="#551a8b" font-family="'DejaVu Sans Mono'" font-size="12px" font-weight="bold"><tspan x="0 6.9531002 13.9062 20.859301" y="0">arts</tspan></text>
+    <text transform="translate(97,248)" fill="#000000" font-family="Inter" font-size="10px"><tspan x="0 6.5415001 9.4919996 13.3035 19.215 25.609501" y="0">6 tags</tspan> <tspan x="-30.7505 -24.376999 -21.4265 -15.945499 -9.8554993 -3.3454995 2.1355004 7.9945006 11.9005 14.389001 20.899 27.01 30.916" y="20.47501">5 subscribers</tspan> <tspan x="-30.7505 -22.8545 -16.5965 -13.646 -7.1359997 -1.0249995 4.4560003 10.315001 14.221001 16.709501 23.104 26.915501 29.404001 35.661999" y="40.575012">No description</tspan></text>
+    <g fill="#5f9ea0">
+      <path d="m62 274h216v0.5h-216z"/>
+      <path d="m278 274h0.5v71h-0.5z"/>
+      <path d="m62 345h216v0.5h-216z"/>
+      <path d="m62 274h0.5v71h-0.5z"/>
+    </g>
+    <g clip-path="url(#o)">
       <g clip-path="url(#p)">
-        <g clip-path="url(#o)">
-          <path d="m358 170h50v10h-50z" fill="#3d3d3d"/>
-        </g>
+        <path d="m66 350h25v12h-25z" fill="#00599a"/>
       </g>
-      <g>
-        <path d="m361 170h43c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-43c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3zm43 0.44h-43c-1.6 0-2.9 1.3-2.9 2.9v3.9c0 1.6 1.3 2.9 2.9 2.9h43c1.6 0 2.9-1.3 2.9-2.9v-3.9c0-1.6-1.3-2.9-2.9-2.9z" fill-opacity=".37"/>
-        <text transform="translate(361 177)" fill="#ffffff" font-family="Inter" font-size="7px"><tspan x="0 2.5555201 6.4697599 10.75712 14.95296 19.24032 21.8592 25.82272 30.110081 34.115841 38.030079 40.00832" y="0">typography 1</tspan></text>
+    </g>
+    <g clip-path="url(#q)">
+      <path d="m70 350h18c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-18c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8zm18 0.5h-18c-1.8 0-3.2 1.5-3.2 3.2v4.4c0 1.8 1.5 3.2 3.2 3.2h18c1.8 0 3.2-1.5 3.2-3.2v-4.4c0-1.8-1.5-3.2-3.2-3.2z" fill-opacity=".37"/>
+      <text transform="translate(70,358)" fill="#ffffff" font-family="Inter" font-size="8px"><tspan x="0 4.5040002 7.7519999 10.656 12.904" y="0">art 4</tspan></text>
+    </g>
+    <g clip-path="url(#r)">
+      <g clip-path="url(#s)">
+        <path d="m94 350h40v12h-40z" fill="#fff"/>
       </g>
-      <g clip-path="url(#n)">
-        <g clip-path="url(#m)">
-          <path d="m90 184h46v16h-46z" fill="#fff"/>
-        </g>
+    </g>
+    <path d="m98 350h32c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-32c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8zm32 0.5h-32c-1.8 0-3.2 1.5-3.2 3.2v4.4c0 1.8 1.5 3.2 3.2 3.2h32c1.8 0 3.2-1.5 3.2-3.2v-4.4c0-1.8-1.5-3.2-3.2-3.2z" fill-opacity=".37"/>
+    <text transform="translate(98,358)" fill="#000000" font-family="Inter" font-size="8px"><tspan x="0 4.96 9.6160002 13.792 15.688 20.559999 25.24 27.488001" y="0">design 0</tspan></text>
+    <g clip-path="url(#t)">
+      <g clip-path="url(#u)">
+        <path d="m137 350h27v12h-27z" fill="#474747"/>
       </g>
-      <path d="m92 184h42c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-42c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2zm42 0.44h-42c-0.85 0-1.5 0.69-1.5 1.5v12c0 0.85 0.69 1.5 1.5 1.5h42c0.85 0 1.5-0.69 1.5-1.5v-12c0-0.85-0.69-1.5-1.5-1.5z"/>
-      <text transform="translate(94 196)" fill="#217ac0" font-family="Inter" font-size="10px" font-weight="bold"><tspan x="0 5.9662681 9.8590803 15.926988 21.822107 25.704756 31.772663" y="0">created</tspan></text>
-      <g fill="#000000" font-family="Inter" font-size="9.2px">
-        <text transform="translate(168 194)"><tspan x="0" y="0">1</tspan></text>
-        <text transform="translate(172 194)"><tspan x="0" y="0"></tspan></text>
-        <text transform="translate(175 194)"><tspan x="0 7.3273201 12.705 18.08268 23.10924 25.687201 28.28364" y="0">week, 3</tspan></text>
-        <text transform="translate(209 194)"><tspan x="0" y="0"></tspan></text>
-        <text transform="translate(211 194)"><tspan x="0 5.7287998 10.73688 15.87432 20.697599 23.294041 28.496161 34.123322" y="0">days ago</tspan></text>
+    </g>
+    <path d="m141 350h20c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-20c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8zm20 0.5h-20c-1.8 0-3.2 1.5-3.2 3.2v4.4c0 1.8 1.5 3.2 3.2 3.2h20c1.8 0 3.2-1.5 3.2-3.2v-4.4c0-1.8-1.5-3.2-3.2-3.2z" fill-opacity=".37"/>
+    <text transform="translate(141,358)" fill="#ffffff" font-family="Inter" font-size="8px"><tspan x="0 2.8800001 4.776 6.6719999 13.624 15.872" y="0">film 1</tspan></text>
+    <g clip-path="url(#v)">
+      <g clip-path="url(#w)">
+        <path d="m167 350h47v12h-47z" fill="#5fad47"/>
       </g>
-      <path d="m80 230h25" fill="none" stroke="#551a8b" stroke-miterlimit="10" stroke-width=".44"/>
-      <text transform="translate(80 230)" fill="#551a8b" font-family="'DejaVu Sans Mono'" font-size="10px" font-weight="bold"><tspan x="0 6.1187282 12.237456 18.356184" y="0">meta</tspan></text>
-      <text transform="translate(106 230)" fill="#217ac0" font-family="Inter" font-size="10px" font-weight="bold"><tspan x="0 6.3931561 8.7410402 12.684672 18.579792 25.013603" y="0">2 tags</tspan></text>
-      <g clip-path="url(#l)">
-        <g clip-path="url(#k)">
-          <path d="m90 241h64v16h-64z" fill="#fff"/>
-        </g>
+    </g>
+    <path d="m171 350h40c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-40c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8zm40 0.5h-40c-1.8 0-3.2 1.5-3.2 3.2v4.4c0 1.8 1.5 3.2 3.2 3.2h40c1.8 0 3.2-1.5 3.2-3.2v-4.4c0-1.8-1.5-3.2-3.2-3.2z" fill-opacity=".37"/>
+    <text transform="translate(171,358)" fill="#000000" font-family="Inter" font-size="8px"><tspan x="0 1.896 3.7920001 6.6560001 11.312 14.288 18.792 21.695999 26.336 29.176001 33.832001 36.080002" y="0">literature 1</tspan></text>
+    <g clip-path="url(#x)">
+      <g clip-path="url(#y)">
+        <path d="m66 366h62v12h-62z" fill="#fff"/>
       </g>
-      <g>
-        <path d="m92 241h60c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-60c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2zm60 0.44h-60c-0.85 0-1.5 0.69-1.5 1.5v12c0 0.85 0.69 1.5 1.5 1.5h60c0.85 0 1.5-0.69 1.5-1.5v-12c0-0.85-0.69-1.5-1.5-1.5z"/>
-        <text transform="translate(94 253)" fill="#217ac0" font-family="Inter" font-size="10px" font-weight="bold"><tspan x="0 6.4541402 12.522048 18.224052 24.190319 28.337233 31.101839 37.52549 41.46912 44.233727 50.46426" y="0">description</tspan></text>
-        <text transform="translate(168 251)" fill="#000000" font-family="Inter" font-size="9.2px"><tspan x="0 6.2462401 11.97504 17.48208 22.84128 26.1954 28.79184 32.238361 37.68996 43.067638 45.664082 50.487358 52.677238 55.966679" y="0">About the site</tspan></text>
+    </g>
+    <g clip-path="url(#ad)">
+      <path d="m70 366h54c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-54c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8zm54 0.5h-54c-1.8 0-3.2 1.5-3.2 3.2v4.4c0 1.8 1.5 3.2 3.2 3.2h54c1.8 0 3.2-1.5 3.2-3.2v-4.4c0-1.8-1.5-3.2-3.2-3.2z" fill-opacity=".37"/>
+      <text transform="translate(70,375)" fill="#000000" font-family="Inter" font-size="8px"><tspan x="0 4.8720002 9.592 14.36 17.216 21.983999 26.856001 29.832001 34.335999 39.208 43.768002 48.216 50.464001" y="0">photography 1</tspan></text>
+    </g>
+    <g clip-path="url(#aj)">
+      <g clip-path="url(#al)">
+        <path d="m131 366h57v12h-57z" fill="#3d3d3d"/>
       </g>
-      <g clip-path="url(#j)">
-        <g clip-path="url(#i)">
-          <path d="m90 257h67v16h-67z" fill="#fff"/>
-        </g>
+    </g>
+    <g clip-path="url(#z)">
+      <path d="m134 366h49c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-49c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8zm49 0.5h-49c-1.8 0-3.2 1.5-3.2 3.2v4.4c0 1.8 1.5 3.2 3.2 3.2h49c1.8 0 3.2-1.5 3.2-3.2v-4.4c0-1.8-1.5-3.2-3.2-3.2z" fill-opacity=".37"/>
+      <text transform="translate(134,375)" fill="#ffffff" font-family="Inter" font-size="8px"><tspan x="0 2.904 7.3520002 12.224 16.992001 21.864 24.84 29.344 34.216 38.768002 43.216 45.464001" y="0">typography 1</tspan></text>
+    </g>
+    <path d="m308 226h236c1.2 0 2.2 1 2.2 2.2v176c0 1.2-1 2.2-2.2 2.2h-236c-1.2 0-2.2-1-2.2-2.2v-176c0-1.2 1-2.2 2.2-2.2zm236 0.5h-236c-0.96 0-1.8 0.79-1.8 1.8v176c0 0.96 0.79 1.8 1.8 1.8h236c0.96 0 1.8-0.78 1.8-1.8v-176c0-0.96-0.78-1.8-1.8-1.8z" fill="#808080"/>
+    <path d="m322 248h28" fill="none" stroke="#551a8b" stroke-miterlimit="10" stroke-width=".5"/>
+    <text transform="translate(322,248)" fill="#551a8b" font-family="'DejaVu Sans Mono'" font-size="12px" font-weight="bold"><tspan x="0 6.9531002 13.9062 20.859301" y="0">meta</tspan></text>
+    <text transform="translate(352,248)" fill="#000000" font-family="Inter" font-size="10px"><tspan x="0 6.3525 9.3030005 13.1145 19.025999 25.4205" y="0">2 tags</tspan> <tspan x="-30.750521 -24.28252 -21.33202 -15.851021 -9.7610207 -3.2510204 2.2299795 8.0889797 11.99498 14.483479 20.993479 27.104479 31.010479" y="20.47501">8 subscribers</tspan></text>
+    <g clip-path="url(#aa)">
+      <text transform="translate(322,288)" fill="#000000" font-family="Inter" font-size="10px"><tspan x="0 7.098 13.608 19.865999 25.955999 29.7675 32.717999 36.634499 42.829498 48.940498 51.890999 57.372002 59.8605 63.598499" y="0">About the site</tspan></text>
+    </g>
+    <g fill="#5f9ea0">
+      <path d="m317 274h216v0.5h-216z"/>
+      <path d="m534 274h0.5v71h-0.5z"/>
+      <path d="m318 345h216v0.5h-216z"/>
+      <path d="m317 274h0.5v71h-0.5z"/>
+    </g>
+    <g clip-path="url(#ab)">
+      <g clip-path="url(#ac)">
+        <path d="m322 366h34v12h-34z" fill="#1289ad"/>
       </g>
-      <g>
-        <path d="m92 257h63c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-63c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2zm63 0.44h-63c-0.85 0-1.5 0.69-1.5 1.5v12c0 0.85 0.69 1.5 1.5 1.5h63c0.85 0 1.5-0.69 1.5-1.5v-12c0-0.85-0.69-1.5-1.5-1.5z"/>
-        <text transform="translate(94 268)" fill="#217ac0" font-family="Inter" font-size="10px" font-weight="bold"><tspan x="0 5.702004 12.013848 18.467987 24.169992 30.136259 34.283173 37.047779 43.501919 49.569828 53.71674" y="0">subscribers</tspan></text>
-        <text transform="translate(168 267)" fill="#000000" font-family="Inter" font-size="9.2px"><tspan x="0" y="0">3</tspan></text>
+    </g>
+    <g clip-path="url(#ae)">
+      <path d="m325 366h26c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-26c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8zm26 0.5h-26c-1.8 0-3.2 1.5-3.2 3.2v4.4c0 1.8 1.5 3.2 3.2 3.2h26c1.8 0 3.2-1.5 3.2-3.2v-4.4c0-1.8-1.5-3.2-3.2-3.2z" fill-opacity=".37"/>
+      <text transform="translate(325,375)" fill="#ffffff" font-family="Inter" font-size="8px"><tspan x="0 6.9520001 11.608 14.512 19.016001 21.264" y="0">meta 5</tspan></text>
+    </g>
+    <g clip-path="url(#af)">
+      <g clip-path="url(#ah)">
+        <path d="m358 366h77v12h-77z" fill="#acacac"/>
       </g>
-      <g clip-path="url(#h)">
-        <g clip-path="url(#g)">
-          <path d="m90 273h29v16h-29z" fill="#fff"/>
-        </g>
-      </g>
-      <g>
-        <path d="m92 273h26c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-26c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2zm26 0.44h-26c-0.85 0-1.5 0.69-1.5 1.5v12c0 0.85 0.69 1.5 1.5 1.5h26c0.85 0 1.5-0.69 1.5-1.5v-12c0-0.85-0.69-1.5-1.5-1.5z"/>
-        <text transform="translate(94 284)" fill="#217ac0" font-family="Inter" font-size="10px" font-weight="bold"><tspan x="0 3.9436319 9.8387518 16.272564" y="0">tags</tspan></text>
-      </g>
-      <g clip-path="url(#f)">
-        <g clip-path="url(#e)">
-          <path d="m168 274h30v10h-30z" fill="#1289ad"/>
-        </g>
-      </g>
-      <g>
-        <path d="m171 274h23c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-23c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3zm23 0.44h-23c-1.6 0-2.9 1.3-2.9 2.9v3.9c0 1.6 1.3 2.9 2.9 2.9h23c1.6 0 2.9-1.3 2.9-2.9v-3.9c0-1.6-1.3-2.9-2.9-2.9z" fill-opacity=".37"/>
-        <text transform="translate(171 281)" fill="#ffffff" font-family="Inter" font-size="7px"><tspan x="0 6.1177602 10.21504 12.77056 16.734079 18.71232" y="0">meta 5</tspan></text>
-      </g>
-      <g clip-path="url(#d)">
-        <g clip-path="url(#c)">
-          <path d="m200 274h68v10h-68z" fill="#acacac"/>
-        </g>
-      </g>
-      <g>
-        <path d="m203 274h61c1.8 0 3.3 1.5 3.3 3.3v3.9c0 1.8-1.5 3.3-3.3 3.3h-61c-1.8 0-3.3-1.5-3.3-3.3v-3.9c0-1.8 1.5-3.3 3.3-3.3zm61 0.44h-61c-1.6 0-2.9 1.3-2.9 2.9v3.9c0 1.6 1.3 2.9 2.9 2.9h61c1.6 0 2.9-1.3 2.9-2.9v-3.9c0-1.6-1.3-2.9-2.9-2.9z" fill-opacity=".37"/>
-        <text transform="translate(203 281)" fill="#000000" font-family="Inter" font-size="7px"><tspan x="0 3.67488 5.3433599 9.2716799 11.24992 15.61472 19.592319 23.372801 27.470079 29.138559 33.3344 37.621761 43.739521 47.8368 51.9552 54.510719 56.48896" y="0">sic development 3</tspan></text>
-      </g>
-      <g clip-path="url(#b)">
-        <g clip-path="url(#a)">
-          <path d="m90 289h46v16h-46z" fill="#fff"/>
-        </g>
-      </g>
-      <g>
-        <path d="m92 289h42c1.1 0 2 0.89 2 2v12c0 1.1-0.89 2-2 2h-42c-1.1 0-2-0.89-2-2v-12c0-1.1 0.89-2 2-2zm42 0.44h-42c-0.85 0-1.5 0.69-1.5 1.5v12c0 0.85 0.69 1.5 1.5 1.5h42c0.85 0 1.5-0.69 1.5-1.5v-12c0-0.85-0.69-1.5-1.5-1.5z"/>
-        <text transform="translate(94 300)" fill="#217ac0" font-family="Inter" font-size="10px" font-weight="bold"><tspan x="0 5.9662681 9.8590803 15.926988 21.822107 25.704756 31.772663" y="0">created</tspan></text>
-        <g fill="#000000" font-family="Inter" font-size="9.2px">
-          <text transform="translate(168 298)"><tspan x="0" y="0">1</tspan></text>
-          <text transform="translate(172 298)"><tspan x="0" y="0"></tspan></text>
-          <text transform="translate(175 298)"><tspan x="0 7.3273201 12.705 18.08268 23.10924 25.687201 28.28364" y="0">week, 6</tspan></text>
-          <text transform="translate(209 298)"><tspan x="0" y="0"></tspan></text>
-          <text transform="translate(211 298)"><tspan x="0 5.7287998 10.73688 15.87432 20.697599 23.294041 28.496161 34.123322" y="0">days ago</tspan></text>
-        </g>
-      </g>
+    </g>
+    <g clip-path="url(#ai)">
+      <path d="m362 366h69c2.1 0 3.8 1.7 3.8 3.8v4.4c0 2.1-1.7 3.8-3.8 3.8h-69c-2.1 0-3.8-1.7-3.8-3.8v-4.4c0-2.1 1.7-3.8 3.8-3.8zm69 0.5h-69c-1.8 0-3.2 1.5-3.2 3.2v4.4c0 1.8 1.5 3.2 3.2 3.2h69c1.8 0 3.2-1.5 3.2-3.2v-4.4c0-1.8-1.5-3.2-3.2-3.2z" fill-opacity=".37"/>
+      <text transform="translate(362,375)" fill="#000000" font-family="Inter" font-size="8px"><tspan x="0 4.1760001 6.072 10.536 12.784 17.743999 22.264 26.559999 31.216 33.112 37.880001 42.751999 49.703999 54.360001 59.040001 61.944 64.192001" y="0">sic development 3</tspan></text>
+    </g>
+    <text transform="matrix(1 0 0 .67 64 226)" fill="#1e82be" font-family="'DejaVu Sans Mono'" font-size="16px"><tspan x="0 9.4814997 18.962999 28.4445 37.925999 47.407501 56.889 66.370499 75.899246 85.380753 94.862251 104.34375 113.82525 123.30675 132.78825" y="0">▂▇▂▇▂▂▂▇▂▇▂▂▂▂▂</tspan></text>
+    <g font-family="Inter" font-size="7.8px">
+      <text transform="translate(120,399)"><tspan x="0 4.33845 7.0985751 11.623625 16.00095 18.784401 23.30945 28.12995 30.314726" y="0">created 1</tspan></text>
+      <text transform="translate(154,399)"><tspan x="0" y="0"/></text>
+      <text transform="translate(156,399)"><tspan x="0 6.165575 10.690625 15.215675 19.445274 21.6145 23.799274" y="0">week, 5</tspan></text>
+      <text transform="translate(185,399)"><tspan x="0" y="0"/></text>
+      <text transform="translate(187,399)"><tspan x="0 4.8204999 9.0267754 13.349675 17.408224 19.593 23.970325 28.705299" y="0">days ago</tspan></text>
+    </g>
+    <text transform="matrix(1 0 0 .67 319 226)" fill="#1e82be" font-family="'DejaVu Sans Mono'" font-size="16px"><tspan x="0 9.4814997 18.962999 28.4445 37.925999 47.407501 56.889 66.370499 75.899246 85.380753 94.862251 104.34375 113.82525 123.30675 132.78825" y="0">▂▂▇▂▂▂▂▂▂▇▂▂▂▂▂</tspan></text>
+    <g font-family="Inter" font-size="7.8px">
+      <text transform="translate(376,399)"><tspan x="0 4.33845 7.0985751 11.623625 16.00095 18.784401 23.30945 28.12995 30.314726" y="0">created 2</tspan></text>
+      <text transform="translate(411,399)"><tspan x="0" y="0"/></text>
+      <text transform="translate(413,399)"><tspan x="0 6.1578002 10.68285 15.2079 19.4375 23.49605 25.665276 27.85005" y="0">weeks, 1</tspan></text>
+      <text transform="translate(444,399)"><tspan x="0" y="0"/></text>
+      <text transform="translate(446,399)"><tspan x="0 4.8204999 9.0267754 13.349675 15.53445 19.911776 24.646749" y="0">day ago</tspan></text>
     </g>
   </g>
 </svg>

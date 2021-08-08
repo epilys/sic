@@ -14,6 +14,8 @@
             grid-template-columns: 1fr 1fr;
             grid-auto-rows: auto;
             grid-auto-flow: row;
+            max-width: clamp(20vw, 88ch, var(--main-width));
+            margin: 0 auto;
         }
         div.help + h2 {
             margin-top: 5rem;
@@ -23,9 +25,8 @@
                 display: flex;
                 flex-direction: column;
             }
-            div.help div p {
-            }
-            div.help div p {
+            div.help div {
+              padding: 1rem 0rem;
             }
         }
 
@@ -52,11 +53,10 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 1rem 2rem;
         }
         @media (min-width: 600px) {
             div.help div {
-                /*border-bottom: 2px outset gray;*/
+              padding: 1rem 2rem;
             }
         }
     </style>
@@ -78,8 +78,8 @@
             <figcaption>A topological sorting of a <a href="{% url 'tag_graph' %}">tag graph</a>.</figcaption>
         </figure>
         <figure>
-            <svg viewBox="0 0 162 96" xmlns="http://www.w3.org/2000/svg">
-                <use xlink:href="{% static "/help/aggs.svg" %}#svg" y="-5" width="162" height="109"></use>
+            <svg viewBox="0 0 162 100" xmlns="http://www.w3.org/2000/svg">
+                <use xlink:href="{% static "/help/aggs.svg" %}#svg" y="0" width="162" height="112"></use>
             </svg>
             <figcaption>Viewing <a href="{% url 'public_aggregations' %}">public aggregations</a>.</figcaption>
         </figure>
