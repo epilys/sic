@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% load utils %}
 {% block title %}{{user}} profile - sic{% endblock %}
+{% block style %}
+    <style>
+        .profile-container {
+            display: flex;
+            flex-flow: row wrap;
+            gap: 1rem;
+        }
+    </style>
+{% endblock %}
 {% block content %}
     <nav>
         <ul>
@@ -9,65 +18,69 @@
             {% endif %}
         </ul>
     </nav>
-    <div class="profile">
-        <div id="avatar" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
-            <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
-                {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title|default_if_none:''}}">{% else %}<div>No avatar.</div>{% endif %}
-                <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }}</figcaption>
-            </figure>
-        </div>
-        <table>
-            <tbody>
-                <tr>
-                    <th>username:</th>
-                    <td>{{ user.username }}</td>
-                </tr>
-                {% for label, metadata in user.metadata_fields %}
+    <div class="profile-container">
+        <div class="profile">
+            <div id="avatar" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
+                <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
+                    {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title|default_if_none:''}}">{% else %}<div>No avatar.</div>{% endif %}
+                    <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }}</figcaption>
+                </figure>
+            </div>
+            <table>
+                <tbody>
                     <tr>
-                        <th>{{ label }}:</th>
-                        <td>{{ metadata|urlize }}</td>
+                        <th>username:</th>
+                        <td>{{ user.username }}</td>
                     </tr>
-                {% endfor %}
-                <tr>
-                    <th>about:</th>
-                    <td>{{ user.about }}</td>
-                </tr>
-                <tr>
-                    <th>status:</th>
-                    <td>{% if not user.is_active %}in{% endif %}active</td>
-                </tr>
-                <tr>
-                    <th>joined:</th>
-                    <td>{{ user.created }}</td>
-                </tr>
-                <tr>
-                    <th>invited by:</th>
-                    <td>{% if user.invited_by %}<a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a>{% else %}None.{% endif %}</td>
-                </tr>
-                <tr>
-                    <th>karma:</th>
-                    <td>{{ user.karma }}</td>
-                </tr>
-                <tr>
-                    <th>stories:</th>
-                    <td><a href="{% url 'profile_posts' username=user.username %}">{{ user.stories.count }}</a></td>
-                </tr>
-                <tr>
-                    <th>comments:</th>
-                    <td><a href="{% url 'profile_posts' username=user.username %}">{{ user.comments.count }}</a></td>
-                </tr>
-            </tbody>
-        </table>
+                    {% for label, metadata in user.metadata_fields %}
+                        <tr>
+                            <th>{{ label }}:</th>
+                            <td>{{ metadata|urlize }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <th>about:</th>
+                        <td>{{ user.about }}</td>
+                    </tr>
+                    <tr>
+                        <th>status:</th>
+                        <td>{% if not user.is_active %}in{% endif %}active</td>
+                    </tr>
+                    <tr>
+                        <th>joined:</th>
+                        <td>{{ user.created }}</td>
+                    </tr>
+                    <tr>
+                        <th>invited by:</th>
+                        <td>{% if user.invited_by %}<a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a>{% else %}None.{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <th>karma:</th>
+                        <td>{{ user.karma }}</td>
+                    </tr>
+                    <tr>
+                        <th>stories:</th>
+                        <td><a href="{% url 'profile_posts' username=user.username %}">{{ user.stories.count }}</a></td>
+                    </tr>
+                    <tr>
+                        <th>comments:</th>
+                        <td><a href="{% url 'profile_posts' username=user.username %}">{{ user.comments.count }}</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="aggregations">
+            <h2>Aggregations</h2>
+            {% spaceless %}
+                <ul>
+                    {% for c in user.taggregation_subscriptions.all %}
+                        {% user_can_view_taggregation c request as can_view %}
+                        {% if can_view %}
+                            <li><a href="{{c.get_absolute_url }}">{{ c.name }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endspaceless %}
+        </div>
     </div>
-    <h2>Aggregations</h2>
-    {% spaceless %}
-        <ul>
-            {% for c in user.taggregation_subscriptions.all %}
-                {% user_can_view_taggregation c request as can_view %}
-                {% if can_view %}
-                    <li><a href="{{c.get_absolute_url }}">{{ c.name }}</a></li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    {% endspaceless %}
 {% endblock %}

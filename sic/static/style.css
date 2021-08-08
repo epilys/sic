@@ -724,17 +724,23 @@ article.story>header>.votes {
   display: inline-block;
   margin-bottom: -5px;
   margin-top: -5px;
-  vertical-align: middle;
+  vertical-align: top;
   margin: 0;
   margin-right: 5px;
   cursor: zoom-in;
-  transform-origin: top left;
+  transform-origin: center;
 }
 
 .avatar-small:hover {
   transition: all .2s .3s ease;
   transform: scale(6);
   border-radius: 0%;
+  position: relative; /* new stack context */
+  z-index: 1;
+}
+
+li.profile .avatar-small {
+  transform-origin: top right;
 }
 
 a.feed, a.feed:visited {
@@ -1440,7 +1446,10 @@ form.order-by-form {
   gap: .5rem;
   width: max-content;
   max-width: var(--main-width);
-  align-content: flex-start;
+}
+
+form.order-by-form label {
+  align-self: center;
 }
 
 
