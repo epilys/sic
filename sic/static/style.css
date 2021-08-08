@@ -118,7 +118,7 @@ samp {
  */
 
 small {
-  font-size: 80%;
+  font-size: 60%;
 }
 
 /**
@@ -1492,4 +1492,10 @@ form label {
 
 p.help-text {
   margin-top: 0;
+}
+
+.sparklines {
+    color: var(--theme-color);
+    font-family: monospace;
+    user-select: none;
 }

@@ -14,9 +14,11 @@ from django.contrib.auth.models import (
 )
 from django.contrib import messages
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.utils.functional import cached_property
+from django.core.cache import cache
 from django.core.mail import EmailMessage
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.sites.models import Site
@@ -484,6 +486,40 @@ class Taggregation(models.Model):
             if (last_active and last_active[0])
             else None
         )
+
+    def last_14_days(self):
+        key = f"last_14_days_{self.pk}"
+        cached_sparkline = cache.get(key)
+        if cached_sparkline is None:
+            # Unicode: 9601, 9602, 9603, 9604, 9605, 9606, 9607, 9608
+            # bar = "▁▂▃▄▅▆▇█"
+            bar = "▂▃▅▆▇"
+            barcount = len(bar)
+
+            def sparkline(numbers):
+                mn, mx = min(numbers), max(numbers)
+                extent = mx - mn
+                sparkline = "".join(
+                    bar[min([barcount - 1, int((n - mn) / extent * barcount)])]
+                    for n in numbers
+                )
+                return mn, mx, sparkline
+
+            d = timezone.now().date() - timedelta(days=14)
+            days = [0] * 15
+            total = 0
+            for delta in map(
+                lambda story: story.created.date() - d,
+                self.get_stories().filter(created__gt=d),
+            ):
+                days[delta.days] += 1
+                total += 1
+            if total != 0:
+                cached_sparkline = sparkline(days)
+            else:
+                cached_sparkline = (0, 0, bar[0] * 14)
+            cache.set(key, cached_sparkline, timeout=60 * 60 * 4)
+        return cached_sparkline[2]
 
     class Meta:
         ordering = ["name"]

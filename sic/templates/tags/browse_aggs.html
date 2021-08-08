@@ -4,6 +4,11 @@
 {% block title %}browse aggregations - sic{% endblock %}
 {% block style %}
     <style>
+        .sparklines {
+            position: absolute;
+            margin-top: -2rem;
+            transform: scaleX(150%) translateX(15%);
+        }
         div.aggregations {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -80,6 +85,7 @@
                 <article>
                     <header><a href="{% url 'taggregation' agg.pk agg.slugify %}" class="agg-name">{{ agg.name }}</a> {{ agg.tags.count }} tag{{ agg.tags.count|pluralize}}</header>
                     <span>{{ agg.subscribers.count }} subscribers</span>
+                    <span class="sparklines" title="activity for last 14 days">{{ agg.last_14_days }}</span>
                     <span class="description">{% if agg.description %}{{ agg.description }}{% else %}No description{% endif %}</span>
                     <ul class="tags">
                         {% for tag in agg.tags.all %}

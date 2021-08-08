@@ -56,7 +56,7 @@
                 <li><a href="{% url 'agg_index' taggregation.pk taggregation.slugify %}">Aggregation frontpage</a></li>
             </ul>
         </nav>
-        <h1>{{ taggregation.name }}{% if user_can_modify %} <small><a href="{% url_with_next 'edit_aggregation' taggregation.pk taggregation.slugify request %}">edit&hellip;</a></small>{% endif %}</h1>
+        <h1>{{ taggregation.name }}{% if user_can_modify %} <small><a href="{% url_with_next 'edit_aggregation' taggregation.pk taggregation.slugify request %}">edit&hellip;</a>{% endif %}&#32;<span class="sparklines" title="activity for last 14 days">{{ taggregation.last_14_days }}</span></small></h1>
         <div class="button-flex-box" style="width: max-content;">
             <form action="{% url 'copy_taggregation' taggregation.pk %}" method="get">
                 <input type="submit" value="create a copy">
