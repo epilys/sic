@@ -1,5 +1,20 @@
 {% extends "base.html" %}
 {% block title %}Edit settings{% endblock %}
+{% block style %}
+    <style>
+        td.week {
+            display: grid;
+            grid-template-rows: auto auto;
+            grid-template-columns: repeat(7, max-content);
+            justify-content: center;
+            padding: .5rem 2rem;
+        }
+        td.week label {
+            margin: 1rem 2vmin 1rem 0;
+            writing-mode: sideways-lr;
+        }
+    </style>
+{% endblock %}
 {% block content %}
     <h1>edit account settings</h1>
     <form method="POST" class="submit-story-form">
@@ -14,7 +29,29 @@
     <form method="POST" class="submit-story-form">
         {% csrf_token %}
         <table>
-            {{ digest_form }}
+            <tbody>
+                <tr><th>{{ digest_form.active.label_tag }}</th><td>{{ digest_form.active }}{% if digest_form.active.helptext %}<br><span class="helptext">{{ digest_form.active.help_text }}</span>{% endif %}</td></tr>
+                <tr><th>{{ digest_form.all_stories.label_tag }}</th><td>{{ digest_form.all_stories }}{% if digest_form.all_stories.help_text %}<br><span class="helptext">{{ digest_form.all_stories.help_text }}</span>{% endif %}</td></tr>
+                <tr><th>{{ digest_form.last_run.label_tag }}</th><td>{{ digest_form.last_run }}{% if digest_form.last_run.help_text %}<br><span class="helptext">{{ digest_form.last_run.help_text }}</span>{% endif %}</td></tr>
+                <tr><th>schedule</th>
+                    <td class="week">
+                        <label for="id_on_monday">Mon</label>
+                        <label for="id_on_tuesday">Tue</label>
+                        <label for="id_on_wednesday">Wed</label>
+                        <label for="id_on_thursday">Thu</label>
+                        <label for="id_on_friday">Fri</label>
+                        <label for="id_on_saturday">Sat</label>
+                        <label for="id_on_sunday">Sun</label>
+                        {{ digest_form.on_monday }}
+                        {{ digest_form.on_tuesday }}
+                        {{ digest_form.on_wednesday }}
+                        {{ digest_form.on_thursday }}
+                        {{ digest_form.on_friday }}
+                        {{ digest_form.on_saturday }}
+                        {{ digest_form.on_sunday }}
+                    </td>
+                </tr>
+            </tbody>
         </table>
         <input type="submit" name="digest-form" value="Submit">
     </form>
