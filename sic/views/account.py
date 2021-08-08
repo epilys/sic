@@ -129,6 +129,7 @@ def edit_avatar(request):
         if "delete-image" in request.POST:
             request.user.avatar = None
             request.user.save()
+            messages.add_message(request, messages.SUCCESS, "Avatar deleted.")
             return redirect(reverse("account"))
         form = EditAvatarForm(request.POST, request.FILES)
         if form.is_valid():
@@ -139,6 +140,7 @@ def edit_avatar(request):
                 request.user.avatar = data_url
             request.user.avatar_title = avatar_title if len(avatar_title) > 0 else None
             request.user.save()
+            messages.add_message(request, messages.SUCCESS, "Avatar updated.")
             return redirect(reverse("account"))
         error = form_errors_as_string(form.errors)
         messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
@@ -478,6 +480,9 @@ def edit_settings(request):
                     "vivid_colors"
                 ]
                 request.session["font_size"] = session_form.cleaned_data["font_size"]
+                messages.add_message(
+                    request, messages.SUCCESS, "Session settings updated successfully."
+                )
                 return redirect(reverse("account"))
             error = form_errors_as_string(session_form.errors)
         elif "digest-form" in request.POST:
@@ -489,6 +494,11 @@ def edit_settings(request):
                 digest.all_stories = digest_form.cleaned_data["all_stories"]
                 digest.last_run = digest_form.cleaned_data["last_run"]
                 digest.save()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    "Email digest settings updated successfully.",
+                )
                 return redirect(reverse("account"))
             error = form_errors_as_string(digest_form.errors)
         else:
@@ -505,6 +515,9 @@ def edit_settings(request):
                 ]
                 user.show_colors = form.cleaned_data["show_colors"]
                 user.save()
+                messages.add_message(
+                    request, messages.SUCCESS, "Account settings updated successfully."
+                )
                 return redirect(reverse("account"))
             error = form_errors_as_string(form.errors)
         messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
@@ -586,6 +599,7 @@ def edit_hat(request, hat_pk=None):
             else:
                 hat = Hat.objects.create(name=new_name, hex_color=new_color, user=user)
             hat.save()
+            messages.add_message(request, messages.SUCCESS, "Hat edited successfully.")
             return redirect(reverse("account"))
         error = form_errors_as_string(form.errors)
         messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
