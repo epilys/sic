@@ -458,7 +458,9 @@ body>main nav>ul{
   align-items: center;
 }
 
-body > main nav > ul > li > a {
+body > main nav > ul > li > a, body > main nav > ul > li > form > input[type="submit"] {
+  background-color: transparent;
+  text-decoration: underline;
   border: 1px outset gray;
   padding: 4px 5px;
   border-radius: 3px;

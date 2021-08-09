@@ -5,6 +5,7 @@ import uuid
 import abc
 import functools
 from django.db import models, connection, migrations
+from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.contrib.auth.models import (
     BaseUserManager,
@@ -678,6 +679,9 @@ class ExactTagFilter(StoryFilter):
     def match(self):
         return lambda tag_obj: tag_obj.pk == self.tag.pk
 
+    def as_q(self) -> Q:
+        return Q(tags__pk__in=[self.tag.pk])
+
 
 class TagNameFilter(MatchFilter):
     def kind(self):
@@ -708,6 +712,11 @@ class DomainFilter(MatchFilter):
             )
         return lambda domain_obj: self.match_string in domain_obj
 
+    def as_q(self) -> Q:
+        if self.is_regexp:
+            return Q(domain__url__regex=self.match_string)
+        return Q(domain__url__contains=self.match_string)
+
 
 class UserFilter(StoryFilter):
     user = models.ForeignKey("User", on_delete=models.CASCADE, null=False)
@@ -720,6 +729,9 @@ class UserFilter(StoryFilter):
 
     def match(self):
         return lambda user_obj: user_obj.pk == self.user.pk
+
+    def as_q(self) -> Q:
+        return Q(user__pk=self.user.pk)
 
 
 class InvitationRequest(models.Model):
@@ -902,6 +914,9 @@ class User(PermissionsMixin, AbstractBaseUser):
     taggregation_subscriptions = models.ManyToManyField(
         Taggregation, related_name="subscribers", blank=True
     )
+    exclude_filters = models.ManyToManyField(
+        "StoryFilter", blank=True, related_name="excluded_in_user"
+    )
 
     # options
     email_notifications = models.BooleanField(default=True, null=False)
@@ -1001,18 +1016,29 @@ class User(PermissionsMixin, AbstractBaseUser):
 
     def frontpage(self):
         taggregations = None
+        qobj = ~Q(story__pk=None)
+        for f in ExactTagFilter.objects.filter(excluded_in_user=self):
+            qobj |= f.as_q()
+        for f in DomainFilter.objects.filter(excluded_in_user=self):
+            qobj |= f.as_q()
         if self.taggregation_subscriptions.exists():
             # Perform raw query directly instead of UNIONing all taggregation frontpages
-            stories = Story.objects.filter(
-                id__in=RawSQL(
-                    "SELECT DISTINCT s.id AS id FROM taggregation_stories AS s JOIN sic_user_taggregation_subscriptions as subs WHERE s.taggregation_id = subs.taggregation_id AND subs.user_id = %s",
-                    [self.pk],
+            stories = (
+                Story.objects.filter(
+                    id__in=RawSQL(
+                        "SELECT DISTINCT s.id AS id FROM taggregation_stories AS s JOIN sic_user_taggregation_subscriptions as subs WHERE s.taggregation_id = subs.taggregation_id AND subs.user_id = %s",
+                        [self.pk],
+                    )
                 )
-            ).prefetch_related("tags", "user", "comments")
+                .prefetch_related("tags", "user", "comments")
+                .exclude(qobj)
+            )
             taggregations = self.taggregation_subscriptions.all()
         else:
-            stories = Story.objects.filter(active=True).prefetch_related(
-                "tags", "user", "comments"
+            stories = (
+                Story.objects.filter(active=True)
+                .prefetch_related("tags", "user", "comments")
+                .exclude(qobj)
             )
         return {
             "stories": stories,

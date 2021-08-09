@@ -28,6 +28,8 @@ from sic.models import (
     Hat,
     Message,
     InvitationRequest,
+    ExactTagFilter,
+    DomainFilter,
 )
 from sic.mail import Digest
 from sic.forms import (
@@ -42,6 +44,8 @@ from sic.forms import (
     ComposeMessageForm,
     InvitationRequestForm,
     AnnotationForm,
+    EditExactTagFilter,
+    EditDomainFilter,
 )
 from sic.apps import SicAppConfig as config
 from sic.views.utils import (
@@ -1051,3 +1055,186 @@ def my_activity(request, page_num=1):
             "pages": paginator.get_elided_page_range(number=page_num),
         },
     )
+
+
+@login_required
+@transaction.atomic
+@require_safe
+def edit_filters(request):
+    user = request.user
+    return render(
+        request,
+        "account/edit_filters.html",
+        {
+            "user": user,
+            "exact_tag_filters": ExactTagFilter.objects.filter(excluded_in_user=user),
+            "domain_filters": DomainFilter.objects.filter(excluded_in_user=user),
+        },
+    )
+
+
+@login_required
+@transaction.atomic
+@require_http_methods(["GET", "POST"])
+def add_tag_filter(request):
+    user = request.user
+    if request.method == "POST":
+        form = EditExactTagFilter(request.POST)
+        if form.is_valid():
+            f, _created = ExactTagFilter.objects.get_or_create(
+                name=form.cleaned_data["name"], tag=form.cleaned_data["tag"]
+            )
+            f.excluded_in_user.set([user])
+            messages.add_message(request, messages.SUCCESS, "Filter saved.")
+            return redirect(reverse("edit_filters"))
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = EditExactTagFilter()
+    return render(
+        request,
+        "account/add_filter.html",
+        {
+            "user": user,
+            "form": form,
+            "title": "Add tag filter",
+        },
+    )
+
+
+@login_required
+@transaction.atomic
+@require_http_methods(["GET", "POST"])
+def add_domain_filter(request):
+    user = request.user
+    if request.method == "POST":
+        form = EditDomainFilter(request.POST)
+        if form.is_valid():
+            f, _created = DomainFilter.objects.get_or_create(
+                name=form.cleaned_data["name"],
+                match_string=form.cleaned_data["match_string"],
+                is_regexp=form.cleaned_data["is_regexp"],
+            )
+            f.excluded_in_user.set([user])
+            messages.add_message(request, messages.SUCCESS, "Filter saved.")
+            return redirect(reverse("edit_filters"))
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = EditDomainFilter()
+    return render(
+        request,
+        "account/add_filter.html",
+        {
+            "user": user,
+            "form": form,
+            "title": "Add domain filter",
+        },
+    )
+
+
+@login_required
+@transaction.atomic
+@require_http_methods(["GET", "POST"])
+def edit_tag_filter(request, pk):
+    try:
+        f = ExactTagFilter.objects.get(pk=pk)
+    except ExactTagFilter.DoesNotExist:
+        raise Http404("Filter does not exist") from ExactTagFilter.DoesNotExist
+    if not request.user.has_perm("sic.change_exacttagfilter", f):
+        raise Http404("Filter does not exist") from PermissionDenied(
+            "You don't have permission to view this filter."
+        )
+    user = request.user
+
+    if request.method == "POST":
+        form = EditExactTagFilter(request.POST)
+        if form.is_valid():
+            f.name = form.cleaned_data["name"]
+            f.tag = form.cleaned_data["tag"]
+            f.save()
+            messages.add_message(request, messages.SUCCESS, "Filter saved.")
+            return redirect(reverse("edit_filters"))
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = EditExactTagFilter(
+            initial={
+                "name": f.name,
+                "tag": f.tag,
+            }
+        )
+    return render(
+        request,
+        "account/add_filter.html",
+        {
+            "user": user,
+            "form": form,
+            "title": "Edit tag filter",
+        },
+    )
+
+
+@login_required
+@transaction.atomic
+@require_http_methods(["GET", "POST"])
+def edit_domain_filter(request, pk):
+    try:
+        f = DomainFilter.objects.get(pk=pk)
+    except DomainFilter.DoesNotExist:
+        raise Http404("Filter does not exist") from DomainFilter.DoesNotExist
+    if not request.user.has_perm("sic.change_domainfilter", f):
+        raise Http404("Filter does not exist") from PermissionDenied(
+            "You don't have permission to view this filter."
+        )
+    user = request.user
+    form = EditDomainFilter(
+        initial={
+            "name": f.name,
+            "match_string": f.match_string,
+            "is_regexp": f.is_regexp,
+        }
+    )
+    return render(
+        request,
+        "account/add_filter.html",
+        {
+            "user": user,
+            "form": form,
+            "title": "Edit domain filter",
+        },
+    )
+
+
+@login_required
+@transaction.atomic
+@require_http_methods(["POST"])
+def delete_tag_filter(request, pk):
+    try:
+        f = ExactTagFilter.objects.get(pk=pk)
+    except ExactTagFilter.DoesNotExist:
+        raise Http404("Filter does not exist") from ExactTagFilter.DoesNotExist
+    if not request.user.has_perm("sic.delete_exacttagfilter", f):
+        raise Http404("Filter does not exist") from PermissionDenied(
+            "You don't have permission to view this filter."
+        )
+    f.delete()
+    messages.add_message(request, messages.SUCCESS, "Filter deleted.")
+    return redirect(reverse("edit_filters"))
+
+
+@login_required
+@transaction.atomic
+@require_http_methods(["POST"])
+def delete_domain_filter(request, pk):
+    try:
+        f = DomainFilter.objects.get(pk=pk)
+    except DomainFilter.DoesNotExist:
+        raise Http404("Filter does not exist") from DomainFilter.DoesNotExist
+    if not request.user.has_perm("sic.delete_domainfilter", f):
+        raise Http404("Filter does not exist") from PermissionDenied(
+            "You don't have permission to view this filter."
+        )
+    f.delete()
+    messages.add_message(request, messages.SUCCESS, "Filter deleted.")
+    return redirect(reverse("edit_filters"))

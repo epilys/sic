@@ -718,3 +718,29 @@ class InvitationRequestForm(forms.Form):
         if choice != "rock":
             raise ValidationError("")
         return choice
+
+
+class EditExactTagFilter(forms.Form):
+    name = forms.CharField(
+        required=False,
+        max_length=20,
+    )
+    tag = forms.ModelChoiceField(
+        queryset=Tag.objects.all().order_by(Lower("name")),
+        required=True,
+    )
+
+
+class EditDomainFilter(forms.Form):
+    name = forms.CharField(
+        required=False,
+        max_length=20,
+    )
+    match_string = forms.CharField(
+        required=True,
+    )
+    is_regexp = forms.BooleanField(
+        label="Is Python regular expression",
+        required=False,
+        initial=False,
+    )

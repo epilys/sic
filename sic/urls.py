@@ -306,6 +306,33 @@ urlpatterns = [
     path("accounts/profile/edit/", account.edit_profile, name="edit_profile"),
     path("accounts/profile/avatar/", account.edit_avatar, name="edit_avatar"),
     path("accounts/settings/", account.edit_settings, name="edit_settings"),
+    path("accounts/filters/", account.edit_filters, name="edit_filters"),
+    path("accounts/filters/add/tag/", account.add_tag_filter, name="add_tag_filter"),
+    path(
+        "accounts/filters/add/domain/",
+        account.add_domain_filter,
+        name="add_domain_filter",
+    ),
+    path(
+        "accounts/filters/edit/tag/<int:pk>/",
+        account.edit_tag_filter,
+        name="edit_tag_filter",
+    ),
+    path(
+        "accounts/filters/edit/domain/<int:pk>/",
+        account.edit_domain_filter,
+        name="edit_domain_filter",
+    ),
+    path(
+        "accounts/filters/delete/tag/<int:pk>/",
+        account.delete_tag_filter,
+        name="delete_tag_filter",
+    ),
+    path(
+        "accounts/filters/delete/domain/<int:pk>/",
+        account.delete_domain_filter,
+        name="delete_domain_filter",
+    ),
     path("accounts/inbox/", account.inbox, name="inbox"),
     path(
         "accounts/inbox/<int:message_pk>/", account.inbox_message, name="inbox_message"
