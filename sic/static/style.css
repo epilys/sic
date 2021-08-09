@@ -441,6 +441,10 @@ body > main nav > ul > li > a {
   display: inline-block;
 }
 
+nav>ul>li>a:visited{
+  color: #00e;
+}
+
 body>main>hr {
   width: 100%;
 }
@@ -544,6 +548,10 @@ a.title {
  text-align: justify;
  word-break: break-word;
  hyphens: auto;
+}
+
+a.title:visited {
+  color: #576f9d;
 }
 
 div.context-warning:before{
