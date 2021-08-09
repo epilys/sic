@@ -254,7 +254,9 @@ def generate_invite(request, invite_pk=None):
                     f"Successfully generated invitation to {address}.",
                 )
                 inv.send(request)
-                InvitationRequest.objects.filter(address=address).delete()
+                InvitationRequest.objects.filter(address=address).update(
+                    fulfilled_by=inv
+                )
         else:
             error = form_errors_as_string(form.errors)
             messages.add_message(
@@ -644,7 +646,7 @@ def invitation_requests(request):
                 ).delete()
         except Exception as exc:
             messages.add_message(request, messages.ERROR, f"Exception: {exc}")
-    requests = list(InvitationRequest.objects.all())
+    requests = list(InvitationRequest.objects.filter(fulfilled_by__isnull=True))
     for req in requests:
         req.have_voted = False
         if req.votes.filter(user__pk=user.pk).exists():

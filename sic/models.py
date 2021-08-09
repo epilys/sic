@@ -695,6 +695,14 @@ class InvitationRequest(models.Model):
     address = models.EmailField(null=False, blank=False, unique=True)
     about = models.TextField(null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True)
+    fulfilled_by = models.OneToOneField(
+        "Invitation",
+        related_name="request",
+        on_delete=models.SET_NULL,
+        null=True,
+        default=None,
+        unique=True,
+    )
 
     def __str__(self):
         return f"{self.pk} {self.name} {self.address}"
