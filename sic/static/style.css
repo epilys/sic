@@ -1365,14 +1365,6 @@ body>header>div.logo {
   display: inline-block;
 }
 
-blockquote.message_body {
-  outline: 1px solid;
-  width: max-content;
-  padding: 0.35em 0.75em 0.625em;
-  margin: 0;
-  max-width: var(--main-width);
-}
-
 @media (max-width: 600px) {
   body>header>div.logo a {
     font-size: 70%;

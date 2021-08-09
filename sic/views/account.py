@@ -1,3 +1,4 @@
+import re
 from django.http import Http404, JsonResponse
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
@@ -176,6 +177,9 @@ def inbox_sent(request):
     return render(request, "account/inbox.html", {"messages_": inbox_messages})
 
 
+RES_PREFIX_RE = re.compile(r"^[rR]e:[ ]{0,1}")
+
+
 @login_required
 def inbox_compose(request, in_reply_to=None):
     if in_reply_to:
@@ -205,8 +209,10 @@ def inbox_compose(request, in_reply_to=None):
             form = ComposeMessageForm(
                 initial={
                     "recipient": in_reply_to.author,
-                    "subject": f"Re: {in_reply_to.subject}",
-                    "body": f"On {in_reply_to.created}, {in_reply_to.author} wrote:\n"
+                    "subject": f"Re: {in_reply_to.subject}"
+                    if not RES_PREFIX_RE.match(in_reply_to.subject)
+                    else in_reply_to.subject,
+                    "body": f"On {in_reply_to.created.strftime('%Y/%m/%d, a %A, at %I:%M %P')}, {in_reply_to.author} wrote:\n"
                     + "\n".join(map(lambda l: "> " + l, in_reply_to.body.split("\n")))
                     + "\n\n",
                 }

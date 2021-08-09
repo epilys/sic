@@ -1,6 +1,51 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% block title %}sic{% endblock %}
+{% block style %}
+    <style>
+        h1.message-subject {
+            font-size: 1.8em;
+        }
+        aside.envelope-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: medium;
+        }
+        blockquote.message_body {
+            outline: 2px solid;
+            width: 62ch;
+            padding: 1.2rem 1rem;
+            margin: 0;
+            max-width: var(--main-width);
+        }
+        blockquote.message_body>p:first-child{
+            margin-top: 0;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px dashed #333;
+            color: #333;
+            overflow: visible;
+            text-align: center;
+            height: 5px;
+            max-width: 62ch;
+            margin-left: 0;
+        }
+
+        hr:after {
+            background: #fff;
+            content: '(Sic.)';
+            padding: 0 4px;
+            position: relative;
+            top: -13px;
+            font-style: oblique;
+            font-size: small;
+        }
+
+    </style>
+{% endblock %}
 {% block content %}
     <nav class="menu">
         <ul>
@@ -9,12 +54,19 @@
             <li><a href="{% url 'inbox_sent' %}">Sent</a></li>
         </ul>
     </nav>
-    <h1>{{msg.subject}}</h1>
-    <small>From <a href="{{ msg.author.get_absolute_url }}">{{ msg.author }}</a></small>
-    <small>Sent to <a href="{{ msg.recipient.get_absolute_url }}">{{ msg.recipient }}</a> <time datetime="{{ msg.created | date:"Y-m-d H:i:s" }}" title="{{ msg.created }}"> {{ msg.created|naturaltime }}</time></small>
-    <small>Read by recipient: {{ msg.read_by_recipient|yesno }}</small>
+    <hr />
+    <h1 class="message-subject">{{msg.subject}}</h1>
+    <aside class="envelope-details">
+        <span><b>From</b> <a href="{{ msg.author.get_absolute_url }}">{{ msg.author }}</a></span>
+        <span><b>Sent to</b> <a href="{{ msg.recipient.get_absolute_url }}">{{ msg.recipient }}</a> <time datetime="{{ msg.created | date:"Y-m-d H:i:s" }}" title="{{ msg.created }}"> {{ msg.created|naturaltime }}</time></span>
+        <span><b>Read by recipient</b>: {{ msg.read_by_recipient|yesno }}</span>
+    </aside>
     <blockquote class="message_body">
         {{ msg.body|linebreaks }}
     </blockquote>
-    <a href="{% url 'inbox_reply' in_reply_to=msg.pk %}">reply</a>
+    <nav class="menu">
+        <ul>
+            <li><a href="{% url 'inbox_reply' in_reply_to=msg.pk %}">reply</a></li>
+        </ul>
+    </nav>
 {% endblock %}
