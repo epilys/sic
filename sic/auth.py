@@ -28,7 +28,7 @@ class SicBackend(ModelBackend):
         if user_obj.is_staff or user_obj.is_superuser or user_obj.is_moderator:
             return True
         karma = user_obj.karma
-        is_banned = user_obj.banned_by_user is not None
+        is_banned = user_obj.is_banned
         if perm in ["sic.add_tag", "sic.change_tag"]:
             return karma >= config.MIN_KARMA_TO_EDIT_TAGS and not is_banned
         elif perm == "sic.delete_tag":
@@ -41,8 +41,7 @@ class SicBackend(ModelBackend):
             return obj.user == user_obj if isinstance(obj, Story) else True
         elif perm == "sic.add_hat":
             return (
-                not user_obj.is_new_user()
-                and karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
+                not user_obj.is_new_user and karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
             )
         elif perm in ["sic.change_hat", "sic.delete_hat"]:
             return obj.user == user_obj if isinstance(obj, Hat) else True

@@ -1517,3 +1517,17 @@ p.help-text {
     font-family: monospace;
     user-select: none;
 }
+
+.new-user,
+a.new-user,
+a:visited.new-user {
+  color: green !important;
+}
+
+.banned-user,
+a.banned-user,
+a:visited.banned-user {
+  color: #d6d6d6 !important;
+  text-decoration-style: double;
+  text-decoration-line: line-through;
+}

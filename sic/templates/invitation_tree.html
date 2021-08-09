@@ -6,7 +6,7 @@
             {% if user.invited_by.inviter %}
                 <li>parent: <a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a>
                     <ul>
-                        <li><a href="{{ user.get_absolute_url }}">{{ user }}</a>
+                        <li><a href="{{ user.get_absolute_url }}" class="{% if user.is_banned %}banned-user{% elif user.is_new_user %} new-user{% endif %}">{{ user }}</a>
                             <ul>
                                 {% increment_var 'depth' %}
                                 {% for inv in user.invited.all %}
@@ -19,7 +19,7 @@
                     </ul>
                 </li>
             {% else %}
-                <li><a href="{{ user.get_absolute_url }}">{{ user }}</a>
+                <li><a href="{{ user.get_absolute_url }}" class="{% if user.is_banned %}banned-user{% elif user.is_new_user %} new-user{% endif %}">{{ user }}</a>
                     <ul>
                         {% increment_var 'depth' %}
                         {% for inv in user.invited.all %}
@@ -31,7 +31,7 @@
                 </li>
             {% endif %}
         {% else %}
-            <li><a href="{{ user.get_absolute_url }}">{{ user }}</a>
+            <li><a href="{{ user.get_absolute_url }}" class="{% if user.is_banned %}banned-user{% elif user.is_new_user %} new-user{% endif %}">{{ user }}</a>
                 <ul>
                     {% increment_var 'depth' %}
                     {% for inv in user.invited.all %}

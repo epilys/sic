@@ -38,7 +38,7 @@
             <tbody>
                 <tr>
                     <th>username:</th>
-                    <td>{{ user.username }}</td>
+                    <td class="{% if user.is_banned %}banned-user}{% elif user.is_new_user %}new-user{% endif %}">{{ user.username }}</td>
                 </tr>
                 {% for label, metadata in user.metadata_fields %}
                     <tr>
@@ -117,7 +117,7 @@
                 {% include "invitation_tree.html" with user=user depth=0 max_depth=3 %}
             </ul>
             {% for inv in user.invited.all %}
-                <p title="{{ inv.id }}">{{ inv.created }} - {{ inv.address }} - {% if inv.accepted %}<span class="accepted">accepted by <a href="{{ inv.receiver.get_absolute_url }}">{{ inv.receiver }}</a></span>{% else %}no answer yet <a href="{% url_with_next 'resend_invite' invite_pk=inv.pk request %}">resend email</a>, or <a href="{{ inv.get_absolute_url }}">share link</a>{% endif %}</p>
+                <p title="{{ inv.id }}">{{ inv.created }} - {{ inv.address }} - {% if inv.accepted %}<span class="accepted">accepted by <a href="{{ inv.receiver.get_absolute_url }}" class="{% if inv.receiver.is_banned %}banned-user{% elif inv.receiver.is_new_user %} new-user{% endif %}">{{ inv.receiver }}</a></span>{% else %}no answer yet <a href="{% url_with_next 'resend_invite' invite_pk=inv.pk request %}">resend email</a>, or <a href="{{ inv.get_absolute_url }}">share link</a>{% endif %}</p>
             {% empty %}
                 You haven't invited anyone yet.
             {% endfor %}

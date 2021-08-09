@@ -30,7 +30,7 @@
                 <tbody>
                     <tr>
                         <th>username:</th>
-                        <td>{{ user.username }}</td>
+                        <td class="{% if user.is_banned %}banned-user{% elif user.is_new_user %} new-user{% endif %}">{{ user.username }}</td>
                     </tr>
                     {% for label, metadata in user.metadata_fields %}
                         <tr>
@@ -44,7 +44,7 @@
                     </tr>
                     <tr>
                         <th>status:</th>
-                        <td>{% if not user.is_active %}in{% endif %}active</td>
+                        <td>{% if user.is_banned %}banned{% else %}{% if not user.is_active %}in{% endif %}active{% endif %}</td>
                     </tr>
                     <tr>
                         <th>joined:</th>

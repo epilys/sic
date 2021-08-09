@@ -923,6 +923,11 @@ class User(PermissionsMixin, AbstractBaseUser):
             kwargs={"username": self.username if self.username else self.pk},
         )
 
+    @cached_property
+    def is_banned(self):
+        return self.banned_by_user is not None
+
+    @cached_property
     def is_new_user(self):
         return (make_aware(datetime.now()) - self.created) < timedelta(
             days=config.NEW_USER_DAYS

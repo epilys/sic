@@ -34,7 +34,7 @@
                 <span class="score">
                     {{comment.karma}}
                 </span>
-            </span> <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a>
+            </span> <a href="{{ comment.user.get_absolute_url }}" class="user_link{% if comment.user.is_banned %} banned-user{% elif comment.user.is_new_user %} new-user{% endif %}">{{ comment.user }}</a>
                 <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time>
                 {% if comment.last_log_entry %}
                     <time datetime="{{ comment.last_log_entry.action_time | date:"Y-m-d H:i:s" }}" title="{{ comment.last_log_entry.action_time }}">- Edited {{ comment.last_log_entry.action_time|naturaltime }}</time>
@@ -60,7 +60,7 @@
                 <form action="{% url 'reply' comment.pk %}" method="POST" class="reply-form">
                     <label class="reply" for="reply-{{comment.pk}}" style="align-self: end; position: absolute;"><a href="">hide</a></label>
                     <span class="reply-parent">
-                        <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}"> {{ comment.created|naturaltime }}</time>
+                        <a href="{{ comment.user.get_absolute_url }}" class="user_link{% if comment.user.is_banned %} banned-user{% elif comment.user.is_new_user %} new-user{% endif %}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}"> {{ comment.created|naturaltime }}</time>
                         <span class="comment">{{ comment.text_to_html }}</span>
                     </span>
                     {% csrf_token %}
