@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from django.http import Http404, JsonResponse
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
@@ -7,17 +8,15 @@ from django.db import transaction
 from django.db.models import Value, BooleanField
 from django.urls import reverse
 from django.contrib import messages
-from django.core import serializers
 from django.core.paginator import Paginator, InvalidPage
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.utils.timezone import make_aware
 from django.views.decorators.http import require_http_methods
-from datetime import datetime
 from wand.image import Image
-from ..auth import AuthToken
-from ..models import (
+from sic.auth import AuthToken
+from sic.models import (
     User,
     Invitation,
     Story,
@@ -27,8 +26,8 @@ from ..models import (
     Message,
     InvitationRequest,
 )
-from ..mail import Digest
-from ..forms import (
+from sic.mail import Digest
+from sic.forms import (
     GenerateInviteForm,
     EditProfileForm,
     EditAvatarForm,
@@ -37,12 +36,11 @@ from ..forms import (
     EditSessionSettings,
     EditHatForm,
     UserCreationForm,
-    AnnotationForm,
     ComposeMessageForm,
     InvitationRequestForm,
 )
-from ..apps import SicAppConfig as config
-from . import form_errors_as_string, HttpResponseNotImplemented
+from sic.apps import SicAppConfig as config
+from sic.views.utils import form_errors_as_string, HttpResponseNotImplemented
 
 # Convert image to data:image/... in order to save avatars as strings in database
 def generate_image_thumbnail(blob):
@@ -684,8 +682,7 @@ def new_invitation_request(request):
             except Exception as exc:
                 print(exc)
         return redirect("index")
-    else:
-        form = InvitationRequestForm()
+    form = InvitationRequestForm()
     return render(
         request,
         "account/new_invitation_request.html",

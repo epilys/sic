@@ -1,32 +1,29 @@
+from datetime import datetime
+import random
+import re
 from django.db import transaction
 from django.http import HttpResponse, Http404
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login as auth_login
 from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import make_aware
 from django.utils.http import urlencode
-from django.utils.safestring import mark_safe
 from django.views.decorators.cache import cache_page
 from django.views.decorators.clickjacking import xframe_options_exempt
-from ..models import Tag, Story, Taggregation, TaggregationHasTag
-from ..forms import (
+from sic.models import Tag, Taggregation, TaggregationHasTag
+from sic.forms import (
     EditTagForm,
     EditTaggregationForm,
     OrderByForm,
     EditTaggregationHasTagForm,
     DeleteTaggregationHasTagForm,
 )
-from ..apps import SicAppConfig as config
-from . import form_errors_as_string
-from datetime import datetime
-import random
-import functools
-import re
+from sic.views.utils import form_errors_as_string
+from sic.apps import SicAppConfig as config
 
 
 def browse_tags(request, page_num=1):
@@ -174,10 +171,9 @@ def taggregation(request, taggregation_pk, slug=None):
     if not obj.user_has_access(request.user):
         if request.user.is_authenticated:
             raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
-        else:
-            return redirect(
-                reverse("login") + "?" + urlencode({"next": obj.get_absolute_url()})
-            )
+        return redirect(
+            reverse("login") + "?" + urlencode({"next": obj.get_absolute_url()})
+        )
     if request.user.is_authenticated:
         subscribed = request.user.taggregation_subscriptions.filter(
             pk=taggregation_pk
@@ -635,7 +631,7 @@ def gen_html(mix=None):
             r = int((r + mix[0]) / 2)
             g = int((g + mix[1]) / 2)
             b = int((b + mix[2]) / 2)
-        yield f"#%02x%02x%02x" % (r, g, b)
+        yield "#%02x%02x%02x" % (r, g, b)
 
 
 def view_tag(request, tag_pk, slug=None, page_num=1):

@@ -1,6 +1,5 @@
-import urllib.request
-from http import HTTPStatus
-import datetime
+__all__ = ["stories", "tags", "account", "utils"]
+from datetime import datetime
 import hashlib
 from django.http import (
     Http404,
@@ -15,8 +14,10 @@ from django.contrib import messages
 from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods, condition
+from django.utils.timezone import make_aware
 from django.db.models import Max
-from ..models import Story, StoryKind, Comment, User, Invitation, Domain
+from django.utils.http import urlencode
+from ..models import Story, Comment, User, Domain, Taggregation, Notification
 from ..moderation import ModerationLogEntry
 from ..forms import (
     SubmitCommentForm,
@@ -25,24 +26,12 @@ from ..forms import (
     SubmitStoryForm,
     SearchCommentsForm,
     BanUserForm,
+    OrderByForm,
 )
 from ..apps import SicAppConfig as config
 from ..markdown import comment_to_html
 from ..search import query_comments, query_stories
-
-
-class HttpResponseNotImplemented(HttpResponse):
-    status_code = HTTPStatus.NOT_IMPLEMENTED
-
-
-def form_errors_as_string(errors):
-    return ", ".join(
-        map(lambda k: ", ".join(map(lambda err: k + ": " + err, errors[k])), errors)
-    )
-
-
-from .account import *
-from .tags import *
+from .utils import form_errors_as_string
 
 
 @login_required
@@ -69,71 +58,9 @@ def preview_comment(request):
         request.session.modified = True
         if comment:
             return redirect(request.GET["next"] + "#" + comment.slugify)
-        else:
-            return redirect(request.GET["next"])
+        return redirect(request.GET["next"])
     except (Comment.DoesNotExist, KeyError):
         return redirect(request.GET["next"])
-
-
-def story(request, story_pk, slug=None):
-    try:
-        story_obj = Story.objects.get(pk=story_pk)
-    except Story.DoesNotExist:
-        raise Http404("Story does not exist") from Story.DoesNotExist
-    ongoing_reply_pk = None
-    try:
-        comment_pk = next(iter(request.session["comment_preview"].keys()))
-        comment_pk = comment_pk if comment_pk == "null" else int(comment_pk)
-        ongoing_reply_pk = comment_pk
-    except (StopIteration, KeyError, ValueError):
-        pass
-    if request.method == "POST":
-        form = SubmitCommentForm(request.POST)
-        if not request.user.is_authenticated:
-            messages.add_message(
-                request, messages.ERROR, "You must be logged in to comment."
-            )
-        elif not request.user.has_perm("sic.add_comment"):
-            if request.user.banned_by_user is not None:
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    "You are banned and not allowed to comment.",
-                )
-            else:
-                messages.add_message(
-                    request, messages.ERROR, "You are not allowed to comment."
-                )
-        else:
-            if form.is_valid():
-                comment = Comment.objects.create(
-                    user=request.user,
-                    story=story_obj,
-                    parent=None,
-                    text=form.cleaned_data["text"],
-                )
-                request.session["comment_preview"] = {}
-                return redirect(comment)
-            else:
-                error = form_errors_as_string(form.errors)
-                messages.add_message(
-                    request, messages.ERROR, f"Invalid comment form. Error: {error}"
-                )
-    else:
-        if slug != story_obj.slugify:
-            return redirect(story_obj.get_absolute_url())
-        form = SubmitCommentForm()
-    comments = story_obj.comments.filter(parent=None)
-    return render(
-        request,
-        "posts/story.html",
-        {
-            "story": story_obj,
-            "comment_form": form,
-            "comments": comments,
-            "ongoing_reply_pk": ongoing_reply_pk,
-        },
-    )
 
 
 @login_required
@@ -225,23 +152,22 @@ def agg_index(request, taggregation_pk, slug, page_num=1):
     if not agg.user_has_access(request.user):
         if request.user.is_authenticated:
             raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
-        else:
-            return redirect(
-                reverse("login")
-                + "?"
-                + urlencode(
-                    {
-                        "next": reverse(
-                            "agg_index_page",
-                            kwargs={
-                                "taggregation_pk": taggregation_pk,
-                                "slug": slug,
-                                "page_num": page_num,
-                            },
-                        )
-                    }
-                )
+        return redirect(
+            reverse("login")
+            + "?"
+            + urlencode(
+                {
+                    "next": reverse(
+                        "agg_index_page",
+                        kwargs={
+                            "taggregation_pk": taggregation_pk,
+                            "slug": slug,
+                            "page_num": page_num,
+                        },
+                    )
+                }
             )
+        )
     stories = agg.get_stories()
     # https://docs.python.org/3/howto/sorting.html#sort-stability-and-complex-sorts
     all_stories = sorted(
@@ -407,217 +333,6 @@ def index(request, page_num=1):
     )
 
 
-def all_stories_etag_fn(request, page_num=1):
-    # This resource depends on the following:
-    #
-    # ├─ notification count in nav menu (if new messages arrive or existing messages are read, the count changes)
-    # ├─ last_active of all stories
-    # └─ last_modified of all tags of all stories (name, hex_color) (currently ignored/not computed)
-    #
-
-    m = hashlib.sha256()
-
-    if request.user.is_authenticated:
-        m.update(bytes(request.user.get_session_auth_hash(), "utf-8"))
-        latest = Notification.latest(request.user)
-        if latest:
-            m.update(bytes(str(latest.timestamp()), "utf-8"))
-
-    latest = Story.objects.filter(active=True).latest("last_active")
-    if latest:
-        m.update(bytes(str(latest.last_active.timestamp()), "utf-8"))
-
-    return m.hexdigest()
-
-
-def all_stories_last_modified_fn(request, page_num=1):
-    notifications_active = None
-
-    if request.user.is_authenticated:
-        l = Notification.latest(request.user)
-        if l:
-            notifications_active = l
-    latest = Story.objects.filter(active=True).latest("last_active")
-    latest = latest.last_active if latest else None
-
-    if notifications_active and latest:
-        return max(latest, notifications_active)
-    elif notifications_active:
-        return notifications_active
-    else:
-        return latest
-
-
-@condition(
-    etag_func=all_stories_etag_fn, last_modified_func=all_stories_last_modified_fn
-)
-def all_stories(request, page_num=1):
-    if "order_by" in request.GET:
-        request.session["all_stories_order_by"] = request.GET["order_by"]
-    if "ordering" in request.GET:
-        request.session["all_stories_ordering"] = request.GET["ordering"]
-
-    if page_num == 1 and request.get_full_path() != reverse("all_stories"):
-        return redirect(reverse("all_stories"))
-
-    order_by = request.session.get("all_stories_order_by", "hotness")
-    ordering = request.session.get("all_stories_ordering", "desc")
-    order_by_field = ("-" if ordering == "desc" else "") + order_by
-
-    story_obj = Story.objects.filter(active=True)
-    if order_by == "hotness":
-        stories = sorted(
-            story_obj.order_by("created", "title"),
-            key=lambda s: s.hotness["score"],
-            reverse=ordering == "desc",
-        )
-    elif order_by == "last commented":
-        stories = sorted(
-            story_obj.order_by("created", "title"),
-            key=lambda s: s.active_comments().latest("created").created
-            if s.active_comments().exists()
-            else s.created,
-            reverse=ordering == "desc",
-        )
-    else:
-        stories = story_obj.order_by(order_by_field, "title")
-
-    paginator = Paginator(stories, config.STORIES_PER_PAGE)
-    try:
-        page = paginator.page(page_num)
-    except InvalidPage:
-        # page_num is bigger than the actual number of pages
-        return redirect(
-            reverse("all_stories_page", kwargs={"page_num": paginator.num_pages})
-        )
-    order_by_form = OrderByForm(
-        fields=all_stories.ORDER_BY_FIELDS,
-        initial={"order_by": order_by, "ordering": ordering},
-    )
-    return render(
-        request,
-        "posts/all_stories.html",
-        {"stories": page, "order_by_form": order_by_form},
-    )
-
-
-all_stories.ORDER_BY_FIELDS = ["hotness", "created", "last commented"]
-
-
-@login_required
-def submit_story(request):
-    user = request.user
-    preview = None
-    if request.method == "POST":
-        if "fetch-title" in request.POST:
-            qdict = request.POST.copy()
-            if len(qdict["url"]) > 0:
-                try:
-                    with urllib.request.urlopen(qdict["url"], timeout=2) as r:
-                        text = r.read().decode("utf-8")
-                    parsr = TitleHTMLExtractor()
-                    parsr.feed(text)
-                    title = parsr.title
-                    qdict["title"] = title
-                    if parsr.ogtitle is not None:
-                        qdict["title"] = parsr.ogtitle
-                    if parsr.publish_date is not None:
-                        qdict["publish_date"] = parsr.publish_date
-                except Exception as exc:
-                    messages.add_message(
-                        request, messages.ERROR, f"Could not fetch title. Error: {exc}"
-                    )
-            else:
-                messages.add_message(request, messages.WARNING, "URL field is empty.")
-            form = SubmitStoryForm(qdict)
-        elif "preview" in request.POST:
-            form = SubmitStoryForm(request.POST)
-            form.is_valid()
-            preview = {
-                "description": comment_to_html(request.POST["description"]),
-                "title": form.cleaned_data["title"],
-                "url": form.cleaned_data["url"],
-                "domain": form.cleaned_data["url"]
-                if len(form.cleaned_data["url"]) > 0
-                else None,
-                "publish_date": form.cleaned_data["publish_date"],
-                "tags": form.cleaned_data["tags"],
-            }
-        else:
-            form = SubmitStoryForm(request.POST)
-            form.fields["title"].required = True
-            if not user.has_perm("sic.add_story"):
-                if user.banned_by_user is not None:
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        "You are banned and not allowed to submit stories.",
-                    )
-                else:
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        "You are not allowed to submit stories.",
-                    )
-            elif form.is_valid():
-                title = form.cleaned_data["title"]
-                description = form.cleaned_data["description"]
-                url = form.cleaned_data["url"]
-                publish_date = form.cleaned_data["publish_date"]
-                user_is_author = form.cleaned_data["user_is_author"]
-                new_story = Story.objects.create(
-                    title=title,
-                    url=url,
-                    publish_date=publish_date,
-                    description=description,
-                    user=user,
-                    user_is_author=user_is_author,
-                    context_warning=form.cleaned_data["context_warning"],
-                )
-                new_story.tags.set(form.cleaned_data["tags"])
-                new_story.kind.set(form.cleaned_data["kind"])
-                new_story.save()
-                return redirect(new_story.get_absolute_url())
-            form.fields["title"].required = False
-            error = form_errors_as_string(form.errors)
-            messages.add_message(
-                request, messages.ERROR, f"Invalid form. Error: {error}"
-            )
-    else:
-        form = SubmitStoryForm(initial={"kind": StoryKind.default_value()})
-    return render(
-        request,
-        "posts/submit.html",
-        {
-            "form": form,
-            "preview": preview,
-        },
-    )
-
-
-@login_required
-def upvote_story(request, story_pk):
-    if request.method == "POST":
-        user = request.user
-        try:
-            story_obj = Story.objects.get(pk=story_pk)
-        except Story.DoesNotExist:
-            raise Http404("Story does not exist") from Story.DoesNotExist
-        if story_obj.user.pk == user.pk:
-            messages.add_message(
-                request, messages.ERROR, "You cannot vote on your own posts."
-            )
-        else:
-            vote, created = user.votes.get_or_create(
-                story=story_obj, comment=None, user=user
-            )
-            if not created:
-                vote.delete()
-    if "next" in request.GET:
-        return redirect(request.GET["next"])
-    return redirect(reverse("index"))
-
-
 @login_required
 def edit_comment(request, comment_pk):
     user = request.user
@@ -651,28 +366,23 @@ def edit_comment(request, comment_pk):
                 comment_obj.text = form.cleaned_data["text"]
                 comment_obj.save()
                 return redirect(comment_obj)
-            return redirect(comment_obj.story.get_absolute_url())
-        else:
-            error = form_errors_as_string(form.errors)
-            messages.add_message(
-                request, messages.ERROR, f"Invalid form. Error: {error}"
-            )
-            return redirect(comment_obj.story.get_absolute_url())
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
     else:
         form = EditReplyForm(
             initial={
                 "text": comment_obj.text,
             },
         )
-        return render(
-            request,
-            "posts/edit_comment.html",
-            {
-                "story": comment_obj.story,
-                "comment": comment_obj,
-                "form": form,
-            },
-        )
+    return render(
+        request,
+        "posts/edit_comment.html",
+        {
+            "story": comment_obj.story,
+            "comment": comment_obj,
+            "form": form,
+        },
+    )
 
 
 @login_required
@@ -736,90 +446,6 @@ def delete_comment(request, comment_pk):
 
 
 @login_required
-def edit_story(request, story_pk, slug=None):
-    user = request.user
-    preview = None
-    try:
-        story_obj = Story.objects.get(pk=story_pk)
-    except Story.DoesNotExist:
-        raise Http404("Story does not exist") from Story.DoesNotExist
-    if not request.user.has_perm("sic.change_story", story_obj):
-        raise PermissionDenied("Only the author of the story can edit it.")
-    if request.method == "POST":
-        if "fetch-title" in request.POST:
-            qdict = request.POST.copy()
-            if len(qdict["url"]) > 0:
-                try:
-                    with urllib.request.urlopen(qdict["url"], timeout=2) as r:
-                        text = r.read().decode("utf-8")
-                    parsr = TitleHTMLExtractor()
-                    parsr.feed(text)
-                    title = parsr.title
-                    qdict["title"] = title
-                    if parsr.ogtitle is not None:
-                        qdict["title"] = parsr.ogtitle
-                    if parsr.publish_date is not None:
-                        qdict["publish_date"] = parsr.publish_date
-                except Exception as exc:
-                    messages.add_message(
-                        request, messages.ERROR, f"Could not fetch title. Error: {exc}"
-                    )
-            else:
-                messages.add_message(request, messages.WARNING, "URL field is empty.")
-            form = SubmitStoryForm(qdict)
-        elif "preview" in request.POST:
-            form = SubmitStoryForm(request.POST)
-            form.is_valid()
-            preview = {
-                "description": comment_to_html(request.POST["description"]),
-                "title": form.cleaned_data["title"],
-                "url": form.cleaned_data["url"],
-                "domain": form.cleaned_data["url"],
-                "publish_date": form.cleaned_data["publish_date"],
-                "tags": form.cleaned_data["tags"],
-            }
-        else:
-            form = SubmitStoryForm(request.POST)
-            if form.is_valid():
-                story_obj.title = form.cleaned_data["title"]
-                story_obj.description = form.cleaned_data["description"]
-                story_obj.url = form.cleaned_data["url"]
-                story_obj.user_is_author = form.cleaned_data["user_is_author"]
-                story_obj.tags.set(form.cleaned_data["tags"])
-                story_obj.kind.set(form.cleaned_data["kind"])
-                story_obj.publish_date = form.cleaned_data["publish_date"]
-                story_obj.context_warning = form.cleaned_data["context_warning"]
-                story_obj.save()
-                return redirect(story_obj.get_absolute_url())
-            error = form_errors_as_string(form.errors)
-            messages.add_message(
-                request, messages.ERROR, f"Invalid form. Error: {error}"
-            )
-    else:
-        form = SubmitStoryForm(
-            initial={
-                "title": story_obj.title,
-                "description": story_obj.description,
-                "url": story_obj.url,
-                "publish_date": story_obj.publish_date,
-                "user_is_author": story_obj.user_is_author,
-                "tags": story_obj.tags.all(),
-                "kind": story_obj.kind.all(),
-                "context_warning": story_obj.context_warning,
-            }
-        )
-    return render(
-        request,
-        "posts/submit.html",
-        {
-            "form": form,
-            "preview": preview,
-            "story": story_obj,
-        },
-    )
-
-
-@login_required
 def upvote_comment(request, story_pk, slug, comment_pk):
     if request.method == "POST":
         user = request.user
@@ -880,10 +506,9 @@ def recent_comments_last_modified_fn(request, page_num=1):
 
     if notifications_active and latest:
         return max(latest, notifications_active)
-    elif notifications_active:
+    if notifications_active:
         return notifications_active
-    else:
-        return latest
+    return latest
 
 
 @condition(
@@ -955,49 +580,6 @@ def search(request):
         "posts/search.html",
         {"form": form, "comments": comments, "stories": stories},
     )
-
-
-from html.parser import HTMLParser
-
-
-class TitleHTMLExtractor(HTMLParser):
-    def __init__(self):
-        super(TitleHTMLExtractor, self).__init__()
-        self.title = ""
-        self.ogtitle = None
-        self.publish_date = None
-        self.in_title = False
-
-    def handle_starttag(self, tag, attrs):
-        if tag == "title":
-            self.in_title = True
-        elif tag == "meta":
-            attrs = {a[0]: a[1] for a in attrs}
-            if (
-                "content" in attrs
-                and "property" in attrs
-                and attrs["property"] == "article:published_time"
-            ):
-                try:
-                    if attrs["content"].endswith("Z"):
-                        attrs["content"] = attrs["content"][:-1]
-                    self.publish_date = datetime.fromisoformat(attrs["content"]).date()
-                except:
-                    pass
-            if (
-                "content" in attrs
-                and "property" in attrs
-                and attrs["property"] == "og:title"
-            ):
-                self.ogtitle = attrs["content"]
-
-    def handle_endtag(self, tag):
-        if tag == "title":
-            self.in_title = False
-
-    def handle_data(self, data):
-        if self.in_title:
-            self.title += data
 
 
 @require_http_methods(["GET"])
