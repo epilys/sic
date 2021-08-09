@@ -373,6 +373,15 @@ template {
   font-display: swap;
   src: url("Inter-Regular.woff2") format("woff2");
 }
+
+@font-face {
+  font-family: 'Inter';
+  font-style:  normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("Inter-Medium.woff2") format("woff2");
+}
+
 @font-face {
   font-family: 'Inter';
   font-style:  normal;
@@ -548,6 +557,7 @@ a.title {
  text-align: justify;
  word-break: break-word;
  hyphens: auto;
+ font-weight: 500;
 }
 
 a.title:visited {
@@ -1504,7 +1514,7 @@ fieldset>*:not([type=hidden],legend) +label{
 }
 
 fieldset>legend {
-  font-weight: bolder;
+  font-weight: 500;
   background-color: white;
   border: 1px outset black;
   padding: 2px 5px;
@@ -1512,7 +1522,7 @@ fieldset>legend {
 }
 
 form label {
-  font-weight: bolder;
+  font-weight: 500;
   text-transform: lowercase;
 }
 
