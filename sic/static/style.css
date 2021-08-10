@@ -705,6 +705,9 @@ figure#avatar-thumbnail figcaption {
   background: white;
   padding: 3px 5px;
   text-align: center;
+  word-wrap: break-word;
+  hyphens: auto;
+  overflow: auto;
 }
 
 .votes .upvote:hover, .votes .upvote.upvoted {

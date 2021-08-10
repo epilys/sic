@@ -146,7 +146,7 @@ def edit_avatar(request):
         error = form_errors_as_string(form.errors)
         messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
     else:
-        form = EditAvatarForm()
+        form = EditAvatarForm(initial={"avatar_title": request.user.avatar_title})
     return render(
         request, "account/edit_avatar.html", {"user": request.user, "form": form}
     )
