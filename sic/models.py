@@ -416,9 +416,15 @@ class Taggregation(models.Model):
     def slugify(self):
         return slugify(self.name, allow_unicode=True)
 
-    def get_absolute_url(self):
+    def get_details_url(self):
         return reverse(
             "taggregation",
+            kwargs={"taggregation_pk": self.pk, "slug": self.slugify},
+        )
+
+    def get_absolute_url(self):
+        return reverse(
+            "agg_index",
             kwargs={"taggregation_pk": self.pk, "slug": self.slugify},
         )
 
