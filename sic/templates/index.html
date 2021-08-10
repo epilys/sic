@@ -2,16 +2,51 @@
 {% load humanize %}
 {% load utils %}
 {% block title %}sic{% endblock %}
+{% block style %}
+    <style>
+        .sparklines {
+            position: absolute;
+            transform: translateX(3px) translateY(-100%) scaleX(50%) scaleY(60%);
+            font-size: 1rem;
+            transform-origin: left;
+        }
+        div.aggregations {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            grid-gap: 10px;
+            margin-top:0;
+            width: var(--main-width);
+            font-size: 12px;
+        }
+
+        div.aggregations article {
+            display: grid;
+            grid-template-rows: max-content max-content 1fr;
+            border: 1px solid gray;
+            border-radius: 3px;
+            padding: 5px 2px;
+        }
+        div.aggregations article>header {
+            margin: 0;
+            text-align: center;
+            display: inline-block;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+{% endblock %}
 {% block content %}
     {% if aggregations %}
         {% if not has_subscriptions and request.user.is_authenticated %}<div class="showing-aggregations">You have no subscriptions, viewing default aggregations.</div>
         {% elif not has_subscriptions %}<div class="showing-aggregations">You are not logged in, viewing default aggregations.</div>{% endif %}
-        <div class="showing-aggregations">Showing stories from <ul class="inline-comma-sep-list">{% for agg in aggregations|slice:":5" %}<li><a href="{{ agg.get_absolute_url }}">{{ agg.name }}</a></li>{% if forloop.last and aggregations|length > 5 %}<li><details><summary>{{ aggregations|slice:"5:"|length }} others</summary>:<ul class="inline-comma-sep-list">{% for agg in aggregations|slice:"5:" %}<li><a href="{{ agg.get_absolute_url }}">{{ agg.name }}</a></li>{% endfor %}</ul></details></li>{% endif %}{% endfor %}</ul></div>
     {% elif aggregation %}
         <div class="showing-aggregations">Showing stories from <a href="{{ aggregation.get_absolute_url }}">{{ aggregation.name }}</a>. <nav style="display: inline-block"><ul><li><a href="{{ aggregation.get_details_url }}">view details</a></li></ul></nav></div>
     {% else %}
         {% if not has_subscriptions and request.user.is_authenticated %}<div class="showing-aggregations">You have no subscriptions, and there are no default tag aggregations available. Viewing all stories instead. <a href="{% url 'new_aggregation' %}">Create one</a> or <a href="{% url 'public_aggregations' %}">browse public ones from other users</a>.</div>{% elif not request.user.is_authenticated %}<div class="showing-aggregations">There are no default tag aggregations available. Viewing all stories.</div>{% endif %}
     {% endif %}
+    {% if aggregations %}<div class="aggregations">{% for agg in aggregations %}<article><header><a href="{{ agg.get_absolute_url }}" class="agg-name" title="{{ agg.name }} {% if agg.description %} - {{ agg.description }}{% endif %}">{{ agg.name }}</a></header><span class="sparklines" title="activity for last 14 days">{{ agg.last_14_days }}</span></article>{% endfor %}</div>{% endif %}
     <ul class="posts">
         {% for story in stories %}
             {% include "posts/story_list_item.html" with story=story %}
