@@ -601,10 +601,6 @@ def edit_settings(request):
                 user.email_messages = form.cleaned_data["email_messages"]
                 user.email_mentions = form.cleaned_data["email_mentions"]
                 user.show_avatars = form.cleaned_data["show_avatars"]
-                user.show_story_previews = form.cleaned_data["show_story_previews"]
-                user.show_submitted_story_threads = form.cleaned_data[
-                    "show_submitted_story_threads"
-                ]
                 user.show_colors = form.cleaned_data["show_colors"]
                 user.save()
                 messages.add_message(

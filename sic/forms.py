@@ -324,8 +324,6 @@ class EditAccountSettings(forms.Form):
     email_messages = forms.BooleanField(initial=True, required=False)
     email_mentions = forms.BooleanField(initial=True, required=False)
     show_avatars = forms.BooleanField(initial=True, required=False)
-    show_story_previews = forms.BooleanField(initial=True, required=False)
-    show_submitted_story_threads = forms.BooleanField(initial=True, required=False)
     show_stories_with_context_warning = forms.BooleanField(initial=True, required=False)
     show_colors = forms.BooleanField(
         initial=True,
