@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 {% block title %}message inbox - sic{% endblock %}
+{% block style %}
+    <style>
+        .active-notification td {
+            background: Highlight;
+            color: HighlightText;
+        }
+    </style>
+{% endblock %}
 {% block content %}
     <h1>Inbox</h1>
     <nav class="menu">
