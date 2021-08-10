@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}message inbox - sic{% endblock %}
+{% block title %}{% if is_sent %}sent messages{% else %}message inbox{% endif %} - sic{% endblock %}
 {% block style %}
     <style>
         .active-notification td {

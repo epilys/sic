@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
-{% block title %}sic{% endblock %}
+{% block title %}Message from {{ msg.author }}: {{msg.subject}} - sic{% endblock %}
 {% block style %}
     <style>
         h1.message-subject {

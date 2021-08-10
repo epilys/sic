@@ -174,7 +174,9 @@ def inbox(request):
 def inbox_sent(request):
     user = request.user
     inbox_messages = user.sent_messages.all().order_by("-created")
-    return render(request, "account/inbox.html", {"messages_": inbox_messages})
+    return render(
+        request, "account/inbox.html", {"messages_": inbox_messages, "is_sent": True}
+    )
 
 
 RES_PREFIX_RE = re.compile(r"^[rR]e:[ ]{0,1}")

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}{% if tag %}edit {{ tag.name }}{% else %}new tag{% endif %}{% endblock %}
+{% block title %}{% if tag %}edit {{ tag.name }}{% else %}new tag{% endif %} - sic{% endblock %}
 {% block content %}
     {% if tag %}
         <h1>edit {{ tag.name }}</h1>

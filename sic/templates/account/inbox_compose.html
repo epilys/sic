@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}sic{% endblock %}
+{% block title %}Compose message{% if form.recipient.value %} to {{ form.recipient.value }}{% endif %} - sic{% endblock %}
 {% block content %}
     <h1>Compose</h1>
     <nav class="menu">
