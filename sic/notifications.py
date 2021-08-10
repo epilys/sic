@@ -31,28 +31,29 @@ def comment_save_receiver(
             caused_by=comment.user,
             url=comment.get_absolute_url(),
         )
-    with connections["default"].cursor() as cursor:
-        mentioned_users = User.objects.filter(
-            id__in=RawSQL(
-                f"SELECT user.id AS id FROM {config.MENTION_TOKENIZER_NAME}, sic_user AS user, sic_comment AS comment WHERE input = comment.text AND comment.id = %s AND token = user.username",
-                (instance.pk,),
-            ),
-        )
-        if comment.parent:
-            mentioned_users = mentioned_users.exclude(id=comment.parent.user.pk)
-        else:
-            mentioned_users = mentioned_users.exclude(id=comment.story.user.pk)
-        if mentioned_users.exists():
-            plain_text_comment = comment.text_to_plain_text
-            for user in mentioned_users:
-                Notification.objects.create(
-                    user=user,
-                    name=f"{comment.user} has mentioned you in {comment.story.title}",
-                    kind=Notification.Kind.MENTION,
-                    body=f"{comment.user} has mentioned you:\n\n{plain_text_comment}",
-                    caused_by=comment.user,
-                    url=comment.get_absolute_url(),
-                )
+    if config.DETECT_USERNAME_MENTIONS_IN_COMMENTS:
+        with connections["default"].cursor() as cursor:
+            mentioned_users = User.objects.filter(
+                id__in=RawSQL(
+                    f"SELECT user.id AS id FROM {config.MENTION_TOKENIZER_NAME}, sic_user AS user, sic_comment AS comment WHERE input = comment.text AND comment.id = %s AND token = user.username",
+                    (instance.pk,),
+                ),
+            )
+            if comment.parent:
+                mentioned_users = mentioned_users.exclude(id=comment.parent.user.pk)
+            else:
+                mentioned_users = mentioned_users.exclude(id=comment.story.user.pk)
+            if mentioned_users.exists():
+                plain_text_comment = comment.text_to_plain_text
+                for user in mentioned_users:
+                    Notification.objects.create(
+                        user=user,
+                        name=f"{comment.user} has mentioned you in {comment.story.title}",
+                        kind=Notification.Kind.MENTION,
+                        body=f"{comment.user} has mentioned you:\n\n{plain_text_comment}",
+                        caused_by=comment.user,
+                        url=comment.get_absolute_url(),
+                    )
 
 
 @receiver(post_save, sender=Message)

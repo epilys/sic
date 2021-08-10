@@ -75,6 +75,7 @@ class SicAppConfig(AppConfig):
     SEND_WEBMENTIONS = True
 
     FORMAT_QUOTED_MESSAGES = True
+    DETECT_USERNAME_MENTIONS_IN_COMMENTS = True
 
     def ready(self):
         import sic.notifications
