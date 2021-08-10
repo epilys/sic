@@ -133,17 +133,23 @@ urlpatterns = [
         name="tag_graph",
     ),
     path("tags/graph-svg", tags.tag_graph_svg, name="tag_graph_svg"),
-    path("aggs/", tags.default_aggregations, name="default_aggregations"),
+    path("aggs/", tags.personal_aggregations, name="personal_aggregations"),
     path(
         "aggs/page/<int:page_num>/",
-        tags.default_aggregations,
-        name="default_aggregations_page",
+        tags.personal_aggregations,
+        name="personal_aggregations_page",
     ),
     path("aggs/all", tags.public_aggregations, name="public_aggregations"),
     path(
         "aggs/all/page/<int:page_num>/",
         tags.public_aggregations,
         name="public_aggregations_page",
+    ),
+    path("aggs/default", tags.default_aggregations, name="default_aggregations"),
+    path(
+        "aggs/default/page/<int:page_num>/",
+        tags.default_aggregations,
+        name="default_aggregations_page",
     ),
     path(
         "agg/<int:taggregation_pk>/<slug:slug>/", tags.taggregation, name="taggregation"

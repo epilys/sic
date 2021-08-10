@@ -541,7 +541,7 @@ def delete_aggregation_filter(request, taggregation_pk):
     return redirect(obj)
 
 
-def browse_aggs(request, page_num=1, default=False):
+def browse_aggs(request, view_name, aggregations, page_num=1):
     if "order_by" in request.GET:
         request.session["agg_order_by"] = request.GET["order_by"]
     if "ordering" in request.GET:
@@ -550,27 +550,17 @@ def browse_aggs(request, page_num=1, default=False):
     ordering = request.session.get("agg_ordering", "desc")
     order_by_field = ("-" if ordering == "desc" else "") + order_by
 
-    if default:
-        if page_num == 1 and request.get_full_path() != reverse("default_aggregations"):
-            return redirect(reverse("default_aggregations"))
-    else:
-        if page_num == 1 and request.get_full_path() != reverse("public_aggregations"):
-            return redirect(reverse("public_aggregations"))
-    taggs = (
-        Taggregation.objects.exclude(discoverable=False)
-        .exclude(private=True)
-        .order_by(order_by_field, "name")
-    )
-    if default:
-        taggs = taggs.filter(default=True)
-    paginator = Paginator(taggs, 250)
+    if page_num == 1 and request.get_full_path() != reverse(view_name):
+        return redirect(reverse(view_name))
+    taggs = aggregations.order_by(order_by_field, "name")
+    paginator = Paginator(taggs, 30)
     try:
         page = paginator.page(page_num)
     except InvalidPage:
         # page_num is bigger than the actual number of pages
         return redirect(
             reverse(
-                "default_aggregations_page" if default else "public_aggregations_page",
+                f"{view_name}_page",
                 kwargs={"page_num": paginator.num_pages},
             )
         )
@@ -581,19 +571,41 @@ def browse_aggs(request, page_num=1, default=False):
     return render(
         request,
         "tags/browse_aggs.html",
-        {"aggs": page, "order_by_form": order_by_form, "default": default},
+        {
+            "aggs": page,
+            "order_by_form": order_by_form,
+            "view_name": view_name,
+            "view_name_page": f"{view_name}_page",
+        },
     )
 
 
 browse_aggs.ORDER_BY_FIELDS = ["name", "created"]
 
 
+def personal_aggregations(request, page_num=1):
+    if not request.user.is_authenticated:
+        return public_aggregations(request, page_num)
+    aggregations = request.user.taggregation_subscriptions.all()
+    if not aggregations.exists():
+        return public_aggregations(request, page_num)
+    return browse_aggs(request, "personal_aggregations", aggregations, page_num)
+
+
 def public_aggregations(request, page_num=1):
-    return browse_aggs(request, page_num, default=False)
+    aggregations = Taggregation.objects.exclude(discoverable=False).exclude(
+        private=True
+    )
+    return browse_aggs(request, "public_aggregations", aggregations, page_num)
 
 
 def default_aggregations(request, page_num=1):
-    return browse_aggs(request, page_num, default=True)
+    aggregations = (
+        Taggregation.objects.exclude(discoverable=False)
+        .exclude(private=True)
+        .filter(default=True)
+    )
+    return browse_aggs(request, "default_aggregations", aggregations, page_num)
 
 
 # HSV values in [0..1[

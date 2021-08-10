@@ -19,20 +19,14 @@
 
         div.aggregations article {
             display: grid;
-            grid-template-rows: max-content max-content max-content max-content 1fr;
+            grid-template-rows: max-content max-content 1fr;
             grid-gap: 10px;
             border: 1px solid gray;
             border-radius: 3px;
             padding: 1rem 1.5rem .5rem 1.5rem;
         }
-        div.aggregations article span.description {
-            height: 6rem;
-            overflow: auto;
-            outline: 1px solid cadetblue;
-            outline-offset: 5px;
-        }
         div.aggregations article ul.tags {
-            max-height: 4rem;
+            max-height: 3rem;
             overflow: auto;
             height: max-content;
         }
@@ -58,7 +52,9 @@
 {% block content %}
     <nav>
         <ul>
-            <li><a href="{% url 'browse_tags' %}">Browse tags</a></li>
+            {% if request.user.is_authenticated %}
+                <li><a href="{% url 'personal_aggregations' %}">Your aggregations</a></li>
+            {% endif %}
             <li><a href="{% url 'default_aggregations' %}">Browse default aggregations</a></li>
             <li><a href="{% url 'public_aggregations' %}">Browse public aggregations</a></li>
             {% if request.user.is_authenticated %}
@@ -73,8 +69,10 @@
             </form></li>
         </ul>
     </nav>
-    {% if default %}
+    {% if view_name == 'default_aggregations' %}
         <h1>Default aggregations</h1>
+    {% elif view_name == 'personal_aggregations' %}
+        <h1>Your aggregations</h1>
     {% else %}
         <h1>Public aggregations</h1>
     {% endif %}
@@ -83,10 +81,9 @@
         <div class="aggregations">
             {% for agg in aggs %}
                 <article>
-                    <header><a href="{% url 'taggregation' agg.pk agg.slugify %}" class="agg-name">{{ agg.name }}</a>&#32;<code>{{ agg.vertices|length }}</code>&#32;tag{{ agg.vertices|pluralize}}</header>
+                    <header><a href="{% url 'taggregation' agg.pk agg.slugify %}" class="agg-name" title="{% if agg.description %}{{ agg.description }}{% else %}No description{% endif %}">{{ agg.name }}</a>&#32;<code>{{ agg.vertices|length }}</code>&#32;tag{{ agg.vertices|pluralize}}</header>
                     <span><code>{{ agg.subscribers.count }}</code> subscribers</span>
                     <span class="sparklines" title="activity for last 14 days">{{ agg.last_14_days }}</span>
-                    <span class="description">{% if agg.description %}{{ agg.description }}{% else %}No description{% endif %}</span>
                     <ul class="tags">
                         {% for tag in agg.vertices %}
                             <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><div class="tag"><span class="tag-name"><a href="{{ tag.get_absolute_url }}">{{ tag.name }} {{ tag.stories.count }}</a></span></div></li>
@@ -95,10 +92,10 @@
                     <span class="created">created {{ agg.created|naturaltime }}</span>
                 </article>
             {% empty %}
-                {% if default %}
+                {% if view_name == 'default_aggregations' %}
                     <p>No default aggregations. <a href="{% url 'public_aggregations' %}">Browse public aggregations</a></p>
                 {% else %}
-                    <p>No public aggregations. {% if request.user.is_authenticated %}<a href="{% url 'new_aggregation' %}">Create your own</a>.{% endif %}</p>
+                    <p>No aggregations. {% if request.user.is_authenticated %}<a href="{% url 'new_aggregation' %}">Create your own</a>.{% endif %}</p>
                 {% endif %}
             {% endfor %}
         </div>
@@ -106,36 +103,19 @@
     {% endspaceless %}
     <div class="pagination">
         <span class="step-links">
-            {% if default %}
-                {% if aggs.has_previous %}
-                    <a href="{% url 'default_aggregations' %}">&laquo; first</a>
-                    <a href="{% url 'default_aggregations_page' page_num=aggs.previous_page_number %}">&lt; previous</a>
-                {% endif %}
+            {% if aggs.has_previous %}
+                <a href="{% url view_name %}">&laquo; first</a>
+                <a href="{% url view_name_page page_num=aggs.previous_page_number %}">&lt; previous</a>
+            {% endif %}
 
-                <span class="current">
-                    Page {{ aggs.number }}
-                </span>
+            <span class="current">
+                Page {{ aggs.number }}
+            </span>
 
-                {% if aggs.has_next %}
-                    <a href="{% url 'default_aggregations_page' page_num=aggs.next_page_number %}">next &gt;</a>
-                {% else %}
-                    (of {{aggs.number}})
-                {% endif %}
+            {% if aggs.has_next %}
+                <a href="{% url view_name_page page_num=aggs.next_page_number %}">next &gt;</a>
             {% else %}
-                {% if aggs.has_previous %}
-                    <a href="{% url 'public_aggregations' %}">&laquo; first</a>
-                    <a href="{% url 'public_aggregations_page' page_num=aggs.previous_page_number %}">&lt; previous</a>
-                {% endif %}
-
-                <span class="current">
-                    Page {{ aggs.number }}
-                </span>
-
-                {% if aggs.has_next %}
-                    <a href="{% url 'public_aggregations_page' page_num=aggs.next_page_number %}">next &gt;</a>
-                {% else %}
-                    (of {{aggs.number}})
-                {% endif %}
+                (of {{aggs.number}})
             {% endif %}
         </span>
     </div>
