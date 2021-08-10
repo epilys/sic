@@ -252,6 +252,11 @@ urlpatterns = [
     path(
         "accounts/inbox/<int:message_pk>", account.inbox_message, name="inbox_message"
     ),
+    path(
+        "accounts/inbox/<int:message_pk>/raw",
+        account.inbox_message_raw,
+        name="inbox_message_raw",
+    ),
     path("accounts/inbox/sent", account.inbox_sent, name="inbox_sent"),
     path(
         "accounts/inbox/<int:in_reply_to>/reply",

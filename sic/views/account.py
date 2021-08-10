@@ -1,6 +1,7 @@
 import re
+import html
 from datetime import datetime
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
@@ -13,6 +14,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.utils.timezone import make_aware
+from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_http_methods
 from wand.image import Image
 from sic.auth import AuthToken
@@ -220,6 +222,16 @@ def inbox_compose(request, in_reply_to=None):
     return render(request, "account/inbox_compose.html", {"form": form})
 
 
+QUOTED_RE = re.compile(
+    r"^(?P<first_line>On \d{4,4}/\d{2,2}/\d{2,2}, a [A-Z][^,]{1,}, at \d{2,2}:\d{2,2}\s*[ap]m, (?P<user>.{1,}?) wrote:$).*?(?P<quoted_text>^&gt; .{1,}?$){1,}^$^$(?P<reply>.{0,})",
+    flags=(re.MULTILINE | re.DOTALL),
+)
+
+QUOTED_PART_RE = re.compile(
+    r"(?:^&gt; (?P<quoted_text>.{1,}?$)){1,}", flags=re.MULTILINE | re.DOTALL
+)
+
+
 @login_required
 def inbox_message(request, message_pk):
     try:
@@ -229,7 +241,44 @@ def inbox_message(request, message_pk):
     if msg.recipient == request.user:
         msg.read_by_recipient = True
         msg.save(update_fields=["read_by_recipient"])
-    return render(request, "account/inbox_message.html", {"msg": msg})
+    match = QUOTED_RE.match(html.escape(msg.body.replace("\r\n", "\n"), quote=False))
+    if match:
+        match = {
+            "first_line": match.group("first_line"),
+            "user": match.group("user"),
+            "quoted_text": match.group("quoted_text").lstrip(),
+            "reply": match.group("reply"),
+        }
+        match["quoted_text"] = mark_safe(
+            QUOTED_PART_RE.sub(r"> <i>\1</i>", match["quoted_text"])
+        )
+        match["reply"] = mark_safe(QUOTED_PART_RE.sub(r"> <i>\1</i>", match["reply"]))
+        try:
+            user = User.objects.only("id", "email", "username").get(
+                username=match["user"]
+            )
+            match["first_line"] = mark_safe(
+                match["first_line"].replace(
+                    match["user"], f"""<a href="{user.get_absolute_url()}">{user}</a>"""
+                )
+            )
+        except User.DoesNotExist:
+            pass
+    return render(
+        request, "account/inbox_message.html", {"msg": msg, "formatted_message": match}
+    )
+
+
+@login_required
+def inbox_message_raw(request, message_pk):
+    try:
+        msg = Message.objects.get(pk=message_pk)
+    except Message.DoesNotExist:
+        raise Http404("Message does not exist") from Message.DoesNotExist
+    if msg.recipient == request.user:
+        msg.read_by_recipient = True
+        msg.save(update_fields=["read_by_recipient"])
+    return HttpResponse(msg.body, content_type="text/plain; charset=utf-8")
 
 
 @login_required

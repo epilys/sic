@@ -62,11 +62,15 @@
         <span><b>Read by recipient</b>: {{ msg.read_by_recipient|yesno }}</span>
     </aside>
     <blockquote class="message_body">
-        {{ msg.body|linebreaks }}
+        {% if formatted_message %}{{ formatted_message.first_line }}<br/>
+            {{ formatted_message.quoted_text|linebreaksbr }}<br/>
+            {{ formatted_message.reply|linebreaksbr }}
+        {% else %}{{ msg.body|linebreaks }}{% endif %}
     </blockquote>
     <nav class="menu">
         <ul>
             <li><a href="{% url 'inbox_reply' in_reply_to=msg.pk %}">reply</a></li>
+            <li><a href="{% url 'inbox_message_raw' message_pk=msg.pk %}">view raw</a></li>
         </ul>
     </nav>
 {% endblock %}
