@@ -1,4 +1,4 @@
-# How to deploy `sic`
+# How to deploy [sic]
 
 ## Basic setup
 
@@ -24,7 +24,7 @@ Any IPs you use with `runserver` must be in your `ALLOWED_HOSTS` settings.
 
 ## Production
 
-Put local settings in `/local/` in `settigns_local.py`. Optionally install `memcached` and `pymemcache`.
+Put local settings in `/local/` in `settings_local.py`. Optionally install `memcached` and `pymemcache`.
 
 ### `sic/local/settings_local.py`
 
@@ -40,40 +40,6 @@ ALLOWED_HOSTS = [ "127.0.0.1", "example.com", ] # you can add extra hosts too e.
 ADMINS = [('user', 'webmaster@example.com'), ]
 
 STATIC_ROOT = "/path/to/collected/static/"
-```
-
-### memcache
-
-Add the following to `settings_local.py`:
-
-```
-# Optional
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
-        'LOCATION': '127.0.0.1:11211',
-        'OPTIONS': {
-            'no_delay': True,
-            'ignore_exc': True,
-            'max_pool_size': 4,
-            'use_pooling': True,
-        }
-    }
-}
-```
-
-Configure memcache systemd service to restart along with apache2:
-
-```shell
-systemctl edit memcached
-```
-
-And add:
-
-```
-[Unit]
-PartOf=apache2.service
-WantedBy=apache2.service
 ```
 
 ### Static files
@@ -108,7 +74,7 @@ Issue `python3 manage.py collectstatic` to put all static files in your defined 
 
 
   WSGIScriptAlias / /PATH/TO/sic/sic/wsgi.py
-  WSGIDaemonProcess examplecom user=debian python-home=/PATH/TO/sic/venv python-path=/PATH/TO/sic
+  WSGIDaemonProcess examplecom user=debian python-home=/PATH/TO/sic/venv python-path=/PATH/TO/sic processes=2 threads=3
   WSGIProcessGroup examplecom
 
   <Directory /PATH/TO/sic/sic>
@@ -151,4 +117,38 @@ Issue `python3 manage.py collectstatic` to put all static files in your defined 
       Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
     </IfModule>
 </VirtualHost>
+```
+
+### `memcached`
+
+Add the following to `settings_local.py`:
+
+```
+# Optional
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': '127.0.0.1:11211',
+        'OPTIONS': {
+            'no_delay': True,
+            'ignore_exc': True,
+            'max_pool_size': 4,
+            'use_pooling': True,
+        }
+    }
+}
+```
+
+Configure memcache systemd service to restart along with apache2:
+
+```shell
+systemctl edit memcached
+```
+
+And add:
+
+```
+[Unit]
+PartOf=apache2.service
+WantedBy=apache2.service
 ```
