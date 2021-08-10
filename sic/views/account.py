@@ -592,6 +592,10 @@ def edit_settings(request):
         else:
             form = EditAccountSettings(request.POST)
             if form.is_valid():
+                if form.cleaned_data["username"] != user.username:
+                    user.username = form.cleaned_data["username"]
+                if form.cleaned_data["email"] != user.email:
+                    user.email = form.cleaned_data["email"]
                 user.email_notifications = form.cleaned_data["email_notifications"]
                 user.email_replies = form.cleaned_data["email_replies"]
                 user.email_messages = form.cleaned_data["email_messages"]
@@ -610,7 +614,9 @@ def edit_settings(request):
             error = form_errors_as_string(form.errors)
         messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
     if form is None:
-        form = EditAccountSettings(initial=user._wrapped.__dict__)
+        initial = user._wrapped.__dict__
+        initial["user"] = user
+        form = EditAccountSettings(initial=initial)
     if session_form is None:
         session_form = EditSessionSettings(initial=session_settings)
     if digest_form is None:

@@ -303,6 +303,22 @@ class DeleteTaggregationHasTagForm(forms.Form):
 
 
 class EditAccountSettings(forms.Form):
+    user = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        widget=forms.HiddenInput,
+        required=True,
+    )
+    username = forms.CharField(
+        label="username",
+        min_length=4,
+        max_length=150,
+        required=False,
+        help_text="Leaving it blank will show your e-mail address to other users instead.",
+    )
+    email = forms.EmailField(
+        required=True,
+        label="account e-mail address",
+    )
     email_notifications = forms.BooleanField(initial=True, required=False)
     email_replies = forms.BooleanField(initial=True, required=False)
     email_messages = forms.BooleanField(initial=True, required=False)
@@ -316,6 +332,28 @@ class EditAccountSettings(forms.Form):
         help_text="If false, UI and tag colors are not shown, and if avatars are displayed, they are in monochrome.",
         required=False,
     )
+
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+        if not username or len(username) == 0:
+            return username
+        if username in config.BANNED_USERNAMES:
+            raise ValidationError("Username not allowed")
+        exists = User.objects.filter(username__iexact=username).exclude(
+            pk=self.cleaned_data["user"].pk
+        )
+        if exists.count():
+            raise ValidationError("Username already exists")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        exists = User.objects.filter(email__iexact=email).exclude(
+            pk=self.cleaned_data["user"].pk
+        )
+        if exists.count():
+            raise ValidationError("Email already exists")
+        return email
 
 
 class WeeklyDigestForm(forms.Form):
