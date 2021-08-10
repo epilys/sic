@@ -291,6 +291,8 @@ def inbox_message_raw(request, message_pk):
 
 @login_required
 def generate_invite(request, invite_pk=None):
+    if not request.user.has_perm("sic.add_invitation"):
+        raise PermissionDenied("You don't have permission to generate invitations.")
     if invite_pk:
         try:
             inv = Invitation.objects.get(pk=invite_pk)

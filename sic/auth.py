@@ -50,6 +50,8 @@ class SicBackend(ModelBackend):
             return not is_banned
         elif perm == "sic.add_message":
             return not is_banned and is_active
+        elif perm == "sic.add_invitation":
+            return not is_banned and is_active
         elif perm == "sic.view_message" and isinstance(obj, Message):
             return user_obj in [obj.recipient, obj.author]
         elif perm in ["change_taggregationhastag", "sic.delete_taggregationhastag"]:
