@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .apps import SicAppConfig as config
-from .models import Story, Hat, User, Tag, Taggregation, TaggregationHasTag
+from .models import Story, Hat, User, Tag, Taggregation, TaggregationHasTag, Message
 
 
 class SicBackend(ModelBackend):
@@ -29,6 +29,7 @@ class SicBackend(ModelBackend):
             return True
         karma = user_obj.karma
         is_banned = user_obj.is_banned
+        is_active = user_obj.is_active
         if perm in ["sic.add_tag", "sic.change_tag"]:
             return karma >= config.MIN_KARMA_TO_EDIT_TAGS and not is_banned
         elif perm == "sic.delete_tag":
@@ -47,6 +48,10 @@ class SicBackend(ModelBackend):
             return obj.user == user_obj if isinstance(obj, Hat) else True
         elif perm in ["sic.add_comment", "sic.add_story"]:
             return not is_banned
+        elif perm == "sic.add_message":
+            return not is_banned and is_active
+        elif perm == "sic.view_message" and isinstance(obj, Message):
+            return user_obj in [obj.recipient, obj.author]
         elif perm in ["change_taggregationhastag", "sic.delete_taggregationhastag"]:
             if is_banned:
                 return False

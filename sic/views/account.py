@@ -182,12 +182,16 @@ RES_PREFIX_RE = re.compile(r"^[rR]e:[ ]{0,1}")
 
 @login_required
 def inbox_compose(request, in_reply_to=None):
+    user = request.user
+    if not user.has_perm("sic.add_message"):
+        raise PermissionDenied("You don't have permission to send messages.")
     if in_reply_to:
         try:
             in_reply_to = Message.objects.get(pk=in_reply_to)
         except Message.DoesNotExist:
             raise Http404("Message does not exist") from Message.DoesNotExist
-    user = request.user
+        if not user.has_perm("sic.view_message", in_reply_to):
+            raise PermissionDenied("You don't have permission to view this message.")
     if request.method == "POST":
         form = ComposeMessageForm(request.POST)
         if form.is_valid():
@@ -238,6 +242,8 @@ def inbox_message(request, message_pk):
         msg = Message.objects.get(pk=message_pk)
     except Message.DoesNotExist:
         raise Http404("Message does not exist") from Message.DoesNotExist
+    if not request.user.has_perm("sic.view_message", msg):
+        raise PermissionDenied("You don't have permission to view this message.")
     if msg.recipient == request.user:
         msg.read_by_recipient = True
         msg.save(update_fields=["read_by_recipient"])
@@ -275,6 +281,8 @@ def inbox_message_raw(request, message_pk):
         msg = Message.objects.get(pk=message_pk)
     except Message.DoesNotExist:
         raise Http404("Message does not exist") from Message.DoesNotExist
+    if not request.user.has_perm("sic.view_message", msg):
+        raise PermissionDenied("You don't have permission to view this message.")
     if msg.recipient == request.user:
         msg.read_by_recipient = True
         msg.save(update_fields=["read_by_recipient"])
