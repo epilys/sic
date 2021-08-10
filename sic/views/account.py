@@ -232,7 +232,8 @@ QUOTED_RE = re.compile(
 )
 
 QUOTED_PART_RE = re.compile(
-    r"(?:^&gt; (?P<quoted_text>.{1,}?$)){1,}", flags=re.MULTILINE | re.DOTALL
+    r"(?:^(?P<level>(:?&gt;[ ]*)+)(?P<quoted_text>.{0,}?$)){1,}",
+    flags=re.MULTILINE | re.DOTALL,
 )
 
 
@@ -247,7 +248,12 @@ def inbox_message(request, message_pk):
     if msg.recipient == request.user:
         msg.read_by_recipient = True
         msg.save(update_fields=["read_by_recipient"])
-    match = QUOTED_RE.match(html.escape(msg.body.replace("\r\n", "\n"), quote=False))
+    if config.FORMAT_QUOTED_MESSAGES:
+        match = QUOTED_RE.match(
+            html.escape(msg.body.replace("\r\n", "\n"), quote=False)
+        )
+    else:
+        match = None
     if match:
         match = {
             "first_line": match.group("first_line"),
@@ -255,10 +261,25 @@ def inbox_message(request, message_pk):
             "quoted_text": match.group("quoted_text").lstrip(),
             "reply": match.group("reply"),
         }
+
+        def quotedrepl(matchobj):
+            levels = list(
+                filter(lambda l: len(l.strip()) != 0, matchobj["level"].split(";"))
+            )
+            quotes = "".join(
+                list(
+                    map(
+                        lambda i: f"""<span class="quote-level-{i[0]%4}">{i[1]};</span>""",
+                        enumerate(levels),
+                    )
+                )
+            )
+            return f"""{quotes} <i class="quoted-level-{len(levels)%4-1}">{matchobj["quoted_text"]}</i>"""
+
         match["quoted_text"] = mark_safe(
-            QUOTED_PART_RE.sub(r"> <i>\1</i>", match["quoted_text"])
+            QUOTED_PART_RE.sub(quotedrepl, match["quoted_text"])
         )
-        match["reply"] = mark_safe(QUOTED_PART_RE.sub(r"> <i>\1</i>", match["reply"]))
+        match["reply"] = mark_safe(QUOTED_PART_RE.sub(quotedrepl, match["reply"]))
         try:
             user = User.objects.only("id", "email", "username").get(
                 username=match["user"]

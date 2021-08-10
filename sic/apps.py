@@ -74,6 +74,8 @@ class SicAppConfig(AppConfig):
 
     SEND_WEBMENTIONS = True
 
+    FORMAT_QUOTED_MESSAGES = True
+
     def ready(self):
         import sic.notifications
         import sic.webmention

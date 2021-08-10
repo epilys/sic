@@ -23,6 +23,9 @@
             margin-top: 0;
         }
 
+        blockquote.message_body>p:last-child{
+            margin-bottom: 0;
+        }
         hr {
             border: none;
             border-top: 1px dashed #333;
@@ -44,6 +47,41 @@
             font-size: small;
         }
 
+        {% if show_colors %}
+            .quote-level-0 {
+                color: #005e8c;
+                background: #e8f5fc;
+            }
+            .quoted-level-0 {
+                color: #2b9dd6;
+                background: #e8f5fc;
+            }
+            .quote-level-1 {
+                color: #b50600;
+                background: #fff0ed;
+            }
+            .quoted-level-1 {
+                background: #fff0ed;
+                color: #e32b24;
+            }
+            .quote-level-2 {
+                color: #006647;
+                background: #e6faf3;
+            }
+            .quoted-level-2 {
+                color: #14855f;
+                background: #e6faf3;
+            }
+            .quote-level-3 {
+                color: #cc860c;
+                background: #fff4e0;
+            }
+            .quoted-level-3 {
+                background: #fff4e0;
+                color: #cc860c;
+            }
+        {% endif %}
+
     </style>
 {% endblock %}
 {% block content %}
@@ -62,7 +100,7 @@
         <span><b>Read by recipient</b>: {{ msg.read_by_recipient|yesno }}</span>
     </aside>
     <blockquote class="message_body">
-        {% if formatted_message %}{{ formatted_message.first_line }}<br/>
+        {% if formatted_message %}<span class="quote-level-0">{{ formatted_message.first_line }}</span><br/>
             {{ formatted_message.quoted_text|linebreaksbr }}<br/>
             {{ formatted_message.reply|linebreaksbr }}
         {% else %}{{ msg.body|linebreaks }}{% endif %}
