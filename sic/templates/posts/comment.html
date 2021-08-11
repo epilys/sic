@@ -6,7 +6,7 @@
 <li class="comment{% if not comment.replies.exists %} no-children{% endif %}{% if level == 1 %} root{% endif %}" id="{{comment.slugify}}">
     {% spaceless %}
         {%if comment.deleted %}
-            <span class="comment">
+            <div class="comment">
                 <p><em>
                     {% if comment.last_log_entry %}
                         Comment deleted by {% if comment.last_log_entry.user == comment.user %}author{% else %}{{ comment.last_log_entry.user }}{% endif %}
@@ -18,23 +18,23 @@
                         Comment deleted by author.
                     {% endif %}
                 </em></p>
-            </span>
+            </div>
         {%else %}
             <input class="comment" type="checkbox" id="comment-{{comment.pk}}" name="comment-{{comment.pk}}" >
             <label class="comment" for="comment-{{comment.pk}}"></label>
-            <span class="links"><span class="votes">
-                <span class="upvote{% if is_upvoted %} upvoted{% endif %}">
+            <div class="links"><div class="votes">
+                <div class="upvote{% if is_upvoted %} upvoted{% endif %}">
                     {% if request.user.is_authenticated %}
                         <form action="{% url_with_next 'upvote_comment' comment.story.pk comment.story.slugify comment.pk request %}" method="POST">
                             {% csrf_token %}
                             <input type="submit" title="upvote comment" value="">
                         </form>
                     {% endif %}
-                </span>
+                </div>
                 <span class="score">
                     {{comment.karma}}
                 </span>
-            </span> <a href="{{ comment.user.get_absolute_url }}" class="user_link{% if comment.user.is_banned %} banned-user{% elif comment.user.is_new_user %} new-user{% endif %}">{{ comment.user }}</a>
+            </div> <a href="{{ comment.user.get_absolute_url }}" class="user_link{% if comment.user.is_banned %} banned-user{% elif comment.user.is_new_user %} new-user{% endif %}">{{ comment.user }}</a>
                 <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time>
                 {% if comment.last_log_entry %}
                     <time datetime="{{ comment.last_log_entry.action_time | date:"Y-m-d H:i:s" }}" title="{{ comment.last_log_entry.action_time }}">- Edited {{ comment.last_log_entry.action_time|naturaltime }}</time>
@@ -52,32 +52,29 @@
                 {% if comment.hat %}
                     <span class="hat" style="{% if show_colors %}--hat-color: {{ comment.hat.hex_color }}{% endif %}">{{ comment.hat.name }}</span>
                 {% endif %}
-            </span>
-            <span class="comment">{{ comment.text_to_html }}</span>
+            </div>
+            <div class="comment">{{ comment.text_to_html }}</div>
             {% if request.user.is_authenticated %}
                 <input class="reply" type="checkbox" id="reply-{{comment.pk}}" name="reply-{{comment.pk}}"
                     {% if preview %}checked="checked"{% endif %}>
                 <form action="{% url 'reply' comment.pk %}" method="POST" class="reply-form">
                     <label class="reply" for="reply-{{comment.pk}}" style="align-self: end; position: absolute;"><a href="">hide</a></label>
-                    <span class="reply-parent">
+                    <div class="reply-parent">
                         <a href="{{ comment.user.get_absolute_url }}" class="user_link{% if comment.user.is_banned %} banned-user{% elif comment.user.is_new_user %} new-user{% endif %}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}"> {{ comment.created|naturaltime }}</time>
-                        <span class="comment">{{ comment.text_to_html }}</span>
-                    </span>
+                        <div class="comment">{{ comment.text_to_html }}</div>
+                    </div>
                     {% csrf_token %}
                     <input type="text" name="preview_comment_pk" value="{{comment.pk}}" hidden>
                     {% if preview %}
                         <span>Preview:</span>
-                        <span class="comment preview">{{ preview }}</span>
+                        <div class="comment preview">{{ preview }}</div>
                     {% endif %}
                     <label for="reply-{{comment.pk}}-textarea">reply</label>
                     <textarea id="reply-{{comment.pk}}-textarea" name="text" cols="40" rows="6" minlength="1" placeholder="" required="">{{ preview_input }}</textarea>
                     <div class="button-flex-box">
                         <input class="heavy-positive-action" type="submit" value="Submit">
                         <input formaction="{% url_with_next 'preview_comment' request %}" type="submit" name="preview" value="Preview">
-                        <details class="formatting-help">
-                            <summary>Formatting help</summary>
-                            <div>{% include "posts/markdown_help.html" %}</div>
-                        </details>
+                        <a target="_blank" href="{% url 'formatting_help' %}">Formatting help</a>
                     </div>
                 </form>
             {% endif %}

@@ -44,10 +44,7 @@
                 <p class="help-text">{{ form.description.help_text }}</p>
             {% endif %}
             {{ form.description }}
-            <details class="formatting-help">
-                <summary>Formatting help</summary>
-                <span>{% include "posts/markdown_help.html" %}</span>
-            </details>
+            <a target="_blank" href="{% url 'formatting_help' %}">Formatting help</a>
             {{ form.context_warning.errors }}
             {{ form.context_warning.label_tag }}
             {% if form.context_warning.help_text %}

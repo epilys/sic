@@ -827,11 +827,13 @@ form.reply-form {
   width: max-content;
 }
 
-form.reply-form>span.reply-parent{
+form.reply-form>div.reply-parent{
   display: none;
 }
 
 textarea {
+  max-width: var(--main-width);
+  width: 100%;
   resize: both;
 }
 
@@ -849,7 +851,7 @@ input[type="checkbox"].reply:checked ~ form.reply-form:first-of-type {
   max-width: clamp(10vw, 66ch, var(--main-width));
 }
 
-li.comment>span.links {
+li.comment>div.links {
   vertical-align: top;
   display: inline-flex;
   column-gap: 4px;
@@ -857,7 +859,8 @@ li.comment>span.links {
   flex-flow: wrap;
 }
 
-span.comment {
+div.comment {
+  display: block;
   text-align: justify;
   hyphens: auto;
   word-break: break-word;
@@ -866,26 +869,31 @@ span.comment {
   margin-left: 2px;
 }
 
-span.comment ul li {
+div.comment ul li {
   text-align: justify;
   hyphens: auto;
   word-break: break-word;
   max-width: clamp(10vw, 66ch, var(--main-width));
 }
-span.comment ul li + li {
+div.comment ul li + li {
   margin-top: .5rem;
 }
 
-span.comment.preview {
+div.comment.preview {
   outline: 1px dotted;
-  outline-offset: 2px;
+  outline-offset: 5px;
+  max-width: 66ch;
+  width: 100%;
 }
-
-span.comment.preview+label {
+div.comment.preview>p:first-child {
   margin-top: 0;
 }
 
-input[type="checkbox"].comment:checked~span.comment{
+div.comment.preview+label {
+  margin-top: 0;
+}
+
+input[type="checkbox"].comment:checked~div.comment{
   display: -webkit-inline-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -898,13 +906,18 @@ input[type="checkbox"].comment:checked~span.comment{
   max-width: max-content;
   max-height: 1rem;
 }
-input[type="checkbox"].comment:checked~span.comment * {
+input[type="checkbox"].comment:checked~div.comment * {
   margin: 0;
 }
 
-input[type="checkbox"].comment~span.comment{
+input[type="checkbox"].comment~div.comment{
   max-width: 66ch;
   display: block;
+}
+
+div.comment a {
+  word-break: break-word;
+  white-space: pre-line;
 }
 
 label.comment {
@@ -937,11 +950,6 @@ input[type="checkbox"].comment ~ div.replies {
 }
 input[type="checkbox"].comment:checked ~ div.replies {
   display: none;
-}
-
-
-span.comment {
-  display: block;
 }
 
 ul.tags.inline {
@@ -996,7 +1004,7 @@ ul.posts li.comment + li {
   border-top: 1px outset #c7ddde;
 }
 
-li.comment:target>span.comment {
+li.comment:target>div.comment {
   background: #ffffa1;
 }
 
@@ -1217,11 +1225,6 @@ select {
   resize: vertical;
 }
 
-span.comment a {
-  word-break: break-word;
-  white-space: pre-line;
-}
-
 nav.menu li.notification, nav.menu li.notification a:visited, nav.menu li.notification a {
   color: ActiveText;
 }
@@ -1248,31 +1251,6 @@ div.button-flex-box-rev {
 
 .heavy-positive-action {
   font-size: 125%;
-}
-
-details.formatting-help li {
-  list-style: revert;
-}
-
-details.formatting-help summary {
-  vertical-align: middle;
-  display: inline list-item;
-}
-
-details.formatting-help[open]>div {
-  display: inline-block;
-  position: absolute;
-  padding: 1rem 2rem;
-  background: #fff;
-  outline: 1px solid Highlight;
-  max-width: 70vw;
-  overflow: auto;
-  margin: 0 auto;
-  left: 10vw;
-  z-index: 2;
-}
-details.formatting-help[open]>div>table>caption{
-  margin-bottom: 1rem;
 }
 
 ul.tree,
@@ -1462,7 +1440,7 @@ body>header>div.logo {
     z-index: 1;
   }
 
-  form.reply-form>span.reply-parent{
+  form.reply-form>div.reply-parent{
     display: initial;
     border-bottom: 1px dotted;
   }

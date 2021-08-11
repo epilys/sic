@@ -52,11 +52,9 @@
             <div class="button-flex-box">
                 <input class="heavy-positive-action" type="submit" value="Submit">
                 <input formaction="{% url_with_next 'preview_comment' request %}" type="submit" name="preview" value="Preview">
-                <details class="formatting-help">
-                    <summary>Formatting help</summary>
-                    <div>{% include "posts/markdown_help.html" %}</div>
-                </details>
-            </div>
+                <a target="_blank" href="{% url 'formatting_help' %}">Formatting help</a>
+            </details>
+        </div>
         </form>
     {% else %}
         <p>Sign in to post comments.</p>

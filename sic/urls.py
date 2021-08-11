@@ -32,6 +32,11 @@ from .webfinger import webfinger
 urlpatterns = [
     path("admin/", admin.site.urls),
     path(
+        "formatting-help/",
+        TemplateView.as_view(template_name="posts/markdown_help.html"),
+        name="formatting_help",
+    ),
+    path(
         "about/", TemplateView.as_view(template_name="about/about.html"), name="about"
     ),
     path(
