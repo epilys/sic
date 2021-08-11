@@ -11,12 +11,14 @@
             transform-origin: left;
         }
         div.aggregations {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            grid-gap: 10px;
+            display: flex;
+            flex-flow: row wrap;
+            gap: 10px;
             margin-top:0;
-            width: var(--main-width);
+            width: max-content;
+            max-width: var(--main-width);
             font-size: 12px;
+            justify-self: center;
         }
 
         div.aggregations article {
@@ -25,6 +27,8 @@
             border: 1px solid gray;
             border-radius: 3px;
             padding: 5px 2px;
+            min-width: 80px;
+            max-width: 100px;
         }
         div.aggregations article>header {
             margin: 0;
