@@ -14,14 +14,47 @@
             margin: 0;
             list-style: none;
         }
+        #id_search_in {
+            display: inline-flex;
+            gap: 1rem;
+            list-style: none;
+            padding: 0;
+        }
     </style>
 {% endblock %}
 {% block content %}
     <h1>search</h1>
     <form method="GET" class="submit-story-form">
-        <table>
-            {{ form }}
-        </table>
+        {{ form.text.errors }}
+        {{ form.text.label_tag }}
+        {% if form.text.help_text %}
+            <p class="help-text">{{ form.text.help_text }}</p>
+        {% endif %}
+        {{ form.text }}
+        <div>
+            {{ form.search_in.errors }}
+            {{ form.search_in.label_tag }}
+            {% if form.search_in.help_text %}
+                <p class="help-text">{{ form.search_in.help_text }}</p>
+            {% endif %}
+            {{ form.search_in }}
+        </div>
+        <div>
+            {{ form.order_by.errors }}
+            {{ form.order_by.label_tag }}
+            {% if form.order_by.help_text %}
+                <p class="help-text">{{ form.order_by.help_text }}</p>
+            {% endif %}
+            {{ form.ordering.errors }}
+            {{ form.ordering.label_tag }}
+            {% if form.ordering.help_text %}
+                <p class="help-text">{{ form.ordering.help_text }}</p>
+            {% endif %}
+            <div style="display: inline-block;">
+                {{ form.order_by }}
+                {{ form.ordering }}
+            </div>
+        </div>
         <div class="button-flex-box-rev"><input type="submit" value="Search"></div>
     </form>
     {% if comments %}

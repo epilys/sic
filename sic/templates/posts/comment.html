@@ -72,8 +72,8 @@
                     <label for="reply-{{comment.pk}}-textarea">reply</label>
                     <textarea id="reply-{{comment.pk}}-textarea" name="text" cols="40" rows="6" minlength="1" placeholder="" required="">{{ preview_input }}</textarea>
                     <div class="button-flex-box">
+                        <input class="heavy-positive-action" type="submit" value="Submit">
                         <input formaction="{% url_with_next 'preview_comment' request %}" type="submit" name="preview" value="Preview">
-                        <input type="submit" value="Submit">
                         <details class="formatting-help">
                             <summary>Formatting help</summary>
                             <div>{% include "posts/markdown_help.html" %}</div>

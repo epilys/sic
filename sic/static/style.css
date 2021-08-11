@@ -638,10 +638,15 @@ form.submit-story-form,form.submit-story-form>fieldset {
   width: max-content;
   width: clamp(10vw, 66ch, var(--main-width));
   max-width: var(--main-width);
+  align-self: stretch;
+}
+form.submit-story-form>input[type="submit"],form.submit-story-form>fieldset>input[type="submit"]
+{
+  align-self: start;
 }
 
 form.submit-story-form textarea {
-  width: 100%;
+  align-self: stretch;
   max-width: var(--main-width);
   min-width: 100%;
   resize: both;
@@ -654,6 +659,7 @@ form.submit-comment-form {
   display: flex;
   flex-direction: column;
   row-gap: .5rem;
+  align-items: start;
 }
 
 .story-title {
@@ -1226,6 +1232,8 @@ div.button-flex-box {
   flex-direction: row-reverse;
   column-gap: 1rem;
   row-gap: .5rem;
+  align-items: end;
+  align-self: end;
 }
 
 div.button-flex-box-rev {
@@ -1234,6 +1242,12 @@ div.button-flex-box-rev {
   flex-direction: row;
   column-gap: 1rem;
   row-gap: .5rem;
+  align-items: end;
+  align-self: end;
+}
+
+.heavy-positive-action {
+  font-size: 125%;
 }
 
 details.formatting-help li {
