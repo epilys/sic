@@ -982,6 +982,10 @@ class User(PermissionsMixin, AbstractBaseUser):
             "taggregations": taggregations,
         }
 
+    @cached_property
+    def about_to_html(self):
+        return comment_to_html(self.about) if self.about else None
+
 
 class CommentBookmark(models.Model):
     id = models.AutoField(primary_key=True)

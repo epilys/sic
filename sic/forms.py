@@ -1,6 +1,8 @@
 import functools, operator
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils.safestring import mark_safe
+from django.urls import reverse
 from .apps import SicAppConfig as config
 from .models import Tag, User, StoryKind, StoryFilter, TaggregationHasTag
 
@@ -126,6 +128,12 @@ class EditProfileForm(forms.Form):
     metadata_3.widget.attrs.update({"placeholder": "metadata 3 value"})
     metadata_4_label.widget.attrs.update({"placeholder": "metadata 4 label"})
     metadata_4.widget.attrs.update({"placeholder": "metadata 4 value"})
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["about"].help_text = mark_safe(
+            f"""<a target="_blank" href="{reverse('formatting_help')}">Formatting help</a>"""
+        )
 
 
 class GenerateInviteForm(forms.Form):

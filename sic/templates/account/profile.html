@@ -18,6 +18,10 @@
             {% endif %}
         </ul>
     </nav>
+    <h1>{{ user }}</h1>
+    {% if user.about %}
+        <section>{{ user.about_to_html }}</section>
+    {% endif %}
     <div class="profile-container">
         <div class="profile">
             <div id="avatar" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
@@ -38,10 +42,6 @@
                             <td>{{ metadata|urlize }}</td>
                         </tr>
                     {% endfor %}
-                    <tr>
-                        <th>about:</th>
-                        <td>{{ user.about }}</td>
-                    </tr>
                     <tr>
                         <th>status:</th>
                         <td>{% if user.is_banned %}banned{% else %}{% if not user.is_active %}in{% endif %}active{% endif %}</td>
