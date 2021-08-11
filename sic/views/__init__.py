@@ -1,4 +1,4 @@
-__all__ = ["stories", "tags", "account", "utils"]
+__all__ = ["stories", "tags", "account", "utils", "stats"]
 from datetime import datetime
 import hashlib
 from django.http import (

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+{% load utils %}
+{% block title %}statistics - about sic{% endblock %}
+{% block style %}
+    <style>
+        @font-face {
+            font-family: 'Quicksand Medium';
+            font-display: swap;
+            src: local(Quicksand Medium), url("{% static 'Quicksand-Medium.ttf' %}") format("truetype");
+        }
+
+        text {
+            font-family: "Quicksand Medium", "Inter", sans-serif !important;
+        }
+
+        figure {
+            width: max-content;
+            display: inline-block;
+            margin: 3rem 0rem;
+            margin-inline-end: 1rem;
+        }
+        figcaption {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+        article {
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            flex-flow: row wrap;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <h1>Community statistics</h1>
+    <article>
+        <figure>
+            <svg role="img" xmlns="http://www.w3.org/2000/svg" style="height: auto; width: 460.8pt;max-width: var(--main-width);" viewBox="0 0 460.8 345.6">
+                <use xlink:href="{% url 'daily_posts_svg' %}#svg" width="100%" height="100%"></use>
+            </svg>
+            <figcaption>Daily post count</figcaption>
+        </figure>
+        <figure>
+            <svg role="img" xmlns="http://www.w3.org/2000/svg" style="height: auto; width: 460.8pt;max-width: var(--main-width);" viewBox="0 0 460.8 345.6">
+                <use xlink:href="{% url 'registrations_svg' %}#svg" width="100%" height="100%"></use>
+            </svg>
+            <figcaption>Registrations per month</figcaption>
+        </figure>
+        <figure>
+            <svg role="img" xmlns="http://www.w3.org/2000/svg" style="height: auto; width: 600pt;max-width: var(--main-width);" viewBox="0 0 600 345.6">
+                <use xlink:href="{% url 'upvote_ratio_svg' %}#svg" width="100%" height="100%"></use>
+            </svg>
+            <figcaption>Upvote to comment ratio</figcaption>
+        </figure>
+        <figure>
+            <svg role="img" xmlns="http://www.w3.org/2000/svg" style="height: auto; width: 460.8pt;max-width: var(--main-width);" viewBox="0 0 460.8 345.6">
+                <use xlink:href="{% url 'total_graph_svg' %}#svg" width="100%" height="100%"></use>
+            </svg>
+            <figcaption>Connectivity of tag graph</figcaption>
+        </figure>
+    </article>
+{% endblock %}

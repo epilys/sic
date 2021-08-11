@@ -24,7 +24,7 @@ from django.shortcuts import render
 from django.views.decorators.cache import cache_page
 
 from sic import views
-from sic.views import stories, account, tags
+from sic.views import stories, account, tags, stats
 from .auth import AuthenticationForm
 from .feeds import LatestStoriesRss, LatestStoriesAtom, user_feeds_rss, user_feeds_atom
 from .webfinger import webfinger
@@ -64,6 +64,31 @@ urlpatterns = [
         "about/privacy/",
         TemplateView.as_view(template_name="about/privacy.html"),
         name="about_privacy",
+    ),
+    path(
+        "about/statistics/",
+        TemplateView.as_view(template_name="about/statistics.html"),
+        name="about_statistics",
+    ),
+    path(
+        "about/statistics/svg/daily_posts/",
+        stats.daily_posts_svg,
+        name="daily_posts_svg",
+    ),
+    path(
+        "about/statistics/svg/registrations/",
+        stats.registrations_svg,
+        name="registrations_svg",
+    ),
+    path(
+        "about/statistics/svg/total-tag-graph/",
+        stats.total_graph_svg,
+        name="total_graph_svg",
+    ),
+    path(
+        "about/statistics/svg/upvote-ratio-graph/",
+        stats.upvote_ratio_svg,
+        name="upvote_ratio_svg",
     ),
     path("moderation-log/", views.moderation_log, name="moderation_log"),
     path(
