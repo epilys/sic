@@ -7,22 +7,23 @@
             {% include "posts/comment.html" with comment=comment reply_form=reply_form shallow=True show_story=True level=0 %}
         {% endfor %}
     </ul>
-    <div class="pagination">
-        <span class="step-links">
+    <nav class="pagination" aria-label="pagination">
+        <ul class="pagination">
             {% if comments.has_previous %}
-                <a href="{% url 'recent_comments' %}">&laquo; first</a>
-                <a href="{% url 'recent_comments_page' page_num=comments.previous_page_number %}">&lt; previous</a>
+                <li><a href="{% url 'recent_comments_page' comments.previous_page_number %}"><span aria-hidden="true">«</span><span class="visuallyhidden">previous page</span></a></li>
             {% endif %}
-
-            <span class="current">
-                Page {{ comments.number }}
-            </span>
-
+            {% for page in pages %}
+                {% if page == comments.number %}
+                    <li><a href="" aria-current="page"><span class="visuallyhidden">page </span>{{ comments.number }}</a></li>
+                {% elif page == None %}
+                    <li><span aria-hidden="true">&hellip;</span></li>
+                {% else %}
+                    <li><a href="{% url 'recent_comments_page' page %}"><span class="visuallyhidden">page </span>{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
             {% if comments.has_next %}
-                <a href="{% url 'recent_comments_page' page_num=comments.next_page_number %}">next &gt;</a>
-            {% else %}
-                (of {{comments.number}})
+                <li><a href="{% url 'recent_comments_page' comments.next_page_number %}"><span class="visuallyhidden">next page</span><span aria-hidden="true">»</span></a></li>
             {% endif %}
-        </span>
-    </div>
+        </ul>
+    </nav>
 {% endblock %}

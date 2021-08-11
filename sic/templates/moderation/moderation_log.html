@@ -33,22 +33,23 @@
             {% endfor %}
         </tbody>
     </table>
-    <div class="pagination">
-        <span class="step-links">
+    <nav class="pagination" aria-label="pagination">
+        <ul class="pagination">
             {% if logs.has_previous %}
-                <a href="{% url 'moderation_log' %}">&laquo; first</a>
-                <a href="{% url 'moderation_log_page' logs.previous_page_number %}">&lt; previous</a>
+                <li><a href="{% url 'moderation_log_page' logs.previous_page_number %}"><span aria-hidden="true">«</span><span class="visuallyhidden">previous page</span></a></li>
             {% endif %}
-
-            <span class="current">
-                Page {{ logs.number }}
-            </span>
-
+            {% for page in pages %}
+                {% if page == logs.number %}
+                    <li><a href="" aria-current="page"><span class="visuallyhidden">page </span>{{ logs.number }}</a></li>
+                {% elif page == None %}
+                    <li><span aria-hidden="true">&hellip;</span></li>
+                {% else %}
+                    <li><a href="{% url 'moderation_log_page' page %}"><span class="visuallyhidden">page </span>{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
             {% if logs.has_next %}
-                <a href="{% url 'moderation_log_page' logs.next_page_number %}">next &gt;</a>
-            {% else %}
-                (of {{logs.number}})
+                <li><a href="{% url 'moderation_log_page' logs.next_page_number %}"><span class="visuallyhidden">next page</span><span aria-hidden="true">»</span></a></li>
             {% endif %}
-        </span>
-    </div>
+        </ul>
+    </nav>
 {% endblock %}

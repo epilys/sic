@@ -38,22 +38,23 @@
             </li>
         {% endfor %}
     </ul>
-    <div class="pagination">
-        <span class="step-links">
+    <nav class="pagination" aria-label="pagination">
+        <ul class="pagination">
             {% if bookmarks.has_previous %}
-                <a href="{% url 'bookmarks' %}">&laquo; first</a>
-                <a href="{% url 'bookmarks_page' page_num=bookmarks.previous_page_number %}">&lt; previous</a>
+                <li><a href="{% url 'bookmarks_page' page_num=bookmarks.previous_page_number %}"><span aria-hidden="true">«</span><span class="visuallyhidden">previous page</span></a></li>
             {% endif %}
-
-            <span class="current">
-                Page {{ bookmarks.number }}
-            </span>
-
+            {% for page in pages %}
+                {% if page == bookmarks.number %}
+                    <li><a href="" aria-current="page"><span class="visuallyhidden">page </span>{{ bookmarks.number }}</a></li>
+                {% elif page == None %}
+                    <li><span aria-hidden="true">&hellip;</span></li>
+                {% else %}
+                    <li><a href="{% url 'bookmarks_page' page_num=page %}"><span class="visuallyhidden">page </span>{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
             {% if bookmarks.has_next %}
-                <a href="{% url 'bookmarks_page' page_num=bookmarks.next_page_number %}">next &gt;</a>
-            {% else %}
-                (of {{bookmarks.number}})
+                <li><a href="{% url 'bookmarks_page' page_num=bookmarks.next_page_number %}"><span class="visuallyhidden">next page</span><span aria-hidden="true">»</span></a></li>
             {% endif %}
-        </span>
-    </div>
+        </ul>
+    </nav>
 {% endblock %}

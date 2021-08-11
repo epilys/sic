@@ -23,22 +23,23 @@
             {% include "posts/story_list_item.html" with story=story %}
         {% endfor %}
     </ul>
-    <div class="pagination">
-        <span class="step-links">
+    <nav class="pagination" aria-label="pagination">
+        <ul class="pagination">
             {% if stories.has_previous %}
-                <a href="{% url 'all_stories' %}">&laquo; first</a>
-                <a href="{% url 'all_stories_page' stories.previous_page_number %}">&lt; previous</a>
+                <li><a href="{% url 'all_stories_page' stories.previous_page_number %}"><span aria-hidden="true">«</span><span class="visuallyhidden">previous page</span></a></li>
             {% endif %}
-
-            <span class="current">
-                Page {{ stories.number }}
-            </span>
-
+            {% for page in pages %}
+                {% if page == stories.number %}
+                    <li><a href="" aria-current="page"><span class="visuallyhidden">page </span>{{ stories.number }}</a></li>
+                {% elif page == None %}
+                    <li><span aria-hidden="true">&hellip;</span></li>
+                {% else %}
+                    <li><a href="{% url 'all_stories_page' page %}"><span class="visuallyhidden">page </span>{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
             {% if stories.has_next %}
-                <a href="{% url 'all_stories_page' stories.next_page_number %}">next &gt;</a>
-            {% else %}
-                (of {{stories.number}})
+                <li><a href="{% url 'all_stories_page' stories.next_page_number %}"><span class="visuallyhidden">next page</span><span aria-hidden="true">»</span></a></li>
             {% endif %}
-        </span>
-    </div>
+        </ul>
+    </nav>
 {% endblock %}

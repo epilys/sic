@@ -1545,3 +1545,51 @@ a:visited.banned-user {
   text-decoration-style: double;
   text-decoration-line: line-through;
 }
+
+.visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: auto;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  white-space: nowrap;
+}
+nav.pagination {
+  margin-top: .5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.pagination {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  column-gap: 2px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pagination li {
+  margin: 0 1px;
+}
+
+.pagination a {
+  display: block;
+  padding: .5em 1em;
+  border: 1px solid #999;
+  border-radius: .2em;
+  text-decoration: none;
+  font-size: 12px;
+}
+.pagination a:visited {
+  color: #333;
+}
+
+.pagination a[aria-current="page"] {
+  background-color: #444c50;
+  color: #fff;
+}

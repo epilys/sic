@@ -5,7 +5,6 @@ import urllib.request
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
-from django.core.paginator import Paginator, InvalidPage
 from django.views.decorators.http import condition
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -18,7 +17,7 @@ from sic.forms import (
     OrderByForm,
 )
 from sic.markdown import comment_to_html
-from sic.views.utils import form_errors_as_string
+from sic.views.utils import form_errors_as_string, Paginator, InvalidPage
 
 
 def story(request, story_pk, slug=None):
@@ -170,7 +169,11 @@ def all_stories(request, page_num=1):
     return render(
         request,
         "posts/all_stories.html",
-        {"stories": page, "order_by_form": order_by_form},
+        {
+            "stories": page,
+            "order_by_form": order_by_form,
+            "pages": paginator.get_elided_page_range(number=page_num),
+        },
     )
 
 

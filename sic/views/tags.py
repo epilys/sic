@@ -8,7 +8,6 @@ from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
-from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import make_aware
 from django.utils.http import urlencode
@@ -22,7 +21,7 @@ from sic.forms import (
     EditTaggregationHasTagForm,
     DeleteTaggregationHasTagForm,
 )
-from sic.views.utils import form_errors_as_string
+from sic.views.utils import form_errors_as_string, Paginator, InvalidPage
 from sic.apps import SicAppConfig as config
 
 
@@ -71,7 +70,11 @@ def browse_tags(request, page_num=1):
     return render(
         request,
         "tags/browse_tags.html",
-        {"tags": page, "order_by_form": order_by_form},
+        {
+            "tags": page,
+            "order_by_form": order_by_form,
+            "pages": paginator.get_elided_page_range(number=page_num),
+        },
     )
 
 
@@ -576,6 +579,7 @@ def browse_aggs(request, view_name, aggregations, page_num=1):
             "order_by_form": order_by_form,
             "view_name": view_name,
             "view_name_page": f"{view_name}_page",
+            "pages": paginator.get_elided_page_range(number=page_num),
         },
     )
 
@@ -718,7 +722,12 @@ def view_tag(request, tag_pk, slug=None, page_num=1):
     return render(
         request,
         "posts/all_stories.html",
-        {"stories": page, "order_by_form": order_by_form, "tag": obj},
+        {
+            "stories": page,
+            "order_by_form": order_by_form,
+            "tag": obj,
+            "pages": paginator.get_elided_page_range(number=page_num),
+        },
     )
 
 

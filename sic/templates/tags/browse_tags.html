@@ -25,22 +25,23 @@
             {% endfor %}
         </ul>
     {% endspaceless %}
-    <div class="pagination">
-        <span class="step-links">
+    <nav class="pagination" aria-label="pagination">
+        <ul class="pagination">
             {% if tags.has_previous %}
-                <a href="{% url 'browse_tags' %}">&laquo; first</a>
-                <a href="{% url 'browse_tags_page' page_num=tags.previous_page_number %}">&lt; previous</a>
+                <li><a href="{% url 'browse_tags_page' page_num=tags.previous_page_number %}"><span aria-hidden="true">«</span><span class="visuallyhidden">previous page</span></a></li>
             {% endif %}
-
-            <span class="current">
-                Page {{ tags.number }}
-            </span>
-
+            {% for page in pages %}
+                {% if page == tags.number %}
+                    <li><a href="" aria-current="page"><span class="visuallyhidden">page </span>{{ tags.number }}</a></li>
+                {% elif page == None %}
+                    <li><span aria-hidden="true">&hellip;</span></li>
+                {% else %}
+                    <li><a href="{% url 'browse_tags_page' page_num=page %}"><span class="visuallyhidden">page </span>{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
             {% if tags.has_next %}
-                <a href="{% url 'browse_tags_page' page_num=tags.next_page_number %}">next &gt;</a>
-            {% else %}
-                (of {{tags.number}})
+                <li><a href="{% url 'browse_tags_page' page_num=tags.next_page_number %}"><span class="visuallyhidden">next page</span><span aria-hidden="true">»</span></a></li>
             {% endif %}
-        </span>
-    </div>
+        </ul>
+    </nav>
 {% endblock %}

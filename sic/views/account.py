@@ -9,7 +9,6 @@ from django.db import transaction
 from django.db.models import Value, BooleanField
 from django.urls import reverse
 from django.contrib import messages
-from django.core.paginator import Paginator, InvalidPage
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
@@ -42,7 +41,12 @@ from sic.forms import (
     InvitationRequestForm,
 )
 from sic.apps import SicAppConfig as config
-from sic.views.utils import form_errors_as_string, HttpResponseNotImplemented
+from sic.views.utils import (
+    form_errors_as_string,
+    HttpResponseNotImplemented,
+    Paginator,
+    InvalidPage,
+)
 
 # Convert image to data:image/... in order to save avatars as strings in database
 def generate_image_thumbnail(blob):
@@ -388,7 +392,11 @@ def profile_posts(request, username, page_num=1):
     return render(
         request,
         "account/profile_posts.html",
-        {"posts": page, "user": user},
+        {
+            "posts": page,
+            "user": user,
+            "pages": paginator.get_elided_page_range(number=page_num),
+        },
     )
 
 
@@ -531,7 +539,11 @@ def bookmarks(request, page_num=1):
     return render(
         request,
         "account/bookmarks.html",
-        {"bookmarks": page, "user": user},
+        {
+            "bookmarks": page,
+            "user": user,
+            "pages": paginator.get_elided_page_range(number=page_num),
+        },
     )
 
 

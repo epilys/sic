@@ -11,7 +11,6 @@ from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
-from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods, condition
 from django.utils.timezone import make_aware
@@ -28,10 +27,10 @@ from ..forms import (
     BanUserForm,
     OrderByForm,
 )
+from sic.views.utils import form_errors_as_string, Paginator, InvalidPage
 from ..apps import SicAppConfig as config
 from ..markdown import comment_to_html
 from ..search import query_comments, query_stories
-from .utils import form_errors_as_string
 
 
 @login_required
@@ -206,6 +205,7 @@ def agg_index(request, taggregation_pk, slug, page_num=1):
             "stories": page,
             "has_subscriptions": True,
             "aggregation": agg,
+            "pages": paginator.get_elided_page_range(number=page_num),
         },
     )
 
@@ -329,6 +329,7 @@ def index(request, page_num=1):
             "stories": page,
             "has_subscriptions": has_subscriptions,
             "aggregations": taggregations,
+            "pages": paginator.get_elided_page_range(number=page_num),
         },
     )
 
@@ -528,7 +529,14 @@ def recent_comments(request, page_num=1):
         return redirect(
             reverse("recent_comments_page", kwargs={"page_num": paginator.num_pages})
         )
-    return render(request, "posts/recent_comments.html", {"comments": page})
+    return render(
+        request,
+        "posts/recent_comments.html",
+        {
+            "comments": page,
+            "pages": paginator.get_elided_page_range(number=page_num),
+        },
+    )
 
 
 def invitation_tree(request):
@@ -600,6 +608,7 @@ def moderation_log(request, page_num=1):
         "moderation/moderation_log.html",
         {
             "logs": page,
+            "pages": paginator.get_elided_page_range(number=page_num),
         },
     )
 
@@ -691,7 +700,12 @@ def domain(request, slug, page_num=1):
     return render(
         request,
         "posts/all_stories.html",
-        {"stories": page, "order_by_form": order_by_form, "domain": domain_obj},
+        {
+            "stories": page,
+            "order_by_form": order_by_form,
+            "domain": domain_obj,
+            "pages": paginator.get_elided_page_range(number=page_num),
+        },
     )
 
 

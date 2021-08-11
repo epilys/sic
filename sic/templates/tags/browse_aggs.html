@@ -101,22 +101,23 @@
         </div>
 
     {% endspaceless %}
-    <div class="pagination">
-        <span class="step-links">
+    <nav class="pagination" aria-label="pagination">
+        <ul class="pagination">
             {% if aggs.has_previous %}
-                <a href="{% url view_name %}">&laquo; first</a>
-                <a href="{% url view_name_page page_num=aggs.previous_page_number %}">&lt; previous</a>
+                <li><a href="{% url view_name_page page_num=aggs.previous_page_number %}"><span aria-hidden="true">«</span><span class="visuallyhidden">previous page</span></a></li>
             {% endif %}
-
-            <span class="current">
-                Page {{ aggs.number }}
-            </span>
-
+            {% for page in pages %}
+                {% if page == aggs.number %}
+                    <li><a href="" aria-current="page"><span class="visuallyhidden">page </span>{{ aggs.number }}</a></li>
+                {% elif page == None %}
+                    <li><span aria-hidden="true">&hellip;</span></li>
+                {% else %}
+                    <li><a href="{% url view_name_page page_num=page %}"><span class="visuallyhidden">page </span>{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
             {% if aggs.has_next %}
-                <a href="{% url view_name_page page_num=aggs.next_page_number %}">next &gt;</a>
-            {% else %}
-                (of {{aggs.number}})
+                <li><a href="{% url view_name_page page_num=aggs.next_page_number %}"><span class="visuallyhidden">next page</span><span aria-hidden="true">»</span></a></li>
             {% endif %}
-        </span>
-    </div>
+        </ul>
+    </nav>
 {% endblock %}
