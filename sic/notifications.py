@@ -38,7 +38,7 @@ def comment_save_receiver(
                     f"SELECT user.id AS id FROM {config.MENTION_TOKENIZER_NAME}, sic_user AS user, sic_comment AS comment WHERE input = comment.text AND comment.id = %s AND token = user.username",
                     (instance.pk,),
                 ),
-            )
+            ).exclude(id=comment.user.pk)
             if comment.parent:
                 mentioned_users = mentioned_users.exclude(id=comment.parent.user.pk)
             else:
