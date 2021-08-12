@@ -5,12 +5,12 @@ import urllib.request
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
-from django.views.decorators.http import condition
+from django.views.decorators.http import condition, require_safe
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from sic.apps import SicAppConfig as config
-from sic.models import Story, StoryKind, Comment, Notification
+from sic.models import Story, StoryKind, Comment, Notification, StoryRemoteContent
 from sic.forms import (
     SubmitCommentForm,
     SubmitStoryForm,
@@ -77,6 +77,31 @@ def story(request, story_pk, slug=None):
             "comments": comments,
             "ongoing_reply_pk": ongoing_reply_pk,
         },
+    )
+
+
+@require_safe
+def story_remote_content(request, story_pk, slug=None):
+    try:
+        story_obj = Story.objects.get(pk=story_pk)
+    except Story.DoesNotExist:
+        raise Http404("Story does not exist") from Story.DoesNotExist
+    if slug != story_obj.slugify:
+        return redirect(
+            reverse(
+                "story_remote_content",
+                kwargs={"story_pk": story_pk, "slug": story_obj.slugify},
+            )
+        )
+    try:
+        content_obj = story_obj.remote_content
+    except StoryRemoteContent.DoesNotExist:
+        raise Http404(
+            "Story content has not been locally cached."
+        ) from StoryRemoteContent.DoesNotExist
+    return HttpResponse(
+        f"Remote-Url: {content_obj.url}\nRetrieved-at: {content_obj.retrieved_at}\n\n{content_obj.content}",
+        content_type="text/plain; charset=utf-8",
     )
 
 

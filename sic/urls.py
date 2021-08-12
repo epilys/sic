@@ -104,6 +104,11 @@ urlpatterns = [
         views.comment_source,
         name="comment_source",
     ),
+    path(
+        "s/<int:story_pk>/<slug:slug>/cached",
+        stories.story_remote_content,
+        name="story_remote_content",
+    ),
     path("s/<int:story_pk>/<slug:slug>/edit", stories.edit_story, name="edit_story"),
     path("c/preview", views.preview_comment, name="preview_comment"),
     path("c/<int:comment_pk>/edit", views.edit_comment, name="edit_comment"),
