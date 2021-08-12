@@ -23,52 +23,7 @@
         <section>{{ user.about_to_html }}</section>
     {% endif %}
     <div class="profile-container">
-        <div class="profile">
-            <div id="avatar" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
-                <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
-                    {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title|default_if_none:''}}">{% else %}<div>No avatar.</div>{% endif %}
-                    <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }}</figcaption>
-                </figure>
-            </div>
-            <table>
-                <tbody>
-                    <tr>
-                        <th>username:</th>
-                        <td class="{% if user.is_banned %}banned-user{% elif user.is_new_user %} new-user{% endif %}">{{ user.username }}</td>
-                    </tr>
-                    {% for label, metadata in user.metadata_fields %}
-                        <tr>
-                            <th>{{ label }}:</th>
-                            <td>{{ metadata|urlize }}</td>
-                        </tr>
-                    {% endfor %}
-                    <tr>
-                        <th>status:</th>
-                        <td>{% if user.is_banned %}banned{% else %}{% if not user.is_active %}in{% endif %}active{% endif %}</td>
-                    </tr>
-                    <tr>
-                        <th>joined:</th>
-                        <td>{{ user.created }}</td>
-                    </tr>
-                    <tr>
-                        <th>invited by:</th>
-                        <td>{% if user.invited_by %}<a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a>{% else %}None.{% endif %}</td>
-                    </tr>
-                    <tr>
-                        <th>karma:</th>
-                        <td>{{ user.karma }}</td>
-                    </tr>
-                    <tr>
-                        <th>stories:</th>
-                        <td><a href="{% url 'profile_posts' username=user.username %}">{{ user.stories.count }}</a></td>
-                    </tr>
-                    <tr>
-                        <th>comments:</th>
-                        <td><a href="{% url 'profile_posts' username=user.username %}">{{ user.comments.count }}</a></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        {% include "account/profile_include.html" with user=user %}
         <div class="aggregations">
             <h2>Aggregations</h2>
             {% spaceless %}

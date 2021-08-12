@@ -11,120 +11,125 @@
         table.no-border td {
             border: none;
         }
+        div.invites {
+            display: flex;
+            flex-flow: row wrap;
+            max-height: 500px;
+            overflow: auto;
+            outline: 1px solid;
+        }
+        div.taggregations_lists {
+            display: flex;
+            flex-flow: row wrap;
+            gap: 5rem;
+        }
+        div.taggregations_lists ul {
+            padding: 0;
+        }
+        div#profile {
+            display: flex;
+            flex-flow: row wrap;
+            gap: 2rem;
+        }
+        div.invite_list, div.invite_tree {
+            padding: 1rem;
+        }
+        div.invite_list table {
+            table-layout: fixed;
+            width: 100%;
+            word-break: break-word;
+            max-width: max(60vw,600px);
+            border-collapse: collapse;
+            border: 3px solid;
+        }
     </style>
 {% endblock %}
 {% block content %}
-    <div style="grid-row: 1/ span 1;">
-        <nav>
-            <ul>
-                <li><a href="{% url 'edit_settings' %}">edit settings</a></li>
-                <li><a href="{% url 'edit_profile' %}">edit profile</a></li>
-                <li><a href="{{ user.get_absolute_url }}">view profile</a></li>
-                <li><a href="{% url 'bookmarks' %}">bookmarks</a></li>
-                <li><a href="{% url 'notifications' %}">notification history</a></li>
-                <li><a href="{% url 'password_change' %}">change password</a></li>
-            </ul>
-        </nav>
-    </div>
-    <h2>profile</h2>
-    <div class="profile">
-        <div id="avatar">
-            <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
-                {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title|default_if_none:''}}">{% else %}<div>None.</div>{% endif %}
-                <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }} <a href="{% url 'edit_avatar' %}">edit avatar</a></figcaption>
-            </figure>
+    <nav>
+        <ul>
+            <li><a href="{% url 'edit_settings' %}">edit settings</a></li>
+            <li><a href="{% url 'edit_profile' %}">edit profile</a></li>
+            <li><a href="{{ user.get_absolute_url }}">view profile</a></li>
+            <li><a href="{% url 'bookmarks' %}">bookmarks</a></li>
+            <li><a href="{% url 'notifications' %}">notification history</a></li>
+            <li><a href="{% url 'password_change' %}">change password</a></li>
+        </ul>
+    </nav>
+    <h1>Your Account</h1>
+    <div id="profile">
+        {% include "account/profile_include.html" with user=user %}
+        <div class="settings">
+            <h2>settings</h2>
+            {% spaceless %}
+                <table class="no-border">
+                    <tbody>
+                        <tr>
+                            <th>email notifications</th>
+                            <td>{{ user.email_notifications|yesno }}</td>
+                        </tr>
+                        <tr>
+                            <th>email replies</th>
+                            <td>{{ user.email_replies|yesno }}</td>
+                        </tr>
+                        <tr>
+                            <th>email messages</th>
+                            <td>{{ user.email_messages|yesno }}</td>
+                        </tr>
+                        <tr>
+                            <th>email mentions</th>
+                            <td>{{ user.email_mentions|yesno }}</td>
+                        </tr>
+                        <tr>
+                            <th>show avatars</th>
+                            <td>{{ user.show_avatars|yesno }}</td>
+                        </tr>
+                        <tr>
+                            <th>show stories with context warning</th>
+                            <td>{{ user.show_stories_with_context_warning|yesno }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endspaceless %}
         </div>
-        <table>
-            <tbody>
-                <tr>
-                    <th>username:</th>
-                    <td class="{% if user.is_banned %}banned-user}{% elif user.is_new_user %}new-user{% endif %}">{{ user.username }}</td>
-                </tr>
-                {% for label, metadata in user.metadata_fields %}
-                    <tr>
-                        <th>{{ label }}:</th>
-                        <td>{{ metadata|urlize }}</td>
-                    </tr>
-                {% endfor %}
-                <tr>
-                    <th>about:</th>
-                    <td>{{ user.about }}</td>
-                </tr>
-                <tr>
-                    <th>status:</th>
-                    <td>{% if not user.is_active %}in{% endif %}active</td>
-                </tr>
-                <tr>
-                    <th>joined:</th>
-                    <td>{{ user.created }}</td>
-                </tr>
-                <tr>
-                    <th>karma:</th>
-                    <td>{{ user.karma }}</td>
-                </tr>
-                <tr>
-                    <th>stories:</th>
-                    <td>{{ user.stories.count }}</td>
-                </tr>
-                <tr>
-                    <th>comments:</th>
-                    <td>{{ user.comments.count }}</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
-    <div class="settings">
-        <h2>settings</h2>
-        {% spaceless %}
+    <hr />
+    <div class="generate_an_invite" id="generate-invite">
+        <h2>Invite a new user</h2>
+        <form class="submit-comment-form" method="POST" action="{% url_with_next 'generate_invite' request %}">
+            {% csrf_token %}
             <table class="no-border">
-                <tbody>
-                    <tr>
-                        <th>email notifications</th>
-                        <td>{{ user.email_notifications }}</td>
-                    </tr>
-                    <tr>
-                        <th>email replies</th>
-                        <td>{{ user.email_replies }}</td>
-                    </tr>
-                    <tr>
-                        <th>email messages</th>
-                        <td>{{ user.email_messages }}</td>
-                    </tr>
-                    <tr>
-                        <th>email mentions</th>
-                        <td>{{ user.email_mentions }}</td>
-                    </tr>
-                    <tr>
-                        <th>show avatars</th>
-                        <td>{{ user.show_avatars }}</td>
-                    </tr>
-                </tbody>
+                {{ generate_invite_form }}
             </table>
-        {% endspaceless %}
+            <input type="submit" value="send">
+        </form>
     </div>
+    <hr />
+    <h2>Invitations</h2>
     <div class="invites">
         <div class="invite_tree">
-            <h2>Invitation tree</h2>
+            <h3>invite tree</h3>
             <ul class="tree">
                 {% include "invitation_tree.html" with user=user depth=0 max_depth=3 %}
             </ul>
-            {% for inv in user.invited.all %}
-                <p title="{{ inv.id }}">{{ inv.created }} - {{ inv.address }} - {% if inv.accepted %}<span class="accepted">accepted by <a href="{{ inv.receiver.get_absolute_url }}" class="{% if inv.receiver.is_banned %}banned-user{% elif inv.receiver.is_new_user %} new-user{% endif %}">{{ inv.receiver }}</a></span>{% else %}no answer yet <a href="{% url_with_next 'resend_invite' invite_pk=inv.pk request %}">resend email</a>, or <a href="{{ inv.get_absolute_url }}">share link</a>{% endif %}</p>
-            {% empty %}
-                You haven't invited anyone yet.
-            {% endfor %}
         </div>
-        <div class="generate_an_invite" id="generate-invite">
-            <h2>Invite a new user</h2>
-            <form class="submit-comment-form" method="POST" action="{% url_with_next 'generate_invite' request %}">
-                {% csrf_token %}
-                <table class="no-border">
-                    {{ generate_invite_form }}
-                </table>
-                <input type="submit" value="generate">
-            </form>
+        <div class="invite_list">
+            <h3>detailed list</h3>
+            <table>
+                <tbody>
+                    {% for inv in user.invited.all reversed %}
+                        <tr>
+                            <td title="{{ inv.id }}">{{ inv.created }}</td>
+                            <td>{{ inv.address }}</td>
+                            <td>{% if inv.accepted %}<span class="accepted">accepted by <a href="{{ inv.receiver.get_absolute_url }}" class="{% if inv.receiver.is_banned %}banned-user{% elif inv.receiver.is_new_user %} new-user{% endif %}">{{ inv.receiver }}</a></span>{% else %}no answer yet <a href="{% url_with_next 'resend_invite' invite_pk=inv.pk request %}">resend email</a>, or <a href="{{ inv.get_absolute_url }}">share link</a>{% endif %}</td>
+                        </tr>
+                    {% empty %}
+                        <th>You haven't invited anyone yet.</th>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
+    <hr />
     <div class="hats">
         <h2>Hats</h2>
         {% if can_add_hats %}
@@ -148,6 +153,7 @@
             {% endif %}
         {% endif %}
     </div>
+    <hr />
     <div class="taggregations" id="taggregations">
         <h2>Aggregations</h2>
         <nav>
@@ -155,35 +161,44 @@
                 <li><a href="{% url 'new_aggregation' %}">create</a></li>
             </ul>
         </nav>
-        {% if user.created_taggregations.exists %}
-            <h3>Created:</h3>
-            <ul>
-                {% for c in user.created_taggregations.all %}
-                    <li><a href="{{c.get_absolute_url }}">{{ c.name }}</a></li>
-                {% empty %}
-                    <li>You have created no Aggregations.</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-        {% if user.moderated_taggregations.exists %}
-            <h3>Moderated:</h3>
-            <ul>
-                {% for c in user.moderated_taggregations.all %}
-                    <li><a href="{{c.get_absolute_url }}">{{ c.name }}</a></li>
-                {% empty %}
-                    <li>You moderate no Aggregations.</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-        <h3>Subscribed:</h3>
-        <ul>
-            {% for c in user.taggregation_subscriptions.all %}
-                <li><a href="{{c.get_absolute_url }}">{{ c.name }}</a></li>
-            {% empty %}
-                <li>You have no Aggregation subscriptions. Browse public Aggregations or create your own.</li>
-            {% endfor %}
-        </ul>
+        <div class="taggregations_lists">
+            {% if user.created_taggregations.exists %}
+                <div>
+                    <h3>Created:</h3>
+                    <ul>
+                        {% for c in user.created_taggregations.all %}
+                            <li><a href="{{c.get_absolute_url }}">{{ c.name }}</a></li>
+                        {% empty %}
+                            <li>You have created no Aggregations.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            {% if user.moderated_taggregations.exists %}
+                <div>
+                    <h3>Moderated:</h3>
+                    <ul>
+                        {% for c in user.moderated_taggregations.all %}
+                            <li><a href="{{c.get_absolute_url }}">{{ c.name }}</a></li>
+                        {% empty %}
+                            <li>You moderate no Aggregations.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            <div>
+                <h3>Subscribed:</h3>
+                <ul>
+                    {% for c in user.taggregation_subscriptions.all %}
+                        <li><a href="{{c.get_absolute_url }}">{{ c.name }}</a></li>
+                    {% empty %}
+                        <li>You have no Aggregation subscriptions. Browse public Aggregations or create your own.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     </div>
+    <hr />
     <div>
         <h2 id="feeds">Personalised feeds</h2>
         <form method="GET" action="{% url_with_next 'issue_token' request %}">
