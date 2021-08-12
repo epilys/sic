@@ -79,7 +79,9 @@ class Digest(models.Model):
                     stories = stories.filter(
                         created__gt=make_aware(today - timedelta(days=32))
                     )
-                stories = stories.order_by("-created", "title")
+                stories = stories.exclude(user_id=d.user.id).order_by(
+                    "-created", "title"
+                )
                 if not stories.exists():
                     d.last_run = make_aware(today)
                     d.save(update_fields=["last_run"])
