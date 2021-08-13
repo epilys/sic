@@ -44,6 +44,14 @@
             color: #11466f;
             text-decoration: none;
         }
+        @media (prefers-color-scheme: dark) {
+            div.aggregations>div {
+                background: #666a6d;
+            }
+            a.agg-name, a.agg-name:visited {
+                color: #eef7ff;
+            }
+        }
     </style>
 {% endblock %}
 {% block content %}

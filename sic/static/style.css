@@ -356,6 +356,8 @@ template {
 }
 
 :root {
+  --fg-color: black;
+  --bg-color: white;
   --theme-color: #1e82be;
   --upvote-arrow-color:#bbb;
   --upvote-arrow-upvoted-color: #ac130d;
@@ -363,6 +365,8 @@ template {
   --message-warning-bg: #ffc;
   --message-error-bg: #f77;
   --main-width: 83.3vw;
+  --entry-separator-color: #c7ddde;
+  --netloc-color: darkslategray;
 }
 
 
@@ -395,8 +399,8 @@ html, body {
   font-size: 14px;
   width: 100%;
   height: 100%;
-  background: white;
-  color: black;
+  background: var(--bg-color);
+  color: var(--fg-color);
 }
 
 body {
@@ -708,7 +712,7 @@ figure#avatar-thumbnail {
 }
 
 figure#avatar-thumbnail figcaption {
-  background: white;
+  background: var(--bg-color);
   padding: 3px 5px;
   text-align: center;
   word-wrap: break-word;
@@ -1001,7 +1005,7 @@ ul.posts>li {
 ul.posts li.story + li,
 ul.posts li.comment + li {
   padding-top: 1rem;
-  border-top: 1px outset #c7ddde;
+  border-top: 1px outset var(--entry-separator-color);
 }
 
 li.comment:target>div.comment {
@@ -1184,7 +1188,7 @@ table.filters {
 span.netloc,
 span.netloc a,
 span.netloc a:visited {
-  color: darkslategray;
+  color: var(--netloc-color);
   font-style: italic;
   user-select: all;
   white-space: nowrap;
@@ -1578,10 +1582,78 @@ nav.pagination {
   font-size: 12px;
 }
 .pagination a:visited {
-  color: #333;
+  color: var(--fg-color);
 }
 
 .pagination a[aria-current="page"] {
   background-color: #444c50;
   color: #fff;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --entry-separator-color: #3f4142;
+    --bg-color: #333;
+    --fg-color: white;
+    --high-contrast-bg-color: black;
+    --upvote-arrow-color:#bbb;
+    --upvote-arrow-upvoted-color: red;
+    --link-color: #ff7474;
+    --netloc-color: #29b0b0;
+  }
+  a.title,
+  a.title:visited {
+    color: var(--fg-color);
+  }
+  body>main>ul.posts>li.story .links a,
+  body>main>ul.posts>li.story .links a:visited {
+    color: var(--fg-color);
+  }
+  body>main>ul.posts>li.story .links{
+    color: var(--fg-color);
+  }
+  nav>ul>li>a, nav>ul>li>a:visited{
+    color: var(--fg-color);
+  }
+
+  span.netloc,
+  span.netloc a,
+  span.netloc a:visited {
+  }
+
+  a.feed, a.feed:visited {
+    color: #ff5310;
+  }
+
+  *|*:link, *|*:visited, .reply a, .reply a:visited {
+    color: var(--link-color);
+  }
+  label.comment {
+    background: var(--bg-color)
+  }
+  input[type="text"],input[type="password"],input[type="email"], input[type="url"], input[type="search"], input[type="date"],textarea {
+    background: var(--bg-color);
+    border-color: #686565;
+    color: var(--fg-color);
+  }
+  fieldset>legend {
+    background-color: #0c0c0c;
+    border-color: var(--high-contrast-bg-color);
+  }
+  select {
+    resize: vertical;
+    background: var(--high-contrast-bg-color);
+    color: var(--fg-color);
+  }
+  fieldset {
+    border-color: var(--high-contrast-bg-color);
+  }
+  span.body {
+    background: var(--high-contrast-bg-color) !important;
+  }
+  .pagination a:visited {
+    color: var(--fg-color);
+  }
+
 }

@@ -32,6 +32,11 @@
             justify-content: space-between;
             flex-flow: row wrap;
         }
+        @media (prefers-color-scheme: dark) {
+            figure>svg  {
+                filter: invert(80%);
+            }
+        }
     </style>
 {% endblock %}
 {% block content %}
