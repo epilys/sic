@@ -7,6 +7,17 @@ from .apps import SicAppConfig as config
 from .models import Tag, User, StoryKind, StoryFilter, TaggregationHasTag
 
 
+class TagsSelect(forms.SelectMultiple):
+    def create_option(
+        self, name, value, label, selected, index, subindex=None, attrs=None
+    ):
+        option = super().create_option(
+            name, value, label, selected, index, subindex, attrs
+        )
+        option["attrs"]["id"] = f"{value.instance.name}_option"
+        return option
+
+
 class SubmitStoryForm(forms.Form):
     required_css_class = "required"
     title = forms.CharField(
@@ -30,7 +41,8 @@ class SubmitStoryForm(forms.Form):
     )
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(),
-        label="Topical tags",
+        label="Post tags",
+        widget=TagsSelect(attrs={"size": "4"}),
         required=False,
         help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
     )

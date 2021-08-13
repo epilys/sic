@@ -44,6 +44,8 @@ STATIC_ROOT = "/path/to/collected/static/"
 
 ### Static files
 
+(Optional: see `tools/tag-input-wasm/README.md`)
+
 Issue `python3 manage.py collectstatic` to put all static files in your defined `STATIC_ROOT` folder.
 
 ### `apache2` and `modwsgi`

@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from sic.apps import SicAppConfig as config
-from sic.models import Story, StoryKind, Comment, Notification, StoryRemoteContent
+from sic.models import Story, StoryKind, Comment, Notification, StoryRemoteContent, Tag
 from sic.forms import (
     SubmitCommentForm,
     SubmitStoryForm,
@@ -292,6 +292,7 @@ def submit_story(request):
         {
             "form": form,
             "preview": preview,
+            "tags": {t.name: t.hex_color for t in form.fields["tags"].queryset},
         },
     )
 
@@ -399,6 +400,7 @@ def edit_story(request, story_pk, slug=None):
             "form": form,
             "preview": preview,
             "story": story_obj,
+            "tags": {t.name: t.hex_color for t in form.fields["tags"].queryset},
         },
     )
 
