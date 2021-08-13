@@ -17,7 +17,7 @@
             width: var(--main-width);
         }
 
-        div.aggregations article {
+        div.aggregations>div {
             display: grid;
             grid-template-rows: max-content max-content 1fr;
             grid-gap: 10px;
@@ -25,16 +25,16 @@
             border-radius: 3px;
             padding: 1rem 1.5rem .5rem 1.5rem;
         }
-        div.aggregations article ul.tags {
+        div.aggregations>div ul.tags {
             max-height: 3rem;
             overflow: auto;
             height: max-content;
         }
-        div.aggregations>article>header{
+        div.aggregations>div>header{
             display: block;
             margin: 0;
         }
-        div.aggregations>article .created {
+        div.aggregations>div .created {
             font-size: small;
             text-align: center;
             width: 100%;
@@ -80,17 +80,17 @@
     {% spaceless %}
         <div class="aggregations">
             {% for agg in aggs %}
-                <article>
+                <div>
                     <header><a href="{% url 'taggregation' agg.pk agg.slugify %}" class="agg-name" title="{% if agg.description %}{{ agg.description }}{% else %}No description{% endif %}">{{ agg.name }}</a>&#32;<code>{{ agg.vertices|length }}</code>&#32;tag{{ agg.vertices|pluralize}}</header>
                     <span><code>{{ agg.subscribers.count }}</code> subscribers</span>
-                    <span class="sparklines" title="activity for last 14 days">{{ agg.last_14_days }}</span>
+                    <span class="sparklines" aria-hidden="true" title="activity for last 14 days">{{ agg.last_14_days }}</span>
                     <ul class="tags">
                         {% for tag in agg.vertices %}
                             <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><div class="tag"><span class="tag-name"><a href="{{ tag.get_absolute_url }}">{{ tag.name }} {{ tag.stories.count }}</a></span></div></li>
                         {% endfor %}
                     </ul>
                     <span class="created">created {{ agg.created|naturaltime }}</span>
-                </article>
+                </div>
             {% empty %}
                 {% if view_name == 'default_aggregations' %}
                     <p>No default aggregations. <a href="{% url 'public_aggregations' %}">Browse public aggregations</a></p>

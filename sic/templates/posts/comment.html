@@ -21,13 +21,13 @@
             </div>
         {%else %}
             <input class="comment" type="checkbox" id="comment-{{comment.pk}}" name="comment-{{comment.pk}}" >
-            <label class="comment" for="comment-{{comment.pk}}"></label>
+            <label role="button" aria-label="toggle comment visibility" tabindex="0" class="comment" for="comment-{{comment.pk}}"></label>
             <div class="links"><div class="votes">
                 <div class="upvote{% if is_upvoted %} upvoted{% endif %}">
                     {% if request.user.is_authenticated %}
                         <form action="{% url_with_next 'upvote_comment' comment.story.pk comment.story.slugify comment.pk request %}" method="POST">
                             {% csrf_token %}
-                            <input type="submit" title="upvote comment" value="">
+                            <input type="submit" aria-label="upvote comment" title="upvote comment" value="">
                         </form>
                     {% endif %}
                 </div>

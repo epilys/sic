@@ -519,6 +519,8 @@ class OrderByForm(forms.Form):
         coerce=lambda c: c == "asc",
         choices=[("asc", "ascending"), ("desc", "descending")],
     )
+    order_by.widget.attrs.update({"aria-label": "order by", "title": "order by"})
+    ordering.widget.attrs.update({"aria-label": "ordering", "title": "ordering"})
 
     def __init__(self, fields, *args, **kwargs):
         super(OrderByForm, self).__init__(*args, **kwargs)
