@@ -161,7 +161,7 @@ def all_stories(request, page_num=1):
     ordering = request.session.get("all_stories_ordering", "desc")
     order_by_field = ("-" if ordering == "desc" else "") + order_by
 
-    story_obj = Story.objects.filter(active=True)
+    story_obj = Story.objects.filter(active=True).select_related("user")
     if order_by == "hotness":
         stories = sorted(
             story_obj.order_by("created", "title"),
