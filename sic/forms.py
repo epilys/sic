@@ -6,6 +6,10 @@ from django.urls import reverse
 from .apps import SicAppConfig as config
 from .models import Tag, User, StoryKind, StoryFilter, TaggregationHasTag
 
+SELECT_WIDGET_HELP_TEXT = mark_safe(
+    """Hold down <kbd title="Control">Ctrl</kbd>, or <kbd title="Command">&#8984;</kbd> to select more than one entry."""
+)
+
 
 class TagsSelect(forms.SelectMultiple):
     def create_option(
@@ -44,13 +48,13 @@ class SubmitStoryForm(forms.Form):
         label="Post tags",
         widget=TagsSelect(attrs={"size": "4"}),
         required=False,
-        help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
+        help_text=SELECT_WIDGET_HELP_TEXT,
     )
     kind = forms.ModelMultipleChoiceField(
         queryset=StoryKind.objects.all(),
         label="Submission kind",
         required=True,
-        help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
+        help_text=SELECT_WIDGET_HELP_TEXT,
     )
     context_warning = forms.CharField(
         required=False,
@@ -244,7 +248,7 @@ class EditTagForm(forms.Form):
         widget=ParentsSelect(attrs={"size": "10"}),
         label="parents",
         required=False,
-        help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
+        help_text=SELECT_WIDGET_HELP_TEXT,
     )
 
     def __init__(self, *args, **kwargs):
@@ -304,7 +308,7 @@ class EditTaggregationHasTagForm(forms.Form):
         queryset=StoryFilter.objects.all(),
         label="exclude filters",
         required=False,
-        help_text="Hold down “Control”, or “Command” on a Mac, to select more than one.",
+        help_text=SELECT_WIDGET_HELP_TEXT,
     )
 
 

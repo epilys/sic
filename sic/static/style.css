@@ -1072,6 +1072,15 @@ kbd {
   line-height: 1;
   padding: 2px 4px;
   white-space: nowrap;
+  vertical-align: text-bottom;
+}
+
+kbd[title="Command"] {
+  padding: 1px 4px;
+  vertical-align: baseline;
+  width: 21px;
+  height: 21px;
+  font-size: 18px;
 }
 
 p {
