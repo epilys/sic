@@ -521,8 +521,10 @@ def domain(request, slug, page_num=1):
         order_by = domain.ORDER_BY_FIELDS[0]
     ordering = request.session.get("domain_ordering", "desc")
     order_by_field = ("-" if ordering == "desc" else "") + order_by
-    stories = Story.objects.filter(active=True, domain=domain_obj).order_by(
-        order_by_field
+    stories = (
+        Story.objects.filter(active=True, domain=domain_obj)
+        .prefetch_related("tags", "user")
+        .order_by(order_by_field)
     )
     paginator = Paginator(stories, config.STORIES_PER_PAGE)
     try:

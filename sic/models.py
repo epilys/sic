@@ -145,7 +145,7 @@ class Story(models.Model):
 
     @cached_property
     def karma(self):
-        return self.votes.filter(comment=None).count()
+        return self.votes.filter(comment_id=None).count()
 
     @cached_property
     def get_listing_url(self):
@@ -329,7 +329,7 @@ WHERE
     root_tag_id = %s""",
                     [self.pk],
                 )
-            )
+            ).prefetch_related("tags", "user")
         return Story.objects.filter(
             tags__pk__in=RawSQL(
                 """WITH RECURSIVE w (
@@ -360,7 +360,7 @@ WHERE
     depth <= %s""",
                 [self.pk, depth],
             )
-        )
+        ).prefetch_related("tags", "user")
 
     @cached_property
     def slugify(self):
@@ -447,7 +447,7 @@ class Taggregation(models.Model):
                 "SELECT id FROM taggregation_stories WHERE taggregation_id = %s",
                 [self.pk],
             )
-        )
+        ).prefetch_related("tags", "user")
 
     @cached_property
     def vertices(self):
@@ -463,7 +463,9 @@ class Taggregation(models.Model):
         taggregations = Taggregation.objects.filter(default=True)
         if not taggregations.exists():
             return {
-                "stories": Story.objects.filter(active=True),
+                "stories": Story.objects.filter(active=True).prefetch_related(
+                    "tags", "user"
+                ),
                 "taggregations": Taggregation.objects.none(),
             }
 
@@ -473,7 +475,7 @@ class Taggregation(models.Model):
                 "SELECT DISTINCT s.id AS id FROM taggregation_stories AS s JOIN sic_taggregation as agg ON s.taggregation_id = agg.id WHERE agg.'default' = 1",
                 [],
             )
-        )
+        ).prefetch_related("tags", "user")
         return {
             "stories": stories,
             "taggregations": taggregations,
@@ -926,7 +928,7 @@ class User(PermissionsMixin, AbstractBaseUser):
 
     @cached_property
     def karma(self):
-        return Vote.objects.all().filter(story__user=self, comment=None).count()
+        return Vote.objects.filter(story__user__id=self.pk, comment_id=None).count()
 
     def get_absolute_url(self):
         return reverse(
@@ -978,10 +980,10 @@ class User(PermissionsMixin, AbstractBaseUser):
                     "SELECT DISTINCT s.id AS id FROM taggregation_stories AS s JOIN sic_user_taggregation_subscriptions as subs WHERE s.taggregation_id = subs.taggregation_id AND subs.user_id = %s",
                     [self.pk],
                 )
-            )
+            ).prefetch_related("tags", "user")
             taggregations = self.taggregation_subscriptions.all()
         else:
-            stories = Story.objects.filter(active=True)
+            stories = Story.objects.filter(active=True).prefetch_related("tags", "user")
         return {
             "stories": stories,
             "taggregations": taggregations,
