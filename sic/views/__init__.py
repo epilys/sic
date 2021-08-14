@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.views.decorators.http import require_http_methods, condition
+from django.views.decorators.http import require_http_methods
 from django.utils.timezone import make_aware
 from django.db.models import Max
 from django.utils.http import urlencode
@@ -97,42 +97,6 @@ def reply(request, comment_pk):
     return redirect(comment.story.get_absolute_url())
 
 
-def agg_etag_fn(request, taggregation_pk, slug, page_num=1):
-    try:
-        agg = Taggregation.objects.get(pk=taggregation_pk)
-        m = hashlib.sha256()
-        m.update(bytes(str(agg.last_modified.timestamp()), "utf-8"))
-        m.update(bytes(str(taggregation_pk), "utf-8"))
-        last_active = agg.last_active()
-        if last_active:
-            m.update(bytes(str(last_active.timestamp()), "utf-8"))
-        if request.user.is_authenticated:
-            m.update(bytes(request.user.get_session_auth_hash(), "utf-8"))
-            latest = Notification.latest(request.user)
-            if latest:
-                m.update(bytes(str(latest.timestamp()), "utf-8"))
-        return m.hexdigest()
-
-    except Taggregation.DoesNotExist:
-        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
-
-
-def agg_last_modified_fn(request, taggregation_pk, slug, page_num=1):
-    try:
-        agg = Taggregation.objects.get(pk=taggregation_pk)
-        last_modified = agg.last_modified
-        last_active = agg.last_active() or last_modified
-        notifications_active = last_active
-        if request.user.is_authenticated:
-            latest = Notification.latest(request.user)
-            if latest:
-                notifications_active = latest
-        return max(last_modified, last_active, notifications_active)
-    except Taggregation.DoesNotExist:
-        raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
-
-
-@condition(etag_func=agg_etag_fn, last_modified_func=agg_last_modified_fn)
 def agg_index(request, taggregation_pk, slug, page_num=1):
     if page_num == 1 and request.get_full_path() != reverse(
         "agg_index", kwargs={"taggregation_pk": taggregation_pk, "slug": slug}
@@ -210,81 +174,6 @@ def agg_index(request, taggregation_pk, slug, page_num=1):
     )
 
 
-def index_etag_fn(request, page_num=1):
-    # This resource depends on the following:
-    #
-    # ├─ notification count in nav menu (if new messages arrive or existing messages are read, the count changes)
-    # ├─ last_modified of all aggregations (name, description etc)
-    # ├─ last_active of all stories of all aggregations
-    # └─ last_modified of all tags of all aggregations (name, hex_color) (currently ignored/not computed)
-    #
-
-    default = True
-    last_modifieds = None
-    last_actives = None
-    notifications_active = None
-    m = hashlib.sha256()
-
-    if request.user.is_authenticated:
-        m.update(bytes(request.user.get_session_auth_hash(), "utf-8"))
-        latest = Notification.latest(request.user)
-        if latest:
-            notifications_active = latest
-        taggregations = request.user.taggregation_subscriptions.all()
-        if taggregations.exists():
-            default = False
-            last_actives = Taggregation.last_actives(taggregations)
-            last_modifieds = taggregations.aggregate(m=Max("last_modified"))["m"]
-
-    if default:
-        taggregations = Taggregation.objects.filter(default=True)
-        if not taggregations.exists():
-            latest = Story.objects.filter(active=True).latest("last_active")
-            last_actives = latest.last_active if latest else make_aware(datetime.now())
-        last_actives = Taggregation.last_actives(taggregations)
-        last_modifieds = taggregations.aggregate(m=Max("last_modified"))["m"]
-
-    if last_actives:
-        m.update(bytes(str(last_actives.timestamp()), "utf-8"))
-    if last_modifieds:
-        m.update(bytes(str(last_modifieds.timestamp()), "utf-8"))
-    if notifications_active:
-        m.update(bytes(str(notifications_active.timestamp()), "utf-8"))
-
-    return m.hexdigest()
-
-
-def index_last_modified_fn(request, page_num=1):
-    default = True
-    notifications_active = None
-
-    if request.user.is_authenticated:
-        latest = Notification.latest(request.user)
-        if latest:
-            notifications_active = latest
-        taggregations = request.user.taggregation_subscriptions.all()
-        if taggregations.exists():
-            default = False
-            last_actives = Taggregation.last_actives(taggregations)
-            last_modifieds = taggregations.aggregate(m=Max("last_modified"))["m"]
-
-    if default:
-        taggregations = Taggregation.objects.filter(default=True)
-        if not taggregations.exists():
-            latest = Story.objects.filter(active=True).latest("last_active")
-            return latest.last_active if latest else make_aware(datetime.now())
-        last_actives = Taggregation.last_actives(taggregations)
-        last_modifieds = taggregations.aggregate(m=Max("last_modified"))["m"]
-        notifications_active = last_actives or last_modifieds
-
-    return (
-        max(last_modifieds, last_actives, notifications_active)
-        if notifications_active
-        else None
-    )
-
-
-@condition(etag_func=index_etag_fn, last_modified_func=index_last_modified_fn)
 def index(request, page_num=1):
     if page_num == 1 and request.get_full_path() != reverse("index"):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
@@ -473,49 +362,6 @@ def upvote_comment(request, story_pk, slug, comment_pk):
     return redirect(reverse("index"))
 
 
-def recent_comments_etag_fn(request, page_num=1):
-    # This resource depends on the following:
-    #
-    # ├─ notification count in nav menu (if new messages arrive or existing messages are read, the count changes)
-    # └─ last_active of all stories of all comments
-    #
-
-    m = hashlib.sha256()
-
-    if request.user.is_authenticated:
-        m.update(bytes(request.user.get_session_auth_hash(), "utf-8"))
-        latest = Notification.latest(request.user)
-        if latest:
-            m.update(bytes(str(latest.timestamp()), "utf-8"))
-
-    latest = Comment.objects.filter(deleted=False).latest("story__last_active")
-    if latest:
-        m.update(bytes(str(latest.story.last_active.timestamp()), "utf-8"))
-
-    return m.hexdigest()
-
-
-def recent_comments_last_modified_fn(request, page_num=1):
-    notifications_active = None
-
-    if request.user.is_authenticated:
-        l = Notification.latest(request.user)
-        if l:
-            notifications_active = l
-    latest = Comment.objects.filter(deleted=False).latest("story__last_active")
-    latest = latest.story.last_active if latest else None
-
-    if notifications_active and latest:
-        return max(latest, notifications_active)
-    if notifications_active:
-        return notifications_active
-    return latest
-
-
-@condition(
-    etag_func=recent_comments_etag_fn,
-    last_modified_func=recent_comments_last_modified_fn,
-)
 def recent_comments(request, page_num=1):
     if page_num == 1 and request.get_full_path() != reverse("recent_comments"):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.

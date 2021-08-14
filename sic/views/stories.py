@@ -5,7 +5,7 @@ import urllib.request
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
-from django.views.decorators.http import condition, require_safe
+from django.views.decorators.http import require_safe
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
@@ -105,49 +105,6 @@ def story_remote_content(request, story_pk, slug=None):
     )
 
 
-def all_stories_etag_fn(request, page_num=1):
-    # This resource depends on the following:
-    #
-    # ├─ notification count in nav menu (if new messages arrive or existing messages are read, the count changes)
-    # ├─ last_active of all stories
-    # └─ last_modified of all tags of all stories (name, hex_color) (currently ignored/not computed)
-    #
-
-    m = hashlib.sha256()
-
-    if request.user.is_authenticated:
-        m.update(bytes(request.user.get_session_auth_hash(), "utf-8"))
-        latest = Notification.latest(request.user)
-        if latest:
-            m.update(bytes(str(latest.timestamp()), "utf-8"))
-
-    latest = Story.objects.filter(active=True).latest("last_active")
-    if latest:
-        m.update(bytes(str(latest.last_active.timestamp()), "utf-8"))
-
-    return m.hexdigest()
-
-
-def all_stories_last_modified_fn(request, page_num=1):
-    notifications_active = None
-
-    if request.user.is_authenticated:
-        l = Notification.latest(request.user)
-        if l:
-            notifications_active = l
-    latest = Story.objects.filter(active=True).latest("last_active")
-    latest = latest.last_active if latest else None
-
-    if notifications_active and latest:
-        return max(latest, notifications_active)
-    if notifications_active:
-        return notifications_active
-    return latest
-
-
-@condition(
-    etag_func=all_stories_etag_fn, last_modified_func=all_stories_last_modified_fn
-)
 def all_stories(request, page_num=1):
     if "order_by" in request.GET:
         request.session["all_stories_order_by"] = request.GET["order_by"]
