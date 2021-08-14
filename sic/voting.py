@@ -7,7 +7,7 @@ HOTNESS_WINDOW = 60 * 60 * 22
 
 
 def story_hotness(story):
-    user = story.user
+    user_id = story.user_id
     domain_penalty = 0.0
     tag_hotness = sum(map(lambda t: t.hotness_modifier(), story.tags.all()))
     score = float(story.karma) + tag_hotness - domain_penalty
@@ -15,7 +15,7 @@ def story_hotness(story):
         score += 0.25
     comment_score_modifier = 0
     for c in story.comments.all():
-        if c.user == user:
+        if c.user_id == user_id:
             continue
         score += 0.25 * c.karma
         comment_score_modifier += 0.25 * c.karma
