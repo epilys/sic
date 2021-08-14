@@ -4,12 +4,6 @@
 {% block title %}sic{% endblock %}
 {% block style %}
     <style>
-        .sparklines {
-            position: absolute;
-            transform: translateX(3px) translateY(-100%) scaleX(50%) scaleY(60%);
-            font-size: 1rem;
-            transform-origin: left;
-        }
         div.aggregations {
             display: flex;
             flex-flow: row wrap;
@@ -19,19 +13,16 @@
             max-width: var(--main-width);
             font-size: 12px;
             justify-self: center;
+            justify-content: center;
         }
 
         div.aggregations>div {
             display: grid;
-            grid-template-rows: max-content max-content 1fr;
-            border: 1px solid gray;
-            border-radius: 3px;
-            padding: 5px 2px;
+            grid-template-rows: 1fr max-content;
             min-width: 80px;
-            max-width: 100px;
-            background: aliceblue;
+            max-width: 0px;
         }
-        div.aggregations>div>header {
+        div.aggregations>div>div {
             margin: 0;
             text-align: center;
             display: inline-block;
@@ -39,6 +30,10 @@
             -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            border: 1px solid gray;
+            border-radius: 3px;
+            padding: 5px 2px;
+            background: aliceblue;
         }
         a.agg-name, a.agg-name:visited {
             color: #11466f;
@@ -63,7 +58,7 @@
     {% else %}
         {% if not has_subscriptions and request.user.is_authenticated %}<div class="showing-aggregations">You have no subscriptions, and there are no default tag aggregations available. Viewing all stories instead. <a href="{% url 'new_aggregation' %}">Create one</a> or <a href="{% url 'public_aggregations' %}">browse public ones from other users</a>.</div>{% elif not request.user.is_authenticated %}<div class="showing-aggregations">There are no default tag aggregations available. Viewing all stories.</div>{% endif %}
     {% endif %}
-    {% if aggregations %}<div class="aggregations">{% for agg in aggregations %}<div><header><a href="{{ agg.get_absolute_url }}" class="agg-name" title="{{ agg.name }} {% if agg.description %} - {{ agg.description }}{% endif %}">{{ agg.name }}</a></header><span class="sparklines" aria-hidden="true" title="activity for last 14 days">{{ agg.last_14_days }}</span></div>{% endfor %}</div>{% endif %}
+    {% if aggregations %}<div class="aggregations">{% for agg in aggregations %}<div><span class="sparklines" aria-hidden="true" title="activity for last 14 days">{{ agg.last_14_days }}</span><div><a href="{{ agg.get_absolute_url }}" class="agg-name" title="{{ agg.name }} {% if agg.description %} - {{ agg.description }}{% endif %}">{{ agg.name }}</a></div></div>{% endfor %}</div>{% endif %}
     <ul class="posts" aria-label="story post list">
         {% for story in stories %}
             {% include "posts/story_list_item.html" with story=story %}

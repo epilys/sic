@@ -4,11 +4,6 @@
 {% block title %}browse aggregations - sic{% endblock %}
 {% block style %}
     <style>
-        .sparklines {
-            position: absolute;
-            margin-top: -2rem;
-            transform: scaleX(150%) translateX(10%);
-        }
         div.aggregations {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -83,7 +78,6 @@
                 <div>
                     <header><a href="{% url 'taggregation' agg.pk agg.slugify %}" class="agg-name" title="{% if agg.description %}{{ agg.description }}{% else %}No description{% endif %}">{{ agg.name }}</a>&#32;<code>{{ agg.vertices|length }}</code>&#32;tag{{ agg.vertices|pluralize}}</header>
                     <span><code>{{ agg.subscribers.count }}</code> subscribers</span>
-                    <span class="sparklines" aria-hidden="true" title="activity for last 14 days">{{ agg.last_14_days }}</span>
                     <ul class="tags">
                         {% for tag in agg.vertices %}
                             <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><div class="tag"><span class="tag-name"><a href="{{ tag.get_absolute_url }}">{{ tag.name }} {{ tag.stories.count }}</a></span></div></li>

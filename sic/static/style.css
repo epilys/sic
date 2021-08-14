@@ -1381,6 +1381,7 @@ ul.inline-comma-sep-list>li>details>summary+ul.inline-comma-sep-list{
 div.showing-aggregations {
   font-size: 80%;
   display: inline-block;
+  margin-bottom: .5rem;
 }
 
 body>header>div.logo {
@@ -1401,7 +1402,7 @@ body>header>div.logo {
     border-bottom: 1px solid #ccc;
     grid-column: 1 / span 12;
     column-gap: 12px;
-    margin-bottom: 1rem;
+    margin-bottom: 7px;
   } 
   nav.main.menu>ul{
     row-gap: 4px;
@@ -1546,9 +1547,27 @@ p.help-text {
 }
 
 .sparklines {
-    color: var(--theme-color);
-    font-family: monospace;
+    /*color: var(--theme-color);*/
     user-select: none;
+  height: 9.5px;
+  white-space: nowrap;
+  text-align: center;
+  margin-top: 2px;
+    position: absolute;
+    transform: translateY(-100%);
+    display: inline-flex;
+}
+
+svg.s {
+  display: inline;
+  width: auto;
+  height: 100%;
+  aspect-ratio: 29 / 52;
+}
+@supports not (aspect-ratio: 29 / 52) {
+svg.s {
+  display: none;
+}
 }
 
 .new-user,

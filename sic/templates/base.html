@@ -48,7 +48,7 @@
         {% spaceless %}
             <header>
                 <div class="logo">
-                    <a href="{% url 'index' %}">sic</a>
+                    <a href="{% url 'index' %}" title="index">sic</a>
                 </div>
                 <nav class="main menu">
                     <ul>
@@ -88,6 +88,49 @@
             </header>
         {% endspaceless %}
         <main>
+            {% spaceless %}
+                <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                    <symbol id="s0" viewBox="0 0 29 52">
+                        <rect width="29" height="5" y="45" fill="#1e82be" />
+                    </symbol>
+
+                    <symbol id="s1" viewBox="0 0 29 52">
+                        <rect width="29" height="10" y="40" fill="#1e82be" />
+                    </symbol>
+
+                    <symbol id="s2" viewBox="0 0 29 52">
+                        <rect width="29" height="15" y="35" fill="#1e82be" />
+                    </symbol>
+
+                    <symbol id="s3" viewBox="0 0 29 52">
+                        <rect width="29" height="20" y="30" fill="#1e82be" />
+                    </symbol>
+
+                    <symbol id="s4" viewBox="0 0 29 52">
+                        <rect width="29" height="25" y="25" fill="#1e82be" />
+                    </symbol>
+
+                    <symbol id="s5" viewBox="0 0 29 52">
+                        <rect width="29" height="30" y="20" fill="#1e82be" />
+                    </symbol>
+
+                    <symbol id="s6" viewBox="0 0 29 52">
+                        <rect width="29" height="35" y="15" fill="#1e82be" />
+                    </symbol>
+
+                    <symbol id="s7" viewBox="0 0 29 52">
+                        <rect width="29" height="40" y="10" fill="#1e82be" />
+                    </symbol>
+
+                    <symbol id="s8" viewBox="0 0 29 52">
+                        <rect width="29" height="45" y="5" fill="#1e82be" />
+                    </symbol>
+
+                    <symbol id="s9" viewBox="0 0 29 52">
+                        <rect width="29" height="52" y="-2" fill="#1e82be" />
+                    </symbol>
+                </svg>
+            {% endspaceless %}
             {% if messages %}
                 <ul class="messagelist">
                     {% for message in messages %}

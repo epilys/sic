@@ -17,6 +17,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from django.utils.functional import cached_property
+from django.utils.safestring import mark_safe
 from django.core.cache import cache
 from django.core.mail import EmailMessage
 from django.contrib.sites.shortcuts import get_current_site
@@ -511,7 +512,9 @@ class Taggregation(models.Model):
         if cached_sparkline is None:
             # Unicode: 9601, 9602, 9603, 9604, 9605, 9606, 9607, 9608
             # bar = "▁▂▃▄▅▆▇█"
-            bar = "▂▃▅▆▇"
+            # bar = "▂▃▅▆▇"
+            bar = "012345678"
+
             barcount = len(bar)
 
             def sparkline(numbers):
@@ -537,7 +540,10 @@ class Taggregation(models.Model):
             else:
                 cached_sparkline = (0, 0, bar[0] * 14)
             cache.set(key, cached_sparkline, timeout=60 * 60 * 4)
-        return cached_sparkline[2]
+
+        cached = cached_sparkline[2]
+        svgs = (f"""<svg class="s"><use xlink:href="#s{i}" /></svg>""" for i in cached)
+        return mark_safe("".join(svgs))
 
     class Meta:
         ordering = ["name"]
