@@ -17,10 +17,10 @@
                 {{story.karma}}
             </div>
         </div>
-        <div class="title{% if story.context_warning %} context-warning{% endif %}">
-            {% if story.context_warning %}
-                <label for="context-warning-{{ story.pk }}">{{ story.context_warning }}</label>&#32;
-                <input id="context-warning-{{ story.pk }}" type="checkbox"{% if show_stories_with_context_warning %} checked="checked"{% endif %}>&#32;
+        <div class="title{% if story.content_warning %} content-warning{% endif %}">
+            {% if story.content_warning %}
+                <label for="content-warning-{{ story.pk }}">{{ story.content_warning }}</label>&#32;
+                <input id="content-warning-{{ story.pk }}" type="checkbox"{% if show_stories_with_content_warning %} checked="checked"{% endif %}>&#32;
             {% endif %}
             <a href="{{story.get_listing_url}}" class="title">{{ story.title }}</a>&#32;
             {% with story.get_domain as domain %}{% if domain is None %}<span class="netloc">{{ domain|default_if_none:"text" }}</span>{% else %}<span class="netloc"><a href="{{ domain.get_absolute_url }}">{{ domain }}</a></span>{% endif %}{% endwith %}

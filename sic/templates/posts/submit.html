@@ -100,12 +100,12 @@
             {% endif %}
             {{ form.description }}
             <a target="_blank" href="{% url 'formatting_help' %}">Formatting help</a>
-            {{ form.context_warning.errors }}
-            {{ form.context_warning.label_tag }}
-            {% if form.context_warning.help_text %}
-                <p class="help-text">{{ form.context_warning.help_text }}</p>
+            {{ form.content_warning.errors }}
+            {{ form.content_warning.label_tag }}
+            {% if form.content_warning.help_text %}
+                <p class="help-text">{{ form.content_warning.help_text }}</p>
             {% endif %}
-            {{ form.context_warning }}
+            {{ form.content_warning }}
         </fieldset>
         <fieldset>
             <legend>metadata</legend>

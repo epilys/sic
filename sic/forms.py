@@ -57,10 +57,10 @@ class SubmitStoryForm(forms.Form):
         required=True,
         help_text=SELECT_WIDGET_HELP_TEXT,
     )
-    context_warning = forms.CharField(
+    content_warning = forms.CharField(
         required=False,
         max_length=30,
-        help_text="Optionally add context warning for sensitive media",
+        help_text="Optionally add content warning for sensitive media",
     )
 
 
@@ -350,7 +350,7 @@ class EditAccountSettings(forms.Form):
     email_messages = forms.BooleanField(initial=True, required=False)
     email_mentions = forms.BooleanField(initial=True, required=False)
     show_avatars = forms.BooleanField(initial=True, required=False)
-    show_stories_with_context_warning = forms.BooleanField(initial=True, required=False)
+    show_stories_with_content_warning = forms.BooleanField(initial=True, required=False)
     show_colors = forms.BooleanField(
         initial=True,
         help_text="If false, UI and tag colors are not shown, and if avatars are displayed, they are in monochrome.",

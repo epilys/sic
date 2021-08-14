@@ -568,20 +568,20 @@ a.title:visited {
   color: #576f9d;
 }
 
-div.context-warning:before{
-  content: "context warning";
+div.content-warning:before{
+  content: "content warning";
   position: absolute;
   font-size: 80%;
   transform: translateY(-100%);
 }
 
-.context-warning a.title,
-.context-warning span.netloc {
+.content-warning a.title,
+.content-warning span.netloc {
   filter: grayscale(100%) opacity(50%) blur(2.5px);
 }
 
-.context-warning input[type="checkbox"]:checked ~ a.title,
-.context-warning input[type="checkbox"]:checked ~ span.netloc {
+.content-warning input[type="checkbox"]:checked ~ a.title,
+.content-warning input[type="checkbox"]:checked ~ span.netloc {
   filter: none;
 }
 
