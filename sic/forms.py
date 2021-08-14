@@ -18,7 +18,7 @@ class TagsSelect(forms.SelectMultiple):
         option = super().create_option(
             name, value, label, selected, index, subindex, attrs
         )
-        option["attrs"]["id"] = f"{value.instance.name}_option"
+        option["attrs"]["id"] = f"{name}-{value.instance.name}-option"
         return option
 
 
@@ -53,6 +53,7 @@ class SubmitStoryForm(forms.Form):
     kind = forms.ModelMultipleChoiceField(
         queryset=StoryKind.objects.all(),
         label="Submission kind",
+        widget=TagsSelect(attrs={"size": "4"}),
         required=True,
         help_text=SELECT_WIDGET_HELP_TEXT,
     )
@@ -213,7 +214,7 @@ class AnnotationForm(forms.Form):
     text.widget.attrs.update({"rows": 3, "placeholder": ""})
 
 
-class ParentsSelect(forms.SelectMultiple):
+class ParentsSelect(TagsSelect):
     def create_option(
         self, name, value, label, selected, index, subindex=None, attrs=None
     ):
@@ -235,6 +236,7 @@ class EditTagForm(forms.Form):
         widget=forms.HiddenInput,
         required=False,
         initial=None,
+        label="",
     )
     name = forms.CharField(required=True, label="Name", max_length=40)
     hex_color = forms.CharField(

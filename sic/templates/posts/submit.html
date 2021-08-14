@@ -9,7 +9,8 @@
             .then((module) => {
             async function run() {
                 let w = await module.default("{% static 'tag_input_wasm_bg.wasm' %}");
-                w.setup();
+                module.setup("tag", "tags", "id_tags", "tags_json");
+                module.setup("kind", "kind", "id_kind", "kind_json");
             }
             return run();
         }).catch(err => {
@@ -20,24 +21,24 @@
 {% endblock %}
 {% block style %}
     <style>
-        #tag-wasm {
+        .tag-wasm {
             border: 1px solid ThreeDLightShadow;
             padding: 5px;
             display: inline;
         }
-        input#tag-wasm-input {
+        input.tag-wasm-input {
             border: none;
             margin-top: 5px;
             margin-bottom: 5px;
         }
-        #tag-wasm, #tag-wasm-tag-list {
+        .tag-wasm, .tag-wasm-tag-list {
             display: inline;
         }
-        #tag-wasm-tag-list {
+        .tag-wasm-tag-list {
             gap: 6px;
         }
-        #tag-wasm-tag-list > * {
-            margin-top: 2px;
+        .tag-wasm-tag-list > * {
+            margin-bottom: 2px;
         }
         span.tag-name {
             vertical-align: middle;
@@ -53,6 +54,7 @@
         }
     </style>
     {{tags|json_script:"tags_json" }}
+    {{kinds|json_script:"kind_json" }}
 {% endblock %}
 {% block content %}
     {% if story %}
@@ -122,7 +124,7 @@
             {{ form.tags.errors }}
             {{ form.tags.label_tag }}
             {% if form.tags.help_text %}
-                <p id="tags-help-text" class="help-text">{{ form.tags.help_text }}</p>
+                <p class="help-text">{{ form.tags.help_text }}</p>
             {% endif %}
             {{ form.tags }}
             {{ form.kind.errors }}

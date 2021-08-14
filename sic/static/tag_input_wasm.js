@@ -207,9 +207,21 @@ function __wbg_adapter_18(arg0, arg1, arg2) {
 }
 
 /**
+* @param {string} singular_name
+* @param {string} field_name
+* @param {string} select_element_id
+* @param {string} tags_json_id
 */
-export function setup() {
-    wasm.setup();
+export function setup(singular_name, field_name, select_element_id, tags_json_id) {
+    var ptr0 = passStringToWasm0(singular_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len0 = WASM_VECTOR_LEN;
+    var ptr1 = passStringToWasm0(field_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len1 = WASM_VECTOR_LEN;
+    var ptr2 = passStringToWasm0(select_element_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len2 = WASM_VECTOR_LEN;
+    var ptr3 = passStringToWasm0(tags_json_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    var len3 = WASM_VECTOR_LEN;
+    wasm.setup(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3);
 }
 
 function handleError(f, args) {
@@ -386,6 +398,9 @@ async function init(input) {
     imports.wbg.__wbg_setonkeyup_160fe2c98f830b4b = function(arg0, arg1) {
         getObject(arg0).onkeyup = getObject(arg1);
     };
+    imports.wbg.__wbg_focus_f774b6957bde8c62 = function() { return handleError(function (arg0) {
+        getObject(arg0).focus();
+    }, arguments) };
     imports.wbg.__wbg_setplaceholder_84d09197aaba132c = function(arg0, arg1, arg2) {
         getObject(arg0).placeholder = getStringFromWasm0(arg1, arg2);
     };
@@ -504,8 +519,8 @@ async function init(input) {
     imports.wbg.__wbindgen_rethrow = function(arg0) {
         throw takeObject(arg0);
     };
-    imports.wbg.__wbindgen_closure_wrapper130 = function(arg0, arg1, arg2) {
-        var ret = makeMutClosure(arg0, arg1, 27, __wbg_adapter_18);
+    imports.wbg.__wbindgen_closure_wrapper143 = function(arg0, arg1, arg2) {
+        var ret = makeMutClosure(arg0, arg1, 30, __wbg_adapter_18);
         return addHeapObject(ret);
     };
 

@@ -12,6 +12,16 @@
  * program. If not, see <https://www.gnu.org/licenses/>
  */
 
+/*
+ * How this thing works:
+ *
+ *
+ * - Keeps a State with currently selected tags and input state
+ * - Setups State in setup() by creating elements, setting up callbacks and initializing State
+ * - Synchronizes <select> choices with State choices by listening to input events
+ * - Updates DOM in State::update_dom
+ */
+
 mod utils;
 
 use std::collections::HashMap;
@@ -40,6 +50,13 @@ struct State {
     current_input: String,
     valid_tags_map: HashMap<String, (u8, u8, u8)>,
     remove_tag_cb: js_sys::Function,
+    field_name: String,
+    select_element_id: String,
+    tag_list_id: String,
+    input_id: String,
+    datalist_id: String,
+    msg_id: String,
+    singular_name: String,
 }
 
 macro_rules! document {
@@ -53,10 +70,10 @@ impl State {
     fn update_datalist(&mut self) -> std::result::Result<(), JsValue> {
         let document = document!();
         let datalist_el = document
-            .get_element_by_id(DATALIST_ID)
+            .get_element_by_id(&self.datalist_id)
             .expect("could not find input element");
         let input_el = document
-            .get_element_by_id(INPUT_ID)
+            .get_element_by_id(&self.input_id)
             .expect("could not find input element");
         let input_el = JsCast::unchecked_into::<HtmlInputElement>(input_el);
         let value = input_el.value();
@@ -92,10 +109,10 @@ impl State {
     fn update_dom(&mut self) -> std::result::Result<(), JsValue> {
         let document = document!();
         let tag_list_el = document
-            .get_element_by_id(TAG_LIST_ID)
+            .get_element_by_id(&self.tag_list_id)
             .expect("could not find input element");
         let msg_el = document
-            .get_element_by_id(MSG_ID)
+            .get_element_by_id(&self.msg_id)
             .expect("could not find msg element");
         msg_el.set_text_content(None);
         while let Some(last_el) = tag_list_el.last_element_child() {
@@ -135,21 +152,23 @@ impl State {
     fn add_tag(&mut self, tag: String) -> std::result::Result<(), JsValue> {
         let document = document!();
         let root_el = document
-            .get_element_by_id("id_tags")
+            .get_element_by_id(&self.select_element_id)
             .expect("could not find tag element");
         let root_el = JsCast::unchecked_into::<HtmlSelectElement>(root_el);
         let input_el = document
-            .get_element_by_id(INPUT_ID)
+            .get_element_by_id(&self.input_id)
             .expect("could not find input element");
         let input_el = JsCast::unchecked_into::<HtmlInputElement>(input_el);
         let msg_el = document
-            .get_element_by_id(MSG_ID)
+            .get_element_by_id(&self.msg_id)
             .expect("could not find msg element");
         if !self.valid_tags_set.contains(&tag) {
-            msg_el.set_text_content(Some("Tag does not exist."));
+            msg_el.set_text_content(Some(&format!("{} does not exist.", &self.singular_name)));
         } else {
             if !self.tags.contains(&tag) {
-                if let Some(opt) = root_el.named_item(&format!("{}_option", tag)) {
+                if let Some(opt) =
+                    root_el.named_item(&format!("{}-{}-option", &self.field_name, tag))
+                {
                     opt.set_selected(true);
                 }
                 self.tags.push(tag);
@@ -165,10 +184,10 @@ impl State {
         if let Some(tag) = self.tags.pop() {
             let document = document!();
             let root_el = document
-                .get_element_by_id("id_tags")
+                .get_element_by_id(&self.select_element_id)
                 .expect("could not find tag element");
             let root_el = JsCast::unchecked_into::<HtmlSelectElement>(root_el);
-            if let Some(opt) = root_el.named_item(&format!("{}_option", tag)) {
+            if let Some(opt) = root_el.named_item(&format!("{}-{}-option", &self.field_name, tag)) {
                 opt.set_selected(false);
             }
             Some(tag)
@@ -180,7 +199,7 @@ impl State {
     fn remove_tag(&mut self, event: web_sys::Event) -> std::result::Result<(), JsValue> {
         let document = document!();
         let root_el = document
-            .get_element_by_id("id_tags")
+            .get_element_by_id(&self.select_element_id)
             .expect("could not find tag element");
         let root_el = JsCast::unchecked_into::<HtmlSelectElement>(root_el);
         if let Some(target) = event.target() {
@@ -188,7 +207,9 @@ impl State {
             if let Some(tag) = el.get_attribute(DATA_CLOSE_ATTR) {
                 if let Some(index) = self.tags.iter().position(|t| t == &tag) {
                     self.tags.remove(index);
-                    if let Some(opt) = root_el.named_item(&format!("{}_option", tag)) {
+                    if let Some(opt) =
+                        root_el.named_item(&format!("{}-{}-option", &self.field_name, tag))
+                    {
                         opt.set_selected(false);
                     }
                     return self.update_dom();
@@ -201,12 +222,12 @@ impl State {
     fn update_from_select(&mut self) -> std::result::Result<(), JsValue> {
         let document = document!();
         let root_el = document
-            .get_element_by_id("id_tags")
+            .get_element_by_id(&self.select_element_id)
             .expect("could not find tag element");
         let root_el = JsCast::unchecked_into::<HtmlSelectElement>(root_el);
         let mut selected = vec![];
         for tag in self.valid_tags_set.iter() {
-            if let Some(opt) = root_el.named_item(&format!("{}_option", tag)) {
+            if let Some(opt) = root_el.named_item(&format!("{}-{}-option", &self.field_name, tag)) {
                 if opt.selected() || opt.has_attribute("selected") {
                     selected.push(tag.to_string());
                 }
@@ -220,7 +241,7 @@ impl State {
     }
 }
 
-fn hex_to_rgb(hex: &str) -> Option<(u8, u8, u8)> {
+fn hex_to_rgb(hex: &str) -> (u8, u8, u8) {
     let mut string = hex.to_string();
     string.make_ascii_lowercase();
 
@@ -233,86 +254,116 @@ fn hex_to_rgb(hex: &str) -> Option<(u8, u8, u8)> {
             let iv = match u64::from_str_radix(value_string, 16) {
                 Ok(v) => v,
                 Err(_) => {
-                    return None;
+                    return (255, 255, 255);
                 }
             };
 
             if iv > 0xfff {
-                return None;
+                return (255, 255, 255);
             }
 
-            return Some((
+            return (
                 (((iv & 0xf00) >> 4) | ((iv & 0xf00) >> 8)) as u8,
                 ((iv & 0xf0) | ((iv & 0xf0) >> 4)) as u8,
                 ((iv & 0xf) | ((iv & 0xf) << 4)) as u8,
-            ));
+            );
         } else if string_char_count == 7 {
             let (_, value_string) = string.split_at(1);
 
             let iv = match u64::from_str_radix(value_string, 16) {
                 Ok(v) => v,
                 Err(_) => {
-                    return None;
+                    return (255, 255, 255);
                 }
             };
 
             if iv > 0xffffff {
-                return None;
+                return (255, 255, 255);
             }
 
-            return Some((
+            return (
                 ((iv & 0xff0000) >> 16) as u8,
                 ((iv & 0xff00) >> 8) as u8,
                 (iv & 0xff) as u8,
-            ));
+            );
         }
     }
-    None
+    (255, 255, 255)
 }
 
 #[wasm_bindgen]
-pub fn setup() -> std::result::Result<(), JsValue> {
+pub fn setup(
+    singular_name: String,
+    field_name: String,
+    select_element_id: String,
+    tags_json_id: String,
+) -> std::result::Result<(), JsValue> {
     utils::set_panic_hook();
+    let tag_list_id = format!("{}-{}", &select_element_id, TAG_LIST_ID);
+    let input_id = format!("{}-{}", &select_element_id, INPUT_ID);
+    let datalist_id = format!("{}-{}", &select_element_id, DATALIST_ID);
+    let msg_id = format!("{}-{}", &select_element_id, MSG_ID);
     /* 1. Create elements */
     let document = document!();
     let root_el = document
-        .get_element_by_id("id_tags")
+        .get_element_by_id(&select_element_id)
         .expect("could not find tag element");
     let root_help_text_el = root_el.previous_element_sibling().expect("");
     let tag_container = document.create_element("div")?;
-    tag_container.set_id("tag-wasm");
+    tag_container.set_id(&format!("{}-tag-wasm", &select_element_id));
+    tag_container.set_attribute("class", "tag-wasm")?;
     tag_container.set_attribute("aria-hidden", "true")?;
-    tag_container.set_inner_html(&format!(r#"<div id="{}"></div>"#, TAG_LIST_ID));
+    tag_container.set_inner_html(&format!(r#"<div id="{}"></div>"#, &tag_list_id));
     let input_el = document.create_element("input")?;
-    input_el.set_id(INPUT_ID);
+    input_el.set_id(&input_id);
+    input_el.set_attribute("class", INPUT_ID)?;
     let input_el = JsCast::unchecked_into::<HtmlInputElement>(input_el);
-    input_el.set_attribute("list", DATALIST_ID)?;
+    input_el.set_attribute("list", &datalist_id)?;
     input_el.set_type("text");
-    input_el.set_placeholder("tag name…");
+    input_el.set_placeholder(&format!("{} name…", &singular_name));
     tag_container.append_with_node_1(&document.create_text_node(" "))?;
     tag_container.append_with_node_1(input_el.as_ref())?;
+    {
+        let input_id = input_id.clone();
+        let onclick_db = Closure::wrap(Box::new(move |_event: web_sys::Event| {
+            JsCast::unchecked_into::<web_sys::HtmlElement>(
+                document!().get_element_by_id(&input_id).expect(""),
+            )
+            .focus()
+            .unwrap();
+        }) as Box<dyn FnMut(_)>);
+        JsCast::unchecked_ref::<web_sys::HtmlElement>(&tag_container)
+            .set_onclick(Some(onclick_db.as_ref().unchecked_ref()));
+        onclick_db.forget();
+    }
     root_help_text_el.before_with_node_1(tag_container.as_ref())?;
     let help_text_el = document.create_element("p")?;
-    help_text_el.set_inner_html("Type tag names, terminated with <kbd>,</kbd>. Press <kbd>Backspace</kbd> repeatedly on empty input to remove last tag.");
+    help_text_el.set_inner_html(&format!("Type {} names, terminated with <kbd>,</kbd>. Press <kbd>Backspace</kbd> repeatedly on empty input to remove last {}.", &singular_name, &singular_name));
     help_text_el.set_attribute("class", "help-text")?;
     help_text_el.set_attribute("aria-hidden", "true")?;
     tag_container.before_with_node_1(help_text_el.as_ref())?;
     let msg_el = document.create_element("div")?;
-    msg_el.set_id(MSG_ID);
+    msg_el.set_id(&msg_id);
+    msg_el.set_attribute("class", MSG_ID)?;
     tag_container.after_with_node_1(msg_el.as_ref())?;
     let after_help_text_el = document.create_element("p")?;
     after_help_text_el.set_text_content(Some("Or, "));
     after_help_text_el.set_attribute("class", "after help-text")?;
     after_help_text_el.set_attribute("aria-hidden", "true")?;
-    tag_container.after_with_node_1(after_help_text_el.as_ref())?;
+    msg_el.after_with_node_1(after_help_text_el.as_ref())?;
     let datalist_el = document.create_element("datalist")?;
-    datalist_el.set_id(DATALIST_ID);
+    datalist_el.set_id(&datalist_id);
+    datalist_el.set_attribute("class", DATALIST_ID)?;
     root_el.after_with_node_1(datalist_el.as_ref())?;
+    document
+        .get_element_by_id(&tag_list_id)
+        .expect("could not find input element")
+        .set_attribute("class", TAG_LIST_ID)?;
 
     /* 2. Initialize State object */
     let valid_tags: JsValue = js_sys::JSON::parse(
         &document
-            .get_element_by_id("tags_json")
+            .get_element_by_id(&tags_json_id)
             .expect("could not find tag json data")
             .text_content()
             .unwrap_or_default(),
@@ -339,13 +390,20 @@ pub fn setup() -> std::result::Result<(), JsValue> {
                     .to_vec()
                     .into_iter()
                     .filter_map(|jv| jv.as_string())
-                    .filter_map(|s| hex_to_rgb(&s)),
+                    .map(|s| hex_to_rgb(&s)),
             )
             .collect::<HashMap<String, (u8, u8, u8)>>(),
         remove_tag_cb: dummy_cb
             .as_ref()
             .unchecked_ref::<js_sys::Function>()
             .clone(),
+        select_element_id,
+        tag_list_id,
+        input_id,
+        datalist_id,
+        msg_id,
+        field_name,
+        singular_name,
     }));
 
     /*
@@ -390,17 +448,17 @@ pub fn setup() -> std::result::Result<(), JsValue> {
     {
         let state = state.clone();
         let cb = Closure::wrap(Box::new(move |event: web_sys::Event| {
+            let mut state_lck = state.lock().unwrap();
             let tag_list_el = document
-                .get_element_by_id(TAG_LIST_ID)
+                .get_element_by_id(&state_lck.tag_list_id)
                 .expect("could not find input element");
             let input_el = document
-                .get_element_by_id(INPUT_ID)
+                .get_element_by_id(&state_lck.input_id)
                 .expect("could not find input element");
             let input_el = JsCast::unchecked_into::<HtmlInputElement>(input_el);
             let event = JsCast::unchecked_into::<KeyboardEvent>(event);
             let value = input_el.value();
-            let mut state_lck = state.lock().unwrap();
-            if event.key() == "," && !value.is_empty() {
+            if (event.key() == "," || event.key() == "Enter") && !value.is_empty() {
                 event.prevent_default();
                 state_lck.add_tag(value.trim().to_string()).unwrap();
             } else if event.key() == "Backspace"

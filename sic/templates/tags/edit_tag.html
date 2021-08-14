@@ -1,7 +1,60 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load static %}
 {% load utils %}
 {% block title %}{% if tag %}edit {{ tag.name }}{% else %}new tag{% endif %} - sic{% endblock %}
+{% block script %}
+    <script>
+        var error = null;
+        import("{% static 'tag_input_wasm.js' %}")
+            .then((module) => {
+            async function run() {
+                let w = await module.default("{% static 'tag_input_wasm_bg.wasm' %}");
+                module.setup("parent", "parents", "id_parents", "parents_json");
+            }
+            return run();
+        }).catch(err => {
+            console.warn("Could not load tag input .wasm file.\n\nThe error is saved in the global variable `error` for more details. The page and submission form will still work.\n\nYou can use `console.dir(error)` to see what happened.");
+            error = err;
+        });
+    </script>
+{% endblock %}
+{% block style %}
+    <style>
+        .tag-wasm {
+            border: 1px solid ThreeDLightShadow;
+            padding: 5px;
+            display: inline;
+        }
+        input.tag-wasm-input {
+            border: none;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .tag-wasm, .tag-wasm-tag-list {
+            display: inline;
+        }
+        .tag-wasm-tag-list {
+            gap: 6px;
+        }
+        .tag-wasm-tag-list > * {
+            margin-bottom: 2px;
+        }
+        span.tag-name {
+            vertical-align: middle;
+        }
+        span.tag-remove {
+            vertical-align: middle;
+            cursor: pointer;
+            user-select: none;
+            margin-left: 1px;
+        }
+        p.help-text.after {
+            margin-bottom: 0;
+        }
+    </style>
+    {{parents|json_script:"parents_json" }}
+{% endblock %}
 {% block content %}
     {% if tag %}
         <h1>edit {{ tag.name }}</h1>
@@ -10,7 +63,14 @@
     {% endif %}
     <form method="post" class="submit-story-form">
         {% csrf_token %}
-        {{ form }}
+        {% for field in form %}
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {% if field.help_text %}
+                <p class="help-text">{{ field.help_text }}</p>
+            {% endif %}
+            {{ field }}
+        {% endfor %}
         <input type="submit" value="Submit">
         {% if show_colors %}
             <p>color suggestions:</p>

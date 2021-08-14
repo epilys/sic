@@ -293,6 +293,7 @@ def submit_story(request):
             "form": form,
             "preview": preview,
             "tags": {t.name: t.hex_color for t in form.fields["tags"].queryset},
+            "kinds": {k.name: k.hex_color for k in form.fields["kind"].queryset},
         },
     )
 
@@ -401,6 +402,7 @@ def edit_story(request, story_pk, slug=None):
             "preview": preview,
             "story": story_obj,
             "tags": {t.name: t.hex_color for t in form.fields["tags"].queryset},
+            "kinds": {k.name: k.hex_color for k in form.fields["kind"].queryset},
         },
     )
 

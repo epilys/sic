@@ -289,6 +289,7 @@ def edit_tag(request, tag_pk, slug=None):
             "tag": tag,
             "form": form,
             "colors": colors,
+            "parents": {p.name: p.hex_color for p in form.fields["parents"].queryset},
         },
     )
 
@@ -321,6 +322,7 @@ def add_tag(request):
         {
             "form": form,
             "colors": colors,
+            "parents": {p.name: p.hex_color for p in form.fields["parents"].queryset},
         },
     )
 
