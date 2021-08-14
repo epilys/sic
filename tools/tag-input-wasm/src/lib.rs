@@ -456,20 +456,21 @@ pub fn setup(
                 .get_element_by_id(&state_lck.input_id)
                 .expect("could not find input element");
             let input_el = JsCast::unchecked_into::<HtmlInputElement>(input_el);
-            let event = JsCast::unchecked_into::<KeyboardEvent>(event);
-            let value = input_el.value();
-            if (event.key() == "," || event.key() == "Enter") && !value.is_empty() {
-                event.prevent_default();
-                state_lck.add_tag(value.trim().to_string()).unwrap();
-            } else if event.key() == "Backspace"
-                && value.is_empty()
-                && tag_list_el.child_element_count() != 0
-                && state_lck.is_key_released
-            {
-                event.prevent_default();
-                if let Some(tag) = state_lck.pop() {
-                    input_el.set_value(tag.as_str());
-                    state_lck.update_dom().unwrap();
+            if let Ok(event) = JsCast::dyn_into::<KeyboardEvent>(event) {
+                let value = input_el.value();
+                if (event.key() == "," || event.key() == "Enter") && !value.is_empty() {
+                    event.prevent_default();
+                    state_lck.add_tag(value.trim().to_string()).unwrap();
+                } else if event.key() == "Backspace"
+                    && value.is_empty()
+                    && tag_list_el.child_element_count() != 0
+                    && state_lck.is_key_released
+                {
+                    event.prevent_default();
+                    if let Some(tag) = state_lck.pop() {
+                        input_el.set_value(tag.as_str());
+                        state_lck.update_dom().unwrap();
+                    }
                 }
             }
             state_lck.is_key_released = false;
