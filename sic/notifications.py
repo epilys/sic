@@ -1,7 +1,6 @@
 from django.db import connections
 from django.db.models.signals import post_save
 from django.db.models.expressions import RawSQL
-from django.db.backends.signals import connection_created
 from django.dispatch import receiver
 from django.core.mail import EmailMessage
 from .apps import SicAppConfig as config
@@ -89,23 +88,6 @@ def notification_created_receiver(
         elif not instance.user.email_notifications:
             return
         instance.send()
-
-
-@receiver(connection_created)
-def mention_setup(sender, connection, **kwargs):
-    with connection.cursor() as cursor:
-        has_mention_tokenizer = False
-        cursor.execute(
-            f"SELECT name FROM sqlite_master WHERE name = '{config.MENTION_TOKENIZER_NAME}'"
-        )
-        try:
-            has_mention_tokenizer = len(cursor.fetchone()) != 0
-        except:
-            pass
-        if not has_mention_tokenizer:
-            cursor.execute(
-                f"CREATE VIRTUAL TABLE IF NOT EXISTS {config.MENTION_TOKENIZER_NAME} USING fts3tokenize('unicode61');"
-            )
 
 
 @receiver(post_save, sender=InvitationRequest)
