@@ -23,7 +23,6 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.dispatch import receiver
-from django.db.backends.signals import connection_created
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 
@@ -1107,87 +1106,6 @@ class Webmention(models.Model):
 
     def __str__(self):
         return f"{self.id} {self.story} {self.url}"
-
-
-@receiver(connection_created)
-def last_modified_triggers(sender, connection, **kwargs):
-    if getattr(migrations, "MIGRATION_OPERATION_IN_PROGRESS", False):
-        return
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_aggregation AFTER UPDATE OF name, description, 'default', discoverable, private ON sic_taggregation FOR EACH ROW
-BEGIN
-    UPDATE sic_taggregation
-    SET last_modified = strftime('%Y-%m-%d %H:%M:%f000', 'now')
-WHERE
-    id = NEW.id;
-END;"""
-        )
-        cursor.execute(
-            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_story_on_insert_comment AFTER INSERT ON sic_comment FOR EACH ROW
-BEGIN
-    UPDATE sic_story
-    SET last_active = NEW.last_modified
-WHERE
-    id = NEW.story_id;
-END;"""
-        )
-        cursor.execute(
-            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_story_on_update_comment AFTER UPDATE OF last_modified ON sic_comment FOR EACH ROW
-BEGIN
-    UPDATE sic_story
-    SET last_active = NEW.last_modified
-WHERE
-    id = NEW.story_id;
-END;"""
-        )
-        cursor.execute(
-            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_story_on_delete_comment AFTER DELETE ON sic_comment FOR EACH ROW
-BEGIN
-    UPDATE sic_story
-    SET last_active = strftime('%Y-%m-%d %H:%M:%f000', 'now')
-WHERE
-    id = OLD.story_id;
-END;"""
-        )
-        cursor.execute(
-            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_story_on_insert_vote AFTER INSERT ON sic_vote FOR EACH ROW
-BEGIN
-    UPDATE sic_story
-    SET last_active = NEW.created
-WHERE
-    id = NEW.story_id;
-END;"""
-        )
-        cursor.execute(
-            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_story_on_update_vote AFTER UPDATE ON sic_vote FOR EACH ROW
-BEGIN
-    UPDATE sic_story
-    SET last_active = strftime('%Y-%m-%d %H:%M:%f000', 'now')
-WHERE
-    id = NEW.story_id;
-END;"""
-        )
-        cursor.execute(
-            """CREATE TEMPORARY TRIGGER IF NOT EXISTS update_last_modified_story_on_delete_vote AFTER DELETE ON sic_vote FOR EACH ROW
-BEGIN
-    UPDATE sic_story
-    SET last_active = strftime ('%Y-%m-%d %H:%M:%f000', 'now')
-WHERE
-    id = OLD.story_id;
-END;"""
-        )
-        cursor.execute(
-            """CREATE TEMPORARY VIEW taggregation_last_active AS
-SELECT
-    MAX(s.last_active) AS last_active,
-    t.taggregation_id AS taggregation_id
-FROM
-    sic_story AS s
-    JOIN taggregation_stories AS t ON t.id = s.id
-GROUP BY
-    t.taggregation_id;"""
-        )
 
 
 class StoryRemoteContent(models.Model):
