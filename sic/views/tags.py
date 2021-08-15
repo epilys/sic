@@ -687,8 +687,8 @@ def view_tag(request, tag_pk, slug=None, page_num=1):
         stories = list(obj.get_stories())
         stories = sorted(
             stories,
-            key=lambda s: s.active_comments().latest("created").created
-            if s.active_comments().exists()
+            key=lambda s: s.active_comments.latest("created").created
+            if s.active_comments.exists()
             else make_aware(datetime.fromtimestamp(0)),
             reverse=ordering == "desc",
         )
@@ -697,7 +697,7 @@ def view_tag(request, tag_pk, slug=None, page_num=1):
         stories = list(obj.get_stories())
         stories = sorted(
             stories,
-            key=lambda s: s.active_comments().count(),
+            key=lambda s: s.active_comments.count(),
             reverse=ordering == "desc",
         )
     else:

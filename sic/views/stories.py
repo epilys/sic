@@ -130,8 +130,8 @@ def all_stories(request, page_num=1):
     elif order_by == "last commented":
         stories = sorted(
             story_obj.order_by("created", "title"),
-            key=lambda s: s.active_comments().latest("created").created
-            if s.active_comments().exists()
+            key=lambda s: s.active_comments.latest("created").created
+            if s.active_comments.exists()
             else s.created,
             reverse=ordering == "desc",
         )
