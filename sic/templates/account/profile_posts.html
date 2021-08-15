@@ -8,7 +8,7 @@
             {% if post.is_story %}
                 {% include "posts/story_list_item.html" with story=post %}
             {% else %}
-                {% include "posts/comment.html" with comment=post reply_form=reply_form shallow=True level=0 %}
+                {% include "posts/comment.html" with comment=post reply_form=reply_form replies=False level=0 %}
             {% endif %}
         {% endfor %}
     </ul>

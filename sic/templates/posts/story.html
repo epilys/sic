@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
+{% load comment %}
 {% block title %}{{story.title}} - sic {% endblock %}
 {% block meta_description %}{% with story.active_comments.count as active_comments %}{% if story.description %}{{ story.user }} wrote&hairsp;: {{story.description_to_plain_text|truncatewords:20}}{% else %}{{story.get_listing_url}}{% endif %} | {{ active_comments }} comment{{ active_comments|pluralize }}{% endwith %}{% endblock %}
 {% block content %}
@@ -60,10 +61,6 @@
         <p>Sign in to post comments.</p>
     {% endif %}
     <ul class="posts">
-        {% for comment in comments.all %}
-            {% if not comment.parent %}
-                {% include "posts/comment.html" with comment=comment reply_form=reply_form level=1 %}
-            {% endif %}
-        {% endfor %}
+        {% render_comments request comments reply_form %}
     </ul>
 {% endblock %}

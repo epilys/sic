@@ -45,7 +45,7 @@
                 {% if request.user.is_authenticated %}
                     {%if request.user == comment.user or request.user.is_moderator %}
                         | <a href="{% url 'edit_comment' comment.pk %}">edit</a>
-                        | <a href="{%url 'delete_comment' comment.pk %}">delete</a>
+                        | <a href="{% url 'delete_comment' comment.pk %}">delete</a>
                     {% endif %}
                 {% endif %}
 
@@ -80,10 +80,10 @@
             {% endif %}
         {% endif %}
         <div class="replies">
-            {% if comment.replies.exists and not shallow and not delete_comment %}
+            {% if replies and not delete_comment %}
                 <ul class="posts" style="--level: {{ level }}">
-                    {% for reply in comment.replies.all %}
-                        {% include "posts/comment.html" with comment=reply edit_comment_pk=edit_comment_pk edit_comment_form=edit_comment_form level=level|add:"1" %}
+                    {% for reply in replies %}
+                        {{ reply }}
                     {% endfor %}
                 </ul>
             {% endif %}

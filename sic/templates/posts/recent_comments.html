@@ -4,7 +4,7 @@
 {% block content %}
     <ul class="posts">
         {% for comment in comments %}
-            {% include "posts/comment.html" with comment=comment reply_form=reply_form shallow=True show_story=True level=0 %}
+            {% include "posts/comment.html" with comment=comment reply_form=reply_form replies=False show_story=True level=0 %}
         {% endfor %}
     </ul>
     <nav class="pagination" aria-label="pagination">

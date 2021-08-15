@@ -366,7 +366,7 @@ def recent_comments(request, page_num=1):
     if page_num == 1 and request.get_full_path() != reverse("recent_comments"):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
         return redirect(reverse("recent_comments"))
-    comments = Comment.objects.order_by("-created").filter(deleted=False)
+    comments = Comment.objects.filter(deleted=False).order_by("-created")
     paginator = Paginator(comments[:40], config.STORIES_PER_PAGE)
     try:
         page = paginator.page(page_num)
@@ -523,7 +523,7 @@ def domain(request, slug, page_num=1):
     order_by_field = ("-" if ordering == "desc" else "") + order_by
     stories = (
         Story.objects.filter(active=True, domain=domain_obj)
-        .prefetch_related("tags", "user")
+        .prefetch_related("tags", "user", "comments")
         .order_by(order_by_field)
     )
     paginator = Paginator(stories, config.STORIES_PER_PAGE)

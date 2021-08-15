@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import string
 import uuid
 import abc
+import functools
 from django.db import models, connection, migrations
 from django.db.models.expressions import RawSQL
 from django.contrib.auth.models import (
@@ -242,12 +243,18 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.user} {self.created}"
 
+    @staticmethod
+    @functools.lru_cache(None)
+    def content_type():
+        return ContentType.objects.get(app_label="sic", model="comment")
+
+    @cached_property
     def last_log_entry(self):
         from .moderation import ModerationLogEntry
 
         entry = ModerationLogEntry.objects.filter(
             object_id=self.id,
-            content_type=ContentType.objects.get(app_label="sic", model="comment"),
+            content_type_id=Comment.content_type().id,
         ).latest("action_time")
 
         return entry
@@ -331,7 +338,7 @@ WHERE
     root_tag_id = %s""",
                     [self.pk],
                 )
-            ).prefetch_related("tags", "user")
+            ).prefetch_related("tags", "user", "comments")
         return Story.objects.filter(
             tags__pk__in=RawSQL(
                 """WITH RECURSIVE w (
@@ -362,7 +369,7 @@ WHERE
     depth <= %s""",
                 [self.pk, depth],
             )
-        ).prefetch_related("tags", "user")
+        ).prefetch_related("tags", "user", "comments")
 
     @cached_property
     def slugify(self):
@@ -449,7 +456,7 @@ class Taggregation(models.Model):
                 "SELECT id FROM taggregation_stories WHERE taggregation_id = %s",
                 [self.pk],
             )
-        ).prefetch_related("tags", "user")
+        ).prefetch_related("tags", "user", "comments")
 
     @cached_property
     def vertices(self):
@@ -466,7 +473,7 @@ class Taggregation(models.Model):
         if not taggregations.exists():
             return {
                 "stories": Story.objects.filter(active=True).prefetch_related(
-                    "tags", "user"
+                    "tags", "user", "comments"
                 ),
                 "taggregations": Taggregation.objects.none(),
             }
@@ -477,7 +484,7 @@ class Taggregation(models.Model):
                 "SELECT DISTINCT s.id AS id FROM taggregation_stories AS s JOIN sic_taggregation as agg ON s.taggregation_id = agg.id WHERE agg.'default' = 1",
                 [],
             )
-        ).prefetch_related("tags", "user")
+        ).prefetch_related("tags", "user", "comments")
         return {
             "stories": stories,
             "taggregations": taggregations,
@@ -982,10 +989,12 @@ class User(PermissionsMixin, AbstractBaseUser):
                     "SELECT DISTINCT s.id AS id FROM taggregation_stories AS s JOIN sic_user_taggregation_subscriptions as subs WHERE s.taggregation_id = subs.taggregation_id AND subs.user_id = %s",
                     [self.pk],
                 )
-            ).prefetch_related("tags", "user")
+            ).prefetch_related("tags", "user", "comments")
             taggregations = self.taggregation_subscriptions.all()
         else:
-            stories = Story.objects.filter(active=True).prefetch_related("tags", "user")
+            stories = Story.objects.filter(active=True).prefetch_related(
+                "tags", "user", "comments"
+            )
         return {
             "stories": stories,
             "taggregations": taggregations,
