@@ -8,6 +8,7 @@ import html
 import re
 import os
 import sqlite3
+import threading
 
 
 def escape_fts(query):
@@ -23,15 +24,16 @@ def escape_fts(query):
 
 def run_once(f):
     def wrapper(*args, **kwargs):
-        if not wrapper.has_run:
+        if not hasattr(wrapper.has_run, "value") or not wrapper.has_run.value:
             try:
-                wrapper.has_run = f(*args, **kwargs)
+                wrapper.has_run.value = f(*args, **kwargs)
             except Exception as exc:
                 wrapper.previous_exception = exc
                 raise exc from None
-        return wrapper.has_run
+        return wrapper.has_run.value
 
-    wrapper.has_run = None
+    wrapper.has_run = threading.local()
+    wrapper.has_run.__setattr__("value", False)
     wrapper.previous_exception = None
     return wrapper
 
