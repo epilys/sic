@@ -125,6 +125,7 @@ class Story(models.Model):
         blank=False,
     )
     content_warning = models.CharField(null=True, blank=False, max_length=30)
+    karma = models.IntegerField(null=False, blank=True, default=0)
 
     class Meta:
         verbose_name_plural = "stories"
@@ -144,7 +145,7 @@ class Story(models.Model):
         )
 
     @cached_property
-    def karma(self):
+    def karma_(self):
         return self.votes.filter(comment_id=None).count()
 
     @cached_property
@@ -236,6 +237,7 @@ class Comment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True)
     text = models.TextField(null=True, blank=False)
+    karma = models.IntegerField(null=False, blank=True, default=0)
 
     def __str__(self):
         return f"{self.user} {self.created}"
@@ -262,7 +264,7 @@ class Comment(models.Model):
         return int(slug.translate(url_decode_translation))
 
     @cached_property
-    def karma(self):
+    def karma_(self):
         return self.votes.count()
 
     @cached_property
@@ -927,7 +929,7 @@ class User(PermissionsMixin, AbstractBaseUser):
         return self.username if self.username else self.email
 
     @cached_property
-    def karma(self):
+    def karma_(self):
         return Vote.objects.filter(story__user__id=self.pk, comment_id=None).count()
 
     def get_absolute_url(self):
