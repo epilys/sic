@@ -391,6 +391,14 @@ WHERE
             kwargs={"tag_pk": self.pk, "slug": self.slugify},
         )
 
+    def stories_count(self):
+        key = f"{self.pk}-stories-count"
+        cached = cache.get(key)
+        if cached is None:
+            cached = self.stories.count()
+            cache.set(key, cached, timeout=60 * 60 * 24)
+        return cached
+
     class Meta:
         ordering = ["name"]
 

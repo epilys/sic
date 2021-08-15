@@ -80,7 +80,7 @@
                     <span><code>{{ agg.subscribers.count }}</code> subscribers</span>
                     <ul class="tags">
                         {% for tag in agg.vertices %}
-                            <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><div class="tag"><span class="tag-name"><a href="{{ tag.get_absolute_url }}">{{ tag.name }} {{ tag.stories.count }}</a></span></div></li>
+                            <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><div class="tag"><span class="tag-name"><a href="{{ tag.get_absolute_url }}">{{ tag.name }} {{ tag.stories_count }}</a></span></div></li>
                         {% endfor %}
                     </ul>
                     <span class="created">created {{ agg.created|naturaltime }}</span>

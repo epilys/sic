@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.timezone import make_aware
 from django.utils.http import urlencode
 from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 from django.views.decorators.clickjacking import xframe_options_exempt
 from sic.models import Tag, Taggregation, TaggregationHasTag
 from sic.forms import (
@@ -49,7 +50,7 @@ def browse_tags(request, page_num=1):
     else:
         tags = sorted(
             Tag.objects.all(),
-            key=lambda t: t.stories.count(),
+            key=lambda t: t.stories_count(),
             reverse=ordering == "desc",
         )
     paginator = Paginator(tags, 250)
