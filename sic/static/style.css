@@ -1119,6 +1119,12 @@ article>fieldset>ul {
   hyphens: auto;
   word-break: break-word;
 }
+article>fieldset>blockquote {
+  border-left: .3rem solid darkgray;
+  padding-left: .3rem;
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+}
 
 article>fieldset>legend {
   font-weight: normal;
@@ -1521,6 +1527,10 @@ pre {
   padding: 2px 7px;
   max-width: clamp(10vw, 66ch, var(--main-width));
   min-width: clamp(10vw, 66ch, var(--main-width));
+}
+
+blockquote {
+  max-width: clamp(10vw, 66ch, var(--main-width));
 }
 
 
