@@ -3,9 +3,10 @@ from django.contrib.auth.models import Permission
 from django.forms import ModelForm
 from django.forms.widgets import TextInput
 from django.utils.safestring import mark_safe
-from .models import *
-from .mail import Digest
-from .moderation import ModerationLogEntry
+from sic.models import *
+from sic.mail import Digest
+from sic.moderation import ModerationLogEntry
+from sic.jobs import Job, JobKind
 
 
 def hex_color_html(self, obj):
@@ -197,6 +198,35 @@ class WebmentionAdmin(ModelAdmin):
     list_display = ["story", "url", "created", "was_received"]
 
 
+class JobAdmin(ModelAdmin):
+    def success(_, obj):
+        return not obj.failed
+
+    success.boolean = True
+    ordering = ["-created", "-last_run"]
+    list_display = ["__str__", "created", "active", "periodic", "success", "last_run"]
+    list_filter = [
+        "kind",
+        "active",
+        "failed",
+    ]
+
+
+class JobKindAdmin(ModelAdmin):
+    def resolves(_, obj):
+        from django.utils.module_loading import import_string
+
+        try:
+            _ = import_string(obj.dotted_path)
+            return True
+        except ImportError:
+            return False
+
+    resolves.boolean = True
+    ordering = ["-created", "-last_modified"]
+    list_display = ["__str__", "created", "last_modified", "resolves"]
+
+
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Digest, DigestAdmin)
 admin.site.register(Domain, DomainAdmin)
@@ -220,6 +250,8 @@ admin.site.register(Vote, VoteAdmin)
 admin.site.register(ModerationLogEntry, ModerationLogEntryAdmin)
 admin.site.register(InvitationRequest, InvitationRequestAdmin)
 admin.site.register(Webmention, WebmentionAdmin)
+admin.site.register(Job, JobAdmin)
+admin.site.register(JobKind, JobKindAdmin)
 
 
 @admin.register(Permission)

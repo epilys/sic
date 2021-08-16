@@ -81,6 +81,7 @@ class SicAppConfig(AppConfig):
         import sic.notifications
         import sic.webmention
         import sic.mail
+        import sic.jobs
 
     @staticmethod
     @lru_cache(maxsize=None)
