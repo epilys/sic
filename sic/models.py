@@ -955,7 +955,7 @@ class User(PermissionsMixin, AbstractBaseUser):
         return self.username if self.username else self.email
 
     @cached_property
-    def karma_(self):
+    def karma(self):
         return Vote.objects.filter(story__user__id=self.pk, comment_id=None).count()
 
     def get_absolute_url(self):
