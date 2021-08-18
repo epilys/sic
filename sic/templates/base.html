@@ -131,6 +131,11 @@
                     </symbol>
                 </svg>
             {% endspaceless %}
+            {% if not request.user.is_authenticated %}
+                <ul class="messagelist">
+                  <li style="padding: 0 1rem;display: grid;grid-template-columns: 1fr;grid-template-rows: auto auto;width: 100%;align-content: center;justify-items: center;"><p style="text-align:center;"><strong><code>[sic]</code></strong> is a community about anything that piques your curiosity and interest.<br/>Read <a href="{% url 'signup_help' %}">about getting an account here</a>.</p></li>
+                </ul>
+            {% endif %}
             {% if messages %}
                 <ul class="messagelist">
                     {% for message in messages %}
