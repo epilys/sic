@@ -76,7 +76,8 @@ impl State {
             .get_element_by_id(&self.input_id)
             .expect("could not find input element");
         let input_el = JsCast::unchecked_into::<HtmlInputElement>(input_el);
-        let value = input_el.value();
+        let mut value = input_el.value();
+        value.make_ascii_lowercase();
         if value.is_empty() || value.trim() == self.current_input.trim() {
             if value.is_empty() {
                 datalist_el.set_text_content(None);
@@ -88,7 +89,7 @@ impl State {
             .valid_tags_set
             .iter()
             .filter_map(|t| {
-                if t.starts_with(&value) && t != &value {
+                if t.contains(&value) {
                     Some(t.trim())
                 } else {
                     None
