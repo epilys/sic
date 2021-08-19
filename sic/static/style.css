@@ -1159,6 +1159,7 @@ h1, h2, h3, h4, h5, h6 {
 
 table {
   width: max-content;
+  word-break: break-word;
   max-width: var(--main-width);
 }
 

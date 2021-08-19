@@ -2,6 +2,7 @@ from html.parser import HTMLParser
 from datetime import datetime
 import hashlib
 import urllib.request
+from django.db import transaction
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
@@ -14,10 +15,12 @@ from sic.models import Story, StoryKind, Comment, Notification, StoryRemoteConte
 from sic.forms import (
     SubmitCommentForm,
     SubmitStoryForm,
+    EditStoryForm,
     OrderByForm,
 )
 from sic.markdown import comment_to_html
 from sic.views.utils import form_errors_as_string, Paginator, InvalidPage
+from sic.moderation import ModerationLogEntry
 
 
 def story(request, story_pk, slug=None):
@@ -165,6 +168,7 @@ all_stories.ORDER_BY_FIELDS = ["hotness", "created", "last commented"]
 
 
 @login_required
+@transaction.atomic
 def submit_story(request):
     user = request.user
     preview = None
@@ -258,6 +262,7 @@ def submit_story(request):
 
 
 @login_required
+@transaction.atomic
 def upvote_story(request, story_pk):
     if request.method == "POST":
         user = request.user
@@ -281,6 +286,7 @@ def upvote_story(request, story_pk):
 
 
 @login_required
+@transaction.atomic
 def edit_story(request, story_pk, slug=None):
     user = request.user
     preview = None
@@ -311,9 +317,9 @@ def edit_story(request, story_pk, slug=None):
                     )
             else:
                 messages.add_message(request, messages.WARNING, "URL field is empty.")
-            form = SubmitStoryForm(qdict)
+            form = EditStoryForm(qdict)
         elif "preview" in request.POST:
-            form = SubmitStoryForm(request.POST)
+            form = EditStoryForm(request.POST)
             form.is_valid()
             preview = {
                 "description": comment_to_html(request.POST["description"]),
@@ -324,8 +330,16 @@ def edit_story(request, story_pk, slug=None):
                 "tags": form.cleaned_data["tags"],
             }
         else:
-            form = SubmitStoryForm(request.POST)
+            form = EditStoryForm(request.POST)
             if form.is_valid():
+                title_before = story_obj.title
+                desc_before = story_obj.description
+                url_before = story_obj.url
+                cw_before = story_obj.content_warning
+                pubdate_before = story_obj.publish_date
+                tags_before = list(story_obj.tags.all())
+                kinds_before = list(story_obj.kind.all())
+
                 story_obj.title = form.cleaned_data["title"]
                 story_obj.description = form.cleaned_data["description"]
                 story_obj.url = form.cleaned_data["url"]
@@ -334,6 +348,36 @@ def edit_story(request, story_pk, slug=None):
                 story_obj.kind.set(form.cleaned_data["kind"])
                 story_obj.publish_date = form.cleaned_data["publish_date"]
                 story_obj.content_warning = form.cleaned_data["content_warning"]
+
+                if title_before != form.cleaned_data["title"]:
+                    ModerationLogEntry.edit_story_title(
+                        title_before, story_obj, user, form.cleaned_data["reason"]
+                    )
+                if desc_before != form.cleaned_data["description"]:
+                    ModerationLogEntry.edit_story_desc(
+                        desc_before, story_obj, user, form.cleaned_data["reason"]
+                    )
+                if url_before != form.cleaned_data["url"]:
+                    ModerationLogEntry.edit_story_url(
+                        url_before, story_obj, user, form.cleaned_data["reason"]
+                    )
+                if cw_before != form.cleaned_data["content_warning"]:
+                    ModerationLogEntry.edit_story_cw(
+                        cw_before, story_obj, user, form.cleaned_data["reason"]
+                    )
+                if pubdate_before != form.cleaned_data["publish_date"]:
+                    ModerationLogEntry.edit_story_pubdate(
+                        pubdate_before, story_obj, user, form.cleaned_data["reason"]
+                    )
+                if tags_before != list(form.cleaned_data["tags"]):
+                    ModerationLogEntry.edit_story_tags(
+                        tags_before, story_obj, user, form.cleaned_data["reason"]
+                    )
+                if kinds_before != list(form.cleaned_data["kind"]):
+                    ModerationLogEntry.edit_story_kind(
+                        kinds_before, story_obj, user, form.cleaned_data["reason"]
+                    )
+
                 story_obj.save()
                 return redirect(story_obj.get_absolute_url())
             error = form_errors_as_string(form.errors)
@@ -341,7 +385,7 @@ def edit_story(request, story_pk, slug=None):
                 request, messages.ERROR, f"Invalid form. Error: {error}"
             )
     else:
-        form = SubmitStoryForm(
+        form = EditStoryForm(
             initial={
                 "title": story_obj.title,
                 "description": story_obj.description,

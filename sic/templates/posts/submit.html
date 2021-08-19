@@ -134,8 +134,19 @@
             {% endif %}
             {{ form.kind }}
         </fieldset>
+        {% if form.reason %}
+            <fieldset>
+                <legend>modifications</legend>
+                {{ form.reason.errors }}
+                {{ form.reason.label_tag }}
+                {% if form.reason.help_text %}
+                    <p class="help-text">{{ form.reason.help_text }}</p>
+                {% endif %}
+                {{ form.reason }}
+            </fieldset>
+        {% endif %}
         <div class="button-flex-box">
-            <input class="heavy-positive-action" type="submit" value="Submit">
+            <input class="heavy-positive-action" type="submit" value="{% if story %}Save{% else %}Submit{% endif %}">
             <input type="submit" name="preview" value="Preview">
         </div>
     </form>

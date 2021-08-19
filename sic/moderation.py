@@ -1,8 +1,8 @@
+import json
+import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from .models import User, Comment, Story
-
-import json
+from sic.models import User, Comment, Story
 
 
 class ModerationLogEntry(models.Model):
@@ -68,7 +68,7 @@ class ModerationLogEntry(models.Model):
     def edit_story_title(before_text: str, story_obj: Story, user: User, reason):
         return ModerationLogEntry.objects.create(
             user=user,
-            action="Edited story title",
+            action=f"Set story title to {story_obj.title}",
             reason=reason,
             change=json.dumps(
                 {
@@ -84,7 +84,7 @@ class ModerationLogEntry(models.Model):
     def edit_story_desc(before_text: str, story_obj: Story, user: User, reason):
         return ModerationLogEntry.objects.create(
             user=user,
-            action="Edited story description",
+            action=f"Set story description to {story_obj.description}",
             reason=reason,
             change=json.dumps(
                 {
@@ -100,12 +100,80 @@ class ModerationLogEntry(models.Model):
     def edit_story_url(before_text: str, story_obj: Story, user: User, reason):
         return ModerationLogEntry.objects.create(
             user=user,
-            action="Edited story url",
+            action=f"Set story url to {story_obj.url}",
             reason=reason,
             change=json.dumps(
                 {
                     "before": before_text,
                     "after": story_obj.url,
+                }
+            ),
+            content_type=ContentType.objects.get(app_label="sic", model="story"),
+            object_id=str(story_obj.pk),
+        )
+
+    @staticmethod
+    def edit_story_cw(before_text: str, story_obj: Story, user: User, reason):
+        return ModerationLogEntry.objects.create(
+            user=user,
+            action=f"""Set story's content warning to "{story_obj.content_warning}" """,
+            reason=reason,
+            change=json.dumps(
+                {
+                    "before": before_text,
+                    "after": story_obj.content_warning,
+                }
+            ),
+            content_type=ContentType.objects.get(app_label="sic", model="story"),
+            object_id=str(story_obj.pk),
+        )
+
+    @staticmethod
+    def edit_story_pubdate(
+        before_date: datetime.datetime, story_obj: Story, user: User, reason
+    ):
+        return ModerationLogEntry.objects.create(
+            user=user,
+            action=f"Set story's publish date to {story_obj.publish_date}",
+            reason=reason,
+            change=json.dumps(
+                {
+                    "before": before_date,
+                    "after": story_obj.publish_date,
+                }
+            ),
+            content_type=ContentType.objects.get(app_label="sic", model="story"),
+            object_id=str(story_obj.pk),
+        )
+
+    @staticmethod
+    def edit_story_tags(tags_before, story_obj: Story, user: User, reason):
+        tags_after = list(story_obj.tags.all())
+        return ModerationLogEntry.objects.create(
+            user=user,
+            action=f"""Edited story tags from ("{'", "'.join(t.name for t in tags_before)}") to ("{'", "'.join(t.name for t in tags_after)}")""",
+            reason=reason,
+            change=json.dumps(
+                {
+                    "before": [t.id for t in tags_before],
+                    "after": [t.id for t in tags_after],
+                }
+            ),
+            content_type=ContentType.objects.get(app_label="sic", model="story"),
+            object_id=str(story_obj.pk),
+        )
+
+    @staticmethod
+    def edit_story_kind(kinds_before, story_obj: Story, user: User, reason):
+        kinds_after = list(story_obj.kind.all())
+        return ModerationLogEntry.objects.create(
+            user=user,
+            action=f"""Edited story kind from ("{'", "'.join(k.name for k in kinds_before)}") to ("{'", "'.join(k.name for k in kinds_after)}")""",
+            reason=reason,
+            change=json.dumps(
+                {
+                    "before": [k.id for k in kinds_before],
+                    "after": [k.id for k in kinds_after],
                 }
             ),
             content_type=ContentType.objects.get(app_label="sic", model="story"),

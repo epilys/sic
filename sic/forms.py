@@ -64,6 +64,16 @@ class SubmitStoryForm(forms.Form):
     )
 
 
+class EditStoryForm(SubmitStoryForm):
+    reason = forms.CharField(
+        required=False,
+        help_text="Optionally describe the changes you made",
+        widget=forms.Textarea(
+            {"rows": 5, "cols": 15, "placeholder": "reason for edit"}
+        ),
+    )
+
+
 class SubmitCommentForm(forms.Form):
     text = forms.CharField(
         required=True, label="Comment", min_length=1, widget=forms.Textarea
