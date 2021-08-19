@@ -1128,24 +1128,6 @@ class Notification(models.Model):
         )
 
 
-class Webmention(models.Model):
-    id = models.AutoField(primary_key=True)
-    story = models.ForeignKey(
-        Story, related_name="webmentions", on_delete=models.CASCADE
-    )
-    url = models.URLField(null=False, blank=False)
-    created = models.DateTimeField(auto_now_add=True)
-    was_received = models.BooleanField(
-        default=True, null=False
-    )  # did we sent it or did we receive it?
-
-    class Meta:
-        ordering = ["-created", "story"]
-
-    def __str__(self):
-        return f"{self.id} {self.story} {self.url}"
-
-
 class StoryRemoteContent(models.Model):
     story = models.OneToOneField(
         "Story",

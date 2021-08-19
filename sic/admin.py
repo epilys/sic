@@ -7,6 +7,7 @@ from sic.models import *
 from sic.mail import Digest
 from sic.moderation import ModerationLogEntry
 from sic.jobs import Job, JobKind
+from sic.webmention import Webmention
 
 
 def hex_color_html(self, obj):
@@ -198,12 +199,26 @@ class WebmentionAdmin(ModelAdmin):
     list_display = ["story", "url", "created", "was_received"]
 
 
+@admin.action(description="Run jobs")
+def run_jobs(modeladmin, request, queryset):
+    for job in queryset.all():
+        job.run()
+
+
+class ArticleAdmin(admin.ModelAdmin):
+    list_display = ["title", "status"]
+    ordering = ["title"]
+
+
 class JobAdmin(ModelAdmin):
     def success(_, obj):
+        if obj.last_run is None:
+            return None
         return not obj.failed
 
     success.boolean = True
     ordering = ["-created", "-last_run"]
+    actions = [run_jobs]
     list_display = ["__str__", "created", "active", "periodic", "success", "last_run"]
     list_filter = [
         "kind",

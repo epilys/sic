@@ -9,6 +9,7 @@
         <link rel="preload" href="/static/Inter-Regular.woff2" as="font" type="font/woff2" crossorigin>
         <link rel="preload" href="/static/Inter-Bold.woff2" as="font" type="font/woff2" crossorigin>
         <link rel="stylesheet" href="/static/style.css">
+        <link href="{% url 'webmention_endpoint' %}" rel="webmention" />
         {% block script %}{% endblock %}
         {% if not show_colors %}
             <style>

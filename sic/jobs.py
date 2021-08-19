@@ -103,7 +103,7 @@ class Job(models.Model):
         return f"{self.kind} {self.data}"
 
     def run(self):
-        if not self.active or not self.kind_id:
+        if not self.kind_id:
             return
         self.last_run = make_aware(datetime.now())
         try:
@@ -112,7 +112,8 @@ class Job(models.Model):
                 self.active = False
             if isinstance(res, str):
                 self.logs += res
-            self.save(update_fields=["last_run", "active", "logs"])
+            self.failed = False
+            self.save(update_fields=["last_run", "failed", "active", "logs"])
         except Exception as exc:
             if self.logs is None:
                 self.logs = ""
