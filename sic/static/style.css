@@ -396,7 +396,7 @@ template {
 
 html, body {
   font-family: "Inter", sans-serif;
-  font-size: 14px;
+  font-size: 1.0625rem;
   width: 100%;
   height: 100%;
   background: var(--bg-color);
@@ -612,7 +612,7 @@ header>* {
 }
 
 header>div.logo {
-  transform: scale(175%);
+  transform: scale(1.75);
 }
 header div.logo {
   font-weight: 800;
@@ -633,6 +633,15 @@ header .logo a:visited {
   background-color: var(--theme-color);
   padding: 5px;
   padding-bottom: 6px;
+  padding-right: 4px;
+}
+
+header .logo a:hover::after {
+    content: "index";
+    font-size: 41%;
+    position: absolute;
+    transform: translateX(-115%) translateY(340%);
+    color: black;
 }
 
 form.submit-story-form,form.submit-story-form>fieldset {
@@ -755,7 +764,7 @@ article.story>header>.votes {
   display: inline-block;
   margin-bottom: -5px;
   margin-top: -5px;
-  vertical-align: top;
+  vertical-align: middle;
   margin: 0;
   margin-right: 5px;
   cursor: zoom-in;
@@ -973,6 +982,7 @@ ul.tags {
 
 ul.tags li.tag:not(:nth-last-child(1)) {
   margin-right: 3px;
+  margin-bottom: 2px;
 }
 
 .tag {
@@ -980,10 +990,10 @@ ul.tags li.tag:not(:nth-last-child(1)) {
   border: 1px solid #0000005e;
   border-radius: 5px;
   color: #555;
-  font-size: 8pt;
+  font-size: .9rem;
   padding: 0px 0.4em 1px 0.4em;
+  padding: 1px 5.4px 1px 4.4px;
   text-decoration: none;
-  vertical-align: middle;
 
   --aa-brightness: ((var(--red) * 299) + (var(--green) * 587) + (var(--blue) * 114)) / 1000;
   --aa-color: calc((var(--aa-brightness) - 128) * -1000);
@@ -1132,7 +1142,7 @@ article>fieldset>legend {
 
 ul.messagelist {
     padding: 0;
-    margin: 0;
+    margin: 0 0 .5rem 0;
     list-style: none;
 }
 
@@ -1238,7 +1248,6 @@ span.netloc:after {
 span.tag-name a {
   text-decoration: none;
   color: inherit;
-  vertical-align:middle;
 }
 
 span.build, span.build a:visited {
@@ -1386,7 +1395,7 @@ ul.inline-comma-sep-list>li>details>summary+ul.inline-comma-sep-list{
 }
 
 div.showing-aggregations {
-  font-size: 80%;
+  font-size: medium;
   display: inline-block;
   margin-bottom: .5rem;
 }
@@ -1400,7 +1409,12 @@ body>header>div.logo {
     font-size: 70%;
     padding: 3px;
     padding-bottom: 4px;
+    display: inline-block;
   }
+  header .logo a:hover::after {
+    content: "";
+  }
+
   body>header {
     font-size: 90%;
     margin: 0;
@@ -1560,7 +1574,7 @@ p.help-text {
 .sparklines {
     /*color: var(--theme-color);*/
     user-select: none;
-  height: 9.5px;
+  width: max(6rem, 80px);
   white-space: nowrap;
   text-align: center;
   margin-top: 2px;

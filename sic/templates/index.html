@@ -11,7 +11,7 @@
             margin-top:0;
             width: max-content;
             max-width: var(--main-width);
-            font-size: 12px;
+            font-size: .92rem;
             justify-self: center;
             justify-content: center;
         }
@@ -19,7 +19,7 @@
         div.aggregations>div {
             display: grid;
             grid-template-rows: 1fr max-content;
-            min-width: 80px;
+            min-width: max(80px, 6rem);
             max-width: 0px;
         }
         div.aggregations>div>div {
@@ -52,7 +52,7 @@
 {% block content %}
     {% if aggregations %}
         {% if not has_subscriptions and request.user.is_authenticated %}<div class="showing-aggregations">You have no subscriptions, viewing default aggregations.</div>
-        {% elif not has_subscriptions %}<div class="showing-aggregations">You are not logged in, viewing default aggregations.</div>{% endif %}
+        {% elif not request.user.is_authenticated %}{% endif %}
     {% elif aggregation %}
         <div class="showing-aggregations">Showing stories from <a href="{{ aggregation.get_absolute_url }}">{{ aggregation.name }}</a>. <nav style="display: inline-block"><ul><li><a href="{{ aggregation.get_details_url }}">view details</a></li></ul></nav></div>
     {% else %}
