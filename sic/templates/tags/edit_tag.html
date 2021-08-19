@@ -57,7 +57,7 @@
 {% endblock %}
 {% block content %}
     {% if tag %}
-        <h1>edit {{ tag.name }}</h1>
+        <h1>edit &ldquo;{{ tag.name }}&rdquo;</h1>
     {% else %}
         <h1>new tag</h1>
     {% endif %}
@@ -71,7 +71,9 @@
             {% endif %}
             {{ field }}
         {% endfor %}
-        <input type="submit" value="Submit">
+        <div class="button-flex-box">
+            <input class="heavy-positive-action" type="submit" value="{% if tag %}Save{% else %}Submit{% endif %}">
+        </div>
         {% if show_colors %}
             <p>color suggestions:</p>
             <ul class="color-list">

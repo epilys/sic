@@ -20,6 +20,9 @@
         tbody tr:nth-child(6n+1) td, tbody tr:nth-child(6n+2) td, tbody tr:nth-child(6n+3) td {
             border-color: #bab9b9;
         }
+        span.no-reason {
+            color: #585858;
+        }
     </style>
 {% endblock %}
 {% block content %}
@@ -39,7 +42,7 @@
                     <tr>
                         <td><p>{{ log.action_time|naturaltime }}</p></td>
                         <td><p><a href="{{ log.user.get_absolute_url }}">{{ log.user }}</a>{% if log.user.is_admin %} (Admin){% elif log.user.is_moderator %} (Moderator){% endif %}</p></td>
-                        <td><p>{% if edited_object %}<a href="{{ edited_object.get_absolute_url }}">{{ edited_object }}</a>{% endif %}</p></td>
+                        <td><p>{% if edited_object %}{{ log.content_type.name }} &ldquo;<a href="{{ edited_object.get_absolute_url }}">{{ edited_object }}</a>&rdquo;{% endif %}</p></td>
                     </tr>
                     <tr>
                         <td></td>
@@ -49,7 +52,7 @@
                     <tr>
                         <td></td>
                         <td></td>
-                        <td><p><b>Reason</b>: {{ log.reason }}</p></td>
+                        <td><p>{% if log.reason %}<b>Reason</b>{% else %}<span class="no-reason">Reason</span>{% endif %}: {{ log.reason }}</p></td>
                     </tr>
                 {% endwith %}
             {% endfor %}

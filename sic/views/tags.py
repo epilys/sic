@@ -16,6 +16,7 @@ from django.core.cache import cache
 from django.views.decorators.clickjacking import xframe_options_exempt
 from sic.models import Tag, Taggregation, TaggregationHasTag
 from sic.forms import (
+    NewTagForm,
     EditTagForm,
     EditTaggregationForm,
     OrderByForm,
@@ -24,6 +25,7 @@ from sic.forms import (
 )
 from sic.views.utils import form_errors_as_string, Paginator, InvalidPage
 from sic.apps import SicAppConfig as config
+from sic.moderation import ModerationLogEntry
 
 
 def browse_tags(request, page_num=1):
@@ -250,6 +252,7 @@ def taggregation_change_subscription(request, taggregation_pk):
 
 
 @login_required
+@transaction.atomic
 def edit_tag(request, tag_pk, slug=None):
     try:
         tag = Tag.objects.get(pk=tag_pk)
@@ -262,9 +265,22 @@ def edit_tag(request, tag_pk, slug=None):
     if request.method == "POST":
         form = EditTagForm(request.POST)
         if form.is_valid():
+            name_before = tag.name
+            parents_before = list(tag.parents.all())
+
             tag.name = form.cleaned_data["name"]
             tag.hex_color = form.cleaned_data["hex_color"]
             tag.parents.set(form.cleaned_data["parents"])
+
+            if name_before != tag.name:
+                ModerationLogEntry.edit_tag_name(
+                    name_before, tag, request.user, form.cleaned_data["reason"]
+                )
+            if parents_before != list(form.cleaned_data["parents"]):
+                ModerationLogEntry.edit_tag_parents(
+                    parents_before, tag, request.user, form.cleaned_data["reason"]
+                )
+
             tag.save()
             if "next" in request.GET:
                 return redirect(request.GET["next"])
@@ -302,7 +318,7 @@ def add_tag(request):
         raise PermissionDenied("You don't have permissions to add tags.")
     colors = list(gen_html())
     if request.method == "POST":
-        form = EditTagForm(request.POST)
+        form = NewTagForm(request.POST)
         if form.is_valid():
             new = Tag.objects.create(
                 name=form.cleaned_data["name"],
@@ -310,13 +326,17 @@ def add_tag(request):
             )
             new.parents.set(form.cleaned_data["parents"])
             new.save()
+            ModerationLogEntry.create_tag(new, request.user)
+            messages.add_message(
+                request, messages.SUCCESS, f"You have created a tag: {new.name}."
+            )
             if "next" in request.GET:
                 return redirect(request.GET["next"])
             return redirect(reverse("browse_tags"))
         error = form_errors_as_string(form.errors)
         messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
     else:
-        form = EditTagForm(initial={"hex_color": colors[0]})
+        form = NewTagForm(initial={"hex_color": colors[0]})
     return render(
         request,
         "tags/edit_tag.html",

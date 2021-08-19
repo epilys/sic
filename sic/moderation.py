@@ -2,7 +2,7 @@ import json
 import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from sic.models import User, Comment, Story
+from sic.models import User, Comment, Story, Tag
 
 
 class ModerationLogEntry(models.Model):
@@ -188,6 +188,50 @@ class ModerationLogEntry(models.Model):
             reason=reason,
             content_type=ContentType.objects.get(app_label="sic", model="story"),
             object_id=str(story_obj.pk),
+        )
+
+    @staticmethod
+    def edit_tag_name(name_before: str, tag_obj: Tag, user: User, reason):
+        return ModerationLogEntry.objects.create(
+            user=user,
+            action=f"""Edited tag name from "{name_before}" to "{tag_obj.name}" """,
+            reason=reason,
+            change=json.dumps(
+                {
+                    "before": name_before,
+                    "after": tag_obj.name,
+                }
+            ),
+            content_type=ContentType.objects.get(app_label="sic", model="tag"),
+            object_id=str(tag_obj.pk),
+        )
+
+    @staticmethod
+    def edit_tag_parents(parents_before, tag_obj: Tag, user: User, reason):
+        parents_after = list(tag_obj.parents.all())
+        return ModerationLogEntry.objects.create(
+            user=user,
+            action=f"""Edited tag parents from ("{'", "'.join(t.name for t in parents_before)}") to ("{'", "'.join(t.name for t in parents_after)}")""",
+            reason=reason,
+            change=json.dumps(
+                {
+                    "before": [t.id for t in parents_before],
+                    "after": [t.id for t in parents_after],
+                }
+            ),
+            content_type=ContentType.objects.get(app_label="sic", model="tag"),
+            object_id=str(tag_obj.pk),
+        )
+
+    @staticmethod
+    def create_tag(tag_obj: Tag, user: User):
+        return ModerationLogEntry.objects.create(
+            user=user,
+            action=f"""Created tag: {tag_obj.name} with parents: ("{'", "'.join(t.name for t in tag_obj.parents.all())}")""",
+            reason="",
+            change="",
+            content_type=ContentType.objects.get(app_label="sic", model="tag"),
+            object_id=str(tag_obj.pk),
         )
 
     @staticmethod

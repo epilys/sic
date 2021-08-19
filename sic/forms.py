@@ -240,7 +240,7 @@ class ParentsSelect(TagsSelect):
         return option
 
 
-class EditTagForm(forms.Form):
+class NewTagForm(forms.Form):
     pk = forms.ModelChoiceField(
         queryset=Tag.objects.all(),
         widget=forms.HiddenInput,
@@ -263,29 +263,58 @@ class EditTagForm(forms.Form):
         help_text=SELECT_WIDGET_HELP_TEXT,
     )
 
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        if Tag.objects.filter(name=name).exists():
+            raise ValidationError("Tag already exists.")
+        return name
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        edited_tag = None
+        into = lambda t: forms.models.ModelChoiceIteratorValue(t.pk, t)
+        self.fields["parents"].choices = [(into(t), t.name) for t in Tag.objects.all()]
+
+
+class EditTagForm(NewTagForm):
+    pk = forms.ModelChoiceField(
+        queryset=Tag.objects.all(),
+        widget=forms.HiddenInput,
+        required=False,
+        initial=None,
+        label="",
+    )
+    reason = forms.CharField(
+        required=False,
+        help_text="Optionally describe the changes you made",
+        widget=forms.Textarea(
+            {"rows": 5, "cols": 15, "placeholder": "reason for edit"}
+        ),
+    )
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        tag_obj = self.cleaned_data["pk"]
+        if Tag.objects.exclude(pk=tag_obj.pk).filter(name=name).exists():
+            raise ValidationError("Tag already exists.")
+        return name
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         try:
             edited_tag = kwargs["initial"]["pk"]
         except:
-            pass
+            return
         into = lambda t: forms.models.ModelChoiceIteratorValue(t.pk, t)
-        if edited_tag is not None:
-            parents = []
-            others = []
-            for t in Tag.objects.all().prefetch_related("children"):
-                if edited_tag in t.children.all():
-                    parents.append((into(t), t.name))
-                else:
-                    if t.pk == edited_tag.pk:
-                        t._disabled = True
-                    others.append((into(t), t.name))
-            self.fields["parents"].choices = (("current", parents), ("others", others))
-        else:
-            self.fields["parents"].choices = [
-                (into(t), t.name) for t in Tag.objects.all()
-            ]
+        parents = []
+        others = []
+        for t in Tag.objects.all().prefetch_related("children"):
+            if edited_tag in t.children.all():
+                parents.append((into(t), t.name))
+            else:
+                if t.pk == edited_tag.pk:
+                    t._disabled = True
+                others.append((into(t), t.name))
+        self.fields["parents"].choices = (("current", parents), ("others", others))
 
 
 class EditTaggregationForm(forms.Form):
