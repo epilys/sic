@@ -1356,9 +1356,11 @@ li.hat::marker {
 
 form.login-form {
   display: flex;
-  flex-flow: wrap;
-  justify-content: end;
+  flex-direction: column;
+  gap: 8px;
+  width: 36ch;
   place-self: center;
+  max-width: var(--main-width);
 }
 
 ul.inline-comma-sep-list {

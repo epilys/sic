@@ -11,8 +11,6 @@
         {% if user.is_authenticated %}
             <p style="place-self:center;">Your account doesn't have access to this page. To proceed,
                 please login with an account that has access.</p>
-        {% else %}
-            <p style="place-self:center;">Please login to see this page.</p>
         {% endif %}
     {% endif %}
 
@@ -20,17 +18,10 @@
     {% else %}
         <form method="post" action="{% url 'login' %}" class="login-form">
             {% csrf_token %}
-            <table>
-                <tr>
-                    <td>{{ form.username.label_tag }}</td>
-                    <td>{{ form.username }}</td>
-                </tr>
-                <tr>
-                    <td>{{ form.password.label_tag }}</td>
-                    <td>{{ form.password }}</td>
-                </tr>
-            </table>
-
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            {{ form.password.label_tag }}
+            {{ form.password }}
             <input type="submit" value="login">
             <input type="hidden" name="next" value="{{ next }}">
         </form>
