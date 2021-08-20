@@ -23,7 +23,7 @@
                     {{story.karma}}
                 </div>
             </div>
-            <h1 class="story-title"><a href="{{story.get_listing_url}}" rel="external nofollow noreferrer">{{ story.title }}</a>{% with story.get_domain as domain %} <span class="netloc">{{ domain|default_if_none:"text" }}</span>{% endwith %}</h1>
+            <h1 class="story-title"><a href="{{story.get_listing_url}}" rel="external nofollow noreferrer">{{ story.title }}</a> {% with story.get_domain as domain %}{% if domain is None %}<span class="netloc">{{ domain|default_if_none:"text" }}</span>{% else %}<span class="netloc"><a href="{{ domain.get_absolute_url }}">{{ domain }}</a></span>{% endif %}{% endwith %}</h1>
             {% if story.publish_date %}<span class="publish_date">Published: <time datetime="{{ story.publish_date | date:"Y-m-d" }}" title="{{ story.publish_date }}">{{ story.publish_date|naturalday }}</time></span>{% endif %}
             {% include "posts/story_tags.html" with tags=story.tags.all in_article=True %}
             {% if not story.tags.exists and request.user == story.user %}
