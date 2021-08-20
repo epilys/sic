@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load comment %}
 {% load utils %}
 {% block title %}search | sic{% endblock %}
 {% block style %}
@@ -19,6 +20,12 @@
             gap: 1rem;
             list-style: none;
             padding: 0;
+        }
+        hr.light {
+            border: 1px dotted var(--entry-separator-color);
+        }
+        ul.posts li.story + li, ul.posts li.comment + li {
+            border-top: none;
         }
     </style>
 {% endblock %}
@@ -57,33 +64,46 @@
         </div>
         <div class="button-flex-box-rev"><input type="submit" value="Search"></div>
     </form>
+    {% if count %}
+        <p>{{ count }} result{{ count|pluralize }}.</p>
+    {% endif %}
     {% if comments %}
+        <h2>{{ comments|length }} matching comment{{ comments|length|pluralize }}</h2>
         <ul class="posts">
             {% for comment in comments %}
-                <li class="comment no-children" id="{{comment.slugify}}">
-                    <span class="links"><span class="votes">
-                        <span class="score">
-                            {{comment.karma}}
-                        </span>
-                    </span> <a href="{{ comment.user.get_absolute_url }}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time> | <a href="{{comment.get_absolute_url}}">link</a> | on <a href="{{ comment.story.get_absolute_url }}">{{ comment.story.title }}</a> | <a href="{% url 'comment_source' comment.story.pk 'test' comment.pk %}">source</a>
-                        {% if comment.hat %}
-                            <span class="hat" style="--hat-color: {{ comment.hat.hex_color }}">{{ comment.hat.name }}</span>
-                        {% endif %}
-                    </span>
-                    <span class="comment">{{ comment.snippet|escape }}</span>
-                    <a href="{{ comment.get_absolute_url }}">go to comment</a>
+                <li>
+                    <i>Match</i>:
+                    <blockquote>
+                        <span class="comment">{{ comment.snippet|escape }}</span>
+                    </blockquote>
+                    <i>In comment</i>:
                 </li>
+                {% render_comments request comment reply_form show_story=True only_roots=False %}
+                {% if not forloop.last %}
+                    <li>
+                        <hr class="light" />
+                    </li>
+                {% endif %}
             {% endfor %}
         </ul>
     {% endif %}
     {% if stories %}
+        <h2>{{ stories|length }} matching stor{{ stories|length|pluralize:"y,ies" }}</h2>
         <ul class="posts">
             {% for story in stories %}
-                {% include "posts/story_list_item.html" with story=story %}
                 <li>
-                    <span class="comment">{{ story.snippet|escape }}</span>
-                    <a href="{{ story.get_absolute_url }}">go to story</a>
+                    <i>Match</i>:
+                    <blockquote>
+                        <span class="comment">{{ story.snippet|escape }}</span>
+                    </blockquote>
+                    <i>In story</i>:
                 </li>
+                {% include "posts/story_list_item.html" with story=story %}
+                {% if not forloop.last %}
+                    <li>
+                        <hr class="light" />
+                    </li>
+                {% endif %}
             {% endfor %}
         </ul>
     {% endif %}

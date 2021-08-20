@@ -83,7 +83,7 @@ def fts5_setup():
 #        cursor.execute(
 #            f"""CREATE TRIGGER IF NOT EXISTS {config.FTS_STORIES_TABLE_NAME}_content_ai AFTER INSERT ON {config.FTS_STORIES_TABLE_NAME}_content
 # BEGIN
-#    INSERT INTO {config.FTS_STORIES_TABLE_NAME}(id, title, description, url, remote_content)
+#    INSERT INTO {config.FTS_STORIES_TABLE_NAME}(rowid, title, description, url, remote_content)
 #        VALUES (NEW.id, NEW.title, NEW.description, NEW.url, NULL);
 # END;"""
 #        )
@@ -98,7 +98,7 @@ def fts5_setup():
 #            f"""CREATE TRIGGER IF NOT EXISTS {config.FTS_STORIES_TABLE_NAME}_content_au AFTER UPDATE ON {config.FTS_STORIES_TABLE_NAME}_content
 # BEGIN
 #    DELETE FROM {config.FTS_STORIES_TABLE_NAME} WHERE id = OLD.id;
-#    INSERT INTO {config.FTS_STORIES_TABLE_NAME}(id, title, description, url, remote_content)
+#    INSERT INTO {config.FTS_STORIES_TABLE_NAME}(rowid, title, description, url, remote_content)
 #        VALUES (NEW.id, NEW.title, NEW.description, NEW.url, NULL);
 # END;"""
 #        )
@@ -109,7 +109,7 @@ def index_comment(obj: Comment):
     text = html.escape(obj.text_to_plain_text)
     with connection:
         connection.execute(
-            f"INSERT OR REPLACE INTO {config.FTS_COMMENTS_TABLE_NAME}(id, text) VALUES (:id, :text)",
+            f"INSERT OR REPLACE INTO {config.FTS_COMMENTS_TABLE_NAME}(rowid, text) VALUES (:id, :text)",
             {"id": obj.pk, "text": text},
         )
 
@@ -131,7 +131,7 @@ def index_story(obj: Story):
             },
         )
         connection.execute(
-            f"INSERT OR REPLACE INTO {config.FTS_STORIES_TABLE_NAME}(id, title, description, url, remote_content) VALUES (:id, :title, :description, :url, :remote_content)",
+            f"INSERT OR REPLACE INTO {config.FTS_STORIES_TABLE_NAME}(rowid, title, description, url, remote_content) VALUES (:id, :title, :description, :url, :remote_content)",
             {
                 "id": obj.pk,
                 "title": obj.title,

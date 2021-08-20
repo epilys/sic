@@ -418,6 +418,7 @@ def comment_source(request, story_pk, slug, comment_pk=None):
 
 @require_http_methods(["GET"])
 def search(request):
+    count = None
     comments = None
     stories = None
     if "text" in request.GET:
@@ -425,14 +426,18 @@ def search(request):
         if form.is_valid():
             if form.cleaned_data["search_in"] in ["comments", "both"]:
                 comments = query_comments(form.cleaned_data["text"])
+                count = len(comments)
             if form.cleaned_data["search_in"] in ["stories", "both"]:
                 stories = query_stories(form.cleaned_data["text"])
+                if count is None:
+                    count = 0
+                count += len(stories)
     else:
         form = SearchCommentsForm()
     return render(
         request,
         "posts/search.html",
-        {"form": form, "comments": comments, "stories": stories},
+        {"form": form, "comments": comments, "stories": stories, "count": count},
     )
 
 
