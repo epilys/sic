@@ -785,6 +785,10 @@ li.profile .avatar-small {
   transform-origin: top right;
 }
 
+li.profile a {
+    vertical-align: top;
+}
+
 a.feed, a.feed:visited {
   color: #dc3545;
   padding: 0px 2px;
