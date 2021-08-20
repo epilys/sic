@@ -35,7 +35,25 @@ def fetch_url(input_):
             ),
             timeout=3,
         ) as response:
-            if not "text/html" in response.getheader("Content-Type"):
+            if "application/pdf" in response.getheader("Content-Type"):
+                try:
+                    from pdfminer.high_level import extract_text_to_fp
+                except ImportError:
+                    return f"""Content-Type is {response.getheader("Content-Type")} and could not import pdfminer.six"""
+                from io import BytesIO, StringIO
+                input_bytes = BytesIO(response.read())
+                output_string = StringIO()
+                extract_text_to_fp(input_bytes, output_string)
+                content = output_string.getvalue().strip()
+                StoryRemoteContent(
+                    story_id=pk,
+                    url=url,
+                    content=content,
+                    retrieved_at=make_aware(datetime.now()),
+                ).save()
+                index_story(Story.objects.get(pk=pk))
+                return True
+            elif not "text/html" in response.getheader("Content-Type"):
                 return f"""Content-Type is {response.getheader("Content-Type")}"""
         with subprocess.Popen(
             [
@@ -111,6 +129,8 @@ class Job(models.Model):
             if res and not self.periodic:
                 self.active = False
             if isinstance(res, str):
+                if self.logs is None:
+                    self.logs = ""
                 self.logs += res
             self.failed = False
             self.save(update_fields=["last_run", "failed", "active", "logs"])
