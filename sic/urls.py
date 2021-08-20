@@ -268,6 +268,12 @@ urlpatterns = [
         name="password_reset",
     ),
     path("accounts/", account.view_account, name="account"),
+    path("accounts/activity/", account.my_activity, name="account_activity"),
+    path(
+        "accounts/activity/page/<int:page_num>",
+        account.my_activity,
+        name="account_activity_page",
+    ),
     path(
         "accounts/password-change/",
         auth_views.PasswordChangeView.as_view(

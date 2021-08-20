@@ -9,12 +9,12 @@ from django.template.exceptions import TemplateSyntaxError
 from django.template.base import Token, Node, kwarg_re
 from django.template import Context, Template
 from django.template.loader import render_to_string
-import collections
+from sic.models import Comment
 
 register = template.Library()
 
 
-class Comment:
+class CommentNode:
     def __init__(self, obj):
         self.parent = obj.parent_id
         self.children = []
@@ -34,18 +34,28 @@ def render_comments(
     comments,
     reply_form,
     level=1,
+    show_story=False,
+    only_roots=True,
     edit_comment_pk=None,
     edit_comment_form=None,
 ):
 
-    comments = {c.id: Comment(c) for c in comments}
+    if isinstance(comments, Comment):
+        comments = {comments.id: CommentNode(comments)}
+    else:
+        comments = {c.id: CommentNode(c) for c in comments}
     rendered = {c: None for c in comments}
     for c in comments:
-        if comments[c].parent is not None:
+        if comments[c].parent is not None and comments[c].parent in comments:
             comments[comments[c].parent].children.append(c)
 
     order_q = collections.deque()
-    q = collections.deque((level, c) for c in comments if comments[c].parent is None)
+    if only_roots:
+        q = collections.deque(
+            (level, c) for c in comments if comments[c].parent is None
+        )
+    else:
+        q = collections.deque((level, c) for c in comments)
     while len(q) != 0:
         (level, root) = q.pop()
         order_q.append((level, root))
@@ -64,11 +74,15 @@ def render_comments(
                 "replies": replies,
                 "reply_form": reply_form,
                 "level": lvl,
+                "show_story": show_story,
                 "edit_comment_pk": edit_comment_pk,
                 "edit_comment_form": edit_comment_form,
             },
             request=request,
         )
 
-    ret = "".join(rendered[c] for c in comments if comments[c].parent is None)
+    if only_roots:
+        ret = "".join(rendered[c] for c in comments if comments[c].parent is None)
+    else:
+        ret = "".join(rendered[c] for c in comments)
     return mark_safe(ret)

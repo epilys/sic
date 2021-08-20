@@ -72,9 +72,9 @@
                                     <li class="notification"><a href="{% url 'notifications' %}">{{ notifications|length }} notification{{ notifications|pluralize }}</a></li>
                                 {% endif %}
                             {% endwith %}
-                            <li class="account"><a href="{% url 'account' %}" id="account_link">Account</a></li>
+                            <li class="account"><a href="{% url 'account' %}" id="account_link">Account</a>{% if unread_messages and unread_messages > 0 %} <a href="{% url 'inbox' %}" id="inbox_link">({{ unread_messages }})</a>{% endif %}</li>
+                            <li><a href="{% url 'account_activity' %}" id="activity_link">Activity</a></li>
                             <li><a href="{% url 'submit' %}" id="submit_link">Post</a></li>
-                            <li><a href="{% url 'inbox' %}" id="inbox_link">Inbox{% if unread_messages and unread_messages > 0 %} ({{ unread_messages }}){% endif %}</a></li>
                             <li><a href="{% url 'logout' %}" id="logout_link">Logout</a></li>
                         </ul>
                     </nav>
@@ -134,7 +134,7 @@
             {% endspaceless %}
             {% if not request.user.is_authenticated %}
                 <ul class="messagelist">
-                  <li style="padding: 0 1rem;display: grid;grid-template-columns: 1fr;grid-template-rows: auto auto;width: 100%;align-content: center;justify-items: center;"><p style="text-align:center;"><strong><code>[sic]</code></strong> is a community about anything that piques your curiosity and interest.<br/>Read <a href="{% url 'signup_help' %}">about getting an account here</a>.</p></li>
+                    <li style="padding: 0 1rem;display: grid;grid-template-columns: 1fr;grid-template-rows: auto auto;width: 100%;align-content: center;justify-items: center;"><p style="text-align:center;"><strong><code>[sic]</code></strong> is a community about anything that piques your curiosity and interest.<br/>Read <a href="{% url 'signup_help' %}">about getting an account here</a>.</p></li>
                 </ul>
             {% endif %}
             {% if messages %}

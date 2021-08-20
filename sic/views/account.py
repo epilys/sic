@@ -1,5 +1,6 @@
 import re
 import html
+import itertools
 from datetime import datetime
 from django.http import Http404, HttpResponse, JsonResponse
 from django.core.exceptions import PermissionDenied
@@ -14,7 +15,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.utils.timezone import make_aware
 from django.utils.safestring import mark_safe
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_safe
 from wand.image import Image
 from sic.auth import AuthToken
 from sic.models import (
@@ -94,6 +95,7 @@ def view_account(request):
 
 
 @login_required
+@transaction.atomic
 def edit_profile(request):
     user = request.user
     if request.method == "POST":
@@ -129,6 +131,7 @@ def edit_profile(request):
 
 
 @login_required
+@transaction.atomic
 def edit_avatar(request):
     if request.method == "POST":
         if "delete-image" in request.POST:
@@ -187,6 +190,7 @@ RES_PREFIX_RE = re.compile(r"^[rR]e:[ ]{0,1}")
 
 
 @login_required
+@transaction.atomic
 def inbox_compose(request, in_reply_to=None):
     user = request.user
     if not user.has_perm("sic.add_message"):
@@ -317,6 +321,7 @@ def inbox_message_raw(request, message_pk):
 
 
 @login_required
+@transaction.atomic
 def generate_invite(request, invite_pk=None):
     if not request.user.has_perm("sic.add_invitation"):
         raise PermissionDenied("You don't have permission to generate invitations.")
@@ -436,6 +441,7 @@ def accept_invite(request, invite_pk):
 
 
 @login_required
+@transaction.atomic
 def bookmark_story(request, story_pk):
     if request.method == "GET":
         user = request.user
@@ -548,6 +554,7 @@ def bookmarks(request, page_num=1):
 
 
 @login_required
+@transaction.atomic
 def edit_bookmark(request, bookmark_pk):
     """
         if request.method == "POST":
@@ -563,6 +570,7 @@ def edit_bookmark(request, bookmark_pk):
 
 
 @login_required
+@transaction.atomic
 def edit_settings(request):
     user = request.user
     session_settings = {
@@ -678,6 +686,7 @@ def notifications(request):
 
 
 @login_required
+@transaction.atomic
 def edit_hat(request, hat_pk=None):
     if hat_pk:
         try:
@@ -716,6 +725,7 @@ def edit_hat(request, hat_pk=None):
 
 @login_required
 @require_http_methods(["GET"])
+@transaction.atomic
 def issue_token(request):
     user = request.user
     user.auth_token = AuthToken().make_token(user)
@@ -728,6 +738,7 @@ def issue_token(request):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+@transaction.atomic
 def invitation_requests(request):
     user = request.user
     if request.method == "POST":
@@ -888,5 +899,102 @@ def welcome(request):
             "avatar_form": avatar_form,
             "edit_profile_form": edit_profile_form,
             "digest_form": digest_form,
+        },
+    )
+
+
+@login_required
+@require_safe
+def my_activity(request, page_num=1):
+    if page_num == 1 and request.get_full_path() != reverse("account_activity"):
+        return redirect(reverse("account_activity"))
+    user = request.user
+    user_stories = user.stories.prefetch_related("tags", "user", "comments").order_by(
+        "-created"
+    )
+    user_comments = user.comments.prefetch_related("parent", "replies").order_by(
+        "-created"
+    )
+    activities = []
+    for story in user_stories:
+        activities.append(
+            {
+                "type": "story",
+                "obj": story,
+                "date": story.created,
+            }
+        )
+        comments = story.comments.exclude(user_id=user.pk).filter(
+            parent_id=None, deleted=False
+        )
+        if comments.exists():
+            date = max(comment.created for comment in comments)
+            activities.append(
+                {
+                    "type": "story_reply",
+                    "obj": story,
+                    "date": date,
+                    "count": len(comments),
+                    "items": comments,
+                }
+            )
+    for comment in user_comments:
+        activities.append(
+            {
+                "type": "comment",
+                "obj": comment,
+                "date": comment.created,
+            }
+        )
+        replies = comment.replies.exclude(user_id=user.pk).filter(deleted=False)
+        if replies.exists():
+            date = comment.created
+            for reply in replies:
+                date = max(date, reply.created)
+            activities.append(
+                {
+                    "type": "comment_reply",
+                    "obj": comment,
+                    "date": date,
+                    "count": len(replies),
+                    "items": replies,
+                }
+            )
+    activities.sort(key=lambda a: a["date"], reverse=True)
+    paginator = Paginator(activities, config.STORIES_PER_PAGE)
+    try:
+        page = paginator.page(page_num)
+    except InvalidPage:
+        # page_num BooleanFieldis bigger than the actual number of pages
+        return redirect(
+            reverse(
+                "account_activity_page",
+                kwargs={"page_num": paginator.num_pages},
+            )
+        )
+    groups = []
+    for key, group in itertools.groupby(page, key=lambda a: a["type"]):
+        group = list(group)
+        date_min = min(v["date"] for v in group)
+        date_max = max(v["date"] for v in group)
+        if date_max.date() == date_min.date():
+            date_max = None
+        groups.append(
+            {
+                "type": key,
+                "count": len(group),
+                "items": group,
+                "date_min": date_min,
+                "date_max": date_max,
+            }
+        )
+    return render(
+        request,
+        "account/activity.html",
+        {
+            "user": user,
+            "activities": groups,
+            "page": page,
+            "pages": paginator.get_elided_page_range(number=page_num),
         },
     )

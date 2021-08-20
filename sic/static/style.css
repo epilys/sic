@@ -536,11 +536,11 @@ body>main>ul.posts {
   max-width: var(--main-width);
 }
 
-body>main>ul.posts li.story + li {
+body>main ul.posts li.story + li {
   margin-top: 1rem;
 }
 
-body>main>ul.posts>li.story{
+body>main ul.posts>li.story{
  display: inline-grid;
  width: 100%;
  grid-template-areas: "votes title" "votes links";
@@ -550,11 +550,11 @@ body>main>ul.posts>li.story{
  row-gap: .2rem;
 }
 
-body>main>ul.posts>li.story .votes{
+body>main ul.posts>li.story .votes{
   grid-area: votes;
 }
 
-body>main>ul.posts>li.story div.title{
+body>main ul.posts>li.story div.title{
   grid-area: title;
   max-width: max-content;
 }
@@ -587,12 +587,12 @@ div.content-warning:before{
   filter: none;
 }
 
-body>main>ul.posts>li.story .links{
+body>main ul.posts>li.story .links{
   grid-area: links;
   color: #4d4d4d;
 }
-body>main>ul.posts>li.story .links a,
-body>main>ul.posts>li.story .links a:visited {
+body>main ul.posts>li.story .links a,
+body>main ul.posts>li.story .links a:visited {
   color: #4141c7;
 }
 
@@ -1422,7 +1422,7 @@ body>header>div.logo {
   body>header {
     font-size: 90%;
     margin: 0;
-    padding: .5rem 1.5rem;
+    padding: .5rem .5rem;
     background-color: #eee;
     border-bottom: 1px solid #ccc;
     grid-column: 1 / span 12;
@@ -1677,11 +1677,11 @@ nav.pagination {
   a.title:visited {
     color: var(--fg-color);
   }
-  body>main>ul.posts>li.story .links a,
-  body>main>ul.posts>li.story .links a:visited {
+  body>main ul.posts>li.story .links a,
+  body>main ul.posts>li.story .links a:visited {
     color: var(--fg-color);
   }
-  body>main>ul.posts>li.story .links{
+  body>main ul.posts>li.story .links{
     color: var(--fg-color);
   }
   nav>ul>li>a, nav>ul>li>a:visited{

@@ -40,9 +40,6 @@
         .tag-wasm-tag-list > * {
             margin-bottom: 2px;
         }
-        span.tag-name {
-            vertical-align: middle;
-        }
         span.tag-remove {
             vertical-align: middle;
             cursor: pointer;
@@ -92,7 +89,9 @@
                 <p class="help-text">{{ form.url.help_text }}</p>
             {% endif %}
             {{ form.url }}
-            <input type="submit" name="fetch-title" value="fetch title">
+            <div class="button-flex-box">
+                <input type="submit" name="fetch-title" value="fetch title">
+            </div>
             {{ form.description.errors }}
             {{ form.description.label_tag }}
             {% if form.description.help_text %}

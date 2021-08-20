@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load utils %}
+{% load comment %}
+{% block title %}My activity - sic{% endblock %}
+{% block style %}
+    <style>
+        ul.activity {
+            padding: 0;
+            list-style: none;
+        }
+        hr {
+            margin-block-start: 1rem;
+            margin-block-end: 2rem;
+        }
+        hr.light {
+            border: 1px dotted var(--entry-separator-color);
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <h1>Account activity</h1>
+    <ul class="activity">
+        {% for activity in activities %}
+            <li class="">
+                {% if activity.type == 'story' %}
+                    <h3>You posted {{ activity.count }} stor{{ activity.count|pluralize:"y,ies" }} <small>{{ activity.date_min|naturaltime }}{% if activity.date_max %} - {{ activity.date_max|naturaltime }}{% endif %}</small></h3>
+                    <ul class="posts" aria-label="story post list">
+                        {% for activity in activity.items %}
+                            {% include "posts/story_list_item.html" with story=activity.obj %}
+                        {% endfor %}
+                    </ul>
+                {% elif activity.type == 'story_reply' %}
+                    {% for subactivity in activity.items %}
+                        <h3>Your story received {{ subactivity.count }} repl{{ subactivity.count|pluralize:"y,ies" }}: <a href="{{ subactivity.obj.get_absolute_url }}">{{ subactivity.obj.title }}</a></h3>
+                        <ul class="posts">
+                            {% render_comments request subactivity.items reply_form show_story=True only_roots=False %}
+                        </ul>
+                        {% if not forloop.last %}
+                            <hr class="light" />
+                        {% endif %}
+                    {% endfor %}
+                {% elif activity.type == 'comment' %}
+                    <h3>You posted {{ activity.count }} comment{{ activity.count|pluralize }} <small>{{ activity.date_min|naturaltime }}{% if activity.date_max %} - {{ activity.date_max|naturaltime }}{% endif %}</small></h3>
+                    {% for subactivity in activity.items %}
+                        <ul class="posts">
+                            {% render_comments request subactivity.obj reply_form show_story=True only_roots=False %}
+                        </ul>
+                    {% endfor %}
+                {% elif activity.type == 'comment_reply' %}
+                    {% for subactivity in activity.items %}
+                        <h3>Your comment received {{ subactivity.count }} repl{{ subactivity.count|pluralize:"y,ies" }}: <a href="{{ subactivity.obj.get_absolute_url }}">{{ subactivity.obj.title }}</a> <small>{{ activity.date_min|naturaltime }}{% if activity.date_max %} - {{ activity.date_max|naturaltime }}{% endif %}</small></h3>
+                        <ul class="posts">
+                            {% render_comments request subactivity.items reply_form show_story=True only_roots=False %}
+                        </ul>
+                        {% if not forloop.last %}
+                            <hr class="light" />
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    {{ activity }}
+                {% endif %}
+                <hr />
+            </li>
+        {% empty %}
+            <li class="">
+                <p>No activity yet. Make a post or add a comment and it will show up here.</p>
+            </li>
+        {% endfor %}
+    </ul>
+    <nav class="pagination" aria-label="pagination">
+        <ul class="pagination">
+            {% if page.has_previous %}
+                <li><a href="{% url 'account_activity_page' page_num=page.previous_page_number %}"><span aria-hidden="true">«</span><span class="visuallyhidden">previous page</span></a></li>
+            {% endif %}
+            {% for page in pages %}
+                {% if page == page.number %}
+                    <li><a href="" aria-current="page"><span class="visuallyhidden">page </span>{{ page.number }}</a></li>
+                {% elif page == None %}
+                    <li><span aria-hidden="true">&hellip;</span></li>
+                {% else %}
+                    <li><a href="{% url 'account_activity_page' page_num=page %}"><span class="visuallyhidden">page </span>{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if page.has_next %}
+                <li><a href="{% url 'account_activity_page' page_num=page.next_page_number %}"><span class="visuallyhidden">next page</span><span aria-hidden="true">»</span></a></li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endblock %}
