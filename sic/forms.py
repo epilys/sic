@@ -3,6 +3,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.db.models.functions import Lower
 from .apps import SicAppConfig as config
 from .models import Tag, User, StoryKind, StoryFilter, TaggregationHasTag
 
@@ -44,7 +45,7 @@ class SubmitStoryForm(forms.Form):
         help_text="I am the author of the story at this URL (or this text)",
     )
     tags = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
+        queryset=Tag.objects.all().order_by(Lower("name")),
         label="Post tags",
         widget=TagsSelect(attrs={"size": "4"}),
         required=False,
@@ -242,7 +243,7 @@ class ParentsSelect(TagsSelect):
 
 class NewTagForm(forms.Form):
     pk = forms.ModelChoiceField(
-        queryset=Tag.objects.all(),
+        queryset=Tag.objects.all().order_by(Lower("name")),
         widget=forms.HiddenInput,
         required=False,
         initial=None,
@@ -256,7 +257,7 @@ class NewTagForm(forms.Form):
         widget=forms.TextInput(attrs={"type": "color"}),
     )
     parents = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
+        queryset=Tag.objects.all().order_by(Lower("name")),
         widget=ParentsSelect(attrs={"size": "10"}),
         label="parents",
         required=False,
@@ -272,12 +273,14 @@ class NewTagForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         into = lambda t: forms.models.ModelChoiceIteratorValue(t.pk, t)
-        self.fields["parents"].choices = [(into(t), t.name) for t in Tag.objects.all()]
+        self.fields["parents"].choices = [
+            (into(t), t.name) for t in Tag.objects.all().order_by(Lower("name"))
+        ]
 
 
 class EditTagForm(NewTagForm):
     pk = forms.ModelChoiceField(
-        queryset=Tag.objects.all(),
+        queryset=Tag.objects.all().order_by(Lower("name")),
         widget=forms.HiddenInput,
         required=False,
         initial=None,
@@ -307,7 +310,7 @@ class EditTagForm(NewTagForm):
         into = lambda t: forms.models.ModelChoiceIteratorValue(t.pk, t)
         parents = []
         others = []
-        for t in Tag.objects.all().prefetch_related("children"):
+        for t in Tag.objects.all().order_by(Lower("name")).prefetch_related("children"):
             if edited_tag in t.children.all():
                 parents.append((into(t), t.name))
             else:
@@ -338,7 +341,7 @@ class EditTaggregationForm(forms.Form):
 
 class EditTaggregationHasTagForm(forms.Form):
     tag = forms.ModelChoiceField(
-        queryset=Tag.objects.all(),
+        queryset=Tag.objects.all().order_by(Lower("name")),
         label="tag",
         required=True,
     )

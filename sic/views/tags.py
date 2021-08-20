@@ -2,6 +2,7 @@ from datetime import datetime
 import random
 import re
 from django.db import transaction
+from django.db.models.functions import Lower
 from django.http import HttpResponse, Http404
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
@@ -39,7 +40,11 @@ def browse_tags(request, page_num=1):
 
     if page_num == 1 and request.get_full_path() != reverse("browse_tags"):
         return redirect(reverse("browse_tags"))
-    if order_by in ["name", "created"]:
+    if order_by == "name":
+        tags = Tag.objects.order_by(
+            Lower("name").asc() if ordering == "asc" else Lower("name").desc()
+        )
+    elif order_by == "created":
         tags = Tag.objects.order_by(order_by_field, "name")
     elif order_by == "active":
         tags = sorted(
