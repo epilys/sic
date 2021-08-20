@@ -1,0 +1,11 @@
+[package]
+name = "wordsegment"
+version = "0.1.0"
+authors = ["Manos Pitsidianakis <el13635@mail.ntua.gr>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+instant-segment = "0.8.1"
+regex = "1"
