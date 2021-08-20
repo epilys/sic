@@ -26,14 +26,21 @@ class TagsSelect(forms.SelectMultiple):
 class SubmitStoryForm(forms.Form):
     required_css_class = "required"
     title = forms.CharField(
-        label="Story title", required=False, max_length=200, min_length=2
+        label="Story title",
+        required=False,
+        max_length=200,
+        min_length=2,
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
     )
     description = forms.CharField(
         required=False,
         widget=forms.Textarea({"rows": 5, "cols": 15, "placeholder": ""}),
         help_text="Write additional context for the submitted link, or your content if your post has no URL.",
     )
-    url = forms.URLField(required=False)
+    url = forms.URLField(
+        required=False,
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
+    )
     publish_date = forms.DateField(
         required=False,
         widget=forms.DateInput(attrs={"type": "date"}),
@@ -62,6 +69,7 @@ class SubmitStoryForm(forms.Form):
         required=False,
         max_length=30,
         help_text="Optionally add content warning for sensitive media",
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
     )
 
 
@@ -77,9 +85,11 @@ class EditStoryForm(SubmitStoryForm):
 
 class SubmitCommentForm(forms.Form):
     text = forms.CharField(
-        required=True, label="Comment", min_length=1, widget=forms.Textarea
+        required=True,
+        label="Comment",
+        min_length=1,
+        widget=forms.Textarea({"rows": 6, "cols": 15, "placeholder": ""}),
     )
-    text.widget.attrs.update({"rows": 6, "placeholder": ""})
 
 
 class DeleteCommentForm(forms.Form):
@@ -91,19 +101,23 @@ class DeleteCommentForm(forms.Form):
     deletion_reason = forms.CharField(
         required=False,
         label="Public deletion reason",
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
         help_text="Describe the reason (that will be shown in the public log) for deleting this comment.",
     )
 
 
 class EditReplyForm(forms.Form):
     text = forms.CharField(
-        required=True, label="Edit", min_length=1, widget=forms.Textarea
+        required=True,
+        label="Edit",
+        min_length=1,
+        widget=forms.Textarea({"rows": 6, "cols": 15, "placeholder": ""}),
     )
-    text.widget.attrs.update({"rows": 6, "placeholder": ""})
     edit_reason = forms.CharField(
         required=False,
         label="Reason",
         help_text="Describe the reason (that will be shown in the public log) for editing this comment.",
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
     )
 
 
@@ -118,9 +132,8 @@ class EditAvatarForm(forms.Form):
         label="Title",
         help_text="optional avatar attribution/description/title",
         max_length=500,
-        widget=forms.Textarea,
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": "avatar title"}),
     )
-    avatar_title.widget.attrs.update({"rows": 2, "placeholder": "avatar title"})
 
 
 class EditProfileForm(forms.Form):
@@ -129,33 +142,75 @@ class EditProfileForm(forms.Form):
         required=False, label="git repository", max_length=500
     )
     about = forms.CharField(
-        required=False, label="about", max_length=500, widget=forms.Textarea
+        required=False,
+        label="about",
+        max_length=500,
+        widget=forms.Textarea({"rows": 3, "cols": 15, "placeholder": ""}),
     )
-    about.widget.attrs.update({"rows": 3, "placeholder": ""})
     metadata_1_label = forms.CharField(
-        required=False, label="Metadata 1 label", max_length=200
+        required=False,
+        label="Metadata 1 label",
+        max_length=200,
+        widget=forms.Textarea(
+            {"rows": 3, "cols": 15, "placeholder": "metadata 1 label"}
+        ),
     )
-    metadata_1 = forms.CharField(required=False, label="Metadata 1", max_length=200)
+    metadata_1 = forms.CharField(
+        required=False,
+        label="Metadata 1",
+        max_length=200,
+        widget=forms.Textarea(
+            {"rows": 3, "cols": 15, "placeholder": "metadata 1 value"}
+        ),
+    )
     metadata_2_label = forms.CharField(
-        required=False, label="Metadata 2 label", max_length=200
+        required=False,
+        label="Metadata 2 label",
+        max_length=200,
+        widget=forms.Textarea(
+            {"rows": 3, "cols": 15, "placeholder": "metadata 2 label"}
+        ),
     )
-    metadata_2 = forms.CharField(required=False, label="Metadata 2", max_length=200)
+    metadata_2 = forms.CharField(
+        required=False,
+        label="Metadata 2",
+        max_length=200,
+        widget=forms.Textarea(
+            {"rows": 3, "cols": 15, "placeholder": "metadata 2 value"}
+        ),
+    )
     metadata_3_label = forms.CharField(
-        required=False, label="Metadata 3 label", max_length=200
+        required=False,
+        label="Metadata 3 label",
+        max_length=200,
+        widget=forms.Textarea(
+            {"rows": 3, "cols": 15, "placeholder": "metadata 3 label"}
+        ),
     )
-    metadata_3 = forms.CharField(required=False, label="Metadata 3", max_length=200)
+    metadata_3 = forms.CharField(
+        required=False,
+        label="Metadata 3",
+        max_length=200,
+        widget=forms.Textarea(
+            {"rows": 3, "cols": 15, "placeholder": "metadata 3 value"}
+        ),
+    )
     metadata_4_label = forms.CharField(
-        required=False, label="Metadata 4 label", max_length=200
+        required=False,
+        label="Metadata 4 label",
+        max_length=200,
+        widget=forms.Textarea(
+            {"rows": 3, "cols": 15, "placeholder": "metadata 4 label"}
+        ),
     )
-    metadata_4 = forms.CharField(required=False, label="Metadata 4", max_length=200)
-    metadata_1_label.widget.attrs.update({"placeholder": "metadata 1 label"})
-    metadata_1.widget.attrs.update({"placeholder": "metadata 1 value"})
-    metadata_2_label.widget.attrs.update({"placeholder": "metadata 2 label"})
-    metadata_2.widget.attrs.update({"placeholder": "metadata 2 value"})
-    metadata_3_label.widget.attrs.update({"placeholder": "metadata 3 label"})
-    metadata_3.widget.attrs.update({"placeholder": "metadata 3 value"})
-    metadata_4_label.widget.attrs.update({"placeholder": "metadata 4 label"})
-    metadata_4.widget.attrs.update({"placeholder": "metadata 4 value"})
+    metadata_4 = forms.CharField(
+        required=False,
+        label="Metadata 4",
+        max_length=200,
+        widget=forms.Textarea(
+            {"rows": 3, "cols": 15, "placeholder": "metadata 4 value"}
+        ),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -220,9 +275,11 @@ class UserCreationForm(forms.Form):
 
 class AnnotationForm(forms.Form):
     text = forms.CharField(
-        required=True, label="Annotation", max_length=500, widget=forms.Textarea
+        required=True,
+        label="Annotation",
+        max_length=500,
+        widget=forms.Textarea({"rows": 3, "cols": 15, "placeholder": ""}),
     )
-    text.widget.attrs.update({"rows": 3, "placeholder": ""})
 
 
 class ParentsSelect(TagsSelect):
@@ -249,7 +306,12 @@ class NewTagForm(forms.Form):
         initial=None,
         label="",
     )
-    name = forms.CharField(required=True, label="Name", max_length=40)
+    name = forms.CharField(
+        required=True,
+        label="Name",
+        max_length=40,
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
+    )
     hex_color = forms.CharField(
         max_length=7,
         required=False,
@@ -321,7 +383,12 @@ class EditTagForm(NewTagForm):
 
 
 class EditTaggregationForm(forms.Form):
-    name = forms.CharField(required=True, label="Name", max_length=40)
+    name = forms.CharField(
+        required=True,
+        label="Name",
+        max_length=40,
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
+    )
     description = forms.CharField(
         required=False, widget=forms.Textarea(attrs={"rows": 8, "placeholder": ""})
     )
@@ -382,6 +449,7 @@ class EditAccountSettings(forms.Form):
         max_length=150,
         required=False,
         help_text="Leaving it blank will show your e-mail address to other users instead.",
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
     )
     email = forms.EmailField(
         required=True,
@@ -496,10 +564,12 @@ class EditSessionSettings(forms.Form):
             ("135", "135%"),
         ],
         initial=100,
-        help_text="""<span style="font-size: 1rem;">100%</span>
+        help_text=mark_safe(
+            """<span style="font-size: 1rem;">100%</span>
         <span style="font-size: 1.15rem;">115%</span>
         <span style="font-size: 1.25rem;">125%</span>
-        <span style="font-size: 1.35rem;">135%</span>""",
+        <span style="font-size: 1.35rem;">135%</span>"""
+        ),
     )
 
 
@@ -508,6 +578,7 @@ class EditHatForm(forms.Form):
         required=True,
         label="Name",
         max_length=100,
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
     )
     hex_color = forms.CharField(
         max_length=7,
@@ -518,7 +589,12 @@ class EditHatForm(forms.Form):
 
 
 class SearchCommentsForm(forms.Form):
-    text = forms.CharField(required=True, label="full text query", max_length=500)
+    text = forms.CharField(
+        required=True,
+        label="full text query",
+        max_length=500,
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
+    )
     search_in = forms.ChoiceField(
         required=True,
         label="search in",
@@ -556,7 +632,12 @@ class ComposeMessageForm(forms.Form):
     recipient = forms.CharField(
         required=True, label="recipient", validators=[validate_user]
     )
-    subject = forms.CharField(required=True, label="subject", max_length=100)
+    subject = forms.CharField(
+        required=True,
+        label="subject",
+        max_length=100,
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
+    )
     body = forms.CharField(
         required=True, label="Message", widget=forms.Textarea, min_length=1
     )
@@ -596,7 +677,11 @@ class BanUserForm(forms.Form):
         required=False,
         initial=True,
     )
-    reason = forms.CharField(required=True, label="reason")
+    reason = forms.CharField(
+        required=True,
+        label="reason",
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
+    )
 
     def clean_username(self):
         value = self.cleaned_data["username"]

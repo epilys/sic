@@ -2,14 +2,15 @@
 {% block title %}Edit settings - sic{% endblock %}
 {% block style %}
     <style>
-        td.week {
+        div.week {
             display: grid;
             grid-template-rows: auto auto;
             grid-template-columns: repeat(7, max-content);
+            column-gap: .5rem;
             justify-content: center;
             padding: .5rem 2rem;
         }
-        td.week label {
+        div.week label {
             margin: 1rem 2vmin 1rem 0;
             writing-mode: sideways-lr;
         }
@@ -20,49 +21,65 @@
     <form method="POST" class="submit-story-form">
         {% csrf_token %}
         {{ form.user }}
-        <table>
-            {{ form }}
-        </table>
-        <input type="submit" value="Submit">
+        {% for field in form %}
+            {% if field is not form.user %}
+                {{ field.errors }}
+                {{ field.label_tag }}
+                {% if field.help_text %}
+                    <p class="help-text">{{ field.help_text }}</p>
+                {% endif %}
+                {{ field }}
+            {% endif %}
+        {% endfor %}
+        <div class="button-flex-box">
+            <input type="submit" value="Submit">
+        </div>
     </form>
     <h2>edit weekly digest settings</h2>
     <p class="help-text">On every selected day, you will receive a list of every story created since the last time you received a digest.</p>
     <form method="POST" class="submit-story-form">
         {% csrf_token %}
-        <table>
-            <tbody>
-                <tr><th>{{ digest_form.active.label_tag }}</th><td>{{ digest_form.active }}{% if digest_form.active.helptext %}<br><span class="helptext">{{ digest_form.active.help_text }}</span>{% endif %}</td></tr>
-                <tr><th>{{ digest_form.all_stories.label_tag }}</th><td>{{ digest_form.all_stories }}{% if digest_form.all_stories.help_text %}<br><span class="helptext">{{ digest_form.all_stories.help_text }}</span>{% endif %}</td></tr>
-                <tr><th>{{ digest_form.last_run.label_tag }}</th><td>{{ digest_form.last_run }}{% if digest_form.last_run.help_text %}<br><span class="helptext">{{ digest_form.last_run.help_text }}</span>{% endif %}</td></tr>
-                <tr><th>schedule</th>
-                    <td class="week">
-                        <label for="id_on_monday">Mon</label>
-                        <label for="id_on_tuesday">Tue</label>
-                        <label for="id_on_wednesday">Wed</label>
-                        <label for="id_on_thursday">Thu</label>
-                        <label for="id_on_friday">Fri</label>
-                        <label for="id_on_saturday">Sat</label>
-                        <label for="id_on_sunday">Sun</label>
-                        {{ digest_form.on_monday }}
-                        {{ digest_form.on_tuesday }}
-                        {{ digest_form.on_wednesday }}
-                        {{ digest_form.on_thursday }}
-                        {{ digest_form.on_friday }}
-                        {{ digest_form.on_saturday }}
-                        {{ digest_form.on_sunday }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <input type="submit" name="digest-form" value="Submit">
+        {{ digest_form.active.label_tag }}
+        {{ digest_form.active }}{% if digest_form.active.helptext %}<br><span class="helptext">{{ digest_form.active.help_text }}</span>{% endif %}
+        {{ digest_form.all_stories.label_tag }}
+        {{ digest_form.all_stories }}{% if digest_form.all_stories.help_text %}<br><span class="helptext">{{ digest_form.all_stories.help_text }}</span>{% endif %}
+        {{ digest_form.last_run.label_tag }}
+        {{ digest_form.last_run }}{% if digest_form.last_run.help_text %}<br><span class="helptext">{{ digest_form.last_run.help_text }}</span>{% endif %}
+        <label>schedule</label>
+        <div class="week">
+            <label for="id_on_monday">Mon</label>
+            <label for="id_on_tuesday">Tue</label>
+            <label for="id_on_wednesday">Wed</label>
+            <label for="id_on_thursday">Thu</label>
+            <label for="id_on_friday">Fri</label>
+            <label for="id_on_saturday">Sat</label>
+            <label for="id_on_sunday">Sun</label>
+            {{ digest_form.on_monday }}
+            {{ digest_form.on_tuesday }}
+            {{ digest_form.on_wednesday }}
+            {{ digest_form.on_thursday }}
+            {{ digest_form.on_friday }}
+            {{ digest_form.on_saturday }}
+            {{ digest_form.on_sunday }}
+        </div>
+        <div class="button-flex-box">
+            <input type="submit" name="digest-form" value="Submit">
+        </div>
     </form>
     <h2>edit session settings</h2>
     <p class="help-text">These settings are stored in your browser.</p>
     <form method="POST" class="submit-story-form">
         {% csrf_token %}
-        <table>
-            {{ session_form }}
-        </table>
-        <input type="submit" name="session-settings" value="Submit">
+        {% for field in session_form %}
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {% if field.help_text %}
+                <p class="help-text">{{ field.help_text }}</p>
+            {% endif %}
+            {{ field }}
+        {% endfor %}
+        <div class="button-flex-box">
+            <input type="submit" name="session-settings" value="Submit">
+        </div>
     </form>
 {% endblock %}
