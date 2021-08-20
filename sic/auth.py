@@ -7,7 +7,17 @@ from django.contrib.auth import authenticate
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .apps import SicAppConfig as config
-from .models import Story, Hat, User, Tag, Taggregation, TaggregationHasTag, Message
+from .models import (
+    Story,
+    Hat,
+    User,
+    Tag,
+    Taggregation,
+    TaggregationHasTag,
+    Message,
+    StoryBookmark,
+    CommentBookmark,
+)
 
 
 class SicBackend(ModelBackend):
@@ -54,6 +64,10 @@ class SicBackend(ModelBackend):
             return not is_banned and is_active
         elif perm == "sic.view_message" and isinstance(obj, Message):
             return user_obj in [obj.recipient, obj.author]
+        elif perm == "sic.change_storybookmark" and isinstance(obj, StoryBookmark):
+            return user_obj.id == obj.user_id
+        elif perm == "sic.change_commentbookmark" and isinstance(obj, CommentBookmark):
+            return user_obj.id == obj.user_id
         elif perm in ["change_taggregationhastag", "sic.delete_taggregationhastag"]:
             if is_banned:
                 return False

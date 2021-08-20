@@ -274,10 +274,8 @@ class UserCreationForm(forms.Form):
 
 
 class AnnotationForm(forms.Form):
-    text = forms.CharField(
-        required=True,
-        label="Annotation",
-        max_length=500,
+    annotation = forms.CharField(
+        required=False,
         widget=forms.Textarea({"rows": 3, "cols": 15, "placeholder": ""}),
     )
 

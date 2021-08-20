@@ -31,7 +31,11 @@
                     </tr>
                     <tr>
                         <th colspan="2">
-                            <a href="{% url 'edit_bookmark' b.pk %}">edit bookmark</a>
+                            {% if b.is_story %}
+                                <a href="{% url 'edit_story_bookmark' b.pk %}">edit bookmark</a>
+                            {% else %}
+                                <a href="{% url 'edit_comment_bookmark' b.pk %}">edit bookmark</a>
+                            {% endif %}
                         </th>
                     </tr>
                 </table>

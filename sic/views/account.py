@@ -40,6 +40,7 @@ from sic.forms import (
     UserCreationForm,
     ComposeMessageForm,
     InvitationRequestForm,
+    AnnotationForm,
 )
 from sic.apps import SicAppConfig as config
 from sic.views.utils import (
@@ -555,18 +556,66 @@ def bookmarks(request, page_num=1):
 
 @login_required
 @transaction.atomic
-def edit_bookmark(request, bookmark_pk):
-    """
-        if request.method == "POST":
-            annotation_form = AnnotationForm(request.POST)
-            if annotation_form.is_valid():
-                pk = request.POST["bookmark_pk"]
-                print(pk)
-        else:
-            annotation_form = AnnotationForm()
-    "annotation_form": annotation_form,
-    """
-    return HttpResponseNotImplemented("HTTP 501: Not implemented")
+def edit_story_bookmark(request, bookmark_pk):
+    user = request.user
+    try:
+        bookmark = StoryBookmark.objects.get(pk=bookmark_pk)
+    except StoryBookmark.DoesNotExist:
+        raise Http404("Story bookmark does not exist") from StoryBookmark.DoesNotExist
+    if not user.has_perm("sic.change_storybookmark", bookmark):
+        raise Http404("Story bookmark does not exist")
+
+    if request.method == "POST":
+        form = AnnotationForm(request.POST)
+        if form.is_valid():
+            bookmark.annotation = form.cleaned_data["annotation"]
+            bookmark.save(update_fields=["annotation"])
+            messages.add_message(
+                request, messages.SUCCESS, "Bookmark annotation saved."
+            )
+            return redirect(reverse("bookmarks"))
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = AnnotationForm(initial={"annotation": bookmark.annotation})
+    return render(
+        request,
+        "account/edit_bookmark.html",
+        {"bookmark": bookmark, "form": form},
+    )
+
+
+@login_required
+@transaction.atomic
+def edit_comment_bookmark(request, bookmark_pk):
+    user = request.user
+    try:
+        bookmark = CommentBookmark.objects.get(pk=bookmark_pk)
+    except CommentBookmark.DoesNotExist:
+        raise Http404(
+            "Comment bookmark does not exist"
+        ) from CommentBookmark.DoesNotExist
+    if not user.has_perm("sic.change_commentbookmark", bookmark):
+        raise Http404("Comment bookmark does not exist")
+
+    if request.method == "POST":
+        form = AnnotationForm(request.POST)
+        if form.is_valid():
+            bookmark.annotation = form.cleaned_data["annotation"]
+            bookmark.save(update_fields=["annotation"])
+            messages.add_message(
+                request, messages.SUCCESS, "Bookmark annotation saved."
+            )
+            return redirect(reverse("bookmarks"))
+        error = form_errors_as_string(form.errors)
+        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+    else:
+        form = AnnotationForm(initial={"annotation": bookmark.annotation})
+    return render(
+        request,
+        "account/edit_bookmark.html",
+        {"bookmark": bookmark, "form": form},
+    )
 
 
 @login_required

@@ -289,9 +289,14 @@ urlpatterns = [
     ),
     path("accounts/bookmarks.json", account.bookmarks_json, name="bookmarks_json"),
     path(
-        "accounts/bookmarks/edit/<int:bookmark_pk>/",
-        account.edit_bookmark,
-        name="edit_bookmark",
+        "accounts/bookmarks/edit-comment/<int:bookmark_pk>/",
+        account.edit_comment_bookmark,
+        name="edit_comment_bookmark",
+    ),
+    path(
+        "accounts/bookmarks/edit-story/<int:bookmark_pk>/",
+        account.edit_story_bookmark,
+        name="edit_story_bookmark",
     ),
     path("accounts/profile/edit/", account.edit_profile, name="edit_profile"),
     path("accounts/profile/avatar/", account.edit_avatar, name="edit_avatar"),
