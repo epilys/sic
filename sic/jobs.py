@@ -37,13 +37,21 @@ def fetch_url(input_):
         ) as response:
             if "application/pdf" in response.getheader("Content-Type"):
                 try:
-                    from pdfminer.high_level import extract_text_to_fp
+                    from pdfminer.high_level import extract_pages
+                    from pdfminer.layout import LTTextContainer
                 except ImportError:
                     return f"""Content-Type is {response.getheader("Content-Type")} and could not import pdfminer.six"""
                 from io import BytesIO, StringIO
+
                 input_bytes = BytesIO(response.read())
                 output_string = StringIO()
-                extract_text_to_fp(input_bytes, output_string)
+                # extract_text_to_fp(input_bytes, output_string)
+
+                for page_layout in extract_pages(input_bytes):
+                    for element in page_layout:
+                        if isinstance(element, LTTextContainer):
+                            output_string.write(element.get_text().strip())
+
                 content = output_string.getvalue().strip()
                 StoryRemoteContent(
                     story_id=pk,
