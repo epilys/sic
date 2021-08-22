@@ -100,9 +100,9 @@ urlpatterns = [
     path("moderation/", views.moderation, name="moderation"),
     path("", views.index, name="index"),
     path("page/<int:page_num>/", views.index, name="index_page"),
-    path("<int:taggregation_pk>/<slug:slug>/", views.agg_index, name="agg_index"),
+    path("<int:taggregation_pk>/<str:slug>/", views.agg_index, name="agg_index"),
     path(
-        "<int:taggregation_pk>/<slug:slug>/page/<int:page_num>/",
+        "<int:taggregation_pk>/<str:slug>/page/<int:page_num>/",
         views.agg_index,
         name="agg_index_page",
     ),
@@ -114,28 +114,28 @@ urlpatterns = [
         views.recent_comments,
         name="recent_comments_page",
     ),
-    path("s/<int:story_pk>/<slug:slug>/", stories.story, name="story"),
+    path("s/<int:story_pk>/<str:slug>/", stories.story, name="story"),
     path(
-        "s/<int:story_pk>/<slug:slug>/upvote/<int:comment_pk>/",
+        "s/<int:story_pk>/<str:slug>/upvote/<int:comment_pk>/",
         views.upvote_comment,
         name="upvote_comment",
     ),
     path(
-        "s/<int:story_pk>/<slug:slug>/source/",
+        "s/<int:story_pk>/<str:slug>/source/",
         views.comment_source,
         name="story_source",
     ),
     path(
-        "s/<int:story_pk>/<slug:slug>/source/<int:comment_pk>/",
+        "s/<int:story_pk>/<str:slug>/source/<int:comment_pk>/",
         views.comment_source,
         name="comment_source",
     ),
     path(
-        "s/<int:story_pk>/<slug:slug>/cached/",
+        "s/<int:story_pk>/<str:slug>/cached/",
         stories.story_remote_content,
         name="story_remote_content",
     ),
-    path("s/<int:story_pk>/<slug:slug>/edit/", stories.edit_story, name="edit_story"),
+    path("s/<int:story_pk>/<str:slug>/edit/", stories.edit_story, name="edit_story"),
     path("c/preview/", views.preview_comment, name="preview_comment"),
     path("c/<int:comment_pk>/edit/", views.edit_comment, name="edit_comment"),
     path("c/<int:comment_pk>/delete/", views.delete_comment, name="delete_comment"),
@@ -151,9 +151,9 @@ urlpatterns = [
     path("reply/<int:comment_pk>/", views.reply, name="reply"),
     path("upvote/<int:story_pk>/", stories.upvote_story, name="upvote_story"),
     path("save/<int:story_pk>/", account.bookmark_story, name="bookmark_story"),
-    path("tag/<int:tag_pk>/<slug:slug>/", tags.view_tag, name="view_tag"),
+    path("tag/<int:tag_pk>/<str:slug>/", tags.view_tag, name="view_tag"),
     path(
-        "tag/<int:tag_pk>/<slug:slug>/page/<int:page_num>/",
+        "tag/<int:tag_pk>/<str:slug>/page/<int:page_num>/",
         tags.view_tag,
         name="view_tag_page",
     ),
@@ -161,7 +161,7 @@ urlpatterns = [
     path("domain/<str:slug>/page/<int:page_num>/", views.domain, name="domain_page"),
     path("tags/", tags.browse_tags, name="browse_tags"),
     path("tags/page/<int:page_num>/", tags.browse_tags, name="browse_tags_page"),
-    path("tags/edit/<int:tag_pk>/<slug:slug>/", tags.edit_tag, name="edit_tag"),
+    path("tags/edit/<int:tag_pk>/<str:slug>/", tags.edit_tag, name="edit_tag"),
     path("tags/add/", tags.add_tag, name="add_tag"),
     path(
         "tags/graph/",
@@ -188,7 +188,7 @@ urlpatterns = [
         name="default_aggregations_page",
     ),
     path(
-        "agg/<int:taggregation_pk>/<slug:slug>/", tags.taggregation, name="taggregation"
+        "agg/<int:taggregation_pk>/<str:slug>/", tags.taggregation, name="taggregation"
     ),
     path(
         "agg/change-subscription/<int:taggregation_pk>/",
@@ -201,17 +201,17 @@ urlpatterns = [
         name="copy_taggregation",
     ),
     path(
-        "agg/edit/<int:taggregation_pk>/<slug:slug>/",
+        "agg/edit/<int:taggregation_pk>/<str:slug>/",
         tags.edit_aggregation,
         name="edit_aggregation",
     ),
     path(
-        "agg/edit/<int:taggregation_pk>/<slug:slug>/<int:taggregationhastag_id>/",
+        "agg/edit/<int:taggregation_pk>/<str:slug>/<int:taggregationhastag_id>/",
         tags.edit_aggregation_filter,
         name="edit_aggregation_filter",
     ),
     path(
-        "agg/edit/<int:taggregation_pk>/<slug:slug>/new/",
+        "agg/edit/<int:taggregation_pk>/<str:slug>/new/",
         tags.new_aggregation_filter,
         name="new_aggregation_filter",
     ),
