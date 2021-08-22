@@ -76,7 +76,7 @@
         {% endif %}
         {% csrf_token %}
         <fieldset>
-            <legend>story content</legend>
+            <legend>content</legend>
             {{ form.title.errors }}
             {{ form.title.label_tag }}
             {% if form.title.help_text %}
@@ -92,47 +92,59 @@
             <div class="button-flex-box">
                 <input type="submit" name="fetch-title" value="fetch title">
             </div>
-            {{ form.description.errors }}
-            {{ form.description.label_tag }}
-            {% if form.description.help_text %}
-                <p class="help-text">{{ form.description.help_text }}</p>
-            {% endif %}
-            {{ form.description }}
-            <a target="_blank" href="{% url 'formatting_help' %}">Formatting help</a>
-            {{ form.content_warning.errors }}
-            {{ form.content_warning.label_tag }}
-            {% if form.content_warning.help_text %}
-                <p class="help-text">{{ form.content_warning.help_text }}</p>
-            {% endif %}
-            {{ form.content_warning }}
         </fieldset>
+        <details>
+            <summary><em>Optional</em>&hairsp;: Set description, content warning</summary>
+            <fieldset>
+                <legend>content <abbr title="continued">cont'd</abbr></legend>
+                {{ form.description.errors }}
+                {{ form.description.label_tag }}
+                {% if form.description.help_text %}
+                    <p class="help-text">{{ form.description.help_text }}</p>
+                {% endif %}
+                {{ form.description }}
+                <a target="_blank" href="{% url 'formatting_help' %}">Formatting help</a>
+                {{ form.content_warning.errors }}
+                {{ form.content_warning.label_tag }}
+                {% if form.content_warning.help_text %}
+                    <p class="help-text">{{ form.content_warning.help_text }}</p>
+                {% endif %}
+                {{ form.content_warning }}
+            </fieldset>
+        </details>
         <fieldset>
-            <legend>metadata</legend>
-            {{ form.publish_date.errors }}
-            {{ form.publish_date.label_tag }}
-            {% if form.publish_date.help_text %}
-                <p class="help-text">{{ form.publish_date.help_text }}</p>
-            {% endif %}
-            {{ form.publish_date }}
-            {{ form.user_is_author.errors }}
-            {{ form.user_is_author.label_tag }}
-            {% if form.user_is_author.help_text %}
-                <p class="help-text">{{ form.user_is_author.help_text }}</p>
-            {% endif %}
-            {{ form.user_is_author }}
+            <legend>tags</legend>
             {{ form.tags.errors }}
             {{ form.tags.label_tag }}
             {% if form.tags.help_text %}
                 <p class="help-text">{{ form.tags.help_text }}</p>
             {% endif %}
             {{ form.tags }}
-            {{ form.kind.errors }}
-            {{ form.kind.label_tag }}
-            {% if form.kind.help_text %}
-                <p class="help-text">{{ form.kind.help_text }}</p>
-            {% endif %}
-            {{ form.kind }}
         </fieldset>
+        <details>
+            <summary><em>Optional</em>&hairsp;: Set publish date, author status (are you the author of this content?), story kind (<abbr title="for example">e.g.</abbr> audio transcript, video, book)</summary>
+            <fieldset>
+                <legend>other metadata</legend>
+                {{ form.publish_date.errors }}
+                {{ form.publish_date.label_tag }}
+                {% if form.publish_date.help_text %}
+                    <p class="help-text">{{ form.publish_date.help_text }}</p>
+                {% endif %}
+                {{ form.publish_date }}
+                {{ form.user_is_author.errors }}
+                {{ form.user_is_author.label_tag }}
+                {% if form.user_is_author.help_text %}
+                    <p class="help-text">{{ form.user_is_author.help_text }}</p>
+                {% endif %}
+                {{ form.user_is_author }}
+                {{ form.kind.errors }}
+                {{ form.kind.label_tag }}
+                {% if form.kind.help_text %}
+                    <p class="help-text">{{ form.kind.help_text }}</p>
+                {% endif %}
+                {{ form.kind }}
+            </fieldset>
+        </details>
         {% if form.reason %}
             <fieldset>
                 <legend>modifications</legend>

@@ -651,7 +651,7 @@ header .logo a:hover::after {
     color: black;
 }
 
-form.submit-story-form,form.submit-story-form>fieldset {
+form.submit-story-form,form.submit-story-form fieldset,form.submit-story-form {
   display: flex;
   flex-direction: column;
   row-gap: 4px;
@@ -660,9 +660,17 @@ form.submit-story-form,form.submit-story-form>fieldset {
   max-width: var(--main-width);
   align-self: stretch;
 }
-form.submit-story-form>input[type="submit"],form.submit-story-form>fieldset>input[type="submit"]
-{
-  align-self: start;
+
+form.submit-story-form summary {
+  cursor: pointer;
+}
+
+form.submit-story-form details[open] summary {
+  margin-bottom: 1rem;
+}
+
+form.submit-story-form input[type="checkbox"] {
+  width: 100%;
 }
 
 form.submit-story-form textarea {
