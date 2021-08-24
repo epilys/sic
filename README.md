@@ -13,7 +13,7 @@ Public instance at https://sic.pm | [Tor hidden service](http://sicpm3hp7dtrwhmf
 
 ## In a nutshell
 
-- No Javascript at all. An HTML5 compliant browser is enough; it even runs on [`lynx`, the text web browser](https://lynx.invisible-island.net/).
+- No Javascript at all. An HTML5 compliant browser is enough; it even runs on [`w3m`, the text web browser](http://w3m.sourceforge.net/).
 - Lightweight, requires only a `python3` environment and stores its database in a `sqlite3` file.
 - Can be deployed with WSGI compatible servers (Apache/NGINX) or even `django`'s development server if need be.
 
