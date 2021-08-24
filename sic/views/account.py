@@ -23,6 +23,7 @@ from sic.models import (
     Invitation,
     Story,
     StoryBookmark,
+    CommentBookmark,
     Notification,
     Hat,
     Message,

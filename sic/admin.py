@@ -211,7 +211,7 @@ class ArticleAdmin(admin.ModelAdmin):
 
 
 class JobAdmin(ModelAdmin):
-    def success(_, obj):
+    def success(self, obj):
         if obj.last_run is None:
             return None
         return not obj.failed
@@ -228,7 +228,7 @@ class JobAdmin(ModelAdmin):
 
 
 class JobKindAdmin(ModelAdmin):
-    def resolves(_, obj):
+    def resolves(self, obj):
         from django.utils.module_loading import import_string
 
         try:

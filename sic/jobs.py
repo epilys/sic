@@ -95,8 +95,8 @@ class JobKind(models.Model):
     def __str__(self):
         return self.dotted_path
 
+    @staticmethod
     def from_func(func):
-        logging.info("jobkind frm func", func)
         if isinstance(func, types.FunctionType):
             dotted_path = f"{func.__module__}.{func.__name__}"
             ret, _ = JobKind.objects.get_or_create(dotted_path=dotted_path)
