@@ -1,7 +1,7 @@
 from datetime import datetime
 import random
 import re
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.models.functions import Lower
 from django.http import HttpResponse, Http404
 from django.core.exceptions import PermissionDenied
@@ -278,23 +278,31 @@ def edit_tag(request, tag_pk, slug=None):
             name_before = tag.name
             parents_before = list(tag.parents.all())
 
-            tag.name = form.cleaned_data["name"]
-            tag.hex_color = form.cleaned_data["hex_color"]
-            tag.parents.set(form.cleaned_data["parents"])
+            err = None
+            try:
+                with transaction.atomic():
+                    tag.parents.set(form.cleaned_data["parents"])
+            except IntegrityError as exc:
+                err = exc
+                form.add_error("parents", exc)
 
-            if name_before != tag.name:
-                ModerationLogEntry.edit_tag_name(
-                    name_before, tag, request.user, form.cleaned_data["reason"]
-                )
-            if parents_before != list(form.cleaned_data["parents"]):
-                ModerationLogEntry.edit_tag_parents(
-                    parents_before, tag, request.user, form.cleaned_data["reason"]
-                )
+            if err is None:
+                tag.name = form.cleaned_data["name"]
+                tag.hex_color = form.cleaned_data["hex_color"]
 
-            tag.save()
-            if "next" in request.GET and check_next_url(request.GET["next"]):
-                return redirect(request.GET["next"])
-            return redirect(reverse("browse_tags"))
+                if name_before != tag.name:
+                    ModerationLogEntry.edit_tag_name(
+                        name_before, tag, request.user, form.cleaned_data["reason"]
+                    )
+                if parents_before != list(form.cleaned_data["parents"]):
+                    ModerationLogEntry.edit_tag_parents(
+                        parents_before, tag, request.user, form.cleaned_data["reason"]
+                    )
+
+                tag.save()
+                if "next" in request.GET and check_next_url(request.GET["next"]):
+                    return redirect(request.GET["next"])
+                return redirect(reverse("browse_tags"))
         error = form_errors_as_string(form.errors)
         messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
     else:
