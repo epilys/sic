@@ -2,14 +2,13 @@ import io
 import re
 import multiprocessing
 
-from itertools import cycle
+from itertools import cycle, chain
 
 import matplotlib
 from matplotlib import rcParams
 from matplotlib.figure import Figure
 from mpl_toolkits.axisartist.axislines import Subplot
 import numpy as np
-import graphviz
 
 from django.http import HttpResponse
 from django.views.decorators.cache import cache_page
@@ -217,7 +216,50 @@ def make_registrations_svg(data):
     return svg.getvalue().decode(encoding="UTF-8").strip()
 
 
+def make_total_graph_igraph_svg(edges):
+    import igraph
+
+    g = igraph.Graph()
+    tags = set(chain.from_iterable(edges))
+    vertices = {y: x for x, y in enumerate(tags)}
+    g.add_vertices(len(vertices))
+    for (l, r) in edges:
+        g.add_edges([(vertices[l], vertices[r])])
+
+    layout = g.layout_kamada_kawai()
+    fig = Figure()
+    ax = Subplot(fig, 111)
+    fig.add_subplot(ax)
+    ax.axis["right"].set_visible(False)
+    ax.axis["left"].set_visible(False)
+    ax.axis["top"].set_visible(False)
+    ax.axis["bottom"].set_visible(False)
+
+    igraph.plot(
+        g,
+        target=ax,
+        layout=layout,
+        vertex_color=["black" for _ in g.vs],
+        edge_width=0.7,
+        vertex_size=3,
+        bbox=(0, 0, 100, 100),
+        margin=[0, 0, 0, 0],
+    )  # , vertex_label=g.vs["name"])
+    ax.axis("off")
+    svg = io.BytesIO()
+    fig.savefig(svg, format="svg", bbox_inches="tight", pad_inches=0.2)
+    return svg.getvalue().decode(encoding="UTF-8").strip()
+
+
 def make_total_graph_svg(edges):
+    try:
+        import igraph
+
+        return make_total_graph_igraph_svg(edges)
+    except ImportError:
+        pass
+    import graphviz
+
     dot = graphviz.Digraph(
         format="svg",
         graph_attr={
@@ -227,7 +269,6 @@ def make_total_graph_svg(edges):
             "shape": "point",
         },
     )
-    dot.attr(size="3,5")
     nodes = set()
     for edge in edges:
         nodes.add(edge[0])
@@ -236,7 +277,6 @@ def make_total_graph_svg(edges):
         dot.node(str(n))
     for edge in edges:
         dot.edge(str(edge[0]), str(edge[1]), arrowhead="none")
-    dot = dot.unflatten(stagger=3, chain=5, fanout=True)
     return dot.pipe().decode("utf-8")
 
 
