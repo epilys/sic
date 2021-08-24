@@ -1,7 +1,7 @@
 from datetime import datetime
 import random
 import re
-from django.db import transaction, IntegrityError
+from django.db import transaction, connection, IntegrityError
 from django.db.models.functions import Lower
 from django.http import HttpResponse, Http404
 from django.core.exceptions import PermissionDenied
@@ -284,7 +284,28 @@ def edit_tag(request, tag_pk, slug=None):
                     tag.parents.set(form.cleaned_data["parents"])
             except IntegrityError as exc:
                 err = exc
-                form.add_error("parents", exc)
+                with connection.cursor() as cursor:
+                    path_strs = []
+                    for p in form.cleaned_data["parents"]:
+                        cursor.execute(
+                            f"SELECT already_visited FROM cycle_check_view WHERE last_visited = {p.pk} AND already_visited LIKE '%{tag.pk}%';",
+                            [],
+                        )
+                        path = cursor.fetchone()
+                        if path:
+                            path = path[0]
+                            if isinstance(path, str):
+                                path = [p.pk] + list(map(int, path.split(","))) + [p.pk]
+                            else:
+                                path = [p.pk, path, p.pk]
+                            path_strs.append(
+                                "‘"
+                                + "’ → ‘".join(
+                                    map(lambda pk: Tag.objects.get(pk=pk).name, path)
+                                )
+                                + "’"
+                            )
+                form.add_error("parents", f"{exc} {','.join(path_strs)}")
 
             if err is None:
                 tag.name = form.cleaned_data["name"]
