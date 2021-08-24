@@ -30,9 +30,9 @@
                             <input type="submit" aria-label="upvote comment" title="upvote comment" value="">
                         </form>
                     {% endif %}
-                </div>&#32;
+                </div>
                 <span class="score">
-                    {{comment.karma}}
+                    {% comment %}&#32;{{comment.karma}}{% endcomment %}
                 </span>
             </div> <a href="{{ comment.user.get_absolute_url }}" class="user_link{% if comment.user.is_banned %} banned-user{% elif comment.user.is_new_user %} new-user{% endif %}">{{ comment.user }}</a>
                 <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time>

@@ -20,7 +20,7 @@
                     {% endif %}
                 </div>
                 <div class="score story-title">
-                    {{story.karma}}
+                    {% comment %}{{story.karma}}{% endcomment %}
                 </div>
             </div>
             <h1 class="story-title"><a href="{{story.get_listing_url}}" rel="external nofollow noreferrer">{{ story.title }}</a> {% with story.get_domain as domain %}{% if domain is None %}<span class="netloc">{{ domain|default_if_none:"text" }}</span>{% else %}<span class="netloc"><a href="{{ domain.get_absolute_url }}">{{ domain }}</a></span>{% endif %}{% endwith %}</h1>

@@ -29,10 +29,10 @@
                 <th>invited by:</th>
                 <td>{% if user.invited_by %}<a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a>{% else %}None.{% endif %}</td>
             </tr>
-            <tr>
+            {% comment %}<tr>
                 <th>karma:</th>
                 <td>{{ user.karma }}</td>
-            </tr>
+            </tr>{% endcomment %}
             <tr>
                 <th>stories:</th>
                 <td><a href="{% url 'profile_posts' username=user.username %}">{{ user.stories.count }}</a></td>
