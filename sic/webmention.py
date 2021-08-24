@@ -19,6 +19,7 @@ from django.views.decorators.http import require_http_methods
 
 from .apps import SicAppConfig as config
 from .models import Story
+from sic.views.utils import check_safe_url
 
 
 class Webmention(models.Model):
@@ -173,24 +174,11 @@ def webmention_post(source, target):
     if len(links) == 0:
         return None
     for url in links:
-        try:
-            urlparse = urllib.parse.urlparse(url)
-        except ValueError:
-            continue
-        netloc = urlparse.netloc.split(sep=":", maxsplit=1)[0]
         if not settings.DEBUG:
-            if netloc == "localhost":
+            if not check_safe_url(url):
                 raise ValueError(
-                    "Webmention endpoint is localhost. Malicious or misconfigured endpoint."
+                    f"Webmention endpoint is invalid: {url}. Malicious or misconfigured endpoint."
                 )
-            try:
-                ip = ipaddress.ip_address(netloc)
-                if not ip.is_global:
-                    raise ValueError(
-                        f"Webmention endpoint IP is not global: {ip}. Malicious or misconfigured endpoint."
-                    )
-            except ipaddress.AddressValueError:
-                pass
         req = urllib.request.Request(
             url,
             data=urllib.parse.urlencode({"source": source, "target": target}).encode(
@@ -203,23 +191,6 @@ def webmention_post(source, target):
             if str(response.status).startswith("2"):
                 return url
     return None
-
-
-def is_valid(url):
-    try:
-        parsed = urllib.parse.urlparse(url)
-        netloc = parsed.netloc.split(sep=":", maxsplit=1)[0]
-        if not settings.DEBUG:
-            try:
-                ip = ipaddress.ip_address(netloc)
-                if not ip.is_global:
-                    return False
-            except ipaddress.AddressValueError:
-                pass
-            return netloc != "localhost"
-        return True
-    except ValueError:
-        return False
 
 
 def webmention_send(data):
@@ -240,7 +211,7 @@ def webmention_receive(data):
     target = data["target"]
     if source == target:
         raise ValueError("Received Webmention has source == target:", source)
-    if not is_valid(source):
+    if not check_safe_url(source):
         raise ValueError("Received Webmention source is invalid:", source)
     sourceparsed = urllib.parse.urlparse(source)
     targetparsed = urllib.parse.urlparse(target)

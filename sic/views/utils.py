@@ -1,3 +1,7 @@
+import ipaddress
+import socket
+import re
+import urllib.parse
 from http import HTTPStatus
 from django.http import (
     HttpResponse,
@@ -44,3 +48,69 @@ class Paginator(PaginatorDjango):
             yield from range(self.num_pages - on_ends + 1, self.num_pages + 1)
         else:
             yield from range(number + 1, self.num_pages + 1)
+
+
+def check_safe_url(url):
+    if url is not None:
+        url = url.strip()
+
+    if not url:
+        return False
+    if url.startswith("///"):
+        return False
+
+    if not re.search(r"^[a-zA-Z0-9+.\-]+://", url):
+        url = "//" + url
+    try:
+        urlparse = urllib.parse.urlparse(url)
+    except ValueError:
+        return False
+
+    if not urlparse.netloc and urlparse.scheme:
+        return False
+    if not urlparse.scheme and urlparse.netloc:
+        scheme = "http"
+    else:
+        scheme = urlparse.scheme
+
+    netloc, *port = urlparse.netloc.split(sep=":", maxsplit=1)
+
+    if netloc == "localhost":
+        return False
+
+    try:
+        ip = ipaddress.ip_address(netloc)
+        if not ip.is_global:
+            return False
+    except ValueError:
+        pass
+
+    if len(port) == 0:
+        if scheme == "http":
+            port = 80
+        elif scheme == "https":
+            port = 443
+        elif scheme == "gemini":
+            port = 1965
+        else:
+            return False
+    elif len(port) != 1:
+        return False
+    else:
+        port = port[0]
+
+    try:
+        addrinfos = socket.getaddrinfo(netloc, port, proto=socket.IPPROTO_TCP)
+    except socket.gaierror:
+        return False
+    if len(addrinfos) == 0:
+        return False
+    for addrinfo in addrinfos:
+        _, _, _, _, (ip, *_rest) = addrinfo
+        try:
+            ip = ipaddress.ip_address(ip)
+            if not ip.is_global:
+                return False
+        except ValueError:
+            return False
+    return True

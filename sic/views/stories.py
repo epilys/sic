@@ -19,7 +19,12 @@ from sic.forms import (
     OrderByForm,
 )
 from sic.markdown import comment_to_html
-from sic.views.utils import form_errors_as_string, Paginator, InvalidPage
+from sic.views.utils import (
+    form_errors_as_string,
+    Paginator,
+    InvalidPage,
+    check_safe_url,
+)
 from sic.moderation import ModerationLogEntry
 
 
@@ -280,6 +285,8 @@ def upvote_story(request, story_pk):
 
 def fetch_url_metadata(request, url):
     try:
+        if not check_safe_url(url):
+            raise Exception(f"Invalid URL: {url}.")
         with urllib.request.urlopen(
             urllib.request.Request(
                 url,
@@ -290,6 +297,9 @@ def fetch_url_metadata(request, url):
             ),
             timeout=2,
         ) as response:
+            final_url = response.url
+            if not check_safe_url(url):
+                raise Exception(f"Invalid URL: {url}.")
             text = response.read().decode("utf-8")
         parsr = TitleHTMLExtractor()
         parsr.feed(text)
