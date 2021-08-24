@@ -32,7 +32,7 @@
                     <td>{{ msg.author }}</td>
                     <td>{{ msg.recipient }}</td>
                     <td><a href="{{ msg.get_absolute_url }}">{{ msg.subject }}</a></td>
-                    <td>{{ msg.created }}</td>
+                    <td><time datetime="{{ msg.created | date:"Y-m-d H:i:s" }}+0000" title="{{ msg.created }} UTC+00:00">{{ msg.created }} UTC+00:00</time></td>
                 </tr>
             {% endfor %}
         </tbody>

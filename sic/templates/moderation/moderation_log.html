@@ -40,7 +40,7 @@
             {% for log in logs %}
                 {% with log.get_edited_object as edited_object %}
                     <tr>
-                        <td><p>{{ log.action_time|naturaltime }}</p></td>
+                        <td><p><time datetime="{{ log.action_time | date:"Y-m-d H:i:s" }}+0000" title="{{ log.action_time }} UTC+00:00">{{ log.action_time|naturaltime }}</time></p></td>
                         <td><p><a href="{{ log.user.get_absolute_url }}">{{ log.user }}</a>{% if log.user.is_admin %} (Admin){% elif log.user.is_moderator %} (Moderator){% endif %}</p></td>
                         <td><p>{% if edited_object %}{{ log.content_type.name }} &ldquo;<a href="{{ edited_object.get_absolute_url }}">{{ edited_object }}</a>&rdquo;{% endif %}</p></td>
                     </tr>

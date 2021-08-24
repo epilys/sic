@@ -83,7 +83,7 @@
                             <li style="{% if show_colors %}{{ tag.color_vars_css }}{% endif %}"><div class="tag"><span class="tag-name"><a href="{{ tag.get_absolute_url }}">{{ tag.name }} {{ tag.stories_count }}</a></span></div></li>
                         {% endfor %}
                     </ul>
-                    <span class="created">created {{ agg.created|naturaltime }}</span>
+                    <span class="created">created <time datetime="{{ agg.created | date:"Y-m-d H:i:s" }}+0000" title="{{ agg.created }} UTC+00:00">{{ agg.created|naturaltime }}</time></span>
                 </div>
             {% empty %}
                 {% if view_name == 'default_aggregations' %}

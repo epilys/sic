@@ -10,7 +10,7 @@
                 <p><em>
                     {% if comment.last_log_entry %}
                         Comment deleted by {% if comment.last_log_entry.user == comment.user %}author{% else %}{{ comment.last_log_entry.user }}{% endif %}
-                        <time datetime="{{ comment.last_log_entry.action_time | date:"Y-m-d H:i:s" }}" title="{{ comment.last_log_entry.action_time }}">
+                        <time datetime="{{ comment.last_log_entry.action_time | date:"Y-m-d H:i:s" }}+0000" title="{{ comment.last_log_entry.action_time }} UTC+00:00">
                             {{ comment.last_log_entry.action_time|naturaltime }}.
                         </time>{% if comment.last_log_entry.reason %} Reason: {{comment.last_log_entry.reason}}{% endif %}
                     {% else %}
@@ -35,9 +35,9 @@
                     {% comment %}&#32;{{comment.karma}}{% endcomment %}
                 </span>
             </div> <a href="{{ comment.user.get_absolute_url }}" class="user_link{% if comment.user.is_banned %} banned-user{% elif comment.user.is_new_user %} new-user{% endif %}">{{ comment.user }}</a>
-                <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}">{{ comment.created|naturaltime }}</time>
+                <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}+0000" title="{{ comment.created }} UTC+00:00">{{ comment.created|naturaltime }}</time>
                 {% if comment.last_log_entry %}
-                    <time datetime="{{ comment.last_log_entry.action_time | date:"Y-m-d H:i:s" }}" title="{{ comment.last_log_entry.action_time }}">- Edited {{ comment.last_log_entry.action_time|naturaltime }}</time>
+                    <time datetime="{{ comment.last_log_entry.action_time | date:"Y-m-d H:i:s" }}+0000" title="{{ comment.last_log_entry.action_time }} UTC+00:00">- Edited {{ comment.last_log_entry.action_time|naturaltime }}</time>
                 {%endif%}
                 | <a href="{{comment.get_absolute_url}}">link</a>
                 | <label class="reply" for="reply-{{comment.pk}}"><a href="">reply</a></label>{% if show_story %} | on <a href="{{ comment.story.get_absolute_url }}">{{ comment.story.title }}</a>{% endif %}
@@ -60,7 +60,7 @@
                 <form action="{% url 'reply' comment.pk %}" method="POST" class="reply-form">
                     <label class="reply" for="reply-{{comment.pk}}" style="align-self: end; position: absolute;"><a href="">hide</a></label>
                     <div class="reply-parent">
-                        <a href="{{ comment.user.get_absolute_url }}" class="user_link{% if comment.user.is_banned %} banned-user{% elif comment.user.is_new_user %} new-user{% endif %}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}" title="{{ comment.created }}"> {{ comment.created|naturaltime }}</time>
+                        <a href="{{ comment.user.get_absolute_url }}" class="user_link{% if comment.user.is_banned %} banned-user{% elif comment.user.is_new_user %} new-user{% endif %}">{{ comment.user }}</a> <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}+0000" title="{{ comment.created }} UTC+00:00"> {{ comment.created|naturaltime }}</time>
                         <div class="comment">{{ comment.text_to_html }}</div>
                     </div>
                     {% csrf_token %}

@@ -96,7 +96,7 @@
     <h1 class="message-subject">{{msg.subject}}</h1>
     <aside class="envelope-details">
         <span><b>From</b> <a href="{{ msg.author.get_absolute_url }}">{{ msg.author }}</a></span>
-        <span><b>Sent to</b> <a href="{{ msg.recipient.get_absolute_url }}">{{ msg.recipient }}</a> <time datetime="{{ msg.created | date:"Y-m-d H:i:s" }}" title="{{ msg.created }}"> {{ msg.created|naturaltime }}</time></span>
+        <span><b>Sent to</b> <a href="{{ msg.recipient.get_absolute_url }}">{{ msg.recipient }}</a> <time datetime="{{ msg.created | date:"Y-m-d H:i:s" }}+0000" title="{{ msg.created }} UTC+00:00">{{ msg.created|naturaltime }}</time></span>
         <span><b>Read by recipient</b>: {{ msg.read_by_recipient|yesno }}</span>
     </aside>
     <blockquote class="message_body">
