@@ -373,6 +373,7 @@ template {
   --entry-separator-color: #c7ddde;
   --netloc-color: darkslategray;
   --story-title-font-size: 1.1rem;
+  --link-color: #4141c7;
 }
 
 
@@ -598,9 +599,10 @@ body>main ul.posts>li.story .links{
   grid-area: links;
   color: #4d4d4d;
 }
+body>main ul.posts>li.story .links input[type="submit"],
 body>main ul.posts>li.story .links a,
 body>main ul.posts>li.story .links a:visited {
-  color: #4141c7;
+  color: var(--link-color);
 }
 
 header>* {
@@ -790,6 +792,20 @@ article.story>header {
   grid-auto-rows: auto;
   column-gap: .2rem;
   row-gap: .1rem;
+}
+
+form.bookmark_form {
+  display: inline;
+}
+
+input.bookmark_link {
+  border: none;
+  background: none;
+  display: inline;
+  text-decoration: underline;
+  padding: 0;
+  cursor: pointer;
+  color: var(--link-color);
 }
 
 .avatar-small {

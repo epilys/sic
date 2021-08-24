@@ -24,7 +24,12 @@ from sic.forms import (
     EditTaggregationHasTagForm,
     DeleteTaggregationHasTagForm,
 )
-from sic.views.utils import form_errors_as_string, Paginator, InvalidPage
+from sic.views.utils import (
+    form_errors_as_string,
+    Paginator,
+    InvalidPage,
+    check_next_url,
+)
 from sic.apps import SicAppConfig as config
 from sic.moderation import ModerationLogEntry
 
@@ -251,7 +256,7 @@ def taggregation_change_subscription(request, taggregation_pk):
         messages.add_message(
             request, messages.SUCCESS, f"You have subscribed to {obj}."
         )
-    if "next" in request.GET:
+    if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])
     return redirect(reverse("account"))
 
@@ -287,7 +292,7 @@ def edit_tag(request, tag_pk, slug=None):
                 )
 
             tag.save()
-            if "next" in request.GET:
+            if "next" in request.GET and check_next_url(request.GET["next"]):
                 return redirect(request.GET["next"])
             return redirect(reverse("browse_tags"))
         error = form_errors_as_string(form.errors)
@@ -335,7 +340,7 @@ def add_tag(request):
             messages.add_message(
                 request, messages.SUCCESS, f"You have created a tag: {new.name}."
             )
-            if "next" in request.GET:
+            if "next" in request.GET and check_next_url(request.GET["next"]):
                 return redirect(request.GET["next"])
             return redirect(reverse("browse_tags"))
         error = form_errors_as_string(form.errors)
@@ -421,7 +426,7 @@ def edit_aggregation(request, taggregation_pk, slug=None):
             obj.discoverable = form.cleaned_data["discoverable"]
             obj.private = form.cleaned_data["private"]
             obj.save()
-            if "next" in request.GET:
+            if "next" in request.GET and check_next_url(request.GET["next"]):
                 return redirect(request.GET["next"])
             return redirect(obj)
         error = form_errors_as_string(form.errors)

@@ -27,7 +27,12 @@ from ..forms import (
     BanUserForm,
     OrderByForm,
 )
-from sic.views.utils import form_errors_as_string, Paginator, InvalidPage
+from sic.views.utils import (
+    form_errors_as_string,
+    Paginator,
+    InvalidPage,
+    check_next_url,
+)
 from ..apps import SicAppConfig as config
 from ..markdown import comment_to_html
 from ..search import query_comments, query_stories
@@ -35,7 +40,7 @@ from ..search import query_comments, query_stories
 
 @login_required
 def preview_comment(request):
-    if "next" not in request.GET:
+    if "next" not in request.GET or not check_next_url(request.GET["next"]):
         return HttpResponseBadRequest("Request url should have a ?next= GET parameter.")
     if "comment_preview" in request.session:
         request.session["comment_preview"] = {}
@@ -357,7 +362,7 @@ def upvote_comment(request, story_pk, slug, comment_pk):
             )
             if not created:
                 vote.delete()
-    if "next" in request.GET:
+    if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])
     return redirect(reverse("index"))
 

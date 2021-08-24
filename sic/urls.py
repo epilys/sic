@@ -150,7 +150,7 @@ urlpatterns = [
     path("submit/", stories.submit_story, name="submit"),
     path("reply/<int:comment_pk>/", views.reply, name="reply"),
     path("upvote/<int:story_pk>/", stories.upvote_story, name="upvote_story"),
-    path("save/<int:story_pk>/", account.bookmark_story, name="bookmark_story"),
+    path("save/", account.bookmark_story, name="bookmark_story"),
     path("tag/<int:tag_pk>/<str:slug>/", tags.view_tag, name="view_tag"),
     path(
         "tag/<int:tag_pk>/<str:slug>/page/<int:page_num>/",

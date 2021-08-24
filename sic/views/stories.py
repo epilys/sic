@@ -24,6 +24,7 @@ from sic.views.utils import (
     Paginator,
     InvalidPage,
     check_safe_url,
+    check_next_url,
 )
 from sic.moderation import ModerationLogEntry
 
@@ -278,7 +279,7 @@ def upvote_story(request, story_pk):
             )
             if not created:
                 vote.delete()
-    if "next" in request.GET:
+    if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])
     return redirect(reverse("index"))
 

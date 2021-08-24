@@ -114,3 +114,10 @@ def check_safe_url(url):
         except ValueError:
             return False
     return True
+
+
+next_re = re.compile(r"^/[^/]")
+
+
+def check_next_url(next):
+    return next_re.search(next) is not None

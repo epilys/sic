@@ -2,7 +2,7 @@ import re
 import html
 import itertools
 from datetime import datetime
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
@@ -48,6 +48,7 @@ from sic.views.utils import (
     HttpResponseNotImplemented,
     Paginator,
     InvalidPage,
+    check_next_url,
 )
 
 # Convert image to data:image/... in order to save avatars as strings in database
@@ -358,7 +359,7 @@ def generate_invite(request, invite_pk=None):
             messages.add_message(
                 request, messages.ERROR, f"Invalid form. Error: {error}"
             )
-    if "next" in request.GET:
+    if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])
     return redirect(reverse("account"))
 
@@ -443,19 +444,21 @@ def accept_invite(request, invite_pk):
 
 @login_required
 @transaction.atomic
-def bookmark_story(request, story_pk):
-    if request.method == "GET":
-        user = request.user
-        try:
-            story_obj = Story.objects.get(pk=story_pk)
-        except Story.DoesNotExist:
-            raise Http404("Story does not exist") from Story.DoesNotExist
-        if user.saved_stories.filter(pk=story_obj.pk).exists():
-            user.saved_stories.remove(story_obj)
-        else:
-            user.saved_stories.add(story_obj, through_defaults=None)
-        print(StoryBookmark.objects.all())
-    if "next" in request.GET:
+@require_http_methods(["POST"])
+def bookmark_story(request):
+    user = request.user
+    if "story_pk" not in request.POST:
+        return HttpResponseBadRequest("Requested bookmark without a story primary key.")
+    story_pk = request.POST["story_pk"]
+    try:
+        story_obj = Story.objects.get(pk=story_pk)
+    except Story.DoesNotExist:
+        raise Http404("Story does not exist") from Story.DoesNotExist
+    if user.saved_stories.filter(pk=story_obj.pk).exists():
+        user.saved_stories.remove(story_obj)
+    else:
+        user.saved_stories.add(story_obj, through_defaults=None)
+    if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])
     return redirect(reverse("index"))
 
@@ -780,7 +783,7 @@ def issue_token(request):
     user.auth_token = AuthToken().make_token(user)
     user.save(update_fields=["auth_token"])
     messages.add_message(request, messages.SUCCESS, "New auth token generated.")
-    if "next" in request.GET:
+    if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])
     return redirect(reverse("account"))
 
