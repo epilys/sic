@@ -128,6 +128,7 @@ class Story(models.Model):
     )
     content_warning = models.CharField(null=True, blank=False, max_length=30)
     karma = models.IntegerField(null=False, blank=True, default=0)
+    message_id = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "stories"
@@ -252,6 +253,7 @@ class Comment(models.Model):
     last_modified = models.DateTimeField(auto_now_add=True)
     text = models.TextField(null=True, blank=False)
     karma = models.IntegerField(null=False, blank=True, default=0)
+    message_id = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.user} {self.created}"
