@@ -174,9 +174,9 @@ impl State {
                 }
                 self.tags.push(tag);
                 self.update_dom()?;
+                input_el.set_value("");
+                self.update_datalist()?;
             }
-            input_el.set_value("");
-            self.update_datalist()?;
         }
         Ok(())
     }
@@ -190,6 +190,37 @@ impl State {
             let root_el = JsCast::unchecked_into::<HtmlSelectElement>(root_el);
             if let Some(opt) = root_el.named_item(&format!("{}-{}-option", &self.field_name, tag)) {
                 opt.set_selected(false);
+            }
+            Some(tag)
+        } else {
+            None
+        }
+    }
+
+    fn autocomplete(&mut self, value: String) -> Option<String> {
+        if value.is_empty() {
+            return None;
+        }
+        let results = self
+            .valid_tags_set
+            .iter()
+            .filter_map(|t| {
+                if t.starts_with(&value) {
+                    Some(t.trim())
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<&str>>();
+        if results.len() == 1 {
+            let tag = results[0].to_string();
+            let document = document!();
+            let root_el = document
+                .get_element_by_id(&self.select_element_id)
+                .expect("could not find tag element");
+            let root_el = JsCast::unchecked_into::<HtmlSelectElement>(root_el);
+            if let Some(opt) = root_el.named_item(&format!("{}-{}-option", &self.field_name, tag)) {
+                opt.set_selected(true);
             }
             Some(tag)
         } else {
@@ -462,6 +493,13 @@ pub fn setup(
                 if (event.key() == "," || event.key() == "Enter") && !value.is_empty() {
                     event.prevent_default();
                     state_lck.add_tag(value.trim().to_string()).unwrap();
+                } else if event.key() == "Tab" {
+                    event.prevent_default();
+                    if let Some(tag) = state_lck.autocomplete(value) {
+                        input_el.set_value(tag.as_str());
+                        state_lck.add_tag(tag).unwrap();
+                        state_lck.update_dom().unwrap();
+                    }
                 } else if event.key() == "Backspace"
                     && value.is_empty()
                     && tag_list_el.child_element_count() != 0
