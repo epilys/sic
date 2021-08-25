@@ -9,8 +9,8 @@
             .then((module) => {
             async function run() {
                 let w = await module.default("{% static 'tag_input_wasm_bg.wasm' %}");
-                module.setup("tag", "id_tags", "tags_json");
-                module.setup("kind", "id_kind", "kind_json");
+                module.setup("tag", "id_tags", "tags_json", false);
+                module.setup("kind", "id_kind", "kind_json", true);
             }
             return run();
         }).catch(err => {
@@ -35,11 +35,19 @@
         .tag-wasm, .tag-wasm-tag-list {
             display: inline;
         }
-        .tag-wasm-tag-list {
-            gap: 6px;
-        }
         .tag-wasm-tag-list > * {
             margin-bottom: 2px;
+        }
+        .tag-wasm-tag-cloud {
+            user-select: none;
+            max-height: 15rem;
+            overflow: auto;
+            padding: .8rem .6rem;
+        }
+        .tag-wasm-tag-cloud > * {
+            cursor: pointer;
+            user-select: none;
+            filter: opacity(60%);
         }
         span.tag-remove {
             vertical-align: middle;
@@ -55,6 +63,11 @@
         }
         .tag-wasm:focus-within {
             outline: 1px solid Highlight;
+        }
+        @media (hover: none) and (pointer: coarse) {
+            .tag-wasm-help-text, .tag-wasm-msg, .tag-wasm-tag-cloud, .tag-wasm {
+                display: none;
+            }
         }
     </style>
     {{tags|json_script:"tags_json" }}

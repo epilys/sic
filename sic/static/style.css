@@ -1143,7 +1143,7 @@ kbd {
   box-shadow: 0 1px 1px #0003, 0 2px 0 0 #ffffffb3 inset;
   color: #333;
   display: inline-block;
-  font-size: .85em;
+  font-size: .85rem;
   font-weight: 700;
   line-height: 1;
   padding: 2px 4px;
@@ -1152,11 +1152,12 @@ kbd {
 }
 
 kbd[title="Command"] {
-  padding: 1px 4px;
+  padding: .1rem 0px;
   vertical-align: baseline;
-  width: 21px;
-  height: 21px;
-  font-size: 18px;
+  width: 1.4rem;
+  height: 1.4rem;
+  font-size: 1.1rem;
+  text-align: center;
 }
 
 p {

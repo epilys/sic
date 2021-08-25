@@ -23,8 +23,8 @@ Loading and setup of module:
           .then((module) => {
           async function run() {
               let w = await module.default("{% static 'tag_input_wasm_bg.wasm' %}");
-              //module.setup({singular_name}, {field_id_attribute}, {json_id_attribute});
-              module.setup("tag", "id_tags", "tags_json");
+              //module.setup({singular_name}, {field_id_attribute}, {json_id_attribute}, {use_datalist});
+              module.setup("tag", "id_tags", "tags_json", false);
           }
           return run();
       }).catch(err => {
@@ -34,6 +34,8 @@ Loading and setup of module:
   </script>
     {{tags|json_script:"tags_json" }}
 ```
+
+If `use_datalist` is true, autocompletion will be shown as a regular dropdown list. If it's false, a tag cloud will be shown instead.
 
 The `json` `<script>` element should contain a dictionary of valid options as keys and hex colors as values and render as:
 
