@@ -374,6 +374,11 @@ template {
   --netloc-color: darkslategray;
   --story-title-font-size: 1.1rem;
   --link-color: #4141c7;
+  --new-user-fg: green;
+  --banned-user-fg: #d6d6d6;
+  --feed-color: #dc3545;
+  --build-color: #2f4f4f;
+  --tag-border-color: #0000005e;
 }
 
 
@@ -593,6 +598,10 @@ div.content-warning:before{
 .content-warning input[type="checkbox"]:checked ~ a.title,
 .content-warning input[type="checkbox"]:checked ~ span.netloc {
   filter: none;
+}
+
+div.content-warning input[type="checkbox"] {
+  transform: none;
 }
 
 body>main ul.posts>li.story .links{
@@ -841,7 +850,7 @@ li.profile a {
 }
 
 a.feed, a.feed:visited {
-  color: #dc3545;
+  color: var(--feed-color);
   padding: 0px 2px;
   vertical-align: sub;
   border: none;
@@ -1044,7 +1053,7 @@ ul.tags li.tag:not(:nth-last-child(1)) {
 
 .tag {
   display: inline-block;
-  border: 1px solid #0000005e;
+  border: 1px solid var(--tag-border-color);
   border-radius: 5px;
   color: #555;
   font-size: .9rem;
@@ -1302,7 +1311,7 @@ span.tag-name a {
 }
 
 span.build, span.build a:visited {
-  color: #2f4f4f;
+  color: var(--build-color);
   font-size: 80%;
 }
 
@@ -1644,13 +1653,13 @@ svg.s {
 .new-user,
 a.new-user,
 a:visited.new-user {
-  color: green !important;
+  color: var(--new-user-fg) !important;
 }
 
 .banned-user,
 a.banned-user,
 a:visited.banned-user {
-  color: #d6d6d6 !important;
+  color: var(--banned-user-fg) !important;
   text-decoration-style: double;
   text-decoration-line: line-through;
 }
@@ -1711,9 +1720,18 @@ nav.pagination {
     --fg-color: white;
     --high-contrast-bg-color: black;
     --upvote-arrow-color:#bbb;
-    --upvote-arrow-upvoted-color: red;
+    --upvote-arrow-upvoted-color: #ca6a6a;
     --link-color: #ff7474;
     --netloc-color: #29b0b0;
+    --message-success-bg: #1a5a1a;
+    --message-warning-bg: #474722;
+    --message-error-bg: #833030;
+    --theme-color: #15557b;
+  --new-user-fg: green;
+  --banned-user-fg: #d6d6d6;
+  --feed-color: #ff5310;
+  --build-color: white;
+  --tag-border-color: #858585;
   }
   a.title,
   a.title:visited {
@@ -1736,7 +1754,7 @@ nav.pagination {
   }
 
   a.feed, a.feed:visited {
-    color: #ff5310;
+    color: var(--feed-color);
   }
 
   *|*:link, *|*:visited, .reply a, .reply a:visited {
@@ -1750,6 +1768,14 @@ nav.pagination {
     border-color: #686565;
     color: var(--fg-color);
   }
+
+  body>main ul.posts>li.story .links input[type="submit"].bookmark_link {
+    color: var(--fg-color);
+  }
+  input[type="submit"]:not(.bookmark_link) {
+    filter: invert();
+  }
+
   fieldset>legend {
     background-color: #0c0c0c;
     border-color: var(--high-contrast-bg-color);
@@ -1768,5 +1794,7 @@ nav.pagination {
   .pagination a:visited {
     color: var(--fg-color);
   }
-
+kbd {
+  filter: invert();
+}
 }

@@ -13,17 +13,53 @@
         {% block script %}{% endblock %}
         {% if not show_colors %}
             <style>
-                :root {
-                    --theme-color: black;
-                    --upvote-arrow-color: #c2c2c2;
-                    --upvote-arrow-upvoted-color: #000;
-                }
-                body {
+                body, img {
                     filter: grayscale(100%);
                 }
 
-                a, a:visited {
-                    color: black;
+                @media (prefers-color-scheme: light) {
+                    :root {
+                        --theme-color: black;
+                        --upvote-arrow-color: #c2c2c2;
+                        --upvote-arrow-upvoted-color: #000;
+                        --netloc-color: black;
+                        --new-user-fg: black;
+                        --banned-user-fg: black;
+                        --link-color: black;
+                        --feed-color: black;
+                        --build-color: black;
+                        --upvote-arrow-color:#bbb;
+                        --upvote-arrow-upvoted-color: black;
+                    }
+                    .tag {
+                        background: white;
+                        color: black;
+                    }
+
+                    a, a:visited {
+                        filter: grayscale(100%) contrast(10);
+                    }
+                }
+                @media (prefers-color-scheme: dark) {
+                    a, a:visited {
+                        color: white;
+                    }
+                    :root {
+                        --theme-color: black;
+                        --new-user-fg: white;
+                        --banned-user-fg: white;
+                        --netloc-color: white;
+                        --link-color: white;
+                        --feed-color: white;
+                        --build-color: white;
+                        --upvote-arrow-color:#686565;
+                        --upvote-arrow-upvoted-color: white;
+                    }
+                    .tag {
+                        background: black;
+                        color: white;
+                    }
+
                 }
             </style>
         {% endif %}
