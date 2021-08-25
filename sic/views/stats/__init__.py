@@ -406,3 +406,27 @@ GROUP BY
             count=1,
         )
     return HttpResponse(svg, content_type="image/svg+xml")
+
+
+@require_safe
+@cache_page(60 * 60 * 12)
+def user_graph_svg(request):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT
+    inviter_id,
+    receiver_id
+FROM
+    sic_invitation WHERE receiver_id IS NOT NULL;"""
+        )
+        edges = cursor.fetchall()
+    with multiprocessing.Pool(processes=1) as pool:
+        svg = pool.apply_async(make_total_graph_svg, (edges,))
+        svg = svg.get(timeout=2)
+        svg = re.sub(
+            r"""<svg """,
+            """<svg id="svg" """,
+            svg,
+            count=1,
+        )
+    return HttpResponse(svg, content_type="image/svg+xml")

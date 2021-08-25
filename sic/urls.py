@@ -87,6 +87,11 @@ urlpatterns = [
         name="total_graph_svg",
     ),
     path(
+        "about/statistics/svg/user-tag-graph/",
+        stats.user_graph_svg,
+        name="user_graph_svg",
+    ),
+    path(
         "about/statistics/svg/upvote-ratio-graph/",
         stats.upvote_ratio_svg,
         name="upvote_ratio_svg",
