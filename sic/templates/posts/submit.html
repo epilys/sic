@@ -9,8 +9,8 @@
             .then((module) => {
             async function run() {
                 let w = await module.default("{% static 'tag_input_wasm_bg.wasm' %}");
-                module.setup("tag", "tags", "id_tags", "tags_json");
-                module.setup("kind", "kind", "id_kind", "kind_json");
+                module.setup("tag", "id_tags", "tags_json");
+                module.setup("kind", "id_kind", "kind_json");
             }
             return run();
         }).catch(err => {
@@ -25,6 +25,7 @@
             border: 1px solid ThreeDLightShadow;
             padding: 5px;
             display: inline;
+            cursor: text;
         }
         input.tag-wasm-input {
             border: none;
@@ -48,6 +49,12 @@
         }
         p.help-text.after {
             margin-bottom: 0;
+        }
+        input.tag-wasm-input:focus {
+            outline: none;
+        }
+        .tag-wasm:focus-within {
+            outline: 1px solid Highlight;
         }
     </style>
     {{tags|json_script:"tags_json" }}

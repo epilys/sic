@@ -23,8 +23,8 @@ Loading and setup of module:
           .then((module) => {
           async function run() {
               let w = await module.default("{% static 'tag_input_wasm_bg.wasm' %}");
-              //module.setup({singular_name}, {field_name_attribute}, {field_id_attribute}, {json_id_attribute});
-              module.setup("tag", "tags", "id_tags", "tags_json");
+              //module.setup({singular_name}, {field_id_attribute}, {json_id_attribute});
+              module.setup("tag", "id_tags", "tags_json");
           }
           return run();
       }).catch(err => {
@@ -45,9 +45,7 @@ The `<select>` field element should render as:
 
 ```html
 <select name="tags" id="id_tags" multiple="">
-  <option value="19" id="tags-programming languages-option">programming languages</option>
-  <option value="21" id="tags-python-option">python</option>
+  <option value="19">programming languages</option>
+  <option value="21">python</option>
 </select>
 ```
-
-Where `id` is in the format `{field_name_attribute}-{value}-option`.

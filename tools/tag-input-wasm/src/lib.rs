@@ -42,6 +42,7 @@ const DATALIST_ID: &str = "tag-wasm-datalist";
 const MSG_ID: &str = "tag-wasm-msg";
 const INPUT_ID: &str = "tag-wasm-input";
 const DATA_CLOSE_ATTR: &str = "data-close";
+const OPTION_DATA_NAME_ATTR: &str = "data-option-name";
 
 struct State {
     tags: Vec<String>,
@@ -50,7 +51,6 @@ struct State {
     current_input: String,
     valid_tags_map: HashMap<String, (u8, u8, u8)>,
     remove_tag_cb: js_sys::Function,
-    field_name: String,
     select_element_id: String,
     tag_list_id: String,
     input_id: String,
@@ -155,7 +155,6 @@ impl State {
         let root_el = document
             .get_element_by_id(&self.select_element_id)
             .expect("could not find tag element");
-        let root_el = JsCast::unchecked_into::<HtmlSelectElement>(root_el);
         let input_el = document
             .get_element_by_id(&self.input_id)
             .expect("could not find input element");
@@ -167,8 +166,11 @@ impl State {
             msg_el.set_text_content(Some(&format!("{} does not exist.", &self.singular_name)));
         } else {
             if !self.tags.contains(&tag) {
-                if let Some(opt) =
-                    root_el.named_item(&format!("{}-{}-option", &self.field_name, tag))
+                if let Some(opt) = root_el
+                    .query_selector(&format!("[{}=\"{}\"]", OPTION_DATA_NAME_ATTR, tag))
+                    .ok()
+                    .and_then(|el| el)
+                    .and_then(|el| JsCast::dyn_into::<web_sys::HtmlOptionElement>(el).ok())
                 {
                     opt.set_selected(true);
                 }
@@ -188,7 +190,12 @@ impl State {
                 .get_element_by_id(&self.select_element_id)
                 .expect("could not find tag element");
             let root_el = JsCast::unchecked_into::<HtmlSelectElement>(root_el);
-            if let Some(opt) = root_el.named_item(&format!("{}-{}-option", &self.field_name, tag)) {
+            if let Some(opt) = root_el
+                .query_selector(&format!("[{}=\"{}\"]", OPTION_DATA_NAME_ATTR, tag))
+                .ok()
+                .and_then(|el| el)
+                .and_then(|el| JsCast::dyn_into::<web_sys::HtmlOptionElement>(el).ok())
+            {
                 opt.set_selected(false);
             }
             Some(tag)
@@ -219,7 +226,12 @@ impl State {
                 .get_element_by_id(&self.select_element_id)
                 .expect("could not find tag element");
             let root_el = JsCast::unchecked_into::<HtmlSelectElement>(root_el);
-            if let Some(opt) = root_el.named_item(&format!("{}-{}-option", &self.field_name, tag)) {
+            if let Some(opt) = root_el
+                .query_selector(&format!("[{}=\"{}\"]", OPTION_DATA_NAME_ATTR, tag))
+                .ok()
+                .and_then(|el| el)
+                .and_then(|el| JsCast::dyn_into::<web_sys::HtmlOptionElement>(el).ok())
+            {
                 opt.set_selected(true);
             }
             Some(tag)
@@ -239,8 +251,11 @@ impl State {
             if let Some(tag) = el.get_attribute(DATA_CLOSE_ATTR) {
                 if let Some(index) = self.tags.iter().position(|t| t == &tag) {
                     self.tags.remove(index);
-                    if let Some(opt) =
-                        root_el.named_item(&format!("{}-{}-option", &self.field_name, tag))
+                    if let Some(opt) = root_el
+                        .query_selector(&format!("[{}=\"{}\"]", OPTION_DATA_NAME_ATTR, tag))
+                        .ok()
+                        .and_then(|el| el)
+                        .and_then(|el| JsCast::dyn_into::<web_sys::HtmlOptionElement>(el).ok())
                     {
                         opt.set_selected(false);
                     }
@@ -259,7 +274,12 @@ impl State {
         let root_el = JsCast::unchecked_into::<HtmlSelectElement>(root_el);
         let mut selected = vec![];
         for tag in self.valid_tags_set.iter() {
-            if let Some(opt) = root_el.named_item(&format!("{}-{}-option", &self.field_name, tag)) {
+            if let Some(opt) = root_el
+                .query_selector(&format!("[{}=\"{}\"]", OPTION_DATA_NAME_ATTR, tag))
+                .ok()
+                .and_then(|el| el)
+                .and_then(|el| JsCast::dyn_into::<web_sys::HtmlOptionElement>(el).ok())
+            {
                 if opt.selected() || opt.has_attribute("selected") {
                     selected.push(tag.to_string());
                 }
@@ -326,7 +346,6 @@ fn hex_to_rgb(hex: &str) -> (u8, u8, u8) {
 #[wasm_bindgen]
 pub fn setup(
     singular_name: String,
-    field_name: String,
     select_element_id: String,
     tags_json_id: String,
 ) -> std::result::Result<(), JsValue> {
@@ -340,6 +359,20 @@ pub fn setup(
     let root_el = document
         .get_element_by_id(&select_element_id)
         .expect("could not find tag element");
+    {
+        let children = root_el.children();
+
+        for i in 0..(children.length()) {
+            if let Some(c) = children.item(i) {
+                let text = if let Some(c) = JsCast::dyn_ref::<web_sys::HtmlOptionElement>(&c) {
+                    c.text()
+                } else {
+                    continue;
+                };
+                c.set_attribute(OPTION_DATA_NAME_ATTR, &text)?;
+            }
+        }
+    }
     let root_help_text_el = root_el.previous_element_sibling().expect("");
     let tag_container = document.create_element("div")?;
     tag_container.set_id(&format!("{}-tag-wasm", &select_element_id));
@@ -434,7 +467,6 @@ pub fn setup(
         input_id,
         datalist_id,
         msg_id,
-        field_name,
         singular_name,
     }));
 

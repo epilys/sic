@@ -12,17 +12,6 @@ SELECT_WIDGET_HELP_TEXT = mark_safe(
 )
 
 
-class TagsSelect(forms.SelectMultiple):
-    def create_option(
-        self, name, value, label, selected, index, subindex=None, attrs=None
-    ):
-        option = super().create_option(
-            name, value, label, selected, index, subindex, attrs
-        )
-        option["attrs"]["id"] = f"{name}-{value.instance.name}-option"
-        return option
-
-
 class SubmitStoryForm(forms.Form):
     required_css_class = "required"
     title = forms.CharField(
@@ -54,14 +43,14 @@ class SubmitStoryForm(forms.Form):
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all().order_by(Lower("name")),
         label="Post tags",
-        widget=TagsSelect(attrs={"size": "4"}),
+        widget=forms.SelectMultiple(attrs={"size": "4"}),
         required=False,
         help_text=SELECT_WIDGET_HELP_TEXT,
     )
     kind = forms.ModelMultipleChoiceField(
         queryset=StoryKind.objects.all(),
         label="Submission kind",
-        widget=TagsSelect(attrs={"size": "4"}),
+        widget=forms.SelectMultiple(attrs={"size": "4"}),
         required=True,
         help_text=SELECT_WIDGET_HELP_TEXT,
     )
@@ -280,7 +269,7 @@ class AnnotationForm(forms.Form):
     )
 
 
-class ParentsSelect(TagsSelect):
+class ParentsSelect(forms.SelectMultiple):
     def create_option(
         self, name, value, label, selected, index, subindex=None, attrs=None
     ):
