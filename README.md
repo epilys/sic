@@ -2,7 +2,7 @@
 
 Public instance at https://sic.pm | [Tor hidden service](http://sicpm3hp7dtrwhmf4qlelycqlvie6flqa5qnjnt3snok5xydvxhs4xyd.onion/) | IRC: [`#sic` on Libera Chat](https://libera.chat/) | [[sic] bot on Mastodon](https://botsin.space/@sic)
 
-<table>
+<table align="center">
 	<tbody>
 		<tr>
 			<td><kbd><img src="./screenshot-frontpage.png" alt="frontpage screenshot" title="frontpage screenshot" height="250"/></kbd></td>
@@ -13,7 +13,7 @@ Public instance at https://sic.pm | [Tor hidden service](http://sicpm3hp7dtrwhmf
 
 ## In a nutshell
 
-- No Javascript at all. An HTML5 compliant browser is enough; it even runs on [`w3m`, the text web browser](http://w3m.sourceforge.net/).
+- No Javascript necessary. An HTML5 compliant browser is enough; it even runs on [`w3m`, the text web browser](http://w3m.sourceforge.net/).
 - Lightweight, requires only a `python3` environment and stores its database in a `sqlite3` file.
 - Can be deployed with WSGI compatible servers (Apache/NGINX) or even `django`'s development server if need be.
 
@@ -70,14 +70,15 @@ Public instance at https://sic.pm | [Tor hidden service](http://sicpm3hp7dtrwhmf
 
 ```shell
 cp sic/local/secret_settings.py{.template,}
-vim sic/local/secret_settings.py # add secret token
+vim sic/local/secret_settings.py # REQUIRED: add secret token
 vim sic/local/settings_local.py # OPTIONAL: local settings (SMTP etc)
+python3 -m venv # OPTIONAL: setup virtual python enviroment in 'venv' directory
+python3 -m pip install -r requirements.txt # Or 'pip3' install...
 python3 manage.py migrate #sets up database
-sqlite3 sic.dib < sic.db-dummy_data.sql # OPTIONAL insert dummy data
 python3 manage.py createsuperuser #selfexplanatory
 python3 manage.py runserver # run at 127.0.0.1:8000
-python3 manage.py runserver 8001 # run at 127.0.0.1:8001
-python3 manage.py runserver 0.0.0.0:8000 # run at public-ip:8000
+python3 manage.py runserver 8001 # or run at 127.0.0.1:8001
+python3 manage.py runserver 0.0.0.0:8000 # or run at public-ip:8000
 ```
 
 See [`DEPLOY.md`](DEPLOY.md) for deployment instructions.

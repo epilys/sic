@@ -6,6 +6,8 @@
 cp sic/local/secret_settings.py{.template,}
 vim sic/local/secret_settings.py # add secret token
 vim sic/local/settings_local.py # local settings (SMTP etc)
+python3 -m venv # OPTIONAL: setup virtual python enviroment in 'venv' directory
+python3 -m pip install -r requirements.txt # Or 'pip3' install...
 python3 manage.py migrate #sets up database
 python3 manage.py createsuperuser #selfexplanatory
 ```
