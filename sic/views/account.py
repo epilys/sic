@@ -677,6 +677,16 @@ def edit_settings(request):
                 user.email_replies = form.cleaned_data["email_replies"]
                 user.email_messages = form.cleaned_data["email_messages"]
                 user.email_mentions = form.cleaned_data["email_mentions"]
+                user.enable_mailing_list = form.cleaned_data["enable_mailing_list"]
+                user.enable_mailing_list_comments = form.cleaned_data[
+                    "enable_mailing_list_comments"
+                ]
+                user.enable_mailing_list_replies = form.cleaned_data[
+                    "enable_mailing_list_replies"
+                ]
+                user.enable_mailing_list_replying = form.cleaned_data[
+                    "enable_mailing_list_replying"
+                ]
                 user.show_avatars = form.cleaned_data["show_avatars"]
                 user.show_colors = form.cleaned_data["show_colors"]
                 user.save()

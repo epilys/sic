@@ -620,24 +620,20 @@ class StoryFilter(models.Model):
     def content(self):
         ...
 
-    # def into_inner(self):
-    #    try:
-    #        return self.exacttagfilter
-    #    except:
-    #        pass
-    #    try:
-    #        return self.nametagfilter
-    #    except:
-    #        pass
-    #    try:
-    #        return self.domaintagfilter
-    #    except:
-    #        pass
-    #    try:
-    #        return self.userfilter
-    #    except:
-    #        pass
-    #    return None
+    def into_inner(self):
+        try:
+            return self.exacttagfilter
+        except:
+            pass
+        try:
+            return self.domainfilter
+        except:
+            pass
+        try:
+            return self.userfilter
+        except:
+            pass
+        return None
 
     @staticmethod
     def filter_filters(filters):
@@ -926,6 +922,11 @@ class User(PermissionsMixin, AbstractBaseUser):
     email_replies = models.BooleanField(default=True, null=False)
     email_messages = models.BooleanField(default=True, null=False)
     email_mentions = models.BooleanField(default=True, null=False)
+    enable_mailing_list = models.BooleanField(default=False, null=False)
+    enable_mailing_list_comments = models.BooleanField(default=False, null=False)
+    enable_mailing_list_replies = models.BooleanField(default=False, null=False)
+    enable_mailing_list_replying = models.BooleanField(default=False, null=False)
+
     show_avatars = models.BooleanField(default=True, null=False)
     show_story_previews = models.BooleanField(default=True, null=False)
     show_submitted_story_threads = models.BooleanField(default=True, null=False)

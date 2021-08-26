@@ -76,6 +76,7 @@ class SicAppConfig(AppConfig):
 
     FORMAT_QUOTED_MESSAGES = True
     DETECT_USERNAME_MENTIONS_IN_COMMENTS = True
+    MAILING_LIST = True
 
     def ready(self):
         import sic.notifications
