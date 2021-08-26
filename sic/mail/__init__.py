@@ -1,17 +1,21 @@
 from datetime import datetime, timedelta
 import logging
 import email
+import itertools
 import re
 from email.policy import default as email_policy
 from django.db import models
-from django.db.models import F
+from django.db.models import F, Q
 from django.template import Context, Template
 from django.core import mail
 from django.utils.timezone import make_aware
 from django.core.mail import EmailMessage
 from django.urls import reverse
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from sic.apps import SicAppConfig as config
-from sic.models import Story, User, Comment, Tag
+from django.core.mail import EmailMessage
+from sic.models import Story, User, Comment, Tag, ExactTagFilter, DomainFilter
 from sic.markdown import Textractor
 
 logger = logging.getLogger("sic")
@@ -255,3 +259,56 @@ def post_receive(data):
         message_id=msg["message-id"],
     )
     return f"created story {story.pk}"
+
+
+@receiver(post_save, sender=Story)
+def story_create_mailing_list(
+    sender, instance, created, raw, using, update_fields, **kwargs
+):
+    if (not created and not instance.active) or not config.MAILING_LIST:
+        return
+    story_obj = instance
+    users = User.objects.filter(enable_mailing_list=True)
+    if not users.exists():
+        return
+    tags = story_obj.tags.all()
+    message_id = story_obj.message_id
+    if not message_id:
+        message_id = f"<story-{story_obj.pk}@{config.get_domain()}>"
+    any_matches = False
+    for user in users:
+        qobj = ~Q(story__pk=None)
+        for f in ExactTagFilter.objects.filter(excluded_in_user=user):
+            qobj |= f.as_q()
+        for f in DomainFilter.objects.filter(excluded_in_user=user):
+            qobj |= f.as_q()
+        if not Story.objects.filter(pk=story_obj.pk).exclude(qobj).exists():
+            continue
+        match = False
+        for has in itertools.chain.from_iterable(
+            map(
+                lambda sub: sub.taggregationhastag_set.all(),
+                user.taggregation_subscriptions.all(),
+            )
+        ):
+            if has.tag not in tags:
+                continue
+            has_match = True
+            qobj = ~Q(story__pk=None)
+            for f in filter(lambda f: f.into_inner(), has.exclude_filters.all()):
+                qobj |= f.as_q()
+            has_match = Story.objects.filter(pk=story_obj.pk).exclude(qobj).exists()
+            match |= has_match
+        if not match:
+            continue
+        any_matches = True
+        EmailMessage(
+            f"[sic] {story_obj.title}",
+            story_obj.url if story_obj.url else story_obj.description,
+            config.NOTIFICATION_FROM,
+            [user.email],
+            headers={"Message-ID": message_id},
+        ).send(fail_silently=False)
+    if any_matches and not story_obj.message_id:
+        story_obj.message_id = message_id
+        story_obj.save(update_fields=["message_id"])
