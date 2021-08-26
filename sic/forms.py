@@ -4,8 +4,8 @@ from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.db.models.functions import Lower
-from .apps import SicAppConfig as config
-from .models import Tag, User, StoryKind, StoryFilter, TaggregationHasTag
+from sic.apps import SicAppConfig as config
+from sic.models import Tag, User, StoryKind, StoryFilter, TaggregationHasTag
 
 SELECT_WIDGET_HELP_TEXT = mark_safe(
     """Hold down <kbd title="Control">Ctrl</kbd>, or <kbd title="Command">&#8984;</kbd> to select more than one entry."""
@@ -446,6 +446,35 @@ class EditAccountSettings(forms.Form):
     email_replies = forms.BooleanField(initial=True, required=False)
     email_messages = forms.BooleanField(initial=True, required=False)
     email_mentions = forms.BooleanField(initial=True, required=False)
+    enable_mailing_list = forms.BooleanField(
+        initial=False,
+        required=False,
+        help_text="Enabling this option will result in subscribed stories being mailed to you. To receive stories in less frequent batches enable the weekly digest settings instead. To also receive comments and be able to reply to them refer to other settings.",
+        disabled=not config.MAILING_LIST,
+        widget=forms.CheckboxInput if config.MAILING_LIST else forms.HiddenInput,
+    )
+    enable_mailing_list_comments = forms.BooleanField(
+        initial=False,
+        required=False,
+        help_text="Enabling this option will result in comments being mailed to you in addition to stories if the mailing list option is enabled.",
+        disabled=not config.MAILING_LIST,
+        widget=forms.CheckboxInput if config.MAILING_LIST else forms.HiddenInput,
+    )
+    enable_mailing_list_replies = forms.BooleanField(
+        initial=False,
+        required=False,
+        help_text="Enabling this option will result in replies to your comments being mailed to you in addition to stories if the mailing list option is enabled. Note that this option does not depend on enabling the mailing list comments setting.",
+        disabled=not config.MAILING_LIST,
+        widget=forms.CheckboxInput if config.MAILING_LIST else forms.HiddenInput,
+    )
+    enable_mailing_list_replying = forms.BooleanField(
+        initial=False,
+        required=False,
+        help_text="Enabling this option will allow you to reply to mailing list e-mails and having the reply posted under your account directly.",
+        disabled=not config.MAILING_LIST,
+        widget=forms.CheckboxInput if config.MAILING_LIST else forms.HiddenInput,
+    )
+
     show_avatars = forms.BooleanField(initial=True, required=False)
     show_stories_with_content_warning = forms.BooleanField(initial=True, required=False)
     show_colors = forms.BooleanField(

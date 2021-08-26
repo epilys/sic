@@ -20,16 +20,16 @@
     <h1>edit account settings</h1>
     <form method="POST" class="submit-story-form">
         {% csrf_token %}
-        {{ form.user }}
-        {% for field in form %}
-            {% if field is not form.user %}
-                {{ field.errors }}
-                {{ field.label_tag }}
-                {% if field.help_text %}
-                    <p class="help-text">{{ field.help_text }}</p>
-                {% endif %}
-                {{ field }}
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+        {% for field in form.visible_fields %}
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {% if field.help_text %}
+                <p class="help-text">{{ field.help_text }}</p>
             {% endif %}
+            {{ field }}
         {% endfor %}
         <div class="button-flex-box">
             <input type="submit" value="Submit">
