@@ -371,7 +371,11 @@ def recent_comments(request, page_num=1):
     if page_num == 1 and request.get_full_path() != reverse("recent_comments"):
         # Redirect to '/' to avoid having both '/' and '/page/1' as valid urls.
         return redirect(reverse("recent_comments"))
-    comments = Comment.objects.filter(deleted=False).order_by("-created")
+    comments = (
+        Comment.objects.filter(deleted=False)
+        .prefetch_related("user")
+        .order_by("-created")
+    )
     paginator = Paginator(comments[:40], config.STORIES_PER_PAGE)
     try:
         page = paginator.page(page_num)

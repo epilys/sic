@@ -76,7 +76,7 @@ def story(request, story_pk, slug=None):
         if slug != story_obj.slugify:
             return redirect(story_obj.get_absolute_url())
         form = SubmitCommentForm()
-    comments = story_obj.comments.prefetch_related("user", "votes")
+    comments = story_obj.active_comments.prefetch_related("user", "votes")
     return render(
         request,
         "posts/story.html",

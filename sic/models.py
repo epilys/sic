@@ -989,6 +989,11 @@ class User(PermissionsMixin, AbstractBaseUser):
             days=config.NEW_USER_DAYS
         ) and not self.is_staff
 
+    @cached_property
+    def unread_messages(self):
+        """Used by auth.py template context"""
+        return self.received_messages.filter(read_by_recipient=False).count()
+
     @property
     def is_staff(self):
         "Is the user a member of staff?"

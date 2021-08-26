@@ -96,9 +96,7 @@ def auth_context(request):
             "show_avatars": request.user.show_avatars,
             "show_colors": request.user.show_colors,
             "show_stories_with_content_warning": request.user.show_stories_with_content_warning,
-            "unread_messages": request.user.received_messages.filter(
-                read_by_recipient=False
-            ).count(),
+            "unread_messages": request.user.unread_messages,
             "font_size": request.session.get("font_size", None),
             "vivid_colors": request.session.get("vivid_colors", None),
         }
