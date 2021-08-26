@@ -50,10 +50,15 @@
             filter: opacity(60%);
         }
         span.tag-remove {
-            vertical-align: middle;
             cursor: pointer;
             user-select: none;
-            margin-left: 1px;
+            padding:.2rem;
+            margin:-.2rem;
+            position: absolute;
+            transform: translateY(.05rem);
+        }
+        span.tag-remove + span.tag-name {
+            margin-left:.8rem;
         }
         p.help-text.after {
             margin-bottom: 0;

@@ -137,10 +137,6 @@ impl State {
                     &format!("--red: {}; --green:{}; --blue:{};", r, g, b),
                 )?;
                 let span_el = document.create_element("span")?;
-                span_el.set_text_content(Some(tag.as_str()));
-                span_el.set_attribute("class", "tag-name")?;
-                tag_el.append_child(&span_el)?;
-                let span_el = document.create_element("span")?;
                 span_el.set_text_content(Some("✕"));
                 span_el.set_attribute("class", "tag-remove")?;
                 span_el.set_attribute(DATA_CLOSE_ATTR, &tag)?;
@@ -149,6 +145,10 @@ impl State {
                     span_el.set_onclick(Some(self.remove_tag_cb.as_ref()));
                     span_el.set_onkeydown(Some(self.remove_tag_cb.as_ref()));
                 }
+                tag_el.append_child(&span_el)?;
+                let span_el = document.create_element("span")?;
+                span_el.set_text_content(Some(tag.as_str()));
+                span_el.set_attribute("class", "tag-name")?;
                 tag_el.append_child(&span_el)?;
                 if tag_list_el.deref().child_nodes().length() != 0 {
                     tag_list_el.append_child(&document.create_text_node(" "))?;
@@ -261,6 +261,7 @@ impl State {
                 .and_then(|el| JsCast::dyn_into::<web_sys::HtmlOptionElement>(el).ok())
             {
                 opt.set_selected(false);
+                opt.remove_attribute("selected").unwrap();
             }
             Some(tag)
         } else {
@@ -322,6 +323,7 @@ impl State {
                         .and_then(|el| JsCast::dyn_into::<web_sys::HtmlOptionElement>(el).ok())
                     {
                         opt.set_selected(false);
+                        opt.remove_attribute("selected").unwrap();
                     }
                     self.update_cloud()?;
                     self.update_input()?;
@@ -345,7 +347,7 @@ impl State {
                 .and_then(|el| el)
                 .and_then(|el| JsCast::dyn_into::<web_sys::HtmlOptionElement>(el).ok())
             {
-                if opt.selected() || opt.has_attribute("selected") {
+                if opt.selected() {
                     selected.push(tag.to_string());
                 }
             }
