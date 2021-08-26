@@ -781,6 +781,12 @@ figure#avatar-thumbnail figcaption {
   transform: translateY(calc(1.1rem - var(--upvote-arrow-height)));
 }
 
+article.story>header> ul.messagelist {
+  margin: 0;
+}
+article.story>header> ul.tags {
+  margin-top: .2rem;
+}
 article.story>header> .votes .upvote {
   --upvote-arrow-height: 1rem;
 }
@@ -802,7 +808,7 @@ article.story>header {
   grid-template-columns: auto 1fr;
   grid-auto-rows: auto;
   column-gap: .2rem;
-  row-gap: .1rem;
+  row-gap: .2rem;
 }
 
 form.bookmark_form {
