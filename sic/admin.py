@@ -47,16 +47,45 @@ class TagAdmin(ModelAdmin):
 
 
 class StoryAdmin(ModelAdmin):
+    def tags_html(self, obj):
+        if not obj.tags.exists():
+            return "-"
+        return ",".join(list(map(lambda t: str(t), obj.tags.all())))
+
+    def kind_html(self, obj):
+        if not obj.kind.exists():
+            return "-"
+        return ",".join(list(map(lambda k: str(k), obj.kind.all())))
+
     ordering = ["-created", "title"]
-    list_display = ["title", "user", "created", "url", "last_modified"]
+    list_display = [
+        "title",
+        "user",
+        "kind_html",
+        "tags_html",
+        "created",
+        "url",
+        "last_modified",
+        "karma",
+    ]
     list_filter = [
         "tags",
+        "kind",
+        "active",
     ]
 
 
 class CommentAdmin(ModelAdmin):
     ordering = ["-created"]
-    list_display = ["user", "story", "parent", "created", "text", "last_modified"]
+    list_display = [
+        "user",
+        "story",
+        "parent",
+        "created",
+        "text",
+        "last_modified",
+        "karma",
+    ]
 
 
 class HatAdmin(ModelAdmin):
