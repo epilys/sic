@@ -1,3 +1,8 @@
+from datetime import datetime, timedelta
+import logging
+import email
+import re
+from email.policy import default as email_policy
 from django.db import models
 from django.db.models import F
 from django.template import Context, Template
@@ -5,10 +10,9 @@ from django.core import mail
 from django.utils.timezone import make_aware
 from django.core.mail import EmailMessage
 from django.urls import reverse
-from ..apps import SicAppConfig as config
-from ..models import Story
-from datetime import datetime, timedelta
-import logging
+from sic.apps import SicAppConfig as config
+from sic.models import Story, User, Comment, Tag
+from sic.markdown import Textractor
 
 logger = logging.getLogger("sic")
 
@@ -58,7 +62,6 @@ class Digest(models.Model):
         digests = Digest.objects.annotate(
             is_today=F("on_days").bitand(1 << day)
         ).filter(active=True, is_today__gt=0)
-        messages = []
         if not digests.exists():
             return
         template = Template(DIGEST_TEMPLATE)
@@ -149,3 +152,106 @@ class Digest(models.Model):
     @property
     def days_list(self):
         return [test_bit(self.on_days, d) for d in range(0, 7)]
+
+
+MSG_ID_RE = re.compile(r"^\s*<(?P<msg_id>[^>]+)>\s*")
+PK_MSG_ID_RE = re.compile(
+    r"(?:story-(?P<story_pk>\d+))|(?:comment-(?P<comment_pk>\d+))"
+)
+METADATA_RE = re.compile(
+    r"(?:(?:url:\s*(?P<url>.+?)(?:\n|$))|(?:content-warning:\s*(?P<content_warning>.+?)(?:\n|$))|(?:tags:\s*(?P<tags>.+?)(?:\n|$))|(?:author:\s*(?P<author>.+?)(?:\n|$))|(?:publish-date:\s*(?P<publish_date>.+?)(?:\n|$)))+(?:\n(?P<description>(?:.|\n)*))?$",
+    re.IGNORECASE,
+)
+
+
+def post_receive(data):
+    msg = email.message_from_string(data, policy=email_policy)
+    from_ = msg["from"].addresses[0].addr_spec
+    user = User.objects.get(email=from_)
+    body = msg.get_body(preferencelist=("markdown", "plain", "html"))
+    if body["content-type"].maintype != "text":
+        raise Exception("Not text.")
+    if body["content-type"].subtype == "html":
+        text = Textractor.extract(body.get_content()).strip()
+    else:
+        text = body.get_content().strip()
+    if "In-Reply-To" in msg or "References" in msg:
+        # This is a comment
+        in_reply_to = msg["In-Reply-To"].strip()
+        in_reply_to_obj = None
+        pk_search = PK_MSG_ID_RE.search(in_reply_to)
+        in_reply_to_obj = Story.objects.filter(message_id=in_reply_to).first()
+        if not in_reply_to_obj:
+            in_reply_to_obj = Comment.objects.filter(message_id=in_reply_to).first()
+        if not in_reply_to_obj:
+            if pk_search:
+                in_reply_to_obj = (
+                    Story.objects.filter(pk=pk_search.groups["story_pk"]).first()
+                    if pk_search.groups["story_pk"]
+                    else Comment.objects.filter(
+                        pk=pk_search.groups["comment_pk"]
+                    ).first()
+                )
+        if not in_reply_to_obj:
+            raise Exception("In reply to what?")
+        if isinstance(in_reply_to_obj, Comment):
+            parent_id = in_reply_to_obj.id
+            story_id = in_reply_to_obj.story_id
+        else:
+            parent_id = None
+            story_id = in_reply_to_obj.id
+        comment = Comment.objects.create(
+            user=user,
+            story_id=story_id,
+            parent_id=parent_id,
+            text=text,
+            message_id=msg["message-id"],
+        )
+        return f"created comment {comment.pk}"
+
+    metadata_search = METADATA_RE.search(text)
+    if metadata_search:
+        text = metadata_search.groups("description")
+        publish_date = metadata_search.groups("publish_date")
+        try:
+            publish_date = (
+                datetime.date.fromisoformat(publish_date.strip())
+                if publish_date
+                else None
+            )
+        except:
+            publish_date = None
+        url = metadata_search.groups("url")
+        content_warning = metadata_search.groups("content_warning")
+        author = (
+            metadata_search.groups("author").lowercase()
+            if metadata_search.groups("author")
+            else None
+        )
+        user_is_author = author in ["yes", "true"] if author else False
+        tags = metadata_search.groups("tags")
+        if tags:
+            tags = list(
+                filter(
+                    lambda t: Tag.objects.filter(name=t.strip()).first(),
+                    tags.split(","),
+                )
+            )
+    else:
+        url = None
+        publish_date = None
+        description = text
+        user_is_author = False
+        content_warning = None
+    # This is a story
+    story = Story.objects.create(
+        title=msg["subject"].strip(),
+        url=url,
+        publish_date=publish_date,
+        description=description,
+        user_id=user.id,
+        user_is_author=user_is_author,
+        content_warning=content_warning,
+        message_id=msg["message-id"],
+    )
+    return f"created story {story.pk}"
