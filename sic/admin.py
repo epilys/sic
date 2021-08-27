@@ -67,6 +67,7 @@ class StoryAdmin(ModelAdmin):
         "url",
         "last_modified",
         "karma",
+        "message_id",
     ]
     list_filter = [
         "tags",
@@ -85,6 +86,7 @@ class CommentAdmin(ModelAdmin):
         "text",
         "last_modified",
         "karma",
+        "message_id",
     ]
 
 
