@@ -13,6 +13,16 @@
 
         text {
             font-family: "Quicksand Medium", "Inter", sans-serif !important;
+            font-size: 8px !important;
+        }
+
+        summary {
+            width: max-content;
+            direction: rtl;
+            font-size: medium;
+        }
+        details {
+            display: inline;
         }
 
         figure {
@@ -32,6 +42,13 @@
             justify-content: space-between;
             flex-flow: row wrap;
         }
+
+        table, td {
+            text-align: right;
+            font-feature-settings: 'tnum' 1;
+            margin: auto;
+            font-size: medium;
+        }
         @media (prefers-color-scheme: dark) {
             figure>svg  {
                 filter: invert(80%);
@@ -40,25 +57,85 @@
     </style>
 {% endblock %}
 {% block content %}
+    {% get_from_cache 'daily_posts' as daily_posts %}
+    {% get_from_cache 'registrations' as registrations %}
+    {% get_from_cache 'upvote_ratio' as upvote_ratio %}
     <h1>Community statistics</h1>
     <article>
         <figure>
             <svg role="img" xmlns="http://www.w3.org/2000/svg" style="height: auto; width: 460.8pt;max-width: var(--main-width);" viewBox="0 0 460.8 345.6">
                 <use xlink:href="{% url 'daily_posts_svg' %}#svg" width="100%" height="100%"></use>
             </svg>
-            <figcaption>Daily post count</figcaption>
+            <figcaption>Daily post count{% if daily_posts %}
+                <details>
+                    <summary>(data)</summary>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Count</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in daily_posts %}
+                                <tr>
+                                    <th>{{ r.0 }}</th>
+                                    <td>{{ r.1 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+            {% endif %}</figcaption>
         </figure>
         <figure>
             <svg role="img" xmlns="http://www.w3.org/2000/svg" style="height: auto; width: 460.8pt;max-width: var(--main-width);" viewBox="0 0 460.8 345.6">
                 <use xlink:href="{% url 'registrations_svg' %}#svg" width="100%" height="100%"></use>
             </svg>
-            <figcaption>Registrations per month</figcaption>
+            <figcaption>Registrations per month{% if registrations %}
+                <details>
+                    <summary>(data)</summary>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Count</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in registrations %}
+                                <tr>
+                                    <th>{{ r.0 }}</th>
+                                    <td>{{ r.1 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+            {% endif %}</figcaption>
         </figure>
         <figure>
             <svg role="img" xmlns="http://www.w3.org/2000/svg" style="height: auto; width: 600pt;max-width: var(--main-width);" viewBox="0 0 600 345.6">
                 <use xlink:href="{% url 'upvote_ratio_svg' %}#svg" width="100%" height="100%"></use>
             </svg>
-            <figcaption>Upvote to comment ratio</figcaption>
+            <figcaption>Upvote to comment ratio{% if upvote_ratio %}
+                <details>
+                    <summary>(data)</summary>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Ratio</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for k, v in upvote_ratio.items %}
+                                <tr>
+                                    <th>{{ k }}</th>
+                                    <td>{{ v.0 }}/{{ v.1 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+            {% endif %}</figcaption>
         </figure>
         <figure>
             <svg role="img" xmlns="http://www.w3.org/2000/svg" style="height: auto; width: 460.8pt;max-width: var(--main-width);" viewBox="0 0 460.8 345.6">

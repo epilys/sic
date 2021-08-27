@@ -13,9 +13,12 @@ import numpy as np
 from django.http import HttpResponse
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_safe
+from django.core.cache import cache
 from django.db import connection
 
 rcParams["svg.fonttype"] = "none"
+
+CACHE_TIMEOUT = 60 * 60 * 12
 
 
 def make_posts_svg(data):
@@ -61,7 +64,7 @@ def make_posts_svg(data):
 
 
 @require_safe
-@cache_page(60 * 60 * 12)
+@cache_page(CACHE_TIMEOUT)
 def daily_posts_svg(request):
     with connection.cursor() as cursor:
         cursor.execute(
@@ -80,6 +83,9 @@ GROUP BY
         "count": [x[0] for x in posts],
         "label": [x[1] for x in posts],
     }
+    cache.set(
+        "daily_posts", list(zip(data["label"], data["count"])), timeout=CACHE_TIMEOUT
+    )
     with multiprocessing.Pool(processes=1) as pool:
         svg = pool.apply_async(make_posts_svg, (data,))
         svg = svg.get(timeout=2)
@@ -93,7 +99,7 @@ GROUP BY
 
 
 @require_safe
-@cache_page(60 * 60 * 12)
+@cache_page(CACHE_TIMEOUT)
 def registrations_svg(request):
     with connection.cursor() as cursor:
         cursor.execute(
@@ -169,6 +175,9 @@ WHERE
         "count": [x[0] for x in registrations],
         "label": [x[1] for x in registrations],
     }
+    cache.set(
+        "registrations", list(zip(data["label"], data["count"])), timeout=CACHE_TIMEOUT
+    )
     with multiprocessing.Pool(processes=1) as pool:
         svg = pool.apply_async(make_registrations_svg, (data,))
         svg = svg.get(timeout=2)
@@ -281,7 +290,7 @@ def make_total_graph_svg(edges):
 
 
 @require_safe
-@cache_page(60 * 60 * 12)
+@cache_page(CACHE_TIMEOUT)
 def total_graph_svg(request):
     with connection.cursor() as cursor:
         cursor.execute(
@@ -356,7 +365,7 @@ def make_upvote_ratio_svg(ratios):
     return svg.getvalue().decode(encoding="UTF-8").strip()
 
 
-@cache_page(60 * 60 * 12)
+@cache_page(CACHE_TIMEOUT)
 @require_safe
 def upvote_ratio_svg(request):
     with connection.cursor() as cursor:
@@ -396,6 +405,7 @@ GROUP BY
         else:
             ratios[c[1]] = [0, c[0]]
 
+    cache.set("upvote_ratio", ratios, timeout=CACHE_TIMEOUT)
     with multiprocessing.Pool(processes=1) as pool:
         svg = pool.apply_async(make_upvote_ratio_svg, (ratios,))
         svg = svg.get(timeout=2)
@@ -409,7 +419,7 @@ GROUP BY
 
 
 @require_safe
-@cache_page(60 * 60 * 12)
+@cache_page(CACHE_TIMEOUT)
 def user_graph_svg(request):
     with connection.cursor() as cursor:
         cursor.execute(

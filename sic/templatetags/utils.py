@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 from django.template.defaulttags import URLNode, url
 from django.template.exceptions import TemplateSyntaxError
 from django.template.base import Token, Node, kwarg_re
+from django.core.cache import cache
 import subprocess, os
 
 register = template.Library()
@@ -135,3 +136,9 @@ def story_is_upvoted(context):
     if not user.is_authenticated:
         return False
     return user.votes.filter(story=context["story"].pk, comment=None).exists()
+
+
+@register.simple_tag(takes_context=False)
+def get_from_cache(key: str):
+    print(key, cache.get(key))
+    return cache.get(key)

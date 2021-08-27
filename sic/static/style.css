@@ -1813,4 +1813,12 @@ nav.pagination {
   .tag {
     filter: invert(10%);
   }
+  thead,
+  tfoot {
+    background-color: #fff;
+    color: #333;
+  }
+  table, td {
+    border: 1px solid #fff;
+  }
 }
