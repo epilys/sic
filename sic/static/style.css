@@ -363,6 +363,7 @@ template {
 :root {
   --fg-color: black;
   --bg-color: white;
+  --header-bg-color: #eee;
   --theme-color: #1e82be;
   --upvote-arrow-color:#bbb;
   --upvote-arrow-upvoted-color: #ac130d;
@@ -466,8 +467,8 @@ body > main nav > ul > li > a, body > main nav > ul > li > form > input[type="su
   border-radius: 3px;
   max-width: var(--main-width);
   word-wrap: break-word;
-  margin-bottom: 4px;
   display: inline-block;
+  cursor: pointer;
 }
 
 nav>ul>li>a:visited{
@@ -649,11 +650,13 @@ header .logo a:hover::before {
   content: "index";
   font-size: small;
   position: absolute;
-  color: black;
+  color: var(--fg-color);
   width: 3.5rem;
   text-align:center;
   margin-left: -.35rem;
   margin-top: 3.1rem;
+  z-index: 1;
+  background: var(--bg-color);
 }
 
 form.submit-story-form,form.submit-story-form fieldset,form.submit-story-form {
@@ -1062,7 +1065,7 @@ ul.tags li.tag:not(:nth-last-child(1)) {
 .tag {
   display: inline-block;
   border: 1px solid var(--tag-border-color);
-  border-radius: 5px;
+  border-radius:.2rem;
   color: #555;
   font-size: .9rem;
   padding: 0px 0.4em 1px 0.4em;
@@ -1499,8 +1502,8 @@ body>header>div.logo {
     font-size: 90%;
     margin: 0;
     padding: .2rem .5rem;
-    background-color: #eee;
-    border-bottom: 1px solid #ccc;
+    background-color: var(--header-bg-color);
+    border-bottom: 1px outset var(--header-bg-color);
     grid-column: 1 / span 12;
     column-gap: 12px;
     margin-bottom: 7px;
@@ -1516,7 +1519,7 @@ body>header>div.logo {
   }
   nav.menu>ul>li>a{
     border: 1px inset gray;
-    background: white;
+    background: var(--bg-color);
     border-radius: 5px;
     padding: 2px 5px;
     display: inline-block;
@@ -1727,20 +1730,21 @@ nav.pagination {
     --entry-separator-color: #3f4142;
     --bg-color: #333;
     --fg-color: white;
+    --header-bg-color: #444;
     --high-contrast-bg-color: black;
     --upvote-arrow-color:#bbb;
     --upvote-arrow-upvoted-color: #ca6a6a;
     --link-color: #ff7474;
-    --netloc-color: #29b0b0;
+    --netloc-color: #bff;
     --message-success-bg: #1a5a1a;
     --message-warning-bg: #474722;
     --message-error-bg: #833030;
     --theme-color: #15557b;
-  --new-user-fg: green;
-  --banned-user-fg: #d6d6d6;
-  --feed-color: #ff5310;
-  --build-color: white;
-  --tag-border-color: #858585;
+    --new-user-fg: green;
+    --banned-user-fg: #d6d6d6;
+    --feed-color: #ff5310;
+    --build-color: white;
+    --tag-border-color: #000;
   }
   a.title,
   a.title:visited {
@@ -1803,7 +1807,10 @@ nav.pagination {
   .pagination a:visited {
     color: var(--fg-color);
   }
-kbd {
-  filter: invert();
-}
+  kbd {
+    filter: invert();
+  }
+  .tag {
+    filter: invert(10%);
+  }
 }

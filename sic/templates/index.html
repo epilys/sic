@@ -34,6 +34,10 @@
             border-radius: 3px;
             padding: 5px 2px;
             background: aliceblue;
+            cursor: pointer;
+        }
+        div.aggregations>div>div:hover {
+          background: #d6ecff;
         }
         a.agg-name, a.agg-name:visited {
             color: #11466f;
@@ -41,7 +45,11 @@
         }
         @media (prefers-color-scheme: dark) {
             div.aggregations>div>div {
-                background: #666a6d;
+                background: #484949;
+                border: 1px solid #000;
+            }
+            div.aggregations>div>div:hover {
+              background: #536574;
             }
             a.agg-name, a.agg-name:visited {
                 color: #eef7ff;
