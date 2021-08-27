@@ -387,7 +387,7 @@ template {
   font-family: 'Inter';
   font-style:  normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: optional;
   src: local(Inter Regular), local(Inter), url("Inter-Regular.woff2") format("woff2");
 }
 
@@ -395,7 +395,7 @@ template {
   font-family: 'Inter';
   font-style:  normal;
   font-weight: 500;
-  font-display: swap;
+  font-display: optional;
   src: local(Inter Medium), url("Inter-Medium.woff2") format("woff2");
 }
 
@@ -403,7 +403,7 @@ template {
   font-family: 'Inter';
   font-style:  normal;
   font-weight: 700;
-  font-display: swap;
+  font-display: optional;
   src: local(Inter Bold), url("Inter-Bold.woff2") format("woff2");
 }
 
