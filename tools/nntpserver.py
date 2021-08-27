@@ -70,7 +70,7 @@ class ArticleInfo(typing.NamedTuple):
                 self.subject,
                 self.from_,
                 email.utils.format_datetime(self.date),
-                f"<{self.message_id}>",
+                self.message_id,
                 self.references,
                 str(self.bytes),
                 str(self.lines),
@@ -146,12 +146,12 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
     def __init__(self, *args, debugging=True, **kwargs):
         print("NEW connection.")
         self.command_queue = collections.deque()
-        self.command_history = []
-        self._init = True
-        self._quit = False
+        self.command_history: typing.List[str] = []
+        self._init: bool = True
+        self._quit: bool = False
+        self.debugging: bool = debugging
         self.current_selected_newsgroup = None
-        self.current_article_number = None
-        self.debugging = debugging
+        self.current_article_number: int = None
         super().__init__(*args, **kwargs)
 
     def handle(self):
@@ -281,7 +281,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         else:
             article = self.server.articles[int(tokens[0])]
 
-        self.send_lines([f"223 {article.number} <{article.message_id}>"])
+        self.send_lines([f"223 {article.number} {article.message_id}"])
         return
 
     def article(self, command: str):
@@ -301,14 +301,17 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 article = self.server.article(tokens[0])
 
         ret = [
-            f"220 {article.info.number} <{article.info.message_id}>",
+            f"220 {article.info.number} {article.info.message_id}",
             f"From: <{article.info.from_}>",
             f"Subject: {article.info.subject}",
             f"Date: {email.utils.format_datetime(article.info.date)}",
-            f"Message-ID: <{article.info.message_id}>",
-            "",
+            f"Message-ID: {article.info.message_id}",
         ]
-        for line in article.body.split():
+        if article.info.references:
+            ret.append(f"References: {article.info.references}")
+
+        ret.append("")
+        for line in article.body.split("\n"):
             ret.append(line)
         ret += ["."]
         self.send_lines(ret)
