@@ -117,6 +117,8 @@ class NNTPGroup(abc.ABC):
 
 
 class NNTPServer(abc.ABC, socketserver.TCPServer):
+    overview_format: typing.List[str] = _DEFAULT_OVERVIEW_FMT
+
     @property
     @abc.abstractmethod
     def groups(self) -> typing.Dict[str, NNTPGroup]:
@@ -177,6 +179,8 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 self.stat(self.data)
             elif self.data.startswith("ARTICLE"):
                 self.article(self.data)
+            elif self.data.startswith("HEAD"):
+                self.head(self.data)
             elif self.data == "LIST NEWSGROUPS":
                 self.list(keyword="NEWSGROUPS")
             elif self.data == "MODE READER":
@@ -184,7 +188,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             elif self.data == "LIST OVERVIEW.FMT":
                 self.send_lines(
                     ["215 Order of fields in overview database."]
-                    + _DEFAULT_OVERVIEW_FMT
+                    + self.server.overview_format
                     + ["."]
                 )
             elif self.data == "QUIT":
@@ -309,9 +313,39 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         ]
         if article.info.references:
             ret.append(f"References: {article.info.references}")
+        ret += [f"{k}: {v}" for k, v in article.info.headers.items()]
 
         ret.append("")
         for line in article.body.split("\n"):
             ret.append(line)
+        ret += ["."]
+        self.send_lines(ret)
+
+    def head(self, command: str):
+        command, *tokens = command.split()
+        if len(tokens) == 0:
+            if self.current_selected_newsgroup is None:
+                self.send_lines(["412 No newsgroup elected"])
+                return
+            if self.current_article_number is None:
+                self.send_lines(["420 Current article number is invalid"])
+                return
+            article = self.server.article(self.current_article_number)
+        else:
+            try:
+                article = self.server.article(int(tokens[0]))
+            except:
+                article = self.server.article(tokens[0])
+
+        ret = [
+            f"221 {article.info.number} {article.info.message_id}",
+            f"From: <{article.info.from_}>",
+            f"Subject: {article.info.subject}",
+            f"Date: {email.utils.format_datetime(article.info.date)}",
+            f"Message-ID: {article.info.message_id}",
+        ]
+        if article.info.references:
+            ret.append(f"References: {article.info.references}")
+        ret += [f"{k}: {v}" for k, v in article.info.headers.items()]
         ret += ["."]
         self.send_lines(ret)
