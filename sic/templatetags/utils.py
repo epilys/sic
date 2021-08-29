@@ -9,6 +9,8 @@ from django.template.base import Token, Node, kwarg_re
 from django.core.cache import cache
 import subprocess, os
 
+from sic.flatpages import DocumentationFlatPage, ExternalLinkFlatPage, CommunityFlatPage
+
 register = template.Library()
 
 
@@ -142,3 +144,18 @@ def story_is_upvoted(context):
 def get_from_cache(key: str):
     print(key, cache.get(key))
     return cache.get(key)
+
+
+@register.simple_tag(takes_context=False)
+def get_doc_flatpages():
+    return DocumentationFlatPage.objects.order_by("order", "title").all()
+
+
+@register.simple_tag(takes_context=False)
+def get_community_flatpages():
+    return CommunityFlatPage.objects.order_by("order", "title").all()
+
+
+@register.simple_tag(takes_context=False)
+def get_externallink_flatpages():
+    return ExternalLinkFlatPage.objects.order_by("order", "title").all()

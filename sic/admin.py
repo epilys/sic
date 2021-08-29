@@ -8,6 +8,7 @@ from sic.mail import Digest
 from sic.moderation import ModerationLogEntry
 from sic.jobs import Job, JobKind
 from sic.webmention import Webmention
+from sic.flatpages import DocumentationFlatPage, CommunityFlatPage, ExternalLinkFlatPage
 
 
 def hex_color_html(self, obj):
@@ -298,6 +299,33 @@ admin.site.register(InvitationRequest, InvitationRequestAdmin)
 admin.site.register(Webmention, WebmentionAdmin)
 admin.site.register(Job, JobAdmin)
 admin.site.register(JobKind, JobKindAdmin)
+
+
+class DocumentationFlatPageAdmin(ModelAdmin):
+    ordering = ["order", "title"]
+    list_display = ["title", "link_name", "order", "show_in_footer"]
+
+
+class CommunityFlatPageAdmin(ModelAdmin):
+    ordering = ["order", "title"]
+    list_display = ["title", "link_name", "order", "show_inline", "show_in_footer"]
+
+
+class ExternalLinkFlatPageAdmin(ModelAdmin):
+    ordering = ["order", "title"]
+    list_display = [
+        "title",
+        "link_name",
+        "order",
+        "external_url",
+        "show_inline",
+        "show_in_footer",
+    ]
+
+
+admin.site.register(DocumentationFlatPage, DocumentationFlatPageAdmin)
+admin.site.register(CommunityFlatPage, CommunityFlatPageAdmin)
+admin.site.register(ExternalLinkFlatPage, ExternalLinkFlatPageAdmin)
 
 
 @admin.register(Permission)
