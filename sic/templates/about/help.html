@@ -2,7 +2,7 @@
 {% load humanize %}
 {% load utils %}
 {% load static %}
-{% block title %}help - sic{% endblock %}
+{% block title %}help - {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
         div.help svg {
@@ -61,13 +61,13 @@
         }
     </style>
 {% endblock %}
-{% block content %}
-    <h1>help with using <strong><code>[sic]</code></strong></h1>
-    <p class="help-text"><strong><code>[sic]</code></strong> is a different link aggregator: almost anything is on-topic and you can customise what on-topic means for you by subscribing only to topics of interest.</p>
+{% block content %}{% get_config as config %}
+    <h1>help with using {{ config.html_label }}</h1>
+    <p class="help-text">{{ config.html_label }} is a different link aggregator: almost anything is on-topic and you can customise what on-topic means for you by subscribing only to topics of interest.</p>
     <div class="help">
         <div>
             <h2 id="tags_and_aggregations">Tags and aggregations</h2>
-            <p class="help-text">Posts on <strong><code>[sic]</code></strong> are organised by <strong>tags</strong>.</p>
+            <p class="help-text">Posts on {{ config.html_label }} are organised by <strong>tags</strong>.</p>
             <p class="help-text">Tags are hierarchical and can have multiple parents and children; they form a <em>directed acyclic graph</em>.</p>
             <p class="help-text">To read posts only relevant to your interests, you can collect related tags into <strong>aggregations</strong>. Your personalised frontpage will be then the posts with tags in your aggregations you have <strong>subscribed</strong> to.</p>
         </div>
@@ -135,7 +135,7 @@
         </figure>
         <div>
             <h3>Invite users</h3>
-            <p class="help-text">With this form you can send invites to users you approve of to participate in the <strong><code>[sic]</code></strong> community.</p>
+            <p class="help-text">With this form you can send invites to users you approve of to participate in the {{ config.html_label }} community.</p>
         </div>
         <div>
             <h3>Personalised feeds</h3>

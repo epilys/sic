@@ -2,11 +2,15 @@ from functools import lru_cache
 from email.utils import make_msgid
 from django.apps import AppConfig
 from django.conf import settings
+from django.utils.safestring import mark_safe
 
 
 class SicAppConfig(AppConfig):
-    name = "sic"
-    verbose_name = "sic"
+    name = "sic"  # python path
+    label = "sic"  # python identifier
+    verbose_name = "sic"  # full human readable name
+
+    subtitle = "is a community about human curiosity and interests."
 
     BANNED_USERNAMES = [
         "admin",
@@ -77,6 +81,21 @@ class SicAppConfig(AppConfig):
     FORMAT_QUOTED_MESSAGES = True
     DETECT_USERNAME_MENTIONS_IN_COMMENTS = True
     MAILING_LIST = False
+
+    SHOW_GIT_REPOSITORY_IN_ABOUT_PAGE = True
+    SHOW_GIT_COMMIT_IN_FOOTER = True
+
+    @property
+    def html_label(self):
+        """Override this to change HTML label used in static html"""
+        return mark_safe("<strong><code>[sic]</code></strong>")
+
+    @property
+    def html_subtitle(self):
+        """Override this to change HTML subtitle used in static html"""
+        return mark_safe(
+            "is a community about everything that piques your curiosity and interest"
+        )
 
     def ready(self):
         import sic.notifications

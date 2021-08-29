@@ -8,7 +8,10 @@ from django.contrib.auth import authenticate
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
-from sic.apps import SicAppConfig as config
+from django.apps import apps
+
+config = apps.get_app_config("sic")
+
 from sic.models import (
     Story,
     Hat,
@@ -127,6 +130,7 @@ def auth_context(request):
             "font_size": request.session.get("font_size", None),
             "vivid_colors": request.session.get("vivid_colors", None),
             "footer_links": mark_safe(footer_links),
+            "config": config,
         }
     return {
         "show_avatars": True,
@@ -135,6 +139,7 @@ def auth_context(request):
         "font_size": None,
         "vivid_colors": None,
         "footer_links": mark_safe(footer_links),
+        "config": config,
     }
 
 
