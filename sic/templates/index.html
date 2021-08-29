@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}sic{% endblock %}
+{% block title %}{{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
         div.aggregations {
@@ -37,7 +37,7 @@
             cursor: pointer;
         }
         div.aggregations>div>div:hover {
-          background: #d6ecff;
+            background: #d6ecff;
         }
         a.agg-name, a.agg-name:visited {
             color: #11466f;
@@ -49,7 +49,7 @@
                 border: 1px solid #000;
             }
             div.aggregations>div>div:hover {
-              background: #536574;
+                background: #536574;
             }
             a.agg-name, a.agg-name:visited {
                 color: #eef7ff;

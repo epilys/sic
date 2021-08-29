@@ -28,9 +28,10 @@ from django.conf import settings
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
+from django.apps import apps
 
+config = apps.get_app_config("sic")
 
-from .apps import SicAppConfig as config
 from .markdown import comment_to_html, Textractor
 from .voting import story_hotness
 

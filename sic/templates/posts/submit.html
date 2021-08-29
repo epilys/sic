@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load humanize %}
-{% block title %}{% if story %}edit story - {{ story.title }}{% else %}submit story{% endif %} - sic{% endblock %}
+{% block title %}{% if story %}edit story - {{ story.title }}{% else %}submit story{% endif %} - {{ config.verbose_name }}{% endblock %}
 {% block script %}
     <script>
         var error = null;

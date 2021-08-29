@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}500 server error - sic{% endblock %}
+{% block title %}500 server error - {{ config.verbose_name }}{% endblock %}
 {% block content %}
     <p class="help-text">A server error occured. The admins have probably been notified, but you can also <a href="/about/contact/">contact them about it</a>.</p>
 {% endblock %}

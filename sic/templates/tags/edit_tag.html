@@ -2,7 +2,7 @@
 {% load humanize %}
 {% load static %}
 {% load utils %}
-{% block title %}{% if tag %}edit {{ tag.name }}{% else %}new tag{% endif %} - sic{% endblock %}
+{% block title %}{% if tag %}edit {{ tag.name }}{% else %}new tag{% endif %} - {{ config.verbose_name }}{% endblock %}
 {% block script %}
     <script>
         var error = null;

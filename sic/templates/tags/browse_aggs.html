@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}browse aggregations - sic{% endblock %}
+{% block title %}browse aggregations - {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
         div.aggregations {

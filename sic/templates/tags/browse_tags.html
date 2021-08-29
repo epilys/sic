@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}all tags - sic{% endblock %}
+{% block title %}all tags - {{ config.verbose_name }}{% endblock %}
 {% block content %}
     <nav>
         <ul>

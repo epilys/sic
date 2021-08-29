@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}Moderation log - sic{% endblock %}
+{% block title %}Moderation log - {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
         td>p:only-child {

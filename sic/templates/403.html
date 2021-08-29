@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}403 Forbidden - sic{% endblock %}
+{% block title %}403 Forbidden - {{ config.verbose_name }}{% endblock %}
 {% block content %}
     <h1>403 Forbidden</h1>
     <p class="help-text">You are forbidden from accessing this page. If you think this is a mistake please <a href="/about/contact/">contact the admins</a>.</p>

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}Comments on {{story.title}} - sic {% endblock %}
+{% block title %}Comments on {{story.title}} - {{ config.verbose_name }}{% endblock %}
 {% block content %}
     {% get_comment_preview request comment.pk as preview %}
     {% if comment.parent and not delete_comment %}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}{{ taggregation.name }} aggregation - sic{% endblock %}
+{% block title %}{{ taggregation.name }} aggregation - {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
         .story_filters_grid {

@@ -13,8 +13,10 @@ from django.core.mail import EmailMessage
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from sic.apps import SicAppConfig as config
 from django.core.mail import EmailMessage
+from django.apps import apps
+
+config = apps.get_app_config("sic")
 from sic.models import Story, User, Comment, Tag, ExactTagFilter, DomainFilter
 from sic.markdown import Textractor
 

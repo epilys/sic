@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}404 Not Found - sic{% endblock %}
+{% block title %}404 Not Found - {{ config.verbose_name }}{% endblock %}
 {% block content %}
     <p class="help-text">This page doesn't exist. If you think this is a mistake please <a href="/about/contact/">contact the admins</a>.</p>
 {% endblock %}

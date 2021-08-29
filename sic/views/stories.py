@@ -10,7 +10,9 @@ from django.views.decorators.http import require_safe
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
-from sic.apps import SicAppConfig as config
+from django.apps import apps
+
+config = apps.get_app_config("sic")
 from sic.models import Story, StoryKind, Comment, Notification, StoryRemoteContent, Tag
 from sic.forms import (
     SubmitCommentForm,

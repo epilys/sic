@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load utils %}
-{% block title %}{{ user }} account - sic{% endblock %}
+{% block title %}{{ user }} account - {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
         nav.feeds {

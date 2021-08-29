@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load humanize %}
-{% block title %}request an invite - sic{% endblock %}
+{% block title %}request an invite - {{ config.verbose_name }}{% endblock %}
 {% block content %}
-    <h1>Creating an account on <strong><code>[sic]</code></strong></h1>
+    <h1>Creating an account on {{ config.html_label }}</h1>
     <p class="help-text">You will need an invitation from an existing user to join. You can ask someone you know, on <a href="{% url 'about' %}">IRC</a> or submit an invitation request here. Members of the community can review your request and send you an invite.</p>
     <h2>request an invite</h2>
     <p class="help-text">If your request is submitted successfuly, you will receive a confirmation e-mail. Check that you actually receive it, otherwise you can't be informed if the request is accepted.</p>

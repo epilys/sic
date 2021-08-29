@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}tag graph - sic{% endblock %}
+{% block title %}tag graph - {{ config.verbose_name }}{% endblock %}
 {% block content %}
     <object data="{% url 'tag_graph_svg' %}" type="image/svg+xml">
         <img src="{% url 'tag_graph_svg' %}" alt="tag graph">

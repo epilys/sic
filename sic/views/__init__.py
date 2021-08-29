@@ -16,9 +16,12 @@ from django.views.decorators.http import require_http_methods
 from django.utils.timezone import make_aware
 from django.db.models import Max
 from django.utils.http import urlencode
-from ..models import Story, Comment, User, Domain, Taggregation, Notification
-from ..moderation import ModerationLogEntry
-from ..forms import (
+from django.apps import apps
+
+config = apps.get_app_config("sic")
+from sic.models import Story, Comment, User, Domain, Taggregation, Notification
+from sic.moderation import ModerationLogEntry
+from sic.forms import (
     SubmitCommentForm,
     EditReplyForm,
     DeleteCommentForm,
@@ -33,9 +36,8 @@ from sic.views.utils import (
     InvalidPage,
     check_next_url,
 )
-from ..apps import SicAppConfig as config
-from ..markdown import comment_to_html
-from ..search import query_comments, query_stories
+from sic.markdown import comment_to_html
+from sic.search import query_comments, query_stories
 
 
 @login_required
