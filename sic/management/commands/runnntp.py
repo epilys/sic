@@ -11,6 +11,7 @@ import importlib.util
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils.module_loading import import_string
+from django.contrib.auth import authenticate
 
 NNTP_SERVER_PATH = settings.BASE_DIR / "tools" / "nntpserver.py"
 spec = importlib.util.spec_from_file_location("nntpserver", NNTP_SERVER_PATH)
@@ -24,6 +25,8 @@ from nntpserver import (
     NNTPServer,
     NNTPGroup,
     NNTPConnectionHandler,
+    NNTPAuthSetting,
+    NNTPAuthenticationError,
     Article,
     ArticleInfo,
 )
@@ -275,9 +278,16 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
         )
         self.index = dict(enumerate(heapq.merge(stories, comments, key=lambda e: e[1])))
         self.reverse_index = {self.index[k][0]: k for k in self.index}
-        self.high = len(self.index)
+        self.high = len(self.index) - 1 if len(self.index) != 0 else 0
         self.count = len(self.index)
         return
+
+    def auth_user(self, user: str, password: str) -> None:
+        user = authenticate(
+            username=user, password=password, username_as_alternative=True
+        )
+        if user is None:
+            raise NNTPAuthenticationError("Authentication failed")
 
 
 class Command(BaseCommand):
@@ -299,6 +309,7 @@ class Command(BaseCommand):
             server_kwargs["use_ssl"] = True
             server_kwargs["certfile"] = kwargs["certfile"]
             server_kwargs["keyfile"] = kwargs["keyfile"]
+        server_kwargs["auth"] = NNTPAuthSetting.SECUREONLY
 
         SicNNTPServer.allow_reuse_address = True
 
