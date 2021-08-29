@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="{% block meta_description %}sic is a community about human curiosity and interests.{% endblock %}">
+        <meta name="description" content="{% block meta_description %}{{ config.verbose_name }} {{ config.subtitle }}{% endblock %}">
         <link rel="icon" href="/static/favicon.ico" sizes="32x32">
         <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20height%3D%22256%22%20width%3D%22256%22%3E%3Crect%20fill%3D%22%231e82be%22%20rx%3D%220%22%20height%3D%22100%22%20width%3D%22100%22%20%2F%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M%2063.737714%2C34.155382%20Q%2063.258093%2C29.6675%2059.695195%2C27.16662%20q%20-3.52864%2C-2.500881%20-9.181315%2C-2.500881%20-3.974002%2C0%20-6.817468%2C1.199053%20-2.843467%2C1.199052%20-4.350847%2C3.25457%20-1.50738%2C2.055518%20-1.541639%2C4.693433%200%2C2.192553%200.9935%2C3.802709%201.02776%2C1.610156%202.77495%2C2.740691%201.74719%2C1.096276%203.871226%2C1.849966%202.124035%2C0.75369%204.28233%2C1.26757%20l%206.577658%2C1.644414%20q%203.974002%2C0.924984%207.639676%2C2.500881%203.699932%2C1.575897%206.611917%2C3.974002%202.946242%2C2.398104%204.659174%2C5.789709%201.712932%2C3.391605%201.712932%2C7.948004%200%2C6.166555%20-3.151795%2C10.859988%20-3.151794%2C4.659174%20-9.112797%2C7.297089%20-5.926744%2C2.603657%20-14.354369%2C2.603657%20-8.187814%2C0%20-14.217334%2C-2.535139%20-5.995261%2C-2.535139%20-9.386866%2C-7.399866%20-3.357347%2C-4.864726%20-3.631416%2C-11.853488%20h%2012.504403%20q%200.274069%2C3.665674%202.26107%2C6.098037%201.987001%2C2.432363%205.173054%2C3.631416%203.220312%2C1.199052%207.194313%2C1.199052%204.145295%2C0%207.262831%2C-1.233311%203.151795%2C-1.267569%204.933244%2C-3.494381%201.781449%2C-2.26107%201.815708%2C-5.27583%20-0.03426%2C-2.740691%20-1.610156%2C-4.52214%20-1.575897%2C-1.815708%20-4.419364%2C-3.01476%20-2.809208%2C-1.233311%20-6.577658%2C-2.192553%20L%2043.627894%2C53.442994%20Q%2034.960459%2C51.216183%2029.92444%2C46.694043%2024.922679%2C42.137644%2024.922679%2C34.600744%20q%200%2C-6.200813%203.357346%2C-10.859988%203.391605%2C-4.659174%209.215573%2C-7.228572%205.823968%2C-2.603656%2013.189575%2C-2.603656%207.468383%2C0%2013.0868%2C2.603656%205.652675%2C2.569398%208.872986%2C7.160055%203.220312%2C4.556399%203.323088%2C10.483143%20z%22%20%2F%3E%3C%2Fsvg%3E" />
         <link rel="preload" href="/static/Inter-Regular.woff2" as="font" type="font/woff2" crossorigin>
@@ -79,14 +79,14 @@
         <link rel="alternate" type="application/rss+xml" href="{% url 'latest_stories_rss' %}" title="Latest Stories RSS">
         <link rel="alternate" type="application/atom+xml" href="{% url 'latest_stories_atom' %}" title="Latest Stories Atom">
         <link rel="manifest" href="/static/manifest.webmanifest">
-        <title>{% block title %}sic{% endblock %}</title>
+        <title>{% block title %}{{ config.verbose_name }}{% endblock %}</title>
         {% block style %}{% endblock %}
     </head>
     <body>
         {% spaceless %}
             <header>
                 <div class="logo">
-                    <a href="{% url 'index' %}" title="index">sic</a>
+                    <a href="{% url 'index' %}" title="index">{{ config.verbose_name }}</a>
                 </div>
                 <nav class="main menu">
                     <ul>
@@ -171,7 +171,7 @@
             {% endspaceless %}
             {% if not request.user.is_authenticated %}
                 <ul class="messagelist">
-                    <li style="padding: 0 1rem;display: grid;grid-template-columns: 1fr;grid-template-rows: auto auto;width: 100%;align-content: center;justify-items: center;"><p style="text-align:center;"><strong><code>[sic]</code></strong> is a community about anything that piques your curiosity and interest.<br/>Read <a href="{% url 'signup_help' %}">about getting an account here</a>.</p></li>
+                    <li style="padding: 0 1rem;display: grid;grid-template-columns: 1fr;grid-template-rows: auto auto;width: 100%;align-content: center;justify-items: center;"><p style="text-align:center;">{{ config.html_label }} {{ config.html_subtitle }} <br/>Read <a href="{% url 'signup_help' %}">about getting an account here</a>.</p></li>
                 </ul>
             {% endif %}
             {% if messages %}
@@ -191,7 +191,9 @@
                         <li><a href="{% url 'about' %}">About</a></li>
                         <li><a href="{% url 'help' %}">Help</a></li>
                         {{ footer_links }}
-                        <li>{% cache 21600 build_sha %}{% build_sha %}{% endcache %}</li>
+                        {% if config.SHOW_GIT_COMMIT_IN_FOOTER %}
+                            <li>{% cache 21600 build_sha %}{% build_sha %}{% endcache %}</li>
+                        {% endif %}
                     </ul>
                 </nav>
                 <nav class="feeds">

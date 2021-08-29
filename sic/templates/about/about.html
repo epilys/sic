@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}about sic{% endblock %}
+{% block title %}about {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <link rel="stylesheet" href="/static/flair.css">
     <style>
@@ -10,33 +10,35 @@
         }
     </style>
 {% endblock %}
-{% block content %}{% get_doc_flatpages as doc_flatpages %}{% get_externallink_flatpages as externallink_flatpages %}{% get_community_flatpages as community_flatpages %}
-    <div class="sic-animation">
-        <div class="sic-animation__inner">
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
-            <span class="sic-animation__item"></span>
+{% block content %}{% get_doc_flatpages as doc_flatpages %}{% get_externallink_flatpages as externallink_flatpages %}{% get_community_flatpages as community_flatpages %}{% get_config as config %}
+    {% if config.verbose_name == 'sic' %}
+        <div class="sic-animation">
+            <div class="sic-animation__inner">
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+                <span class="sic-animation__item"></span>
+            </div>
         </div>
-    </div>
-    <h1>about <strong><code>[sic]</code></strong></h1>
-    <p><strong><code>[sic]</code></strong> is a community about everything that piques your curiosity and interest.</p>
+    {% endif %}
+    <h1>about {{ config.html_label }}</h1>
+    <p>{{ config.html_label }} {{ config.html_subtitle }}.</p>
     <h2>documentation and policies</h2>
     <nav class="menu">
         <ul>
@@ -73,7 +75,9 @@
                         <li><a href="{{ flatpage.flatpage_ptr.url }}">{% if flatpage.link_name %}{{ flatpage.link_name }}{% else %}{{ flatpage.flatpage_ptr.title }}{% endif %}</a></li>
                     {% endif %}
                 {% endfor %}
-                <li>Source code: <a href="https://github.com/epilys/sic/">https://github.com/epilys/sic/</a></li>
+                {% if config.SHOW_GIT_REPOSITORY_IN_ABOUT_PAGE %}
+                    <li>Source code: <a href="https://github.com/epilys/sic/">https://github.com/epilys/sic/</a></li>
+                {% endif %}
             </ul>
         </nav>
 {% endblock %}

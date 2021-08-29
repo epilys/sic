@@ -10,6 +10,9 @@ from django.core.cache import cache
 import subprocess, os
 
 from sic.flatpages import DocumentationFlatPage, ExternalLinkFlatPage, CommunityFlatPage
+from django.apps import apps
+
+config = apps.get_app_config("sic")
 
 register = template.Library()
 
@@ -159,3 +162,8 @@ def get_community_flatpages():
 @register.simple_tag(takes_context=False)
 def get_externallink_flatpages():
     return ExternalLinkFlatPage.objects.order_by("order", "title").all()
+
+
+@register.simple_tag(takes_context=False)
+def get_config():
+    return config
