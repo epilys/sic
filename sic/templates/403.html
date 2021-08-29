@@ -4,7 +4,7 @@
 {% block title %}403 Forbidden - sic{% endblock %}
 {% block content %}
     <h1>403 Forbidden</h1>
-    <p class="help-text">You are forbidden from accessing this page. If you think this is a mistake please <a href="{% url 'about_contact' %}">contact the admins</a>.</p>
+    <p class="help-text">You are forbidden from accessing this page. If you think this is a mistake please <a href="/about/contact/">contact the admins</a>.</p>
     {% if exception %}
         <h2>Reason given</h2>
         <p>{{ exception }}</p>

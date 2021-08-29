@@ -10,8 +10,7 @@
         }
     </style>
 {% endblock %}
-{% block content %}
-
+{% block content %}{% get_doc_flatpages as doc_flatpages %}{% get_externallink_flatpages as externallink_flatpages %}{% get_community_flatpages as community_flatpages %}
     <div class="sic-animation">
         <div class="sic-animation__inner">
             <span class="sic-animation__item"></span>
@@ -42,10 +41,13 @@
     <nav class="menu">
         <ul>
             <li><a href="{% url 'help' %}">Help / How to use the website</a></li>
-            <li><a href="{% url 'purpose' %}">Statement of Purpose</a></li>
-            <li><a href="{% url 'code_of_conduct' %}">Community Code of Conduct</a></li>
-            <li><a href="{% url 'about_privacy' %}">Privacy Policy</a></li>
-            <li><a href="{% url 'about_contact' %}">Contact</a></li>
+            {% for flatpage in doc_flatpages %}
+                {% if flatpage.show_inline %}
+                    {{ flatpage.flatpage_ptr.content|safe }}
+                {% else %}
+                    <li><a href="{{ flatpage.flatpage_ptr.url }}">{% if flatpage.link_name %}{{ flatpage.link_name }}{% else %}{{ flatpage.flatpage_ptr.title }}{% endif %}</a></li>
+                {% endif %}
+            {% endfor %}
         </ul>
     </nav>
     <h2>community and contributors</h2>
@@ -53,12 +55,24 @@
         <ul>
             <li><a href="{% url 'invitation_tree' %}">User invitation tree</a></li>
             <li><a href="{% url 'about_statistics' %}">Community statistics</a></li>
-            <li>IRC Channel: <code>#sic</code> on <a href="https://libera.chat/" rel="external nofollow">Libera Chat</a>, connect with an IRC client at <a href="ircs://irc.libera.chat:6697" rel="external nofollow"><code>ircs://irc.libera.chat:6697</code></a>, use a <a href="https://web.libera.chat/?channel=#sic">webclient</a> or the <a href="https://app.element.io/#/room/#sic:libera.chat" rel="external nofollow">Matrix bridge</a>.</li>
+            {% for flatpage in community_flatpages %}
+                {% if flatpage.show_inline %}
+                    {{ flatpage.flatpage_ptr.content|safe }}
+                {% else %}
+                    <li><a href="{{ flatpage.flatpage_ptr.url }}">{% if flatpage.link_name %}{{ flatpage.link_name }}{% else %}{{ flatpage.flatpage_ptr.title }}{% endif %}</a></li>
+                {% endif %}
+            {% endfor %}
         </nav>
         <h2>links</h2>
         <nav class="menu">
             <ul>
-                <li>tor hidden service <a href="http://sicpm3hp7dtrwhmf4qlelycqlvie6flqa5qnjnt3snok5xydvxhs4xyd.onion/">http://sicpm3hp7dtrwhmf4qlelycqlvie6flqa5qnjnt3snok5xydvxhs4xyd.onion/</a></li>
+                {% for flatpage in externallink_flatpages %}
+                    {% if flatpage.show_inline %}
+                        {{ flatpage.flatpage_ptr.content|safe }}
+                    {% else %}
+                        <li><a href="{{ flatpage.flatpage_ptr.url }}">{% if flatpage.link_name %}{{ flatpage.link_name }}{% else %}{{ flatpage.flatpage_ptr.title }}{% endif %}</a></li>
+                    {% endif %}
+                {% endfor %}
                 <li>Source code: <a href="https://github.com/epilys/sic/">https://github.com/epilys/sic/</a></li>
             </ul>
         </nav>

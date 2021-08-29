@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
@@ -22,6 +22,7 @@ from django.views.generic import RedirectView
 from django.views.generic.base import TemplateView
 from django.shortcuts import render
 from django.views.decorators.cache import cache_page
+from django.contrib.flatpages import views as flatviews
 
 from sic import views
 from sic.views import stories, account, tags, stats
@@ -45,27 +46,7 @@ urlpatterns = [
         TemplateView.as_view(template_name="about/help.html"),
         name="help",
     ),
-    path(
-        "about/purpose/",
-        TemplateView.as_view(template_name="about/purpose.html"),
-        name="purpose",
-    ),
-    path(
-        "about/contact/",
-        TemplateView.as_view(template_name="about/about_contact.html"),
-        name="about_contact",
-    ),
-    path(
-        "about/code-of-conduct/",
-        TemplateView.as_view(template_name="about/coc.html"),
-        name="code_of_conduct",
-    ),
     path("about/invitation-tree/", views.invitation_tree, name="invitation_tree"),
-    path(
-        "about/privacy/",
-        TemplateView.as_view(template_name="about/privacy.html"),
-        name="about_privacy",
-    ),
     path(
         "about/statistics/",
         TemplateView.as_view(template_name="about/statistics.html"),
@@ -368,6 +349,7 @@ urlpatterns = [
     ),
     path(".well-known/webfinger/", webfinger, name="webfinger"),
     path("webmention/", webmention_endpoint, name="webmention_endpoint"),
+    re_path(r"^(?P<url>.*/)$", flatviews.flatpage),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

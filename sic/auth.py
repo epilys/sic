@@ -2,12 +2,14 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.crypto import constant_time_compare
 from django.utils.http import base36_to_int
+from django.utils.safestring import mark_safe
 from django.contrib.auth.forms import AuthenticationForm as DjangoAuthenticationForm
 from django.contrib.auth import authenticate
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .apps import SicAppConfig as config
-from .models import (
+from django.core.cache import cache
+from sic.apps import SicAppConfig as config
+from sic.models import (
     Story,
     Hat,
     User,
@@ -18,6 +20,9 @@ from .models import (
     StoryBookmark,
     CommentBookmark,
 )
+from sic.flatpages import DocumentationFlatPage, CommunityFlatPage, ExternalLinkFlatPage
+
+CACHE_TIMEOUT = 60 * 60 * 12
 
 
 class SicBackend(ModelBackend):
@@ -91,6 +96,28 @@ def user_save_receiver(sender, instance, created, raw, using, update_fields, **k
 
 
 def auth_context(request):
+    footer_links = cache.get("footer_links", default=None)
+    if footer_links is None:
+        footer_links = ""
+        for l in DocumentationFlatPage.objects.filter(show_in_footer=True).order_by(
+            "order", "title"
+        ):
+            footer_links += f"""<li><a href="{l.flatpage_ptr.url}">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
+        for l in CommunityFlatPage.objects.filter(show_in_footer=True).order_by(
+            "order", "title"
+        ):
+            if l.show_inline:
+                footer_links += l.flatpage_ptr.content
+                continue
+            footer_links += f"""<li><a href="{l.flatpage_ptr.url}">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
+        for l in ExternalLinkFlatPage.objects.filter(show_in_footer=True).order_by(
+            "order", "title"
+        ):
+            if l.show_inline:
+                footer_links += l.flatpage_ptr.content
+                continue
+            footer_links += f"""<li><a href="{l.flatpage_ptr.url}" rel="external nofollow">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
+        cache.set("footer_links", footer_links, timeout=CACHE_TIMEOUT)
     if request.user.is_authenticated:
         return {
             "show_avatars": request.user.show_avatars,
@@ -99,6 +126,7 @@ def auth_context(request):
             "unread_messages": request.user.unread_messages,
             "font_size": request.session.get("font_size", None),
             "vivid_colors": request.session.get("vivid_colors", None),
+            "footer_links": mark_safe(footer_links),
         }
     return {
         "show_avatars": True,
@@ -106,6 +134,7 @@ def auth_context(request):
         "show_colors": True,
         "font_size": None,
         "vivid_colors": None,
+        "footer_links": mark_safe(footer_links),
     }
 
 

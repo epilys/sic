@@ -83,6 +83,7 @@ class SicAppConfig(AppConfig):
         import sic.webmention
         import sic.mail
         import sic.jobs
+        import sic.flatpages
 
     @staticmethod
     @lru_cache(maxsize=None)
