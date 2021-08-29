@@ -284,14 +284,26 @@ class Command(BaseCommand):
     def add_arguments(self, parser: typing.Any) -> None:
         parser.add_argument("--port", type=int, default=9999)
         parser.add_argument("--host", type=str, default="localhost")
+        parser.add_argument("--use_ssl", action="store_true", default=False)
+        parser.add_argument("--certfile", type=str, default=None)
+        parser.add_argument("--keyfile", type=str, default=None)
 
     def handle(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         HOST = kwargs["host"]
         PORT = kwargs["port"]
+        USE_SSL = kwargs["use_ssl"]
+        server_kwargs = {}
+        if USE_SSL:
+            server_kwargs["use_ssl"] = True
+            server_kwargs["certfile"] = kwargs["certfile"]
+            server_kwargs["keyfile"] = kwargs["keyfile"]
+
         SicNNTPServer.allow_reuse_address = True
 
         # Create the server, binding to localhost on port 9999
-        with SicNNTPServer((HOST, PORT), NNTPConnectionHandler) as server:
+        with SicNNTPServer(
+            (HOST, PORT), NNTPConnectionHandler, **server_kwargs
+        ) as server:
             print(f"Listening on {HOST}:{PORT}")
             server.allow_reuse_address = True
             # Activate the server; this will keep running until you

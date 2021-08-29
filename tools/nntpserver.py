@@ -4,6 +4,13 @@ import typing
 import datetime
 import itertools
 
+try:
+    import ssl
+except ImportError:
+    _have_ssl = False
+else:
+    _have_ssl = True
+
 # from email.header import decode_header as _email_decode_header
 import email.utils
 
@@ -147,6 +154,42 @@ class NNTPGroup(abc.ABC):
 
 class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
     overview_format: typing.List[str] = _DEFAULT_OVERVIEW_FMT
+
+    def __init__(
+        self,
+        *args: typing.Any,
+        use_ssl: bool = False,
+        certfile: typing.Optional[str] = None,
+        keyfile: typing.Optional[str] = None,
+        **kwargs: typing.Any,
+    ) -> None:
+        self.certfile = certfile
+        self.keyfile = keyfile
+        self.ssl_version = None
+        if use_ssl:
+            if not certfile or not keyfile:
+                raise ValueError(
+                    "You must provide certfile and keyfile keyword arguments in NNTPServer.__init__ when use_ssl is True."
+                )
+            if not _have_ssl:
+                raise ValueError(
+                    "You set use_ssl to True but the ssl module could not be imported."
+                )
+            self.ssl_version = ssl_version = ssl.PROTOCOL_TLS
+        super().__init__(*args, **kwargs)
+
+    def get_request(self) -> typing.Tuple[typing.Any, typing.Tuple[str, int]]:
+        if self.ssl_version:
+            newsocket, fromaddr = self.socket.accept()
+            connstream = ssl.wrap_socket(
+                newsocket,
+                server_side=True,
+                certfile=self.certfile,
+                keyfile=self.keyfile,
+                ssl_version=self.ssl_version,
+            )
+            return connstream, fromaddr
+        return super().get_request()
 
     @property
     @abc.abstractmethod
