@@ -2,7 +2,7 @@
 {% load humanize %}
 {% load utils %}
 {% load comment %}
-{% block title %}My activity - sic{% endblock %}
+{% block title %}My activity - {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
         ul.activity {

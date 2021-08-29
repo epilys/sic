@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{% if hat %}Edit hat{% else %}Create hat {% endif %} - sic{% endblock %}
+{% block title %}{% if hat %}Edit hat{% else %}Create hat {% endif %} - {{ config.verbose_name }}{% endblock %}
 {% block content %}
     {% if hat %}
         <h1>edit hat</h1>

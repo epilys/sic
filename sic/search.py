@@ -1,14 +1,17 @@
-from django.utils.safestring import mark_safe
-from django.db.models.signals import post_save, pre_delete
-from django.dispatch import receiver
-from django.conf import settings
-from .apps import SicAppConfig as config
-from .models import Comment, Story
 import html
 import re
 import os
 import sqlite3
 import threading
+
+from django.utils.safestring import mark_safe
+from django.db.models.signals import post_save, pre_delete
+from django.dispatch import receiver
+from django.conf import settings
+from django.apps import apps
+
+config = apps.get_app_config("sic")
+from sic.models import Comment, Story
 
 
 def escape_fts(query):

@@ -15,6 +15,10 @@ from django.utils.http import urlencode
 from django.views.decorators.cache import cache_page
 from django.core.cache import cache
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.apps import apps
+
+config = apps.get_app_config("sic")
+
 from sic.models import Tag, Taggregation, TaggregationHasTag
 from sic.forms import (
     NewTagForm,
@@ -30,7 +34,6 @@ from sic.views.utils import (
     InvalidPage,
     check_next_url,
 )
-from sic.apps import SicAppConfig as config
 from sic.moderation import ModerationLogEntry
 
 

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load utils %}
-{% block title %}{{user}} profile - sic{% endblock %}
+{% block title %}{{user}} profile - {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
         .profile-container {

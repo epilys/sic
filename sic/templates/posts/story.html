@@ -2,7 +2,7 @@
 {% load humanize %}
 {% load utils %}
 {% load comment %}
-{% block title %}{{story.title}} - sic {% endblock %}
+{% block title %}{{story.title}} - {{ config.verbose_name }}{% endblock %}
 {% block meta_description %}{% with story.active_comments.count as active_comments %}{% if story.description %}{{ story.user }} wrote&hairsp;: {{story.description_to_plain_text|truncatewords:20}}{% else %}{{story.get_listing_url}}{% endif %} | {{ active_comments }} comment{{ active_comments|pluralize }}{% endwith %}{% endblock %}
 {% block content %}
     {% get_comment_preview request 'null' as preview  %}

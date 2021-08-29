@@ -28,7 +28,9 @@ from nntpserver import (
     ArticleInfo,
 )
 from sic.models import Story, Comment
-from sic.apps import SicAppConfig as config
+from django.apps import apps
+
+config = apps.get_app_config("sic")
 
 
 class SicAllStories(NNTPGroup):

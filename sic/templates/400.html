@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}400 Bad Request - sic{% endblock %}
+{% block title %}400 Bad Request - {{ config.verbose_name }}{% endblock %}
 {% block content %}
     <p class="help-text">You have tried to perform something a bad or invalid operation. If you think this is a mistake please <a href="{% url 'about_contact' %}">contact the admins</a>.</p>
 {% endblock %}

@@ -16,6 +16,9 @@ from django.contrib.sites.models import Site
 from django.utils.timezone import make_aware
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_http_methods, require_safe
+from django.apps import apps
+
+config = apps.get_app_config("sic")
 from wand.image import Image
 from sic.auth import AuthToken
 from sic.models import (
@@ -47,7 +50,7 @@ from sic.forms import (
     EditExactTagFilter,
     EditDomainFilter,
 )
-from sic.apps import SicAppConfig as config
+
 from sic.views.utils import (
     form_errors_as_string,
     HttpResponseNotImplemented,

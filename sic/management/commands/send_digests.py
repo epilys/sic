@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
+from django.apps import apps
+
+config = apps.get_app_config("sic")
 from sic.mail import Digest
-from sic.apps import SicAppConfig as config
 
 
 class Command(BaseCommand):

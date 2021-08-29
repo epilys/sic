@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}{% if has %}edit {{ agg.name }} filter {% else %}new {{ agg.name }} filter{% endif %} | sic{% endblock %}
+{% block title %}{% if has %}edit {{ agg.name }} filter {% else %}new {{ agg.name }} filter{% endif %} - {{ config.verbose_name }}{% endblock %}
 {% block content %}
     <h1>{% if has %}edit {{ agg.name }} filter{% else %}new {{ agg.name }} filter{% endif %}</h1>
     <nav>

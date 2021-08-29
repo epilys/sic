@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}active invitation requests - sic{% endblock %}
+{% block title %}active invitation requests - {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
         .invitation-requests {

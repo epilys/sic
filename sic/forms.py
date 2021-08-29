@@ -4,7 +4,9 @@ from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.db.models.functions import Lower
-from sic.apps import SicAppConfig as config
+from django.apps import apps
+
+config = apps.get_app_config("sic")
 from sic.models import Tag, User, StoryKind, StoryFilter, TaggregationHasTag
 
 SELECT_WIDGET_HELP_TEXT = mark_safe(

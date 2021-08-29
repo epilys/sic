@@ -3,7 +3,9 @@ from django.db.models.signals import post_save
 from django.db.models.expressions import RawSQL
 from django.dispatch import receiver
 from django.core.mail import EmailMessage
-from .apps import SicAppConfig as config
+from django.apps import apps
+
+config = apps.get_app_config("sic")
 from .models import Comment, Story, User, Message, Notification, InvitationRequest
 
 

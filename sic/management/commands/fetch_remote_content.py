@@ -1,15 +1,18 @@
-from django.core.management.base import BaseCommand
-from django.db import connections
-from django.utils.timezone import make_aware
-from sic.models import Story, StoryRemoteContent
-from sic.apps import SicAppConfig as config
-from sic.search import index_story
 from multiprocessing import Process, Queue
 import queue
 import subprocess
 from datetime import datetime
 from pathlib import Path
 import urllib
+
+from django.core.management.base import BaseCommand
+from django.db import connections
+from django.utils.timezone import make_aware
+from django.apps import apps
+
+config = apps.get_app_config("sic")
+from sic.models import Story, StoryRemoteContent
+from sic.search import index_story
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 

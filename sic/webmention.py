@@ -16,9 +16,10 @@ from django.http import (
 )
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.apps import apps
 
-from .apps import SicAppConfig as config
-from .models import Story
+config = apps.get_app_config("sic")
+from sic.models import Story
 from sic.views.utils import check_safe_url
 
 
