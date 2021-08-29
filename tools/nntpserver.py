@@ -3,6 +3,24 @@ import socketserver
 import typing
 import datetime
 import itertools
+import enum
+import re
+
+
+class NNTPAuthSetting(enum.Flag):
+    NOAUTH = 0
+    SECUREONLY = enum.auto()
+    REQUIRED = enum.auto()
+
+
+class NNTPAuthenticationError(Exception):
+    def __init__(self, *args: typing.Any) -> None:
+        Exception.__init__(self, *args)
+        try:
+            self.response = args[0]
+        except IndexError:
+            self.response = "Authentication error"
+
 
 try:
     import ssl
@@ -158,11 +176,13 @@ class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
     def __init__(
         self,
         *args: typing.Any,
+        auth: NNTPAuthSetting = NNTPAuthSetting.NOAUTH,
         use_ssl: bool = False,
         certfile: typing.Optional[str] = None,
         keyfile: typing.Optional[str] = None,
         **kwargs: typing.Any,
     ) -> None:
+        self.auth = auth
         self.certfile = certfile
         self.keyfile = keyfile
         self.ssl_version = None
@@ -217,6 +237,9 @@ class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
     def debugging(self) -> bool:
         return False
 
+    def auth_user(self, user: str, password: str) -> None:
+        raise NNTPAuthenticationError("Authentication not supported")
+
 
 class NNTPConnectionHandler(socketserver.BaseRequestHandler):
     """
@@ -237,6 +260,8 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         self.command_history: typing.List[str] = []
         self._init: bool = True
         self._quit: bool = False
+        self._authed: bool = False
+        self._authed_user: typing.Optional[str] = None
         self.debugging: bool = debugging
         self.current_selected_newsgroup: typing.Optional[str] = None
         self.current_article_number: typing.Optional[int] = None
@@ -258,6 +283,10 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 print("got:", self.data)
             if data_caseless == "capabilities":
                 self.capabilities()
+            elif data_caseless.startswith("authinfo"):
+                self.auth()
+            elif data_caseless == "post":
+                self.send_lines(["440 Posting not permitted"])
             elif data_caseless.startswith("group"):
                 _, group_name = self.data.split()
                 self.select_group(group_name)
@@ -271,9 +300,11 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 self.head(self.data)
             elif data_caseless.startswith("listgroup"):
                 self.listgroup()
-            elif data_caseless == "list newsgroups":
-                self.list()
-            elif data_caseless.startswith("list active"):
+            elif (
+                data_caseless == "list newsgroups"
+                or data_caseless == "list"
+                or data_caseless.startswith("list active")
+            ):
                 self.list()
             elif data_caseless == "mode reader":
                 self.send_lines(["201 NNTP Service Ready, posting prohibited"])
@@ -296,17 +327,59 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 return
             self.command_history.append(self.data)
 
+    AUTHINFO_RE = re.compile(
+        r"^authinfo\s*(?P<keyword>(?:pass)|(?:user))\s*(?P<value>.*)$",
+        re.IGNORECASE,
+    )
+
+    def auth(self) -> None:
+        # Don't use .split() because password may contain white spaces
+        match = self.AUTHINFO_RE.search(self.data.strip())
+        if not match:
+            self.send_lines(["501 Syntax Error"])
+            return
+        keyword = match.group("keyword").casefold()
+        value = match.group("value")
+        if not self.server.auth or self._authed:
+            self.send_lines(["502 Command unavailable"])
+            return
+        if keyword == "user":
+            self._authed_user = value
+            self.send_lines(["381 Enter passphrase"])
+            return
+
+        if not self._authed_user:
+            self.send_lines(["482 Authentication commands issued out of sequence"])
+            return
+
+        try:
+            self.server.auth_user(self._authed_user, value)
+            self.send_lines([f"281 Authentication accepted"])
+            self._authed = True
+        except NNTPAuthenticationError as exc:
+            self.send_lines([f"481 {exc.response}"])
+
     def capabilities(self) -> None:
-        self.send_lines(
-            [
-                "101 Capability list:",
-                "VERSION 2",
-                "READER",
-                "LIST ACTIVE NEWSGROUPS OVERVIEW.FMT HEADERS",
-                "OVER",
-                ".",
-            ]
-        )
+        show_auth = False
+        if not self._authed and self.server.auth:
+            if (
+                self.server.auth & NNTPAuthSetting.SECUREONLY
+            ) and not self.server.ssl_version:
+                pass
+            else:
+                show_auth = True
+
+        capabilities = [
+            "101 Capability list:",
+            "VERSION 2",
+            "READER",
+            "LIST ACTIVE NEWSGROUPS OVERVIEW.FMT HEADERS",
+            "OVER",
+        ]
+        if show_auth:
+            capabilities.append("AUTHINFO USER")
+        capabilities.append(".")
+        self.send_lines(capabilities)
 
     def newnews(self) -> None:
         command, *tokens = self.data.strip().split()
@@ -372,7 +445,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         argument = tokens[1] if len(tokens) > 1 else None
         wildmat = tokens[2] if len(tokens) > 2 else None
 
-        if keyword.casefold() == "active" or keyword is None:
+        if keyword is None or keyword.casefold() == "active":
             if argument is None and wildmat is None:
                 self.send_lines(
                     ["215 list of newsgroups follows"]
