@@ -1,12 +1,15 @@
 import re
 import sys
+import email
 import heapq
+import secrets
 import datetime
 import sqlite3
 import typing
 import threading
 import collections.abc
 import importlib.util
+from email.policy import default as email_policy
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -27,10 +30,13 @@ from nntpserver import (
     NNTPConnectionHandler,
     NNTPAuthSetting,
     NNTPAuthenticationError,
+    NNTPPostSetting,
+    NNTPPostError,
     Article,
     ArticleInfo,
 )
-from sic.models import Story, Comment
+from sic.models import Story, Comment, User
+from sic.mail import post_receive
 from django.apps import apps
 
 config = apps.get_app_config("sic")
@@ -38,7 +44,7 @@ config = apps.get_app_config("sic")
 
 class SicAllStories(NNTPGroup):
     def __init__(self, server: NNTPServer) -> None:
-        self._name: str = "sic.all"
+        self._name: str = f"{config.verbose_name.replace(' ','_')}.all"
         self.server: NNTPServer = server
 
     @property
@@ -65,13 +71,17 @@ class SicAllStories(NNTPGroup):
     def articles(self) -> typing.Dict[int, ArticleInfo]:
         return self.server
 
+    @property
+    def created(self) -> datetime.datetime:
+        return datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
+
 
 PK_MSG_ID_RE = re.compile(
     r"(?:story-(?P<story_pk>\d+))|(?:comment-(?P<comment_pk>\d+))"
 )
 
 MAKE_MSGID: typing.Callable[[int, str, str], str] = (
-    lambda pk, msg_id, tag: msg_id if msg_id else f"<{tag}-{pk}@sic.pm>"
+    lambda pk, msg_id, tag: msg_id if msg_id else f"<{tag}-{pk}@{config.get_domain()}>"
 )
 MSG_ID_RE = re.compile(r"^\s*<(?P<msg_id>[^>]+)>\s*")
 
@@ -93,8 +103,37 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
         self.count: int = 0
         self.high: int = 0
         self.low: int = 0
+
+        self.last_modified = datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
         self.build_index()
+        self.authed_sessions: typing.Dict[bytes, int] = {}
         super().__init__(*args, **kwargs)
+
+    def refresh(self) -> None:
+        """Hook for refreshing internal state before processing article/group commands"""
+        self.last_modified
+        try:
+            if (
+                self.last_modified
+                < Story.objects.filter(last_modified__isnull=False)
+                .latest("last_modified")
+                .last_modified
+            ):
+                self.build_index()
+                return
+        except Story.DoesNotExist:
+            pass
+        try:
+            if (
+                self.last_modified
+                < Comment.objects.filter(last_modified__isnull=False)
+                .latest("last_modified")
+                .last_modified
+            ):
+                self.build_index()
+                return
+        except Comment.DoesNotExist:
+            pass
 
     @property
     def groups(self) -> typing.Dict[str, NNTPGroup]:
@@ -149,7 +188,7 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             return ArticleInfo(
                 self.reverse_index[key],
                 story.title,
-                f"""{story.user.username}@sic.pm""",
+                f"""{story.user.username}@{config.get_domain()}""",
                 story.created,
                 key,
                 "",
@@ -179,7 +218,7 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             return ArticleInfo(
                 self.reverse_index[key],
                 f"Re: {comment.story.title}",
-                f"""{comment.user.username}@sic.pm""",
+                f"""{comment.user.username}@{config.get_domain()}""",
                 comment.created,
                 key,
                 references,
@@ -219,7 +258,7 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
                 ArticleInfo(
                     self.reverse_index[key],
                     story.title,
-                    f"""{story.user.username}@sic.pm""",
+                    f"""{story.user.username}@{config.get_domain()}""",
                     story.created,
                     key,
                     "",
@@ -250,7 +289,7 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
                 ArticleInfo(
                     self.reverse_index[key],
                     f"Re: {comment.story.title}",
-                    f"""{comment.user.username}@sic.pm""",
+                    f"""{comment.user.username}@{config.get_domain()}""",
                     comment.created,
                     key,
                     references,
@@ -276,18 +315,81 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             (MAKE_MSGID(comment.id, comment.message_id, "comment"), comment.created)
             for comment in Comment.objects.order_by("created")
         )
-        self.index = dict(enumerate(heapq.merge(stories, comments, key=lambda e: e[1])))
+        self.index = dict(
+            enumerate(heapq.merge(stories, comments, key=lambda e: (e[1], e[0])))
+        )
         self.reverse_index = {self.index[k][0]: k for k in self.index}
         self.high = len(self.index) - 1 if len(self.index) != 0 else 0
         self.count = len(self.index)
+
+        try:
+            self.last_modified = max(
+                self.last_modified,
+                Story.objects.filter(last_modified__isnull=False)
+                .latest("last_modified")
+                .last_modified,
+            )
+        except Story.DoesNotExist:
+            pass
+        try:
+            self.last_modified = max(
+                self.last_modified,
+                Comment.objects.filter(last_modified__isnull=False)
+                .latest("last_modified")
+                .last_modified,
+            )
+        except Comment.DoesNotExist:
+            pass
         return
 
-    def auth_user(self, user: str, password: str) -> None:
-        user = authenticate(
-            username=user, password=password, username_as_alternative=True
+    def auth_user(self, username: str, password: str) -> bytes:
+        user: User = authenticate(
+            username=username, password=password, username_as_alternative=True
         )
         if user is None:
             raise NNTPAuthenticationError("Authentication failed")
+        auth_token: typing.Optional[bytes] = next(
+            (token for token, pk in self.authed_sessions.items() if pk == user.pk), None
+        )
+        if auth_token:
+            return auth_token
+
+        auth_token = secrets.token_bytes()
+        retries = 0
+        while auth_token in self.authed_sessions:
+            auth_token = secrets.token_bytes()  # prevent duplicates
+            retries += 1
+            if retries > 3:
+                raise NNTPAuthenticationError("Authentication failed: Internal Error")
+        self.authed_sessions[auth_token] = user.pk
+        return auth_token
+
+    def post(self, auth_token: typing.Optional[bytes], lines: str) -> None:
+        if not auth_token or auth_token not in self.authed_sessions:
+            raise NNTPPostError("Authentication required")
+        if not lines.strip():
+            raise NNTPPostError("Received empty article.")
+        print("got new post: ", lines)
+        user_pk: int = self.authed_sessions[auth_token]
+        try:
+            user = User.objects.get(pk=user_pk)
+        except User.DoesNotExist:
+            raise NNTPPostError("User not found.")
+        try:
+            msg = email.message_from_string(lines, policy=email_policy)
+            if not msg["message-id"]:
+                lines = (
+                    f"Message-ID: <nntp-{secrets.token_hex(16)}@{config.get_domain()}>\r\n"
+                    + lines
+                )
+            ret_str = post_receive(lines, user=user)
+            print(f"post_receive() for user {user} returned: ", ret_str)
+        except Exception as exc:
+            raise NNTPPostError(str(exc)) from exc
+
+    @property
+    def debugging(self) -> bool:
+        return True
 
 
 class Command(BaseCommand):
@@ -310,6 +412,7 @@ class Command(BaseCommand):
             server_kwargs["certfile"] = kwargs["certfile"]
             server_kwargs["keyfile"] = kwargs["keyfile"]
         server_kwargs["auth"] = NNTPAuthSetting.SECUREONLY
+        server_kwargs["can_post"] = NNTPPostSetting.AUTHREQUIRED
 
         SicNNTPServer.allow_reuse_address = True
 

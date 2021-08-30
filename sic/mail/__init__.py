@@ -170,14 +170,36 @@ METADATA_RE = re.compile(
 )
 
 
-def post_receive(data):
+def post_receive(data: str, user=None) -> str:
     msg = email.message_from_string(data, policy=email_policy)
-    from_ = msg["from"].addresses[0].addr_spec
-    user = User.objects.get(email=from_)
+    if not msg["message-id"]:
+        raise Exception("Post has no Message-ID")
+
+    # Check for duplicate posts
+    if (
+        Comment.objects.filter(message_id=msg["message-id"]).exists()
+        or Story.objects.filter(message_id=msg["message-id"]).exists()
+    ):
+        raise Exception("Post with this Message-ID already exists.")
+    dup_pk_search = PK_MSG_ID_RE.search(msg["message-id"])
+    if dup_pk_search:
+        exists = (
+            Story.objects.filter(pk=dup_pk_search.groups["story_pk"]).exists()
+            if dup_pk_search.groups["story_pk"]
+            else Comment.objects.filter(pk=dup_pk_search.groups["comment_pk"]).exists()
+        )
+        if exists:
+            raise Exception("Post with this Message-ID already exists.")
+
+    if not user:
+        if not msg["from"]:
+            raise Exception("Post has no From")
+        from_ = msg["from"].addresses[0].addr_spec
+        user = User.objects.get(email=from_)
     body = msg.get_body(preferencelist=("markdown", "plain", "html"))
-    if body["content-type"].maintype != "text":
+    if body["content-type"] and body["content-type"].maintype != "text":
         raise Exception("Not text.")
-    if body["content-type"].subtype == "html":
+    if body["content-type"] and body["content-type"].subtype == "html":
         text = Textractor.extract(body.get_content()).strip()
     else:
         text = body.get_content().strip()

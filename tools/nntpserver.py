@@ -22,6 +22,30 @@ class NNTPAuthenticationError(Exception):
             self.response = "Authentication error"
 
 
+class NNTPPostSetting(enum.Flag):
+    NOPOST = 0
+    POST = enum.auto()
+    AUTHREQUIRED = enum.auto()
+
+
+class NNTPPostError(Exception):
+    def __init__(self, *args: typing.Any) -> None:
+        Exception.__init__(self, *args)
+        try:
+            self.response = args[0]
+        except IndexError:
+            self.response = "Post error"
+
+
+class NNTPDataError(Exception):
+    def __init__(self, *args: typing.Any) -> None:
+        Exception.__init__(self, *args)
+        try:
+            self.response = args[0]
+        except IndexError:
+            self.response = "Data error"
+
+
 try:
     import ssl
 except ImportError:
@@ -169,6 +193,11 @@ class NNTPGroup(abc.ABC):
     def articles(self) -> typing.Dict[int, ArticleInfo]:
         ...
 
+    @property
+    @abc.abstractmethod
+    def created(self) -> datetime.datetime:
+        ...
+
 
 class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
     overview_format: typing.List[str] = _DEFAULT_OVERVIEW_FMT
@@ -177,6 +206,7 @@ class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
         self,
         *args: typing.Any,
         auth: NNTPAuthSetting = NNTPAuthSetting.NOAUTH,
+        can_post: NNTPPostSetting = NNTPPostSetting.NOPOST,
         use_ssl: bool = False,
         certfile: typing.Optional[str] = None,
         keyfile: typing.Optional[str] = None,
@@ -186,6 +216,7 @@ class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
         self.certfile = certfile
         self.keyfile = keyfile
         self.ssl_version = None
+        self.can_post = can_post
         if use_ssl:
             if not certfile or not keyfile:
                 raise ValueError(
@@ -211,6 +242,11 @@ class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
             return connstream, fromaddr
         return super().get_request()
 
+    @abc.abstractmethod
+    def refresh(self) -> None:
+        """Hook for refreshing internal state before processing article/group commands"""
+        ...
+
     @property
     @abc.abstractmethod
     def groups(self) -> typing.Dict[str, NNTPGroup]:
@@ -230,15 +266,24 @@ class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
 
     def newnews(
         self, wildmat: str, date: datetime.datetime
-    ) -> typing.Union[None, typing.List[ArticleInfo]]:
+    ) -> typing.Optional[typing.List[ArticleInfo]]:
+        return None
+
+    def newgroups(
+        self, date: datetime.datetime
+    ) -> typing.Optional[typing.List[NNTPGroup]]:
         return None
 
     @property
     def debugging(self) -> bool:
         return False
 
-    def auth_user(self, user: str, password: str) -> None:
+    def auth_user(self, user: str, password: str) -> bytes:
+        """Return an auth token on success. This token will be passed to the server for authenticated actions like POSTing articles."""
         raise NNTPAuthenticationError("Authentication not supported")
+
+    def post(self, auth_token: typing.Optional[bytes], lines: str) -> None:
+        raise NNTPPostError("Posting not supported")
 
 
 class NNTPConnectionHandler(socketserver.BaseRequestHandler):
@@ -252,17 +297,16 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
 
     server: NNTPServer
 
-    def __init__(
-        self, *args: typing.Any, debugging: bool = False, **kwargs: typing.Any
-    ) -> None:
+    def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         print("New connection.")
         # self.command_queue = collections.deque()
         self.command_history: typing.List[str] = []
         self._init: bool = True
         self._quit: bool = False
         self._authed: bool = False
+        self._auth_token: typing.Optional[bytes] = None
         self._authed_user: typing.Optional[str] = None
-        self.debugging: bool = debugging
+        self._buffer: bytes = b""
         self.current_selected_newsgroup: typing.Optional[str] = None
         self.current_article_number: typing.Optional[int] = None
         super().__init__(*args, **kwargs)
@@ -275,18 +319,42 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             self._init = False
         # self.request is the TCP socket connected to the client
         while True:
-            self.data = self.request.recv(_MAXLINE).strip().decode("utf-8")
+            self.data = self._getline()
             data_caseless = self.data.casefold()
             if not self.data:
                 continue
-            if self.debugging:
+            if self.server.debugging and not data_caseless.startswith("authinfo"):
                 print("got:", self.data)
             if data_caseless == "capabilities":
                 self.capabilities()
             elif data_caseless.startswith("authinfo"):
                 self.auth()
             elif data_caseless == "post":
-                self.send_lines(["440 Posting not permitted"])
+                allow = False
+                if self.server.can_post and not (
+                    self.server.can_post & NNTPPostSetting.AUTHREQUIRED
+                ):
+                    allow = True
+                elif self._authed and (
+                    self.server.can_post & NNTPPostSetting.AUTHREQUIRED
+                ):
+                    allow = True
+                elif not self._authed or not self.server.can_post:
+                    pass
+                elif not self._authed and (
+                    self.server.can_post & NNTPPostSetting.AUTHREQUIRED
+                ):
+                    pass
+                if not allow:
+                    self.send_lines(["440 Posting not permitted"])
+                else:
+                    self.send_lines(["340 Input article; end with <CR-LF>.<CR-LF>"])
+                    lines = self._getlines()
+                    try:
+                        self.server.post(self._auth_token, lines)
+                        self.send_lines(["240 Article received OK"])
+                    except NNTPPostError as exc:
+                        self.send_lines([f"441 Posting failed: {exc.response}"])
             elif data_caseless.startswith("group"):
                 _, group_name = self.data.split()
                 self.select_group(group_name)
@@ -319,9 +387,12 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 self.send_lines([f"111 {''.join(format_datetime(date))}"])
             elif data_caseless.startswith("newnews"):
                 self.newnews()
+            elif data_caseless.startswith("newgroups"):
+                self.newgroups()
             elif data_caseless == "quit":
                 self._quit = True
                 self.send_lines(["205 Connection closing"])
+                return
             else:
                 self.send_lines(["500 Unknown command"])
                 return
@@ -333,6 +404,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
     )
 
     def auth(self) -> None:
+        self.server.refresh()
         # Don't use .split() because password may contain white spaces
         match = self.AUTHINFO_RE.search(self.data.strip())
         if not match:
@@ -353,7 +425,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             return
 
         try:
-            self.server.auth_user(self._authed_user, value)
+            self._auth_token = self.server.auth_user(self._authed_user, value)
             self.send_lines([f"281 Authentication accepted"])
             self._authed = True
         except NNTPAuthenticationError as exc:
@@ -373,7 +445,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             "101 Capability list:",
             "VERSION 2",
             "READER",
-            "LIST ACTIVE NEWSGROUPS OVERVIEW.FMT HEADERS",
+            "LIST ACTIVE NEWSGROUPS OVERVIEW.FMT",
             "OVER",
         ]
         if show_auth:
@@ -392,19 +464,11 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         except TypeError:
             self.send_lines(["501 Syntax Error"])
             return
+        # Check if server implements newnews, otherwise compute newnews on our own.
         articles = self.server.newnews(wildmat, date)
-        if articles is not None:
-            self.send_lines(
-                ["230 list of new articles by message-id follows"]
-                + list(article.message_id for article in articles)
-                + ["."]
-            )
-            return
-        self.send_lines(
-            ["230 list of new articles by message-id follows"]
-            + list(
-                article.message_id
-                for article in filter(
+        if articles is None:
+            articles = list(
+                filter(
                     lambda a: a.date >= date,
                     itertools.chain.from_iterable(
                         g.articles.values()
@@ -414,11 +478,42 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                     ),
                 )
             )
+        self.send_lines(
+            ["230 list of new articles by message-id follows"]
+            + list(article.message_id for article in articles)
             + ["."]
         )
-        return
+
+    def newgroups(self) -> None:
+        self.server.refresh()
+        command, *tokens = self.data.strip().split()
+        if len(tokens) < 2:
+            self.send_lines(["501 Syntax Error"])
+            return
+        date_str, time_str, *gmt = tokens
+        try:
+            date = parse_datetime(date_str, time_str=time_str)
+        except TypeError:
+            self.send_lines(["501 Syntax Error"])
+            return
+        # Check if server implements newgroups, otherwise compute newgroups on our own.
+        groups = self.server.newgroups(date)
+
+        if groups is not None:
+            groups = typing.cast(typing.List[NNTPGroup], groups)
+        else:
+            groups = list(
+                filter(lambda g: g.created >= date, self.server.groups.values())
+            )
+
+        self.send_lines(
+            ["231 list of new newsgroups follows"]
+            + [f"{g.name} {g.high} {g.low} n" for g in groups]
+            + ["."]
+        )
 
     def listgroup(self) -> None:
+        self.server.refresh()
         command, *tokens = self.data.strip().split()
         if len(tokens) == 0 and self.current_selected_newsgroup is None:
             self.send_lines(["412 No newsgroups elected"])
@@ -440,6 +535,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             )
 
     def list(self) -> None:
+        self.server.refresh()
         command, *tokens = self.data.strip().split()
         keyword = tokens[0] if len(tokens) != 0 else None
         argument = tokens[1] if len(tokens) > 1 else None
@@ -469,7 +565,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 )
                 return
 
-        if keyword.casefold() == "newsgroups":
+        if keyword and keyword.casefold() == "newsgroups":
             if argument is None and wildmat is None:
                 self.send_lines(
                     ["215 list of newsgroups follows"]
@@ -497,6 +593,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         return
 
     def select_group(self, group_name: str) -> bool:
+        self.server.refresh()
         print("Group name", group_name)
         if group_name in self.server.groups:
             self.current_selected_newsgroup = group_name
@@ -510,9 +607,46 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
 
     def send_lines(self, lines: typing.List[str]) -> None:
         for line in lines:
-            if self.debugging:
+            if self.server.debugging:
                 print("sending", line)
             self.request.sendall(bytes(line.strip(), "utf-8") + _CRLF)
+
+    def _getline(self, strip_crlf: bool = True) -> str:
+        line = None
+        chunk = None
+        if b"\n" in self._buffer:
+            line = self._buffer[: self._buffer.find(b"\n")]
+            self._buffer = self._buffer[len(line) + 1 :]
+        while not line:
+            chunk = self.request.recv(_MAXLINE + 1)
+            if len(chunk) > _MAXLINE:
+                raise NNTPDataError("line too long")
+            if b"\n" in chunk or not chunk:
+                break
+        if chunk:
+            self._buffer += chunk
+        if not line:
+            line = self._buffer[: self._buffer.find(b"\n")]
+            self._buffer = self._buffer[len(line) + 1 :]
+        if not line:
+            raise EOFError
+        if strip_crlf:
+            if line[-2:] == _CRLF:
+                line = line[:-2]
+            elif line[-1:] in _CRLF:
+                line = line[:-1]
+        return line.decode("utf-8")
+
+    def _getlines(self) -> str:
+        lines = []
+        while True:
+            line = self._getline()
+            if line == ".":
+                break
+            if line.startswith(".."):
+                line = line[1:]
+            lines.append(line)
+        return "\n".join(lines)
 
     def overview(self, command: str) -> None:
         if self.current_selected_newsgroup is None:
@@ -525,6 +659,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         )
 
     def stat(self, command: str) -> None:
+        self.server.refresh()
         command, *tokens = command.split()
         if len(tokens) == 0:
             if self.current_selected_newsgroup is None:
@@ -541,6 +676,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         return
 
     def article(self, command: str) -> None:
+        self.server.refresh()
         command, *tokens = command.split()
         if len(tokens) == 0:
             if self.current_selected_newsgroup is None:
@@ -574,6 +710,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         self.send_lines(ret)
 
     def head(self, command: str) -> None:
+        self.server.refresh()
         command, *tokens = command.split()
         if len(tokens) == 0:
             if self.current_selected_newsgroup is None:
