@@ -619,8 +619,6 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             self._buffer = self._buffer[len(line) + 1 :]
         while not line:
             chunk = self.request.recv(_MAXLINE + 1)
-            if len(chunk) > _MAXLINE:
-                raise NNTPDataError("line too long")
             if b"\n" in chunk or not chunk:
                 break
         if chunk:

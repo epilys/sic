@@ -116,7 +116,7 @@ class Digest(models.Model):
                         [to],
                         headers={
                             "Message-ID": config.make_msgid(),
-                            "List-ID": f"sic digests <{config.NOTIFICATION_FROM}>",
+                            "List-ID": f"{config.verbose_name} digests <{config.NOTIFICATION_FROM}>",
                             "List-Unsubscribe": f"<{unsubscribe}>",
                         },
                         connection=connection,
@@ -237,9 +237,42 @@ def post_receive(data: str, user=None) -> str:
         )
         return f"created comment {comment.pk}"
 
+    # Accept as story
+
+    tags = []
+    if "tags" in msg and msg["tags"]:
+        tags = list(
+            filter(
+                lambda t: t is not None,
+                map(
+                    lambda t: Tag.objects.filter(name=t.strip()).first(),
+                    msg["tags"].split(","),
+                ),
+            )
+        )
+    content_warning = None
+
+    if "content-warning" in msg and msg["content-warning"]:
+        content_warning = msg["content-warning"]
+
+    url = None
+    if "url" in msg and msg["url"]:
+        url = msg["url"]
+
+    publish_date = None
+    if "publish-date" in msg and msg["publish-date"]:
+        publish_date = msg["publish-date"]
+
+    user_is_author = False
+
+    if "user-is-author" in msg and msg["user-is-author"]:
+        user_is_author = msg["user-is-author"].strip().casefold() in ["yes", "no"]
+
+    description = None
+
     metadata_search = METADATA_RE.search(text)
     if metadata_search:
-        text = metadata_search.groups("description")
+        description = metadata_search.groups("description")
         publish_date = metadata_search.groups("publish_date")
         try:
             publish_date = (
@@ -261,17 +294,19 @@ def post_receive(data: str, user=None) -> str:
         if tags:
             tags = list(
                 filter(
-                    lambda t: Tag.objects.filter(name=t.strip()).first(),
-                    tags.split(","),
+                    lambda t: t is not None,
+                    map(
+                        lambda t: Tag.objects.filter(name=t.strip()).first(),
+                        tags.split(","),
+                    ),
                 )
             )
     else:
-        url = None
-        publish_date = None
         description = text
-        user_is_author = False
-        content_warning = None
-    # This is a story
+
+    if not url and not description:
+        raise Exception("A story must have a URL or a description.")
+
     story = Story.objects.create(
         title=msg["subject"].strip(),
         url=url,
@@ -282,6 +317,8 @@ def post_receive(data: str, user=None) -> str:
         content_warning=content_warning,
         message_id=msg["message-id"],
     )
+    story.tags.set(tags)
+    story.save()
     return f"created story {story.pk}"
 
 
@@ -327,7 +364,7 @@ def story_create_mailing_list(
             continue
         any_matches = True
         EmailMessage(
-            f"[sic] {story_obj.title}",
+            f"[{config.verbose_name}] {story_obj.title}",
             story_obj.url if story_obj.url else story_obj.description,
             config.NOTIFICATION_FROM,
             [user.email],
