@@ -164,10 +164,6 @@ MSG_ID_RE = re.compile(r"^\s*<(?P<msg_id>[^>]+)>\s*")
 PK_MSG_ID_RE = re.compile(
     r"(?:story-(?P<story_pk>\d+))|(?:comment-(?P<comment_pk>\d+))"
 )
-METADATA_RE = re.compile(
-    r"(?:(?:url:\s*(?P<url>.+?)(?:\n|$))|(?:content-warning:\s*(?P<content_warning>.+?)(?:\n|$))|(?:tags:\s*(?P<tags>.+?)(?:\n|$))|(?:author:\s*(?P<author>.+?)(?:\n|$))|(?:publish-date:\s*(?P<publish_date>.+?)(?:\n|$)))+(?:\n(?P<description>(?:.|\n)*))?$",
-    re.IGNORECASE,
-)
 
 
 def post_receive(data: str, user=None) -> str:
@@ -268,41 +264,7 @@ def post_receive(data: str, user=None) -> str:
     if "user-is-author" in msg and msg["user-is-author"]:
         user_is_author = msg["user-is-author"].strip().casefold() in ["yes", "no"]
 
-    description = None
-
-    metadata_search = METADATA_RE.search(text)
-    if metadata_search:
-        description = metadata_search.groups("description")
-        publish_date = metadata_search.groups("publish_date")
-        try:
-            publish_date = (
-                datetime.date.fromisoformat(publish_date.strip())
-                if publish_date
-                else None
-            )
-        except:
-            publish_date = None
-        url = metadata_search.groups("url")
-        content_warning = metadata_search.groups("content_warning")
-        author = (
-            metadata_search.groups("author").lowercase()
-            if metadata_search.groups("author")
-            else None
-        )
-        user_is_author = author in ["yes", "true"] if author else False
-        tags = metadata_search.groups("tags")
-        if tags:
-            tags = list(
-                filter(
-                    lambda t: t is not None,
-                    map(
-                        lambda t: Tag.objects.filter(name=t.strip()).first(),
-                        tags.split(","),
-                    ),
-                )
-            )
-    else:
-        description = text
+    description = text
 
     if not url and not description:
         raise Exception("A story must have a URL or a description.")
