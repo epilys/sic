@@ -103,13 +103,12 @@
                 {% if request.user.is_authenticated %}
                     <nav class="menu user">
                         <ul>
-                            <li class="profile">{% if request.user.avatar and show_avatars %}<img class="avatar-small" src="{{request.user.avatar}}" alt="" title="{{ request.user.avatar_title|default_if_none:'' }}" height="18" width="18">{% endif %}<a href="{{ request.user.get_absolute_url }}">{{ request.user }}</a></li>
+                            <li class="profile account">{% if request.user.avatar and show_avatars %}<a class="avatar-small" href="{{ request.user.get_absolute_url }}"><img class="avatar-small" src="{{request.user.avatar}}" alt="" title="{{ request.user.avatar_title|default_if_none:'' }}" height="18" width="18"></a>{% endif %}<a href="{% url 'account' %}" id="account_link" title="account page">{{ request.user }}</a>{% if unread_messages and unread_messages > 0 %} <a href="{% url 'inbox' %}" id="inbox_link">({{ unread_messages }})</a>{% endif %}</li>
                             {% with request.user.active_notifications as notifications %}
                                 {% if notifications|length > 0 %}
                                     <li class="notification"><a href="{% url 'notifications' %}">{{ notifications|length }} notification{{ notifications|pluralize }}</a></li>
                                 {% endif %}
                             {% endwith %}
-                            <li class="account"><a href="{% url 'account' %}" id="account_link">Account</a>{% if unread_messages and unread_messages > 0 %} <a href="{% url 'inbox' %}" id="inbox_link">({{ unread_messages }})</a>{% endif %}</li>
                             <li><a href="{% url 'account_activity' %}" id="activity_link">Activity</a></li>
                             <li><a href="{% url 'submit' %}" id="submit_link">Post</a></li>
                             <li><a href="{% url 'logout' %}" id="logout_link">Logout</a></li>
