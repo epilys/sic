@@ -99,28 +99,55 @@ def user_save_receiver(sender, instance, created, raw, using, update_fields, **k
 
 
 def auth_context(request):
+    header_links = cache.get("header_links", default=None)
     footer_links = cache.get("footer_links", default=None)
-    if footer_links is None:
+
+    if header_links is None or footer_links is None:
         footer_links = ""
-        for l in DocumentationFlatPage.objects.filter(show_in_footer=True).order_by(
-            "order", "title"
-        ):
-            footer_links += f"""<li><a href="{l.flatpage_ptr.url}">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
-        for l in CommunityFlatPage.objects.filter(show_in_footer=True).order_by(
-            "order", "title"
-        ):
-            if l.show_inline:
-                footer_links += l.flatpage_ptr.content
-                continue
-            footer_links += f"""<li><a href="{l.flatpage_ptr.url}">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
-        for l in ExternalLinkFlatPage.objects.filter(show_in_footer=True).order_by(
-            "order", "title"
-        ):
-            if l.show_inline:
-                footer_links += l.flatpage_ptr.content
-                continue
-            footer_links += f"""<li><a href="{l.flatpage_ptr.url}" rel="external nofollow">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
+        header_links = ""
+        for l in (
+            DocumentationFlatPage.objects.filter(show_in_footer=True)
+            | DocumentationFlatPage.objects.filter(show_in_header=True)
+        ).order_by("order", "title"):
+            if l.show_in_header:
+                header_links += f"""<li><a href="{l.flatpage_ptr.url}">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
+            if l.show_in_footer:
+                footer_links += f"""<li><a href="{l.flatpage_ptr.url}">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
+
+        for l in (
+            CommunityFlatPage.objects.filter(show_in_footer=True)
+            | CommunityFlatPage.objects.filter(show_in_header=True)
+        ).order_by("order", "title"):
+            if l.show_in_header:
+                if l.show_inline:
+                    header_links += l.flatpage_ptr.content
+                else:
+                    header_links += f"""<li><a href="{l.flatpage_ptr.url}">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
+
+            if l.show_in_footer:
+                if l.show_inline:
+                    footer_links += l.flatpage_ptr.content
+                else:
+                    footer_links += f"""<li><a href="{l.flatpage_ptr.url}">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
+
+        for l in (
+            ExternalLinkFlatPage.objects.filter(show_in_footer=True)
+            | ExternalLinkFlatPage.objects.filter(show_in_header=True)
+        ).order_by("order", "title"):
+            if l.show_in_header:
+                if l.show_inline:
+                    header_links += l.flatpage_ptr.content
+                else:
+                    header_links += f"""<li><a href="{l.flatpage_ptr.url}" rel="external nofollow">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
+            if l.show_in_footer:
+                if l.show_inline:
+                    footer_links += l.flatpage_ptr.content
+                else:
+                    footer_links += f"""<li><a href="{l.flatpage_ptr.url}" rel="external nofollow">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
+
+        cache.set("header_links", header_links, timeout=CACHE_TIMEOUT)
         cache.set("footer_links", footer_links, timeout=CACHE_TIMEOUT)
+
     if request.user.is_authenticated:
         return {
             "show_avatars": request.user.show_avatars,
@@ -129,6 +156,7 @@ def auth_context(request):
             "unread_messages": request.user.unread_messages,
             "font_size": request.session.get("font_size", None),
             "vivid_colors": request.session.get("vivid_colors", None),
+            "header_links": mark_safe(header_links),
             "footer_links": mark_safe(footer_links),
             "config": config,
         }
@@ -138,6 +166,7 @@ def auth_context(request):
         "show_colors": True,
         "font_size": None,
         "vivid_colors": None,
+        "header_links": mark_safe(header_links),
         "footer_links": mark_safe(footer_links),
         "config": config,
     }

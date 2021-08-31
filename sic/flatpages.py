@@ -6,6 +6,7 @@ class DocumentationFlatPage(FlatPage):
     link_name = models.TextField(null=True)
     order = models.PositiveIntegerField(null=True, blank=True, default=None)
     show_in_footer = models.BooleanField(null=False, blank=True, default=False)
+    show_in_header = models.BooleanField(null=False, blank=True, default=False)
 
 
 class CommunityFlatPage(FlatPage):
@@ -13,6 +14,7 @@ class CommunityFlatPage(FlatPage):
     order = models.PositiveIntegerField(null=True, blank=True, default=None)
     show_inline = models.BooleanField(null=False, blank=True, default=False)
     show_in_footer = models.BooleanField(null=False, blank=True, default=False)
+    show_in_header = models.BooleanField(null=False, blank=True, default=False)
 
 
 class ExternalLinkFlatPage(FlatPage):
@@ -21,3 +23,4 @@ class ExternalLinkFlatPage(FlatPage):
     order = models.PositiveIntegerField(null=True, blank=True, default=None)
     show_inline = models.BooleanField(null=False, blank=True, default=False)
     show_in_footer = models.BooleanField(null=False, blank=True, default=False)
+    show_in_header = models.BooleanField(null=False, blank=True, default=False)
