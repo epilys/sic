@@ -151,17 +151,23 @@ def get_from_cache(key: str):
 
 @register.simple_tag(takes_context=False)
 def get_doc_flatpages():
-    return DocumentationFlatPage.objects.order_by("order", "title").all()
+    return DocumentationFlatPage.objects.filter(show_in_about=True).order_by(
+        "order", "title"
+    )
 
 
 @register.simple_tag(takes_context=False)
 def get_community_flatpages():
-    return CommunityFlatPage.objects.order_by("order", "title").all()
+    return CommunityFlatPage.objects.filter(show_in_about=True).order_by(
+        "order", "title"
+    )
 
 
 @register.simple_tag(takes_context=False)
 def get_externallink_flatpages():
-    return ExternalLinkFlatPage.objects.order_by("order", "title").all()
+    return ExternalLinkFlatPage.objects.filter(show_in_about=True).order_by(
+        "order", "title"
+    )
 
 
 @register.simple_tag(takes_context=False)
