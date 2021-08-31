@@ -70,8 +70,8 @@ _DEFAULT_OVERVIEW_FMT = [
     "Date:",
     "Message-ID:",
     "References:",
-    ":bytes",
-    ":lines",
+    "Bytes:",
+    "Lines:",
 ]
 
 
@@ -285,6 +285,10 @@ class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
     def post(self, auth_token: typing.Optional[bytes], lines: str) -> None:
         raise NNTPPostError("Posting not supported")
 
+    @property
+    def subscriptions(self) -> typing.Optional[typing.List[str]]:
+        return None
+
 
 class NNTPConnectionHandler(socketserver.BaseRequestHandler):
     """
@@ -360,6 +364,8 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 self.select_group(group_name)
             elif data_caseless.startswith("over") or data_caseless.startswith("xover"):
                 self.overview(self.data)
+            elif data_caseless.startswith("hdr") or data_caseless.startswith("xhdr"):
+                self.hdr()
             elif data_caseless.startswith("stat"):
                 self.stat(self.data)
             elif data_caseless.startswith("article"):
@@ -374,6 +380,14 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 or data_caseless.startswith("list active")
             ):
                 self.list()
+            elif data_caseless == "list subscriptions":
+                subs: typing.Optional[typing.List[str]] = self.server.subscriptions
+                if subs is None:
+                    self.send_lines(["503 No list of recommended newsgroups available"])
+                else:
+                    self.send_lines(
+                        ["215 List of recommended newsgroups follows"] + subs + ["."]
+                    )
             elif data_caseless == "mode reader":
                 self.send_lines(["201 NNTP Service Ready, posting prohibited"])
             elif data_caseless == "list overview.fmt":
@@ -395,7 +409,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 return
             else:
                 self.send_lines(["500 Unknown command"])
-                return
+                continue
             self.command_history.append(self.data)
 
     AUTHINFO_RE = re.compile(
@@ -445,7 +459,8 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             "101 Capability list:",
             "VERSION 2",
             "READER",
-            "LIST ACTIVE NEWSGROUPS OVERVIEW.FMT",
+            "HDR",
+            "LIST ACTIVE NEWSGROUPS OVERVIEW.FMT SUBSCRIPTIONS",
             "OVER",
         ]
         if show_auth:
@@ -598,6 +613,10 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         if group_name in self.server.groups:
             self.current_selected_newsgroup = group_name
             group = self.server.groups[group_name]
+            if group.number == 0:
+                self.current_article_number = None
+            else:
+                self.current_article_number = group.low
             self.send_lines(
                 [f"211 {group.number} {group.low} {group.high} {group.name}"]
             )
@@ -626,7 +645,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         if not line:
             line = self._buffer[: self._buffer.find(b"\n")]
             self._buffer = self._buffer[len(line) + 1 :]
-        if not line:
+        if line is None:
             raise EOFError
         if strip_crlf:
             if line[-2:] == _CRLF:
@@ -645,6 +664,16 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 line = line[1:]
             lines.append(line)
         return "\n".join(lines)
+
+    def hdr(self) -> None:
+        if self.current_selected_newsgroup is None:
+            self.send_lines(["412 No newsgroups elected"])
+            return
+        self.send_lines(
+            ["224 Overview information follows (multi-line)"]
+            + list(map(str, self.server.articles))
+            + ["."]
+        )
 
     def overview(self, command: str) -> None:
         if self.current_selected_newsgroup is None:

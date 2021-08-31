@@ -93,8 +93,8 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
         "Date:",
         "Message-ID:",
         "References:",
-        ":bytes",
-        ":lines",
+        "Bytes:",
+        "Lines:",
     ]
 
     def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
@@ -386,6 +386,10 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             print(f"post_receive() for user {user} returned: ", ret_str)
         except Exception as exc:
             raise NNTPPostError(str(exc)) from exc
+
+    @property
+    def subscriptions(self) -> typing.Optional[typing.List[str]]:
+        return [self.all.name]
 
     @property
     def debugging(self) -> bool:
