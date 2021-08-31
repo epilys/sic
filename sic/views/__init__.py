@@ -262,6 +262,8 @@ def edit_comment(request, comment_pk):
                 )
                 comment_obj.text = form.cleaned_data["text"]
                 comment_obj.save()
+                if "comment_preview" in request.session:
+                    request.session["comment_preview"] = {}
                 return redirect(comment_obj)
         error = form_errors_as_string(form.errors)
         messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
@@ -315,6 +317,8 @@ def delete_comment(request, comment_pk):
                     comment_obj, request.user, form.cleaned_data["deletion_reason"]
                 )
                 comment_obj.save()
+                if "comment_preview" in request.session:
+                    request.session["comment_preview"] = {}
                 messages.add_message(
                     request,
                     messages.SUCCESS,
