@@ -4,7 +4,7 @@ from django.utils.crypto import constant_time_compare
 from django.utils.http import base36_to_int
 from django.utils.safestring import mark_safe
 from django.contrib.auth.forms import AuthenticationForm as DjangoAuthenticationForm
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, user_logged_in, user_logged_out
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
@@ -25,7 +25,7 @@ from sic.models import (
 )
 from sic.flatpages import DocumentationFlatPage, CommunityFlatPage, ExternalLinkFlatPage
 
-CACHE_TIMEOUT = 60 * 60 * 12
+CACHE_TIMEOUT = 60 * 30
 
 
 class SicBackend(ModelBackend):
@@ -39,7 +39,6 @@ class SicBackend(ModelBackend):
             except User.DoesNotExist:
                 return None
             res = self.authenticate(request, username=user.email, password=password)
-            return res
         return res
 
     def has_perm(self, user_obj, perm, obj):
@@ -98,9 +97,22 @@ def user_save_receiver(sender, instance, created, raw, using, update_fields, **k
     instance.save()
 
 
+@receiver(user_logged_in, sender=User)
+@receiver(user_logged_out, sender=User)
+def logout_login_hook(sender, request, user, **kwargs):
+    request.session["header_links"] = None
+    request.session["footer_links"] = None
+    cache.delete_many(["header_links", "footer_links"])
+
+
 def auth_context(request):
-    header_links = cache.get("header_links", default=None)
-    footer_links = cache.get("footer_links", default=None)
+    is_authenticated = request.user.is_authenticated
+    if is_authenticated:
+        header_links = request.session.get("header_links", default=None)
+        footer_links = request.session.get("footer_links", default=None)
+    else:
+        header_links = cache.get("header_links", default=None)
+        footer_links = cache.get("footer_links", default=None)
 
     if header_links is None or footer_links is None:
         footer_links = ""
@@ -109,6 +121,8 @@ def auth_context(request):
             DocumentationFlatPage.objects.filter(show_in_footer=True)
             | DocumentationFlatPage.objects.filter(show_in_header=True)
         ).order_by("order", "title"):
+            if l.flatpage_ptr.registration_required and not is_authenticated:
+                continue
             if l.show_in_header:
                 header_links += f"""<li><a href="{l.flatpage_ptr.url}">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
             if l.show_in_footer:
@@ -118,6 +132,8 @@ def auth_context(request):
             CommunityFlatPage.objects.filter(show_in_footer=True)
             | CommunityFlatPage.objects.filter(show_in_header=True)
         ).order_by("order", "title"):
+            if l.flatpage_ptr.registration_required and not is_authenticated:
+                continue
             if l.show_in_header:
                 if l.show_inline:
                     header_links += l.flatpage_ptr.content
@@ -134,6 +150,8 @@ def auth_context(request):
             ExternalLinkFlatPage.objects.filter(show_in_footer=True)
             | ExternalLinkFlatPage.objects.filter(show_in_header=True)
         ).order_by("order", "title"):
+            if l.flatpage_ptr.registration_required and not is_authenticated:
+                continue
             if l.show_in_header:
                 if l.show_inline:
                     header_links += l.flatpage_ptr.content
@@ -145,10 +163,14 @@ def auth_context(request):
                 else:
                     footer_links += f"""<li><a href="{l.flatpage_ptr.url}" rel="external nofollow">{l.link_name if l.link_name else l.flatpage_ptr.title}</a></li>"""
 
-        cache.set("header_links", header_links, timeout=CACHE_TIMEOUT)
-        cache.set("footer_links", footer_links, timeout=CACHE_TIMEOUT)
+        if is_authenticated:
+            request.session["header_links"] = header_links
+            request.session["footer_links"] = footer_links
+        else:
+            cache.set("header_links", header_links, timeout=CACHE_TIMEOUT)
+            cache.set("footer_links", footer_links, timeout=CACHE_TIMEOUT)
 
-    if request.user.is_authenticated:
+    if is_authenticated:
         return {
             "show_avatars": request.user.show_avatars,
             "show_colors": request.user.show_colors,
