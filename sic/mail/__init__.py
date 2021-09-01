@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 import logging
 import email
-import itertools
 import re
+import typing
 from email.policy import default as email_policy
 from django.db import models
 from django.db.models import F, Q
@@ -13,7 +13,6 @@ from django.core.mail import EmailMessage
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.mail import EmailMessage
 from django.apps import apps
 
 config = apps.get_app_config("sic")
@@ -71,7 +70,7 @@ class Digest(models.Model):
         if not digests.exists():
             return
         template = Template(DIGEST_TEMPLATE)
-        domain = f"http://{config.get_domain()}"
+        domain = f"{config.WEB_PROTOCOL}://{config.get_domain()}"
         unsubscribe = f"{domain}{reverse('edit_settings')}"
         with mail.get_connection(fail_silently=False) as connection:
             for d in digests:
@@ -180,9 +179,9 @@ def post_receive(data: str, user=None) -> str:
     dup_pk_search = PK_MSG_ID_RE.search(msg["message-id"])
     if dup_pk_search:
         exists = (
-            Story.objects.filter(pk=dup_pk_search.groups["story_pk"]).exists()
-            if dup_pk_search.groups["story_pk"]
-            else Comment.objects.filter(pk=dup_pk_search.groups["comment_pk"]).exists()
+            Story.objects.filter(pk=dup_pk_search.group("story_pk")).exists()
+            if dup_pk_search.group("story_pk")
+            else Comment.objects.filter(pk=dup_pk_search.group("comment_pk")).exists()
         )
         if exists:
             raise Exception("Post with this Message-ID already exists.")
@@ -192,7 +191,7 @@ def post_receive(data: str, user=None) -> str:
             raise Exception("Post has no From")
         from_ = msg["from"].addresses[0].addr_spec
         user = User.objects.get(email=from_)
-    body = msg.get_body(preferencelist=("markdown", "plain", "html"))
+    body = msg.get_body(preferencelist=("markdown", "plain", "html"))  # type: ignore
     if body["content-type"] and body["content-type"].maintype != "text":
         raise Exception("Not text.")
     if body["content-type"] and body["content-type"].subtype == "html":
@@ -210,10 +209,10 @@ def post_receive(data: str, user=None) -> str:
         if not in_reply_to_obj:
             if pk_search:
                 in_reply_to_obj = (
-                    Story.objects.filter(pk=pk_search.groups["story_pk"]).first()
-                    if pk_search.groups["story_pk"]
+                    Story.objects.filter(pk=pk_search.group("story_pk")).first()
+                    if pk_search.group("story_pk")
                     else Comment.objects.filter(
-                        pk=pk_search.groups["comment_pk"]
+                        pk=pk_search.group("comment_pk")
                     ).first()
                 )
         if not in_reply_to_obj:
@@ -288,50 +287,92 @@ def post_receive(data: str, user=None) -> str:
 def story_create_mailing_list(
     sender, instance, created, raw, using, update_fields, **kwargs
 ):
-    if (not created and not instance.active) or not config.MAILING_LIST:
+    if not created or not instance.active or not config.MAILING_LIST:
         return
     story_obj = instance
     users = User.objects.filter(enable_mailing_list=True)
     if not users.exists():
         return
-    tags = story_obj.tags.all()
-    message_id = story_obj.message_id
-    if not message_id:
-        message_id = f"<story-{story_obj.pk}@{config.get_domain()}>"
-    any_matches = False
-    for user in users:
-        qobj = ~Q(story__pk=None)
-        for f in ExactTagFilter.objects.filter(excluded_in_user=user):
-            qobj |= f.as_q()
-        for f in DomainFilter.objects.filter(excluded_in_user=user):
-            qobj |= f.as_q()
-        if not Story.objects.filter(pk=story_obj.pk).exclude(qobj).exists():
-            continue
-        match = False
-        for has in itertools.chain.from_iterable(
-            map(
-                lambda sub: sub.taggregationhastag_set.all(),
-                user.taggregation_subscriptions.all(),
+    users_list: typing.List[User] = list(
+        filter(lambda user: story_obj.is_user_subscribed(user), users)
+    )
+    if not users_list:
+        return
+
+    if not story_obj.message_id:
+        story_obj.message_id = f"<story-{story_obj.pk}@{config.get_domain()}>"
+    headers: typing.Dict[str, str] = {
+        "Message-ID": story_obj.message_id,
+        "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{story_obj.get_absolute_url()}>",
+        "List-ID": f"{config.MAILING_LIST_ID} <{config.mailing_list_address()}>",
+        "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
+        "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
+        "Reply-To": config.mailing_list_address(),
+    }
+    description = story_obj.description_to_plain_text
+    if story_obj.url:
+        description = f"{story_obj.url}\n\n{description}"
+
+    with mail.get_connection(fail_silently=False) as connection:
+        for user in users_list:
+            EmailMessage(
+                f"[{config.verbose_name}] {story_obj.title}",
+                description,
+                config.MAILING_LIST_FROM
+                if config.MAILING_LIST_FROM
+                else f""""{story_obj.user}" <{str(story_obj.user).replace(" ", ".")}@{config.get_domain()}>""",
+                [user.email],
+                headers=headers,
+                connection=connection,
+            ).send()
+
+
+@receiver(post_save, sender=Comment)
+def comment_create_mailing_list(
+    sender, instance, created, raw, using, update_fields, **kwargs
+):
+    if not created or instance.deleted or not config.MAILING_LIST:
+        return
+    comment_obj: Comment = instance
+    story_obj: Story = comment_obj.story
+    users = User.objects.filter(
+        enable_mailing_list=True, enable_mailing_list_comments=True
+    )
+    if comment_obj.parent:
+        users = users.union(
+            User.objects.filter(pk=comment_obj.parent.user_id).filter(
+                enable_mailing_list_replies=True
             )
-        ):
-            if has.tag not in tags:
-                continue
-            has_match = True
-            qobj = ~Q(story__pk=None)
-            for f in filter(lambda f: f.into_inner(), has.exclude_filters.all()):
-                qobj |= f.as_q()
-            has_match = Story.objects.filter(pk=story_obj.pk).exclude(qobj).exists()
-            match |= has_match
-        if not match:
-            continue
-        any_matches = True
-        EmailMessage(
-            f"[{config.verbose_name}] {story_obj.title}",
-            story_obj.url if story_obj.url else story_obj.description,
-            config.NOTIFICATION_FROM,
-            [user.email],
-            headers={"Message-ID": message_id},
-        ).send(fail_silently=False)
-    if any_matches and not story_obj.message_id:
-        story_obj.message_id = message_id
-        story_obj.save(update_fields=["message_id"])
+        )
+    if not users.exists():
+        return
+
+    users_list: typing.List[User] = list(
+        filter(lambda user: story_obj.is_user_subscribed(user), users)
+    )
+    if not users_list:
+        return
+
+    if not comment_obj.message_id:
+        comment_obj.message_id = f"<comment-{comment_obj.pk}@{config.get_domain()}>"
+        comment_obj.save(update_fields=["message_id"])
+    headers: typing.Dict[str, str] = {
+        "Message-ID": comment_obj.message_id,
+        "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{comment_obj.get_absolute_url()}>",
+        "List-ID": f"{config.MAILING_LIST_ID} <{config.mailing_list_address()}>",
+        "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
+        "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
+        "Reply-To": config.mailing_list_address(),
+    }
+    with mail.get_connection(fail_silently=False) as connection:
+        for user in users_list:
+            EmailMessage(
+                f"[{config.verbose_name}] Re: {story_obj.title}",
+                comment_obj.text_to_plain_text,
+                config.MAILING_LIST_FROM
+                if config.MAILING_LIST_FROM
+                else f""""{comment_obj.user}" <{str(comment_obj.user).replace(" ", ".")}@{config.get_domain()}>""",
+                [user.email],
+                headers=headers,
+                connection=connection,
+            ).send()

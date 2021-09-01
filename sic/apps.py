@@ -61,11 +61,19 @@ class SicAppConfig(AppConfig):
     # minimum number of submitted stories before checking self promotion
     MIN_STORIES_CHECK_SELF_PROMOTION = 2
 
+    WEB_PROTOCOL = "http"  # Used when generating URLs, replace with "https" if needed
+
     DIGEST_SUBJECT = "[sic] digest for"
     INVITATION_SUBJECT = "Your invitation to sic"
     INVITATION_BODY = "Visit the following url to complete your registration:"
     INVITATION_FROM = settings.DEFAULT_FROM_EMAIL
     NOTIFICATION_FROM = settings.DEFAULT_FROM_EMAIL
+
+    MAILING_LIST_ID = verbose_name
+    MAILING_LIST_ADDRESS = None  # If None, will be MAILING_LIST_ID@config.get_domain()
+    MAILING_LIST_FROM = (
+        None  # If None, poster's username@domain.tld will be used as From address
+    )
 
     STORIES_PER_PAGE = 20
 
@@ -80,7 +88,7 @@ class SicAppConfig(AppConfig):
 
     FORMAT_QUOTED_MESSAGES = True
     DETECT_USERNAME_MENTIONS_IN_COMMENTS = True
-    MAILING_LIST = False
+    MAILING_LIST = True
 
     SHOW_GIT_REPOSITORY_IN_ABOUT_PAGE = True
     SHOW_GIT_COMMIT_IN_FOOTER = True
@@ -115,3 +123,10 @@ class SicAppConfig(AppConfig):
     def make_msgid():
         domain = SicAppConfig.get_domain()
         return make_msgid(domain=domain)
+
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def mailing_list_address() -> str:
+        if SicAppConfig.MAILING_LIST_ADDRESS:
+            return SicAppConfig.MAILING_LIST_ADDRESS
+        return f"{SicAppConfig.MAILING_LIST_ID}@{SicAppConfig.get_domain()}"

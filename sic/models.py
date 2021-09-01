@@ -4,6 +4,8 @@ import string
 import uuid
 import abc
 import functools
+import itertools
+import typing
 from django.db import models, connection, migrations
 from django.db.models import Q
 from django.db.models.expressions import RawSQL
@@ -204,6 +206,32 @@ class Story(models.Model):
                         kind=kind, periodic=False, data={"pk": self.pk, "url": self.url}
                     )
         super().save(*args, **kwargs)
+
+    def is_user_subscribed(self, user: "User") -> bool:
+        tags = self.tags.all()
+        qobj = ~Q(story__pk=None)
+        for f in ExactTagFilter.objects.filter(excluded_in_user=user):
+            qobj |= f.as_q()
+        for f in DomainFilter.objects.filter(excluded_in_user=user):
+            qobj |= f.as_q()
+        if not Story.objects.filter(pk=self.pk).exclude(qobj).exists():
+            return False  # Story is filtered by global user exclude filters
+        match = False
+        for has in itertools.chain.from_iterable(
+            map(
+                lambda sub: sub.taggregationhastag_set.all(),
+                user.taggregation_subscriptions.all(),
+            )
+        ):
+            if has.tag not in tags:
+                continue
+            has_match = True
+            qobj = ~Q(story__pk=None)
+            for f in filter(lambda f: f.into_inner(), has.exclude_filters.all()):
+                qobj |= f.as_q()
+            has_match = Story.objects.filter(pk=self.pk).exclude(qobj).exists()
+            match |= has_match
+        return match
 
 
 class Message(models.Model):
@@ -969,7 +997,7 @@ class User(PermissionsMixin, AbstractBaseUser):
     objects = UserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS: typing.List[str] = []
 
     def __str__(self):
         return self.username if self.username else self.email
