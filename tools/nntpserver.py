@@ -329,7 +329,10 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         if self._quit:
             raise Exception("QUIT??")
         if self._init:
-            self.send_lines(["201 NNTP Service Ready, posting prohibited"])
+            if self.server.can_post:
+                self.send_lines(["200 NNTP Service Ready, posting allowed"])
+            else:
+                self.send_lines(["201 NNTP Service Ready, posting prohibited"])
             self._init = False
         # self.request is the TCP socket connected to the client
         while True:
@@ -399,7 +402,10 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                         ["215 List of recommended newsgroups follows"] + subs + ["."]
                     )
             elif data_caseless == "mode reader":
-                self.send_lines(["201 NNTP Service Ready, posting prohibited"])
+                if self.server.can_post:
+                    self.send_lines(["200 NNTP Service Ready, posting allowed"])
+                else:
+                    self.send_lines(["201 NNTP Service Ready, posting prohibited"])
             elif data_caseless == "list overview.fmt":
                 self.send_lines(
                     ["215 Order of fields in overview database."]
