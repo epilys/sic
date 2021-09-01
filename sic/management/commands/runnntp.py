@@ -32,6 +32,7 @@ from nntpserver import (
     NNTPAuthenticationError,
     NNTPPostSetting,
     NNTPPostError,
+    NNTPArticleNotFound,
     Article,
     ArticleInfo,
 )
@@ -74,6 +75,10 @@ class SicAllStories(NNTPGroup):
     @property
     def created(self) -> datetime.datetime:
         return datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
+
+    @property
+    def posting_permitted(self) -> bool:
+        return True
 
 
 PK_MSG_ID_RE = re.compile(
@@ -171,6 +176,8 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             except:
                 pass
         if isinstance(key, int):
+            if key == 0 or key > len(self.index) + 1:
+                raise NNTPArticleNotFound(str(key))
             key = self.index[key][0]
         key = key.strip()
         pk_search = PK_MSG_ID_RE.search(key)
@@ -243,6 +250,8 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             except:
                 pass
         if isinstance(key, int):
+            if key == 0 or key > len(self.index) + 1:
+                raise NNTPArticleNotFound(str(key))
             key = self.index[key][0]
         key = key.strip()
         pk_search = PK_MSG_ID_RE.search(key)
@@ -316,11 +325,15 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             for comment in Comment.objects.order_by("created")
         )
         self.index = dict(
-            enumerate(heapq.merge(stories, comments, key=lambda e: (e[1], e[0])))
+            map(
+                lambda e: (e[0] + 1, e[1]),
+                enumerate(heapq.merge(stories, comments, key=lambda e: (e[1], e[0]))),
+            )
         )
         self.reverse_index = {self.index[k][0]: k for k in self.index}
-        self.high = len(self.index) - 1 if len(self.index) != 0 else 0
-        self.count = len(self.index)
+        self.high = len(self.index)
+        self.count = self.high
+        self.low = 1 if self.high != 0 else 0
 
         try:
             self.last_modified = max(

@@ -13,13 +13,19 @@ class NNTPAuthSetting(enum.Flag):
     REQUIRED = enum.auto()
 
 
-class NNTPAuthenticationError(Exception):
+class NNTPServerError(Exception):
+    DEFAULT = "Server error"
+
     def __init__(self, *args: typing.Any) -> None:
         Exception.__init__(self, *args)
         try:
             self.response = args[0]
         except IndexError:
-            self.response = "Authentication error"
+            self.response = self.DEFAULT
+
+
+class NNTPAuthenticationError(NNTPServerError):
+    DEFAULT = "Authentication error"
 
 
 class NNTPPostSetting(enum.Flag):
@@ -37,13 +43,12 @@ class NNTPPostError(Exception):
             self.response = "Post error"
 
 
-class NNTPDataError(Exception):
-    def __init__(self, *args: typing.Any) -> None:
-        Exception.__init__(self, *args)
-        try:
-            self.response = args[0]
-        except IndexError:
-            self.response = "Data error"
+class NNTPDataError(NNTPServerError):
+    DEFAULT = "Data error"
+
+
+class NNTPArticleNotFound(NNTPServerError):
+    DEFAULT = "No article with that number"
 
 
 try:
@@ -196,6 +201,11 @@ class NNTPGroup(abc.ABC):
     @property
     @abc.abstractmethod
     def created(self) -> datetime.datetime:
+        ...
+
+    @property
+    @abc.abstractmethod
+    def posting_permitted(self) -> bool:
         ...
 
 
@@ -561,7 +571,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 self.send_lines(
                     ["215 list of newsgroups follows"]
                     + [
-                        f"{g.name} {g.high} {g.low} n"
+                        f"{g.name} {g.high} {g.low} {g.posting_permitted}"
                         for g in self.server.groups.values()
                     ]
                     + ["."]
@@ -571,7 +581,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 self.send_lines(
                     ["215 list of newsgroups follows"]
                     + [
-                        f"{g.name} {g.high} {g.low} n"
+                        f"{g.name} {g.high} {g.low} {g.posting_permitted}"
                         for g in filter(
                             lambda g: g.name == argument, self.server.groups.values()
                         )
@@ -595,7 +605,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 self.send_lines(
                     ["215 list of newsgroups follows"]
                     + [
-                        f"{g.name} {g.high} {g.low} n"
+                        f"{g.name} {g.high} {g.low} {g.posting_permitted}"
                         for g in filter(
                             lambda g: g.name == argument, self.server.groups.values()
                         )
@@ -670,7 +680,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             self.send_lines(["412 No newsgroups elected"])
             return
         self.send_lines(
-            ["224 Overview information follows (multi-line)"]
+            ["225 Headers follow(multi-line)"]
             + list(map(str, self.server.articles))
             + ["."]
         )
@@ -697,7 +707,15 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 return
             article = self.server.articles[self.current_article_number]
         else:
-            article = self.server.articles[int(tokens[0])]
+            try:
+                number = int(tokens[0])
+            except:
+                self.send_lines(["501 Syntax Error"])
+                return
+            if number == 0:
+                self.send_lines(["423 No article with that number"])
+                return
+            article = self.server.articles[number]
 
         self.send_lines([f"223 {article.number} {article.message_id}"])
         return
@@ -715,7 +733,11 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             article = self.server.article(self.current_article_number)
         else:
             try:
-                article = self.server.article(int(tokens[0]))
+                number = int(tokens[0])
+                if number == 0:
+                    self.send_lines(["423 No article with that number"])
+                    return
+                article = self.server.article(number)
             except:
                 article = self.server.article(tokens[0])
 
@@ -749,7 +771,11 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             article = self.server.article(self.current_article_number)
         else:
             try:
-                article = self.server.article(int(tokens[0]))
+                number = int(tokens[0])
+                if number == 0:
+                    self.send_lines(["423 No article with that number"])
+                    return
+                article = self.server.article(number)
             except:
                 article = self.server.article(tokens[0])
 
