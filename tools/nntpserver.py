@@ -705,7 +705,11 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             if self.current_article_number is None:
                 self.send_lines(["420 Current article number is invalid"])
                 return
-            article = self.server.articles[self.current_article_number]
+            try:
+                article = self.server.articles[self.current_article_number]
+            except NNTPArticleNotFound:
+                self.send_lines(["420 Current article number is invalid"])
+                return
         else:
             try:
                 number = int(tokens[0])
@@ -715,7 +719,11 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             if number == 0:
                 self.send_lines(["423 No article with that number"])
                 return
-            article = self.server.articles[number]
+            try:
+                article = self.server.articles[number]
+            except NNTPArticleNotFound:
+                self.send_lines(["423 No article with that number"])
+                return
 
         self.send_lines([f"223 {article.number} {article.message_id}"])
         return
@@ -730,16 +738,24 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             if self.current_article_number is None:
                 self.send_lines(["420 Current article number is invalid"])
                 return
-            article = self.server.article(self.current_article_number)
+            try:
+                article = self.server.article(self.current_article_number)
+            except NNTPArticleNotFound:
+                self.send_lines(["420 Current article number is invalid"])
+                return
         else:
             try:
-                number = int(tokens[0])
-                if number == 0:
-                    self.send_lines(["423 No article with that number"])
-                    return
-                article = self.server.article(number)
-            except:
-                article = self.server.article(tokens[0])
+                try:
+                    number = int(tokens[0])
+                    if number == 0:
+                        self.send_lines(["423 No article with that number"])
+                        return
+                    article = self.server.article(number)
+                except ValueError:
+                    article = self.server.article(tokens[0])
+            except NNTPArticleNotFound:
+                self.send_lines(["423 No article with that number"])
+                return
 
         ret = [
             f"220 {article.info.number} {article.info.message_id}",
@@ -768,16 +784,24 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             if self.current_article_number is None:
                 self.send_lines(["420 Current article number is invalid"])
                 return
-            article = self.server.article(self.current_article_number)
+            try:
+                article = self.server.article(self.current_article_number)
+            except NNTPArticleNotFound:
+                self.send_lines(["420 Current article number is invalid"])
+                return
         else:
             try:
-                number = int(tokens[0])
-                if number == 0:
-                    self.send_lines(["423 No article with that number"])
-                    return
-                article = self.server.article(number)
-            except:
-                article = self.server.article(tokens[0])
+                try:
+                    number = int(tokens[0])
+                    if number == 0:
+                        self.send_lines(["423 No article with that number"])
+                        return
+                    article = self.server.article(number)
+                except ValueError:
+                    article = self.server.article(tokens[0])
+            except NNTPArticleNotFound:
+                self.send_lines(["423 No article with that number"])
+                return
 
         ret = [
             f"221 {article.info.number} {article.info.message_id}",
