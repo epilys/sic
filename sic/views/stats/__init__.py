@@ -91,18 +91,21 @@ GROUP BY
     cache.set(
         "daily_posts", list(zip(data["label"], data["count"])), timeout=CACHE_TIMEOUT
     )
-    try:
-        with multiprocessing.Pool(processes=1) as pool:
-            svg = pool.apply_async(make_posts_svg, (data,))
-            svg = svg.get(timeout=WORKER_TIMEOUT)
-            svg = re.sub(
-                r"""<svg """,
-                """<svg id="svg" """,
-                svg,
-                count=1,
-            )
-    except multiprocessing.TimeoutError:
+    if not posts:
         svg = UNAVAILABLE_SVG
+    else:
+        try:
+            with multiprocessing.Pool(processes=1) as pool:
+                svg = pool.apply_async(make_posts_svg, (data,))
+                svg = svg.get(timeout=WORKER_TIMEOUT)
+                svg = re.sub(
+                    r"""<svg """,
+                    """<svg id="svg" """,
+                    svg,
+                    count=1,
+                )
+        except multiprocessing.TimeoutError:
+            svg = UNAVAILABLE_SVG
     return HttpResponse(svg, content_type="image/svg+xml")
 
 
@@ -186,18 +189,21 @@ WHERE
     cache.set(
         "registrations", list(zip(data["label"], data["count"])), timeout=CACHE_TIMEOUT
     )
-    try:
-        with multiprocessing.Pool(processes=1) as pool:
-            svg = pool.apply_async(make_registrations_svg, (data,))
-            svg = svg.get(timeout=WORKER_TIMEOUT)
-            svg = re.sub(
-                r"""<svg """,
-                """<svg id="svg" """,
-                svg,
-                count=1,
-            )
-    except multiprocessing.TimeoutError:
+    if not registrations:
         svg = UNAVAILABLE_SVG
+    else:
+        try:
+            with multiprocessing.Pool(processes=1) as pool:
+                svg = pool.apply_async(make_registrations_svg, (data,))
+                svg = svg.get(timeout=WORKER_TIMEOUT)
+                svg = re.sub(
+                    r"""<svg """,
+                    """<svg id="svg" """,
+                    svg,
+                    count=1,
+                )
+        except multiprocessing.TimeoutError:
+            svg = UNAVAILABLE_SVG
     return HttpResponse(svg, content_type="image/svg+xml")
 
 
@@ -312,18 +318,21 @@ FROM
     sic_tag_parents;"""
         )
         edges = cursor.fetchall()
-    try:
-        with multiprocessing.Pool(processes=1) as pool:
-            svg = pool.apply_async(make_total_graph_svg, (edges,))
-            svg = svg.get(timeout=WORKER_TIMEOUT)
-            svg = re.sub(
-                r"""<svg """,
-                """<svg id="svg" """,
-                svg,
-                count=1,
-            )
-    except multiprocessing.TimeoutError:
+    if not edges:
         svg = UNAVAILABLE_SVG
+    else:
+        try:
+            with multiprocessing.Pool(processes=1) as pool:
+                svg = pool.apply_async(make_total_graph_svg, (edges,))
+                svg = svg.get(timeout=WORKER_TIMEOUT)
+                svg = re.sub(
+                    r"""<svg """,
+                    """<svg id="svg" """,
+                    svg,
+                    count=1,
+                )
+        except multiprocessing.TimeoutError:
+            svg = UNAVAILABLE_SVG
     return HttpResponse(svg, content_type="image/svg+xml")
 
 
@@ -420,18 +429,21 @@ GROUP BY
             ratios[c[1]] = [0, c[0]]
 
     cache.set("upvote_ratio", ratios, timeout=CACHE_TIMEOUT)
-    try:
-        with multiprocessing.Pool(processes=1) as pool:
-            svg = pool.apply_async(make_upvote_ratio_svg, (ratios,))
-            svg = svg.get(timeout=WORKER_TIMEOUT)
-            svg = re.sub(
-                r"""<svg """,
-                """<svg id="svg" """,
-                svg,
-                count=1,
-            )
-    except multiprocessing.TimeoutError:
+    if len(ratios) == 0:
         svg = UNAVAILABLE_SVG
+    else:
+        try:
+            with multiprocessing.Pool(processes=1) as pool:
+                svg = pool.apply_async(make_upvote_ratio_svg, (ratios,))
+                svg = svg.get(timeout=WORKER_TIMEOUT)
+                svg = re.sub(
+                    r"""<svg """,
+                    """<svg id="svg" """,
+                    svg,
+                    count=1,
+                )
+        except multiprocessing.TimeoutError:
+            svg = UNAVAILABLE_SVG
     return HttpResponse(svg, content_type="image/svg+xml")
 
 
@@ -447,16 +459,19 @@ FROM
     sic_invitation WHERE receiver_id IS NOT NULL;"""
         )
         edges = cursor.fetchall()
-    try:
-        with multiprocessing.Pool(processes=1) as pool:
-            svg = pool.apply_async(make_total_graph_svg, (edges,))
-            svg = svg.get(timeout=WORKER_TIMEOUT)
-            svg = re.sub(
-                r"""<svg """,
-                """<svg id="svg" """,
-                svg,
-                count=1,
-            )
-    except multiprocessing.TimeoutError:
+    if not edges:
         svg = UNAVAILABLE_SVG
+    else:
+        try:
+            with multiprocessing.Pool(processes=1) as pool:
+                svg = pool.apply_async(make_total_graph_svg, (edges,))
+                svg = svg.get(timeout=WORKER_TIMEOUT)
+                svg = re.sub(
+                    r"""<svg """,
+                    """<svg id="svg" """,
+                    svg,
+                    count=1,
+                )
+        except multiprocessing.TimeoutError:
+            svg = UNAVAILABLE_SVG
     return HttpResponse(svg, content_type="image/svg+xml")

@@ -152,7 +152,10 @@ def tag_graph_svg(request):
             if p not in tags:
                 continue
             dot.edge(str(p.id), str(t.id))
-    dot = dot.unflatten(stagger=3, chain=5, fanout=True)
+    try:
+        dot = dot.unflatten(stagger=3, chain=5, fanout=True)
+    except:
+        pass
     svg = dot.pipe().decode("utf-8")
     svg = svg.replace('1999/xlink">', SVG_STYLE)
     svg = re.sub(
