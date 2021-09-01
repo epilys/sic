@@ -697,7 +697,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             return
         self.send_lines(
             ["224 Overview information follows (multi-line)"]
-            + list(map(str, self.server.articles))
+            + list(map(str, self.server.articles.values()))
             + ["."]
         )
 

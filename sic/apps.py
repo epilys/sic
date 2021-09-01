@@ -2,6 +2,7 @@ from functools import lru_cache
 from email.utils import make_msgid
 from django.apps import AppConfig
 from django.conf import settings
+from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 
 
@@ -93,6 +94,8 @@ class SicAppConfig(AppConfig):
     SHOW_GIT_REPOSITORY_IN_ABOUT_PAGE = True
     SHOW_GIT_COMMIT_IN_FOOTER = True
 
+    ALLOW_INVITATION_REQUESTS = True
+
     @property
     def html_label(self):
         """Override this to change HTML label used in static html"""
@@ -104,6 +107,15 @@ class SicAppConfig(AppConfig):
         return mark_safe(
             "is a community about everything that piques your curiosity and interest"
         )
+
+    @property
+    def html_signup_request_info(self):
+        ret = f"""You will need an invitation from an existing user to join. You can ask someone you know, or on <a href="{reverse_lazy('about')}">IRC</a>"""
+        if SicAppConfig.ALLOW_INVITATION_REQUESTS:
+            ret += "or submit an invitation request here. Members of the community can review your request and send you an invite."
+        else:
+            ret += "."
+        return mark_safe(ret)
 
     def ready(self):
         import sic.notifications

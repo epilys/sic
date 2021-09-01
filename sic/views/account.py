@@ -846,6 +846,11 @@ def new_invitation_request(request):
         messages.add_message(request, messages.ERROR, "You already have an account.")
         return redirect("account")
     if request.method == "POST":
+        if not config.ALLOW_INVITATION_REQUESTS:
+            messages.add_message(
+                request, messages.ERROR, "Invitation requests are disabled."
+            )
+            return redirect("index")
         form = InvitationRequestForm(request.POST)
         if form.is_valid():
             messages.add_message(request, messages.SUCCESS, "Request submitted.")
