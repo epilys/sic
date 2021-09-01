@@ -80,24 +80,27 @@ def comment_is_bookmarked(user, comment):
 
 @register.simple_tag
 def build_sha():
-    git_dir = settings.BASE_DIR
-    head = subprocess.Popen(
-        'git -C {dir} log -1 --pretty=format:"%h\n%s\n%cd" --date=short'.format(
-            dir=git_dir
-        ),
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-    )
-    git_string = head.stdout.read().strip().decode("utf-8")
-    [commit_sha, subject, date] = git_string.split("\n")
-    return format_html(
-        '<span class="build"><a href="https://github.com/epilys/sic/commit/{}"><code>[{}]</code> {}</a> {}</span>',
-        commit_sha,
-        commit_sha,
-        subject,
-        date,
-    )
+    try:
+        git_dir = settings.BASE_DIR
+        head = subprocess.Popen(
+            'git -C {dir} log -1 --pretty=format:"%h\n%s\n%cd" --date=short'.format(
+                dir=git_dir
+            ),
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        git_string = head.stdout.read().strip().decode("utf-8")
+        [commit_sha, subject, date] = git_string.split("\n")
+        return format_html(
+            '<span class="build"><a href="https://github.com/epilys/sic/commit/{}"><code>[{}]</code> {}</a> {}</span>',
+            commit_sha,
+            commit_sha,
+            subject,
+            date,
+        )
+    except:
+        return None
 
 
 @register.simple_tag
