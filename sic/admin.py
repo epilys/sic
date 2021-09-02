@@ -135,6 +135,13 @@ class TaggregationAdmin(ModelAdmin):
     ]
 
 
+@admin.action(description="Validate email addresses")
+def validate_emails(modeladmin, request, queryset):
+    for user in queryset.all():
+        user.email_validated = True
+        user.save(update_fields=["email_validated"])
+
+
 class UserAdmin(ModelAdmin):
     ordering = ["-created"]
     list_display = [
@@ -142,11 +149,14 @@ class UserAdmin(ModelAdmin):
         "email",
         "created",
         "last_login",
+        "can_participate",
+        "email_validated",
         "is_active",
         "is_admin",
         "is_moderator",
     ]
-    list_filter = ["is_active", "is_admin", "is_moderator"]
+    list_filter = ["is_active", "email_validated", "is_admin", "is_moderator"]
+    actions = [validate_emails]
 
 
 class VoteAdmin(ModelAdmin):
@@ -248,18 +258,24 @@ class JobAdmin(ModelAdmin):
             return None
         return not obj.failed
 
+    readonly_fields = (
+        "json_pprint",
+        "message",
+    )
 
-    readonly_fields = ('json_pprint', "message",)
-
-    @admin.display(description='JSON pretty print')
+    @admin.display(description="JSON pretty print")
     def json_pprint(self, instance):
         import json
-        return mark_safe(f"""<pre>{json.dumps(instance.data, sort_keys=True, indent=4)}</pre>""")
 
-    @admin.display(description='Message')
+        return mark_safe(
+            f"""<pre>{json.dumps(instance.data, sort_keys=True, indent=4)}</pre>"""
+        )
+
+    @admin.display(description="Message")
     def message(self, instance):
         import email
         from email.policy import default as email_policy
+
         try:
             msg = email.message_from_string(instance.data, policy=email_policy)
         except Exception as exc:
@@ -270,9 +286,11 @@ class JobAdmin(ModelAdmin):
             headers += f"{h}: {str(msg[h])}\n"
         body = msg.get_body(preferencelist=("markdown", "plain", "html"))  # type: ignore
         text = body.get_content().strip()
-        return mark_safe(f"""<pre>{headers}
+        return mark_safe(
+            f"""<pre>{headers}
 
-{text}</pre>""")
+{text}</pre>"""
+        )
 
     success.boolean = True
     ordering = ["-created", "-last_run"]

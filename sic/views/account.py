@@ -415,39 +415,93 @@ def profile_posts(request, username, page_num=1):
     )
 
 
-def accept_invite(request, invite_pk):
-    try:
-        inv = Invitation.objects.get(pk=invite_pk)
-    except Invitation.DoesNotExist:
-        raise Http404("Invitation URL is not valid") from Invitation.DoesNotExist
+@transaction.atomic
+@require_http_methods(["GET", "POST"])
+def signup(request, invite_pk=None):
     if request.user.is_authenticated:
-        messages.add_message(
-            request, messages.ERROR, "You are signed in. Log out first."
-        )
+        messages.add_message(request, messages.ERROR, "You already have an account.")
         return redirect("index")
-    if not inv.is_valid():
-        messages.add_message(request, messages.ERROR, "Invitation has expired.")
-        return redirect("index")
+    inv = None
+    if invite_pk:
+        try:
+            inv = Invitation.objects.get(pk=invite_pk)
+        except Invitation.DoesNotExist:
+            raise Http404("Invitation URL is not valid") from Invitation.DoesNotExist
+        if not inv.is_valid():
+            messages.add_message(request, messages.ERROR, "Invitation has expired.")
+            return redirect("index")
+
+    if not inv and not config.ALLOW_REGISTRATIONS:
+        return HttpResponseBadRequest("Registrations are closed.")
+
     if request.method == "GET":
-        form = UserCreationForm(initial={"email": inv.address})
+        form = UserCreationForm(initial={"email": inv.address if inv else None})
     elif request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             auth_login(request, user)
-            inv.accept(user)
-            Notification.objects.create(
-                user=inv.inviter,
-                name=f"{user} has accepted your invitation",
-                kind=Notification.Kind.OTHER,
-                body=f"You can view {user}'s profile at {user.get_absolute_url()}.",
-                caused_by=user,
-                url=user.get_absolute_url(),
+            if inv:
+                inv.accept(user)
+                Notification.objects.create(
+                    user=inv.inviter,
+                    name=f"{user} has accepted your invitation",
+                    kind=Notification.Kind.OTHER,
+                    body=f"You can view {user}'s profile at {user.get_absolute_url()}.",
+                    caused_by=user,
+                    url=user.get_absolute_url(),
+                )
+            messages.add_message(
+                request,
+                messages.INFO,
+                "You must validate your email address before being able to do anything on the website.",
             )
+            user.send_validation_email(request)
             return redirect(reverse("welcome"))
     else:
         return redirect(reverse("index"))
-    return render(request, "account/signup.html", {"form": form})
+    return render(request, "account/signup.html", {"form": form, "inv": inv})
+
+
+@transaction.atomic
+@require_http_methods(["GET", "POST"])
+def accept_invite(request, invite_pk):
+    return signup(invite_pk=invite_pk)
+
+
+@login_required
+@transaction.atomic
+@require_http_methods(["POST"])
+def send_validation_email(request):
+    request.user.send_validation_email(request)
+    return redirect("account")
+
+
+@login_required
+@transaction.atomic
+@require_http_methods(["GET", "POST"])
+def validate_email(request, token):
+    user = request.user
+    if user.email_validated:
+        messages.add_message(
+            request, messages.WARNING, "Your email address has already been validated!"
+        )
+        return redirect("index")
+    from sic.auth import EmailValidationToken
+
+    gen = EmailValidationToken()
+    if gen.check_token(user, token):
+        user.email_validated = True
+        user.save(update_fields=["email_validated"])
+        messages.add_message(
+            request, messages.SUCCESS, "Your email address has been validated!"
+        )
+        return redirect("index")
+    else:
+        messages.add_message(
+            request, messages.ERROR, "Link invalid or expired, try sending a new one."
+        )
+        return redirect("account")
 
 
 @login_required
@@ -845,6 +899,8 @@ def new_invitation_request(request):
     if request.user.is_authenticated:
         messages.add_message(request, messages.ERROR, "You already have an account.")
         return redirect("account")
+    if config.ALLOW_REGISTRATIONS:
+        return redirect("signup")
     if request.method == "POST":
         if not config.ALLOW_INVITATION_REQUESTS:
             messages.add_message(

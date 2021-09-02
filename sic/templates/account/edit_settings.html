@@ -6,12 +6,12 @@
             display: grid;
             grid-template-rows: auto auto;
             grid-template-columns: repeat(7, max-content);
-            column-gap: .5rem;
+            column-gap: 1.5rem;
             justify-content: center;
             padding: .5rem 2rem;
         }
         div.week label {
-            margin: 1rem 2vmin 1rem 0;
+            margin: 0rem 0 1rem 0;
             writing-mode: sideways-lr;
         }
     </style>
@@ -45,23 +45,25 @@
         {{ digest_form.all_stories }}{% if digest_form.all_stories.help_text %}<br><span class="helptext">{{ digest_form.all_stories.help_text }}</span>{% endif %}
         {{ digest_form.last_run.label_tag }}
         {{ digest_form.last_run }}{% if digest_form.last_run.help_text %}<br><span class="helptext">{{ digest_form.last_run.help_text }}</span>{% endif %}
-        <label>schedule</label>
-        <div class="week">
-            <label for="id_on_monday">Mon</label>
-            <label for="id_on_tuesday">Tue</label>
-            <label for="id_on_wednesday">Wed</label>
-            <label for="id_on_thursday">Thu</label>
-            <label for="id_on_friday">Fri</label>
-            <label for="id_on_saturday">Sat</label>
-            <label for="id_on_sunday">Sun</label>
-            {{ digest_form.on_monday }}
-            {{ digest_form.on_tuesday }}
-            {{ digest_form.on_wednesday }}
-            {{ digest_form.on_thursday }}
-            {{ digest_form.on_friday }}
-            {{ digest_form.on_saturday }}
-            {{ digest_form.on_sunday }}
-        </div>
+        <fieldset>
+            <legend>schedule</legend>
+            <div class="week">
+                <label for="id_on_monday">Mon</label>
+                <label for="id_on_tuesday">Tue</label>
+                <label for="id_on_wednesday">Wed</label>
+                <label for="id_on_thursday">Thu</label>
+                <label for="id_on_friday">Fri</label>
+                <label for="id_on_saturday">Sat</label>
+                <label for="id_on_sunday">Sun</label>
+                {{ digest_form.on_monday }}
+                {{ digest_form.on_tuesday }}
+                {{ digest_form.on_wednesday }}
+                {{ digest_form.on_thursday }}
+                {{ digest_form.on_friday }}
+                {{ digest_form.on_saturday }}
+                {{ digest_form.on_sunday }}
+            </div>
+        </fieldset>
         <div class="button-flex-box">
             <input type="submit" name="digest-form" value="Submit">
         </div>

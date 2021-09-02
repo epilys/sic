@@ -923,6 +923,7 @@ class User(PermissionsMixin, AbstractBaseUser):
         max_length=255,
         unique=True,
     )
+    email_validated = models.BooleanField(default=False, null=False, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     about = models.TextField(null=True, blank=True)
     avatar = models.CharField(null=True, blank=True, editable=False, max_length=8196)
@@ -1002,6 +1003,31 @@ class User(PermissionsMixin, AbstractBaseUser):
     def __str__(self):
         return self.username if self.username else self.email
 
+    def send_validation_email(self, request):
+        from sic.auth import EmailValidationToken
+
+        token = EmailValidationToken().make_token(self)
+        url = reverse("validate_email", args=[token])
+        root_url = f"{config.WEB_PROTOCOL}://{config.get_domain()}"
+        body = f"{root_url}{url}"
+        try:
+            EmailMessage(
+                f"[{config.verbose_name}] Email validation link",
+                body,
+                config.DEFAULT_FROM_EMAIL,
+                [self.email],
+                headers={"Message-ID": config.make_msgid()},
+            ).send(fail_silently=False)
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                f"An email validation link has been sent to {self.email}.",
+            )
+        except Exception as error:
+            messages.add_message(
+                request, messages.ERROR, f"Could not send email: {error}"
+            )
+
     @cached_property
     def karma(self):
         return Vote.objects.filter(story__user__id=self.pk, comment_id=None).count()
@@ -1032,6 +1058,19 @@ class User(PermissionsMixin, AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+    @property
+    def can_participate(self) -> bool:
+        "Can post comments, stories?"
+        if not self.email_validated:
+            return False
+        if config.REQUIRE_VOUCH_FOR_PARTICIPATION:
+            try:
+                return self.invited_by is not None
+            except Invitation.DoesNotExist:
+                return self.is_staff
+        else:
+            return True
 
     def active_notifications(self):
         return self.notifications.filter(read__isnull=True).order_by("-created")
@@ -1166,7 +1205,7 @@ class Notification(models.Model):
         body += f"\n\nYou can disable email notifications in your account settings: {root_url}{reverse('edit_settings')}"
         try:
             EmailMessage(
-                f"[sic] {self.name}",
+                f"[{config.verbose_name}] {self.name}",
                 body,
                 config.NOTIFICATION_FROM,
                 [self.user.email],

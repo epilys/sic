@@ -64,11 +64,12 @@ class SicAppConfig(AppConfig):
 
     WEB_PROTOCOL = "http"  # Used when generating URLs, replace with "https" if needed
 
+    DEFAULT_FROM_EMAIL = settings.DEFAULT_FROM_EMAIL
     DIGEST_SUBJECT = "[sic] digest for"
     INVITATION_SUBJECT = "Your invitation to sic"
     INVITATION_BODY = "Visit the following url to complete your registration:"
-    INVITATION_FROM = settings.DEFAULT_FROM_EMAIL
-    NOTIFICATION_FROM = settings.DEFAULT_FROM_EMAIL
+    INVITATION_FROM = DEFAULT_FROM_EMAIL
+    NOTIFICATION_FROM = DEFAULT_FROM_EMAIL
 
     MAILING_LIST_ID = verbose_name
     MAILING_LIST_ADDRESS = None  # If None, will be MAILING_LIST_ID@config.get_domain()
@@ -96,6 +97,10 @@ class SicAppConfig(AppConfig):
 
     ALLOW_INVITATION_REQUESTS = True
 
+    ALLOW_REGISTRATIONS = True
+
+    REQUIRE_VOUCH_FOR_PARTICIPATION = True
+
     @property
     def html_label(self):
         """Override this to change HTML label used in static html"""
@@ -112,7 +117,7 @@ class SicAppConfig(AppConfig):
     def html_signup_request_info(self):
         ret = f"""You will need an invitation from an existing user to join. You can ask someone you know, or on <a href="{reverse_lazy('about')}">IRC</a>"""
         if SicAppConfig.ALLOW_INVITATION_REQUESTS:
-            ret += "or submit an invitation request here. Members of the community can review your request and send you an invite."
+            ret += " or submit an invitation request here. Members of the community can review your request and send you an invite."
         else:
             ret += "."
         return mark_safe(ret)

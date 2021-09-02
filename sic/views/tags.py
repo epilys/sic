@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.timezone import make_aware
 from django.utils.http import urlencode
 from django.views.decorators.cache import cache_page
@@ -268,6 +268,7 @@ def taggregation_change_subscription(request, taggregation_pk):
 
 
 @login_required
+@permission_required("sic.change_tag", raise_exception=True)
 @transaction.atomic
 def edit_tag(request, tag_pk, slug=None):
     try:
@@ -357,6 +358,7 @@ def edit_tag(request, tag_pk, slug=None):
 
 
 @login_required
+@permission_required("sic.add_tag", raise_exception=True)
 @transaction.atomic
 def add_tag(request):
     if not request.user.has_perm("sic.add_tag"):

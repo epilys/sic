@@ -59,6 +59,16 @@
         </ul>
     </nav>
     <h1>Your Account</h1>
+    {% if not user.email_validated %}
+        <div class="generate_an_invite" id="validate-email">
+            <h2>Validate your email address</h2>
+            <form class="submit-comment-form" method="POST" action="{% url 'send_validation_email' %}">
+                {% csrf_token %}
+                <input type="submit" value="send">
+            </form>
+        </div>
+        <hr />
+    {% endif %}
     <div id="profile">
         {% include "account/profile_include.html" with user=user %}
         <div class="settings">
@@ -96,17 +106,19 @@
         </div>
     </div>
     <hr />
-    <div class="generate_an_invite" id="generate-invite">
-        <h2>Invite a new user</h2>
-        <form class="submit-comment-form" method="POST" action="{% url_with_next 'generate_invite' request %}">
-            {% csrf_token %}
-            <table class="no-border">
-                {{ generate_invite_form }}
-            </table>
-            <input type="submit" value="send">
-        </form>
-    </div>
-    <hr />
+    {% if user.can_participate %}
+        <div class="generate_an_invite" id="generate-invite">
+            <h2>Invite a new user</h2>
+            <form class="submit-comment-form" method="POST" action="{% url_with_next 'generate_invite' request %}">
+                {% csrf_token %}
+                <table class="no-border">
+                    {{ generate_invite_form }}
+                </table>
+                <input type="submit" value="send">
+            </form>
+        </div>
+        <hr />
+    {% endif %}
     <h2>Invitations</h2>
     <div class="invites">
         <div class="invite_tree">

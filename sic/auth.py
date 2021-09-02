@@ -14,6 +14,7 @@ config = apps.get_app_config("sic")
 
 from sic.models import (
     Story,
+    Comment,
     Hat,
     User,
     Tag,
@@ -47,16 +48,39 @@ class SicBackend(ModelBackend):
         karma = user_obj.karma
         is_banned = user_obj.is_banned
         is_active = user_obj.is_active
+        can_participate = user_obj.can_participate
         if perm in ["sic.add_tag", "sic.change_tag"]:
-            return karma >= config.MIN_KARMA_TO_EDIT_TAGS and not is_banned
+            return (
+                karma >= config.MIN_KARMA_TO_EDIT_TAGS
+                and not is_banned
+                and is_active
+                and can_participate
+            )
         elif perm == "sic.delete_tag":
             return (
-                (not obj.stories.exists()) if isinstance(obj, Tag) else True
-            ) and not is_banned
+                ((not obj.stories.exists()) if isinstance(obj, Tag) else True)
+                and not is_banned
+                and is_active
+            )
         elif perm == "sic.add_story":
-            return karma >= config.MIN_KARMA_TO_SUBMIT_STORIES and not is_banned
+            return (
+                karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
+                and not is_banned
+                and is_active
+                and can_participate
+            )
         elif perm in ["sic.change_story", "sic.delete_story"]:
-            return obj.user == user_obj if isinstance(obj, Story) else True
+            return (
+                obj.user == user_obj
+                if isinstance(obj, Story)
+                else True and is_active and can_participate
+            )
+        elif perm in ["sic.change_comment", "sic.delete_comment"]:
+            return (
+                obj.user == user_obj
+                if isinstance(obj, Comment)
+                else True and is_active and can_participate
+            )
         elif perm == "sic.add_hat":
             return (
                 not user_obj.is_new_user and karma >= config.MIN_KARMA_TO_SUBMIT_STORIES
@@ -64,11 +88,11 @@ class SicBackend(ModelBackend):
         elif perm in ["sic.change_hat", "sic.delete_hat"]:
             return obj.user == user_obj if isinstance(obj, Hat) else True
         elif perm in ["sic.add_comment", "sic.add_story"]:
-            return not is_banned
+            return not is_banned and is_active and can_participate
         elif perm == "sic.add_message":
-            return not is_banned and is_active
+            return not is_banned and is_active and can_participate
         elif perm == "sic.add_invitation":
-            return not is_banned and is_active
+            return not is_banned and is_active and can_participate
         elif perm == "sic.view_message" and isinstance(obj, Message):
             return user_obj in [obj.recipient, obj.author]
         elif perm == "sic.change_storybookmark" and isinstance(obj, StoryBookmark):
@@ -76,7 +100,7 @@ class SicBackend(ModelBackend):
         elif perm == "sic.change_commentbookmark" and isinstance(obj, CommentBookmark):
             return user_obj.id == obj.user_id
         elif perm in ["change_taggregationhastag", "sic.delete_taggregationhastag"]:
-            if is_banned:
+            if is_banned or not is_active or not can_participate:
                 return False
             if isinstance(obj, TaggregationHasTag):
                 return (
@@ -192,6 +216,16 @@ def auth_context(request):
         "footer_links": mark_safe(footer_links),
         "config": config,
     }
+
+
+class EmailValidationToken(PasswordResetTokenGenerator):
+    """Usage:
+    gen = PasswordResetTokenGenerator()
+    token = gen.make_token(user_obj)
+    gen.check_token(user, token) : bool
+    """
+
+    pass
 
 
 class AuthToken(PasswordResetTokenGenerator):

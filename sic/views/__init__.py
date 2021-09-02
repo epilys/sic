@@ -8,7 +8,7 @@ from django.http import (
 )
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.urls import reverse
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -70,6 +70,7 @@ def preview_comment(request):
 
 
 @login_required
+@permission_required("sic.add_comment", raise_exception=True)
 def reply(request, comment_pk):
     user = request.user
     try:
@@ -231,6 +232,7 @@ def index(request, page_num=1):
 
 
 @login_required
+@permission_required("sic.add_comment", raise_exception=True)
 def edit_comment(request, comment_pk):
     user = request.user
     try:
@@ -285,6 +287,7 @@ def edit_comment(request, comment_pk):
 
 
 @login_required
+@permission_required("sic.delete_comment", raise_exception=True)
 def delete_comment(request, comment_pk):
     user = request.user
     try:
@@ -350,24 +353,31 @@ def delete_comment(request, comment_pk):
 def upvote_comment(request, story_pk, slug, comment_pk):
     if request.method == "POST":
         user = request.user
-        try:
-            story_obj = Story.objects.get(pk=story_pk)
-        except Story.DoesNotExist:
-            raise Http404("Story does not exist") from Story.DoesNotExist
-        try:
-            comment_obj = Comment.objects.get(pk=comment_pk)
-        except Comment.DoesNotExist:
-            raise Http404("Comment does not exist") from Comment.DoesNotExist
-        if comment_obj.user.pk == user.pk:
+        if not user.email_validated:
             messages.add_message(
-                request, messages.ERROR, "You cannot vote on your own posts."
+                request,
+                messages.ERROR,
+                "You must validate your email address before being able to use the website.",
             )
         else:
-            vote, created = user.votes.filter(story=story_obj).get_or_create(
-                story=story_obj, comment=comment_obj, user=user
-            )
-            if not created:
-                vote.delete()
+            try:
+                story_obj = Story.objects.get(pk=story_pk)
+            except Story.DoesNotExist:
+                raise Http404("Story does not exist") from Story.DoesNotExist
+            try:
+                comment_obj = Comment.objects.get(pk=comment_pk)
+            except Comment.DoesNotExist:
+                raise Http404("Comment does not exist") from Comment.DoesNotExist
+            if comment_obj.user.pk == user.pk:
+                messages.add_message(
+                    request, messages.ERROR, "You cannot vote on your own posts."
+                )
+            else:
+                vote, created = user.votes.filter(story=story_obj).get_or_create(
+                    story=story_obj, comment=comment_obj, user=user
+                )
+                if not created:
+                    vote.delete()
     if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])
     return redirect(reverse("index"))

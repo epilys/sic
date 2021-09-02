@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
 from django.views.decorators.http import require_safe
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.apps import apps
@@ -176,6 +176,7 @@ all_stories.ORDER_BY_FIELDS = ["hotness", "created", "last commented"]
 
 
 @login_required
+@permission_required("sic.add_story", raise_exception=True)
 @transaction.atomic
 def submit_story(request):
     user = request.user
@@ -211,20 +212,7 @@ def submit_story(request):
         else:
             form = SubmitStoryForm(request.POST)
             form.fields["title"].required = True
-            if not user.has_perm("sic.add_story"):
-                if user.banned_by_user is not None:
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        "You are banned and not allowed to submit stories.",
-                    )
-                else:
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        "You are not allowed to submit stories.",
-                    )
-            elif form.is_valid():
+            if form.is_valid():
                 title = form.cleaned_data["title"]
                 description = form.cleaned_data["description"]
                 url = form.cleaned_data["url"]
@@ -267,20 +255,27 @@ def submit_story(request):
 def upvote_story(request, story_pk):
     if request.method == "POST":
         user = request.user
-        try:
-            story_obj = Story.objects.get(pk=story_pk)
-        except Story.DoesNotExist:
-            raise Http404("Story does not exist") from Story.DoesNotExist
-        if story_obj.user.pk == user.pk:
+        if not request.user.email_validated:
             messages.add_message(
-                request, messages.ERROR, "You cannot vote on your own posts."
+                request,
+                messages.ERROR,
+                "You must validate your email address before being able to use the website.",
             )
         else:
-            vote, created = user.votes.get_or_create(
-                story=story_obj, comment=None, user=user
-            )
-            if not created:
-                vote.delete()
+            try:
+                story_obj = Story.objects.get(pk=story_pk)
+            except Story.DoesNotExist:
+                raise Http404("Story does not exist") from Story.DoesNotExist
+            if story_obj.user.pk == user.pk:
+                messages.add_message(
+                    request, messages.ERROR, "You cannot vote on your own posts."
+                )
+            else:
+                vote, created = user.votes.get_or_create(
+                    story=story_obj, comment=None, user=user
+                )
+                if not created:
+                    vote.delete()
     if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])
     return redirect(reverse("index"))
@@ -315,6 +310,7 @@ def fetch_url_metadata(request, url):
 
 
 @login_required
+@permission_required("sic.change_story", raise_exception=True)
 @transaction.atomic
 def edit_story(request, story_pk, slug=None):
     user = request.user

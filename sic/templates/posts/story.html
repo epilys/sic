@@ -40,7 +40,7 @@
             </fieldset>
         {% endif %}
     </article>
-    {% if request.user.is_authenticated %}
+    {% if request.user.is_authenticated and request.user.can_participate %}
         <form method="post" class="submit-comment-form">
             {% if preview  %}
                 <span>Preview:</span>
@@ -57,6 +57,8 @@
             </details>
         </div>
         </form>
+    {% elif not request.user.can_participate %}
+        <p>You must be vouched for by a vouched user to participate.</p>
     {% else %}
         <p>Sign in to post comments.</p>
     {% endif %}

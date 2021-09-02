@@ -230,6 +230,11 @@ urlpatterns = [
         name="signup_help",
     ),
     path(
+        "accounts/signup/",
+        account.signup,
+        name="signup",
+    ),
+    path(
         "accounts/welcome/",
         account.welcome,
         name="welcome",
@@ -253,10 +258,20 @@ urlpatterns = [
         ),
         name="password_reset",
     ),
+    path(
+        "accounts/send-validation-email/",
+        account.send_validation_email,
+        name="send_validation_email",
+    ),
+    path(
+        "accounts/validate-email/<str:token>/",
+        account.validate_email,
+        name="validate_email",
+    ),
     path("accounts/", account.view_account, name="account"),
     path("accounts/activity/", account.my_activity, name="account_activity"),
     path(
-        "accounts/activity/page/<int:page_num>",
+        "accounts/activity/page/<int:page_num>/",
         account.my_activity,
         name="account_activity_page",
     ),
