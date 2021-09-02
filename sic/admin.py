@@ -248,6 +248,32 @@ class JobAdmin(ModelAdmin):
             return None
         return not obj.failed
 
+
+    readonly_fields = ('json_pprint', "message",)
+
+    @admin.display(description='JSON pretty print')
+    def json_pprint(self, instance):
+        import json
+        return mark_safe(f"""<pre>{json.dumps(instance.data, sort_keys=True, indent=4)}</pre>""")
+
+    @admin.display(description='Message')
+    def message(self, instance):
+        import email
+        from email.policy import default as email_policy
+        try:
+            msg = email.message_from_string(instance.data, policy=email_policy)
+        except Exception as exc:
+            return mark_safe(f"Could not parse email: {exc}")
+
+        headers = ""
+        for h in msg:
+            headers += f"{h}: {str(msg[h])}\n"
+        body = msg.get_body(preferencelist=("markdown", "plain", "html"))  # type: ignore
+        text = body.get_content().strip()
+        return mark_safe(f"""<pre>{headers}
+
+{text}</pre>""")
+
     success.boolean = True
     ordering = ["-created", "-last_run"]
     actions = [run_jobs]
