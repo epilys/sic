@@ -165,8 +165,11 @@ PK_MSG_ID_RE = re.compile(
 )
 
 
-def post_receive(data: str, user=None) -> str:
-    msg = email.message_from_string(data, policy=email_policy)
+def post_receive(data: typing.Union[str, bytes], user=None) -> str:
+    if isinstance(data, str):
+        msg = email.message_from_string(data, policy=email_policy)
+    else:
+        msg = email.message_from_bytes(data, policy=email_policy)
     if not msg["message-id"]:
         raise Exception("Post has no Message-ID")
 

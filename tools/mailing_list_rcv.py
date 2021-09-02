@@ -1,4 +1,4 @@
-#!/usr/bin/env -S 'PYTHONUNBUFFERED=1 PYTHONIOENCODING="utf-8"' /bin/python3
+#!/usr/bin/env -S 'PYTHONUNBUFFERED=1 PYTHONIOENCODING="utf-8"' python3
 import sys
 import sqlite3
 import datetime
@@ -11,11 +11,14 @@ from pathlib import Path
 # 1. In /etc/aliases:
 # sic: "| sudo -u user /path/to/sic/tools/mailing_list_rcv.py"
 # 2. Run newaliases
-# 3. Run visudo and insert:
+# 3: chmod u+x /path/to/sic/tools/mailing_list_rcv.py
+# 4. Run visudo and insert:
 # nobody ALL=(user:user) NOPASSWD: /path/to/sic/tools/mailing_list_rcv.py
 
 # Local testing using msmtp:
 # msmtp --host=localhost --read-envelope-from -t < mail.eml
+# or
+# sendmail -t < mail.eml
 
 DOTTED_PATH = "sic.mail.post_receive"
 
@@ -67,7 +70,7 @@ if __name__ == "__main__":
             kind_id = cur.fetchone()[0]
             cur.execute(
                 "INSERT OR ABORT INTO sic_job(created, active, periodic, failed, data, kind_id) VALUES (?, ?, ?, ?, ?, ?)",
-                (now, True, False, False, json.dumps({"data": data}), kind_id),
+                (now, True, False, False, json.dumps(data), kind_id),
             )
         syslog.syslog("Queued mail successfuly.")
     except Exception as exc:
