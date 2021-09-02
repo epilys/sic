@@ -380,6 +380,7 @@ template {
   --feed-color: #dc3545;
   --build-color: #2f4f4f;
   --tag-border-color: #0000005e;
+  --pre-bg-color: #e9e9e9;
 }
 
 
@@ -1627,9 +1628,8 @@ span.color-box {
 }
 
 pre {
-  --bg-color: #e9e9e9;
-  background: var(--bg-color);
-  outline: 5px solid var(--bg-color);
+  background: var(--pre-bg-color);
+  outline: 5px solid var(--pre-bg-color);
   width: min-content;
   overflow: auto;
   padding: 2px 7px;
@@ -1771,6 +1771,7 @@ nav.pagination {
     --feed-color: #ff5310;
     --build-color: white;
     --tag-border-color: #000;
+    --pre-bg-color: #171717;
   }
   a.title,
   a.title:visited {
