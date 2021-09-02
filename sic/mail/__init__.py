@@ -201,6 +201,26 @@ def post_receive(data: typing.Union[str, bytes], user=None) -> str:
         text = Textractor.extract(body.get_content()).strip()
     else:
         text = body.get_content().strip()
+
+    if not user.has_perm("sic.add_comment") or not user.has_perm("sic.add_story"):
+        EmailMessage(
+            f"[{config.verbose_name}] Your message has been rejected.",
+            "You do not have permissions to post.",
+            config.DEFAULT_FROM_EMAIL,
+            [user.email],
+            headers={"Message-ID": config.make_msgid()},
+        ).send(fail_silently=False)
+        raise Exception("{user} doesn't have permission to post")
+    elif not user.enable_mailing_list_replying:
+        EmailMessage(
+            f"[{config.verbose_name}] Your message has been rejected.",
+            "You have disabled postiving via mailing list in your account settings.",
+            config.DEFAULT_FROM_EMAIL,
+            [user.email],
+            headers={"Message-ID": config.make_msgid()},
+        ).send(fail_silently=False)
+        raise Exception("{user} doesn't have enable_mailing_list_replying")
+
     if "In-Reply-To" in msg or "References" in msg:
         # This is a comment
         in_reply_to = msg["In-Reply-To"].strip()
@@ -370,7 +390,7 @@ def comment_create_mailing_list(
     with mail.get_connection(fail_silently=False) as connection:
         for user in users_list:
             EmailMessage(
-                f"[{config.verbose_name}] Re: {story_obj.title}",
+                f"Re: [{config.verbose_name}] {story_obj.title}",
                 comment_obj.text_to_plain_text,
                 config.MAILING_LIST_FROM
                 if config.MAILING_LIST_FROM
