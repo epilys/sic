@@ -135,6 +135,26 @@ def format_datetime(
     return date_str, time_str
 
 
+def parse_range(s) -> typing.Optional[typing.Tuple[int, typing.Optional[int]]]:
+    s = s.strip()
+    try:
+        num = int(s)
+        return (num, num)
+    except:
+        pass
+    try:
+        a, *bs = map(int, filter(bool, s.split("-")))
+        if len(bs) == 0:
+            b = None
+        elif len(bs) == 1:
+            b = bs[0]
+        else:
+            return None
+        return (a, b)
+    except:
+        return None
+
+
 class ArticleInfo(typing.NamedTuple):
     number: int
     subject: str
@@ -336,7 +356,13 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             self._init = False
         # self.request is the TCP socket connected to the client
         while True:
-            self.data = self._getline()
+            try:
+                self.data = self._getline()
+            except NNTPDataError as exc:
+                print(f"Data error: {exc}")
+                self._quit = True
+                self.send_lines(["205 Connection closing"])
+                return
             data_caseless = self.data.casefold()
             if not self.data:
                 continue
@@ -366,17 +392,22 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                     self.send_lines(["440 Posting not permitted"])
                 else:
                     self.send_lines(["340 Input article; end with <CR-LF>.<CR-LF>"])
-                    lines = self._getlines()
                     try:
+                        lines = self._getlines()
                         self.server.post(self._auth_token, lines)
                         self.send_lines(["240 Article received OK"])
+                    except NNTPDataError as exc:
+                        print(f"Data error: {exc}")
+                        self._quit = True
+                        self.send_lines(["205 Connection closing"])
+                        return
                     except NNTPPostError as exc:
                         self.send_lines([f"441 Posting failed: {exc.response}"])
             elif data_caseless.startswith("group"):
                 _, group_name = self.data.split()
                 self.select_group(group_name)
             elif data_caseless.startswith("over") or data_caseless.startswith("xover"):
-                self.overview(self.data)
+                self.overview()
             elif data_caseless.startswith("hdr") or data_caseless.startswith("xhdr"):
                 self.hdr()
             elif data_caseless.startswith("stat"):
@@ -479,6 +510,8 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             "LIST ACTIVE NEWSGROUPS OVERVIEW.FMT SUBSCRIPTIONS",
             "OVER",
         ]
+        if self.server.can_post:
+            capabilities.append("POST")
         if show_auth:
             capabilities.append("AUTHINFO USER")
         capabilities.append(".")
@@ -648,16 +681,16 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
 
     def _getline(self, strip_crlf: bool = True) -> str:
         line = None
-        chunk = None
         if b"\n" in self._buffer:
             line = self._buffer[: self._buffer.find(b"\n")]
             self._buffer = self._buffer[len(line) + 1 :]
         while not line:
             chunk = self.request.recv(_MAXLINE + 1)
-            if b"\n" in chunk or not chunk:
-                break
-        if chunk:
             self._buffer += chunk
+            if b"\n" in chunk or not chunk.strip():
+                break
+        if b"\n" not in self._buffer and self._buffer:
+            raise NNTPDataError("Too big a line.")
         if not line:
             line = self._buffer[: self._buffer.find(b"\n")]
             self._buffer = self._buffer[len(line) + 1 :]
@@ -691,15 +724,51 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             + ["."]
         )
 
-    def overview(self, command: str) -> None:
+    def overview(self) -> None:
         if self.current_selected_newsgroup is None:
             self.send_lines(["412 No newsgroups elected"])
             return
-        self.send_lines(
-            ["224 Overview information follows (multi-line)"]
-            + list(map(str, self.server.articles.values()))
-            + ["."]
-        )
+
+        command, *tokens = self.data.split()
+        if len(tokens) == 1:
+            range_ = parse_range(tokens[0])
+            if range_:
+                if not range_[1]:
+                    range_ = (range_[0], len(self.server.articles))
+                range_ = range(range_[0], range_[1] + 1)
+                self.send_lines(
+                    ["224 Overview information follows (multi-line)"]
+                    + list(map(str, (self.server.articles[i] for i in range_)))
+                    + ["."]
+                )
+                return
+            try:
+                article = self.server.articles[tokens[0]]
+                self.send_lines(
+                    ["224 Overview information follows (multi-line)"]
+                    + list(map(str, [article]))
+                    + ["."]
+                )
+            except NNTPArticleNotFound:
+                self.send_lines(["430 No article with that message-id"])
+            return
+        if len(tokens) != 0:
+            self.send_lines(["501 Syntax Error"])
+            return
+
+        if not self.current_article_number:
+            self.send_lines(["420 Current article number is invalid"])
+            return
+        try:
+            article = self.server.articles[self.current_article_number]
+            self.send_lines(
+                ["224 Overview information follows (multi-line)"]
+                + list(map(str, [article]))
+                + ["."]
+            )
+        except NNTPArticleNotFound:
+            self.send_lines(["420 Current article number is invalid"])
+        return
 
     def stat(self, command: str) -> None:
         self.server.refresh()
