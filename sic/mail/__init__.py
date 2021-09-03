@@ -223,7 +223,10 @@ def post_receive(data: typing.Union[str, bytes], user=None) -> str:
 
     if "In-Reply-To" in msg or "References" in msg:
         # This is a comment
-        in_reply_to = msg["In-Reply-To"].strip()
+        if "In-Reply-To" in msg:
+            in_reply_to = msg["In-Reply-To"].strip()
+        else:
+            in_reply_to = msg["References"].strip().split()[-1]
         in_reply_to_obj = None
         pk_search = PK_MSG_ID_RE.search(in_reply_to)
         in_reply_to_obj = Story.objects.filter(message_id=in_reply_to).first()
