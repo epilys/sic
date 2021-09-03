@@ -1312,3 +1312,35 @@ def delete_domain_filter(request, pk):
     f.delete()
     messages.add_message(request, messages.SUCCESS, "Filter deleted.")
     return redirect(reverse("edit_filters"))
+
+
+@login_required
+@transaction.atomic
+@require_http_methods(["POST"])
+def vouch_for_user(request, pk):
+    if not config.REQUIRE_VOUCH_FOR_PARTICIPATION:
+        return HttpResponseBadRequest("Vouches are not required.")
+    if not request.user.has_perm("sic.add_invitation"):
+        raise PermissionDenied("You don't have permission to vouch for other users.")
+    try:
+        receiver = User.objects.get(pk=pk)
+    except User.DoesNotExist:
+        raise Http404("User does not exist") from User.DoesNotExist
+    user_has_invite = False
+    try:
+        user_has_invite = receiver.invited_by is not None
+    except Invitation.DoesNotExist:
+        pass
+    if user_has_invite:
+        return HttpResponseBadRequest("User is vouched for.")
+
+    inv, _created = request.user.invited.get_or_create(
+        inviter=request.user,
+        receiver=receiver,
+        address=receiver.email,
+        accepted=make_aware(datetime.now()),
+    )
+    messages.add_message(request, messages.SUCCESS, f"You have vouched for {receiver}.")
+    if "next" in request.GET and check_next_url(request.GET["next"]):
+        return redirect(request.GET["next"])
+    return redirect(receiver)

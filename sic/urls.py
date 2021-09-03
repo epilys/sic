@@ -220,6 +220,11 @@ urlpatterns = [
     ),
     path("accounts/invitations/new/", account.generate_invite, name="generate_invite"),
     path(
+        "accounts/invitations/new/<int:pk>/",
+        account.vouch_for_user,
+        name="vouch_for_user",
+    ),
+    path(
         "accounts/invitations/new/<uuid:invite_pk>/",
         account.generate_invite,
         name="resend_invite",
