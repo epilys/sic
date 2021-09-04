@@ -99,7 +99,7 @@ def new_invitation_request_receiver(
     req = instance
     if created:
         EmailMessage(
-            f"[sic] confirmation of your invitation request",
+            f"[{config.verbose_name}] confirmation of your invitation request",
             f"This message is just a confirmation we have received your request.",
             config.NOTIFICATION_FROM,
             [req.address],

@@ -16,6 +16,7 @@ from django.contrib.sites.models import Site
 from django.utils.timezone import make_aware
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_http_methods, require_safe
+from django.core.mail import EmailMessage
 from django.apps import apps
 
 config = apps.get_app_config("sic")
@@ -466,7 +467,7 @@ def signup(request, invite_pk=None):
 @transaction.atomic
 @require_http_methods(["GET", "POST"])
 def accept_invite(request, invite_pk):
-    return signup(invite_pk=invite_pk)
+    return signup(request, invite_pk=invite_pk)
 
 
 @login_required
@@ -1334,12 +1335,22 @@ def vouch_for_user(request, pk):
     if user_has_invite:
         return HttpResponseBadRequest("User is vouched for.")
 
-    inv, _created = request.user.invited.get_or_create(
+    inv, created = request.user.invited.get_or_create(
         inviter=request.user,
         receiver=receiver,
         address=receiver.email,
         accepted=make_aware(datetime.now()),
     )
+    if created:
+        root_url = f"{config.WEB_PROTOCOL}://{config.get_domain()}"
+        Notification.objects.create(
+            user=receiver,
+            name=f"{request.user} has vouched for your account",
+            kind=Notification.Kind.OTHER,
+            body=f"Hello {receiver},\n\nuser {request.user} has vouched for your account. You can now post comments and stories.\n\n{root_url}",
+            caused_by=request.user,
+            url=None,
+        )
     messages.add_message(request, messages.SUCCESS, f"You have vouched for {receiver}.")
     if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])

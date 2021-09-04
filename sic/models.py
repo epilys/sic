@@ -1187,6 +1187,10 @@ class Notification(models.Model):
         else:
             domain = Site.objects.get_current().domain
         root_url = f"http://{domain}" if settings.DEBUG else f"https://{domain}"
+        if self.url:
+            url = f"{root_url}{self.url}"
+        else:
+            url = root_url
         if self.caused_by:
             cause = str(self.caused_by)
         else:
@@ -1194,11 +1198,11 @@ class Notification(models.Model):
         if self.kind in {self.Kind.REPLY}:
             body = f"Visit {root_url}{self.url}"
         elif self.kind in {self.Kind.MESSAGE}:
-            body = f"{cause} has sent you a message: {root_url}{self.url}"
+            body = f"{cause} has sent you a message: {url}"
         elif self.kind in {self.Kind.MODERATION}:
-            body = f"A moderator has made changes regarding your content: {root_url}{self.url}"
+            body = f"A moderator has made changes regarding your content: {url}"
         else:
-            body = f"You have a new notification: {root_url}{self.url}"
+            body = f"You have a new notification: {url}"
         if len(self.body) > 0:
             body += "\n\n"
             body += self.body
