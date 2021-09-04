@@ -507,8 +507,9 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             "VERSION 2",
             "READER",
             "HDR",
+            "NEWNEWS",
             "LIST ACTIVE NEWSGROUPS OVERVIEW.FMT SUBSCRIPTIONS",
-            "OVER",
+            "OVER MSGID",
         ]
         if self.server.can_post:
             capabilities.append("POST")
@@ -518,6 +519,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         self.send_lines(capabilities)
 
     def newnews(self) -> None:
+        self.server.refresh()
         command, *tokens = self.data.strip().split()
         if len(tokens) < 2:
             self.send_lines(["501 Syntax Error"])
@@ -736,9 +738,15 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 if not range_[1]:
                     range_ = (range_[0], len(self.server.articles))
                 range_ = range(range_[0], range_[1] + 1)
+                ret = []
+                for i in range_:
+                    try:
+                        ret.append(self.server.articles[i])
+                    except NNTPArticleNotFound:
+                        pass
                 self.send_lines(
                     ["224 Overview information follows (multi-line)"]
-                    + list(map(str, (self.server.articles[i] for i in range_)))
+                    + list(map(str, ret))
                     + ["."]
                 )
                 return
