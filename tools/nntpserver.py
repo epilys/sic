@@ -319,6 +319,11 @@ class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
     def subscriptions(self) -> typing.Optional[typing.List[str]]:
         return None
 
+    @property
+    def help(self) -> typing.Optional[str]:
+        """Return an informational help text to the user. If None, a generic message will be generated."""
+        return None
+
 
 class NNTPConnectionHandler(socketserver.BaseRequestHandler):
     """
@@ -411,13 +416,15 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             elif data_caseless.startswith("hdr") or data_caseless.startswith("xhdr"):
                 self.hdr()
             elif data_caseless.startswith("stat"):
-                self.stat(self.data)
+                self.stat()
             elif data_caseless.startswith("article"):
                 self.article()
             elif data_caseless.startswith("body"):
                 self.article(body=True)
             elif data_caseless.startswith("head"):
-                self.head(self.data)
+                self.head()
+            elif data_caseless == "help":
+                self.help()
             elif data_caseless.startswith("listgroup"):
                 self.listgroup()
             elif (
@@ -719,13 +726,89 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         return "\n".join(lines)
 
     def hdr(self) -> None:
-        if self.current_selected_newsgroup is None:
-            self.send_lines(["412 No newsgroups elected"])
+        def get_value(i: ArticleInfo, field: str) -> str:
+            field = field.casefold()
+            if field == "subject":
+                value = articleinfo.subject
+            elif field == "from":
+                value = articleinfo.from_
+            elif field == "date":
+                value = email.utils.format_datetime(articleinfo.date)
+            elif field == "message-id":
+                value = articleinfo.message_id
+            elif field == "references":
+                value = articleinfo.references
+            elif field == ":bytes":
+                value = str(articleinfo.bytes)
+            elif field == ":lines":
+                value = str(articleinfo.lines)
+            else:
+                value = ""
+                for k, v in articleinfo.headers.items():
+                    if k.casefold() == field:
+                        value = v
+                        break
+            value = value.replace("\r\n", "").replace("\t", " ")
+            return value
+
+        command, *tokens = self.data.strip().split()
+
+        if len(tokens) == 0:
+            self.send_lines(["501 Syntax Error"])
             return
+
+        if len(tokens) == 2:
+            range_ = parse_range(tokens[1])
+            if not range_:
+                # First form (message-id specified)
+                try:
+                    articleinfo = self.server.articles[tokens[1]]
+                    value = get_value(articleinfo, tokens[0])
+                    self.send_lines(
+                        [
+                            "225 Headers follow(multi-line)",
+                            f"{articleinfo.number} {value}",
+                            ".",
+                        ]
+                    )
+                except NNTPArticleNotFound:
+                    self.send_lines(["430 No article with that message-id"])
+                return
+            else:
+                # Second form (range specified)
+                group = self.server.groups[self.current_selected_newsgroup]
+                if not range_[1]:
+                    range_ = (range_[0], group.high)
+                ret = []
+                for i in range(range_[0], range_[1] + 1):
+                    try:
+                        articleinfo = self.server.articles[i]
+                        value = get_value(articleinfo, tokens[0])
+                        ret.append((articleinfo.number, value))
+                    except NNTPArticleNotFound:
+                        pass
+                if len(ret) == 0:
+                    self.send_lines(["423 No articles in that range"])
+                    return
+                self.send_lines(
+                    ["225 Headers follow(multi-line)"]
+                    + [f"{number} {value}" for (number, value) in ret]
+                    + ["."]
+                )
+                return
+            return
+
+        # Third form (current article number used)
+        try:
+            articleinfo = self.server.articles[self.current_article_number]
+        except:
+            self.send_lines(["420 Current article number is invalid"])
+            return
+
+        value = get_value(articleinfo, tokens[0])
+
         self.send_lines(
-            ["225 Headers follow(multi-line)"]
-            + list(map(str, self.server.articles))
-            + ["."]
+            ["225 Headers follow(multi-line)", f"{articleinfo.number} {value}", "."]
         )
 
     def overview(self) -> None:
@@ -738,10 +821,10 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             range_ = parse_range(tokens[0])
             if range_:
                 if not range_[1]:
-                    range_ = (range_[0], len(self.server.articles))
-                range_ = range(range_[0], range_[1] + 1)
+                    group = self.server.groups[self.current_selected_newsgroup]
+                    range_ = (range_[0], group.high)
                 ret = []
-                for i in range_:
+                for i in range(range_[0], range_[1] + 1):
                     try:
                         ret.append(self.server.articles[i])
                     except NNTPArticleNotFound:
@@ -780,9 +863,9 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             self.send_lines(["420 Current article number is invalid"])
         return
 
-    def stat(self, command: str) -> None:
+    def stat(self) -> None:
         self.server.refresh()
-        command, *tokens = command.split()
+        command, *tokens = self.data.split()
         if len(tokens) == 0:
             if self.current_selected_newsgroup is None:
                 self.send_lines(["412 No newsgroup elected"])
@@ -865,9 +948,9 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         ret += ["."]
         self.send_lines(ret)
 
-    def head(self, command: str) -> None:
+    def head(self) -> None:
         self.server.refresh()
-        command, *tokens = command.split()
+        command, *tokens = self.data.split()
         if len(tokens) == 0:
             if self.current_selected_newsgroup is None:
                 self.send_lines(["412 No newsgroup elected"])
@@ -906,3 +989,30 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         ret += [f"{k}: {v}" for k, v in article.info.headers.items()]
         ret += ["."]
         self.send_lines(ret)
+
+    def help(self) -> None:
+        import textwrap
+
+        wrapper = textwrap.TextWrapper(width=50, replace_whitespace=False)
+
+        server_help: typing.Optional[str] = self.server.help
+
+        if server_help is None:
+            server_help = """This is an NNTP version 2 server. You can list suggested newsgroups by issuing `LIST SUBSCRIPTIONS`.
+
+You can list all groups by issuing `LIST NEWSGROUPS`.
+
+You can select a group by issuing `GROUP ` followed by the group name. If successful, the groups total article count, lowest article number, highest article number and group name will be returned. You can use the high/low marks to fetch all articles or batches of them using the OVER command with `OVER ` followed by a number or a number plus as dash (e.g. `1-`) to indicate all numbers following or a number followed by dash followed by another number to indicate an inclusive range.
+
+You can retrieve an article by issuing `ARTICLE ` followed by a message-id or a number."""
+
+            if self.server.can_post:
+                server_help += """
+
+You can submit an article by issuing `POST` and the article content with each line terminated with <CR-LF>. End the article content with `<CR-LF>.<CR-LF>`."""
+            if self.server.auth:
+                server_help += """
+
+You can authenticate by issuing `AUTHINFO USER ` followed by your username and then `AUTHINFO PASS ` followed by your password."""
+
+        self.send_lines(["100 Help text follows"] + wrapper.wrap(server_help) + ["."])
