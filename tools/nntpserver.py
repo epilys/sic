@@ -413,7 +413,9 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
             elif data_caseless.startswith("stat"):
                 self.stat(self.data)
             elif data_caseless.startswith("article"):
-                self.article(self.data)
+                self.article()
+            elif data_caseless.startswith("body"):
+                self.article(body=True)
             elif data_caseless.startswith("head"):
                 self.head(self.data)
             elif data_caseless.startswith("listgroup"):
@@ -811,9 +813,9 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         self.send_lines([f"223 {article.number} {article.message_id}"])
         return
 
-    def article(self, command: str) -> None:
+    def article(self, body: bool = False) -> None:
         self.server.refresh()
-        command, *tokens = command.split()
+        command, *tokens = self.data.split()
         if len(tokens) == 0:
             if self.current_selected_newsgroup is None:
                 self.send_lines(["412 No newsgroup elected"])
@@ -840,19 +842,25 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 self.send_lines(["423 No article with that number"])
                 return
 
-        ret = [
-            f"220 {article.info.number} {article.info.message_id}",
-            f"From: <{article.info.from_}>",
-            f"Subject: {article.info.subject}",
-            f"Date: {email.utils.format_datetime(article.info.date)}",
-            f"Message-ID: {article.info.message_id}",
-        ]
-        if article.info.references:
-            ret.append(f"References: {article.info.references}")
-        ret += [f"{k}: {v}" for k, v in article.info.headers.items()]
+        if body:
+            ret = [f"222 {article.info.number} {article.info.message_id}"]
+        else:
+            ret = [
+                f"220 {article.info.number} {article.info.message_id}",
+                f"From: <{article.info.from_}>",
+                f"Subject: {article.info.subject}",
+                f"Date: {email.utils.format_datetime(article.info.date)}",
+                f"Message-ID: {article.info.message_id}",
+            ]
+            if article.info.references:
+                ret.append(f"References: {article.info.references}")
+            ret += [f"{k}: {v}" for k, v in article.info.headers.items()]
 
-        ret.append("")
+            ret.append("")
         for line in article.body.split("\n"):
+            if line.startswith("."):
+                ret.append(f".{line}")
+                continue
             ret.append(line)
         ret += ["."]
         self.send_lines(ret)
