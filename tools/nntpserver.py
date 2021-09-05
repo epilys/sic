@@ -591,23 +591,30 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         self.server.refresh()
         command, *tokens = self.data.strip().split()
         if len(tokens) == 0 and self.current_selected_newsgroup is None:
-            self.send_lines(["412 No newsgroups elected"])
+            self.send_lines(["412 No newsgroups selected"])
             return
-        group = self.current_selected_newsgroup
-        range_ = None
-        if len(tokens) != 0:
-            group = tokens[0]
-        if len(tokens) > 1:
-            range_ = tokens[1]
-        if group != self.current_selected_newsgroup:
-            if not self.select_group(typing.cast(str, group)):
+        group_name = tokens[0]
+        if group_name != self.current_selected_newsgroup:
+            if not self.select_group(group_name):
                 return
-        if range_:
-            self.send_lines(["."])
+        group = self.server.groups[typing.cast(str, self.current_selected_newsgroup)]
+        if len(tokens) > 1:
+            range_ = parse_range(tokens[1])
         else:
-            self.send_lines(
-                list(f"{a.number}" for a in self.server.articles.values()) + ["."]
-            )
+            range_ = None
+        if not range_:
+            range_ = (group.low, group.high)
+        if not range_[1]:
+            range_ = (range_[0], group.high)
+        ret = [f"211 {group.number} {group.low} {group.high} {group.name}"]
+        for i in range(range_[0], typing.cast(int, range_[1]) + 1):
+            try:
+                _articleinfo = self.server.articles[i]
+                ret.append(str(i))
+            except NNTPArticleNotFound:
+                pass
+        ret.append(".")
+        self.send_lines(ret)
 
     def list(self) -> None:
         self.server.refresh()
@@ -775,12 +782,17 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                     self.send_lines(["430 No article with that message-id"])
                 return
             else:
+                if not self.current_selected_newsgroup:
+                    self.send_lines(["412 No newsgroup selected"])
+                    return
                 # Second form (range specified)
-                group = self.server.groups[self.current_selected_newsgroup]
                 if not range_[1]:
+                    group = self.server.groups[
+                        typing.cast(str, self.current_selected_newsgroup)
+                    ]
                     range_ = (range_[0], group.high)
                 ret = []
-                for i in range(range_[0], range_[1] + 1):
+                for i in range(range_[0], typing.cast(int, range_[1]) + 1):
                     try:
                         articleinfo = self.server.articles[i]
                         value = get_value(articleinfo, tokens[0])
@@ -798,9 +810,14 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 return
             return
 
+        if not self.current_selected_newsgroup:
+            self.send_lines(["412 No newsgroup selected"])
+            return
         # Third form (current article number used)
         try:
-            articleinfo = self.server.articles[self.current_article_number]
+            articleinfo = self.server.articles[
+                typing.cast(int, self.current_article_number)
+            ]
         except:
             self.send_lines(["420 Current article number is invalid"])
             return
@@ -824,7 +841,7 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                     group = self.server.groups[self.current_selected_newsgroup]
                     range_ = (range_[0], group.high)
                 ret = []
-                for i in range(range_[0], range_[1] + 1):
+                for i in range(range_[0], typing.cast(int, range_[1]) + 1):
                     try:
                         ret.append(self.server.articles[i])
                     except NNTPArticleNotFound:
