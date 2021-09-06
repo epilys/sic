@@ -230,6 +230,12 @@ def submit_story(request):
                 new_story.tags.set(form.cleaned_data["tags"])
                 new_story.kind.set(form.cleaned_data["kind"])
                 new_story.save()
+                if new_story.domain_id is not None and new_story.domain.is_banned:
+                    messages.add_message(
+                        request,
+                        messages.WARNING,
+                        f"This domain ({new_story.domain}) is banned. Your story has been set to inactive and won't be visible to other users.",
+                    )
                 return redirect(new_story.get_absolute_url())
             form.fields["title"].required = False
             error = form_errors_as_string(form.errors)

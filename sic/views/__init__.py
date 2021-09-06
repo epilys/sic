@@ -526,12 +526,29 @@ def moderation(request):
             messages.add_message(
                 request, messages.ERROR, f"Invalid form. Error: {error}"
             )
+        elif "domain-ban" in request.POST:
+            try:
+                domain_obj, _ = Domain.objects.get_or_create(
+                    pk=request.POST["domain-pk"]
+                )
+                domain_obj.is_banned = not domain_obj.is_banned
+                domain_obj.save(update_fields=["is_banned"])
+            except KeyError:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "Invalid form: domain_pk was missing from POST data. Is this a bug?",
+                )
+            ban_user_form = BanUserForm()
         else:
             ban_user_form = BanUserForm()
     else:
         ban_user_form = BanUserForm()
+    banned_domains = Domain.objects.filter(is_banned=True)
     return render(
-        request, "moderation/moderation.html", {"ban_user_form": ban_user_form}
+        request,
+        "moderation/moderation.html",
+        {"ban_user_form": ban_user_form, "banned_domains": banned_domains},
     )
 
 

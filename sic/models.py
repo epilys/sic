@@ -45,6 +45,7 @@ class Domain(models.Model):
     url = models.URLField(
         null=False, blank=False, primary_key=True, validators=[MinLengthValidator(5)]
     )
+    is_banned = models.BooleanField(default=False, null=False)
 
     def save(self, *args, **kwargs):
         if len(self.url) == 0:
@@ -193,6 +194,8 @@ class Story(models.Model):
                 netloc = netloc[4:]
             if len(netloc) > 0:
                 domain_obj, _ = Domain.objects.get_or_create(url=netloc)
+                if domain_obj.is_banned:
+                    self.active = False
                 self.domain = domain_obj
             from sic.jobs import Job, JobKind, fetch_url
 
@@ -200,7 +203,7 @@ class Story(models.Model):
                 self.remote_content is None
             except Story._meta.model.remote_content.RelatedObjectDoesNotExist:
                 # schedule job
-                if self.pk and self.url is not None and len(self.url) != 0:
+                if self.pk and self.url is not None and len(self.url) != 0 and self.active:
                     kind = JobKind.from_func(fetch_url)
                     _job_obj, _ = Job.objects.get_or_create(
                         kind=kind, periodic=False, data={"pk": self.pk, "url": self.url}
@@ -208,6 +211,8 @@ class Story(models.Model):
         super().save(*args, **kwargs)
 
     def is_user_subscribed(self, user: "User") -> bool:
+        if not self.active:
+            return False
         tags = self.tags.all()
         qobj = ~Q(story__pk=None)
         for f in ExactTagFilter.objects.filter(excluded_in_user=user):

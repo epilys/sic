@@ -6,12 +6,35 @@
     <h1>Moderation panel</h1>
     <div>
         <h2>Change user ban status</h2>
-        <form method="post" class="submit-story-form">
+        <form method="POST" class="submit-story-form">
             {% csrf_token %}
             <table>
                 {{ ban_user_form }}
             </table>
             <input type="submit" name="set-ban" value="Set ban">
         </form>
+    </div>
+    <div>
+        <h2>Banned domains</h2>
+        <form method="POST" class="submit-story-form">
+            {% csrf_token %}
+            <label for="domain-pk">Domain to ban:</label>
+            <input name="domain-pk" type="text" placeholder="example.com">
+            <input type="submit" name="domain-ban" value="Domain ban">
+        </form>
+        <table>
+            {% for d in banned_domains %}
+                <tr>
+                    <th>{{ d }}</th>
+                    <td>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="domain-pk" value="{{ d }}" />
+                            <input type="submit" name="domain-ban" value="unban">
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
     </div>
 {% endblock %}
