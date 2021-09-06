@@ -33,6 +33,7 @@ from nntpserver import (
     NNTPPostSetting,
     NNTPPostError,
     NNTPArticleNotFound,
+    NNTPServerError,
     Article,
     ArticleInfo,
 )
@@ -167,74 +168,7 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             return Comment.objects.filter(message_id=message_id).first()
 
     def __getitem__(self, key: typing.Union[str, int]) -> ArticleInfo:
-        # print("key=", key, type(key))
-        if isinstance(key, ArticleInfo):  # FIXME: is this a bug?
-            return key
-        if isinstance(key, str):
-            try:
-                key = int(key.strip())
-            except:
-                pass
-        if isinstance(key, int):
-            if key == 0 or key > len(self.index) + 1:
-                raise NNTPArticleNotFound(str(key))
-            key = self.index[key][0]
-        key = key.strip()
-        pk_search = PK_MSG_ID_RE.search(key)
-        # print(key, pk_search, type(pk_search))
-        try:
-            story = self.get_story(
-                key,
-                story_pk=(
-                    int(pk_search.group("story_pk"))
-                    if pk_search and pk_search.group("story_pk")
-                    else None
-                ),
-            )
-            # print("get_story returned ", story)
-            return ArticleInfo(
-                self.reverse_index[key],
-                story.title,
-                f"""{story.user.username}@{config.get_domain()}""",
-                story.created,
-                key,
-                "",
-                len(story.url) if story.url else len(story.description),
-                1,
-                {},
-            )
-        except Exception as exc:
-            pass
-            # print("Exception:", exc)
-        try:
-            comment = self.get_comment(
-                key,
-                comment_pk=(
-                    int(pk_search.group("comment_pk"))
-                    if pk_search and pk_search.group("comment_pk")
-                    else None
-                ),
-            )
-            # print("get_comment returned ", comment)
-            if comment.parent_id:
-                parent = self.get_comment("", comment_pk=comment.parent_id)
-                references = MAKE_MSGID(parent.id, parent.message_id, "comment")
-            else:
-                parent = self.get_story("", story_pk=comment.story_id)
-                references = MAKE_MSGID(parent.id, parent.message_id, "story")
-            return ArticleInfo(
-                self.reverse_index[key],
-                f"Re: {comment.story.title}",
-                f"""{comment.user.username}@{config.get_domain()}""",
-                comment.created,
-                key,
-                references,
-                len(comment.text),
-                1,
-                {},
-            )
-        except TypeError as exc:
-            raise exc
+        return self.article(key).info
 
     def __iter__(self) -> typing.Iterator[typing.Any]:
         return (self[k] for k in self.index)
@@ -250,7 +184,7 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             except:
                 pass
         if isinstance(key, int):
-            if key == 0 or key > len(self.index) + 1:
+            if key < self.low or key > self.high:
                 raise NNTPArticleNotFound(str(key))
             key = self.index[key][0]
         key = key.strip()
@@ -263,6 +197,8 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
                 else None,
             )
             # print("get_story returned ", story)
+            if not story:
+                raise NNTPArticleNotFound(key)
             return Article(
                 ArticleInfo(
                     self.reverse_index[key],
@@ -288,11 +224,16 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
                 else None,
             )
             # print("get_comment returned ", comment)
+            if not comment or not comment.story.active:
+                raise NNTPArticleNotFound(key)
             if comment.parent_id:
                 parent = self.get_comment("", comment_pk=comment.parent_id)
-                references = MAKE_MSGID(parent.id, parent.message_id, "comment")
+                if parent:
+                    references = MAKE_MSGID(parent.id, parent.message_id, "comment")
             else:
                 parent = self.get_story("", story_pk=comment.story_id)
+                if not parent:
+                    raise NNTPArticleNotFound(key)
                 references = MAKE_MSGID(parent.id, parent.message_id, "story")
             return Article(
                 ArticleInfo(
@@ -308,8 +249,12 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
                 ),
                 comment.text,
             )
-        except TypeError as exc:
-            raise exc
+        except NNTPArticleNotFound as exc:
+            pass
+        except Exception as exc:
+            print("Exception: ", exc)
+            raise NNTPServerError(str(exc)) from exc
+        raise NNTPArticleNotFound(key)
 
     def build_index(self) -> None:
         self.index: typing.Dict[int, typing.Tuple[str, datetime.datetime]] = {}
@@ -331,7 +276,7 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             )
         )
         self.reverse_index = {self.index[k][0]: k for k in self.index}
-        self.high = len(self.index)
+        self.high = max(self.index) if self.index else 0
         self.count = self.high
         self.low = 1 if self.high != 0 else 0
 
