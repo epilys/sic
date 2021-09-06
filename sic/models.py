@@ -214,7 +214,7 @@ class Story(models.Model):
             qobj |= f.as_q()
         for f in DomainFilter.objects.filter(excluded_in_user=user):
             qobj |= f.as_q()
-        if not Story.objects.filter(pk=self.pk).exclude(qobj).exists():
+        if not Story.objects.filter(pk=self.pk, active=True).exclude(qobj).exists():
             return False  # Story is filtered by global user exclude filters
         match = False
         for has in itertools.chain.from_iterable(
@@ -229,7 +229,9 @@ class Story(models.Model):
             qobj = ~Q(story__pk=None)
             for f in filter(lambda f: f.into_inner(), has.exclude_filters.all()):
                 qobj |= f.as_q()
-            has_match = Story.objects.filter(pk=self.pk).exclude(qobj).exists()
+            has_match = (
+                Story.objects.filter(pk=self.pk, active=True).exclude(qobj).exists()
+            )
             match |= has_match
         return match
 
@@ -381,7 +383,8 @@ FROM
 WHERE
     root_tag_id = %s""",
                     [self.pk],
-                )
+                ),
+                active=True,
             ).prefetch_related("tags", "user", "comments")
         return Story.objects.filter(
             tags__pk__in=RawSQL(
@@ -412,7 +415,8 @@ WHERE
     root_tag_id = %s AND
     depth <= %s""",
                 [self.pk, depth],
-            )
+            ),
+            active=True,
         ).prefetch_related("tags", "user", "comments")
 
     @cached_property
@@ -507,7 +511,8 @@ class Taggregation(models.Model):
             id__in=RawSQL(
                 "SELECT id FROM taggregation_stories WHERE taggregation_id = %s",
                 [self.pk],
-            )
+            ),
+            active=True,
         ).prefetch_related("tags", "user", "comments")
 
     @cached_property
@@ -535,7 +540,8 @@ class Taggregation(models.Model):
             id__in=RawSQL(
                 "SELECT DISTINCT s.id AS id FROM taggregation_stories AS s JOIN sic_taggregation as agg ON s.taggregation_id = agg.id WHERE agg.'default' = 1",
                 [],
-            )
+            ),
+            active=True,
         ).prefetch_related("tags", "user", "comments")
         return {
             "stories": stories,
@@ -1105,7 +1111,8 @@ class User(PermissionsMixin, AbstractBaseUser):
                     id__in=RawSQL(
                         "SELECT DISTINCT s.id AS id FROM taggregation_stories AS s JOIN sic_user_taggregation_subscriptions as subs WHERE s.taggregation_id = subs.taggregation_id AND subs.user_id = %s",
                         [self.pk],
-                    )
+                    ),
+                    active=True,
                 )
                 .prefetch_related("tags", "user", "comments")
                 .exclude(qobj)
