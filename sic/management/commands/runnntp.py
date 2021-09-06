@@ -153,9 +153,9 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
     ) -> Story:
         # print("get_story", message_id, story_pk)
         if story_pk:
-            return Story.objects.filter(pk=story_pk).first()
+            return Story.objects.filter(pk=story_pk, active=True).first()
         else:
-            return Story.objects.filter(message_id=message_id).first()
+            return Story.objects.filter(message_id=message_id, active=True).first()
 
     def get_comment(
         self, message_id: str, comment_pk: typing.Optional[int] = None
