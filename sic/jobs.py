@@ -2,9 +2,10 @@ import subprocess
 import types
 from datetime import datetime
 from pathlib import Path
-import urllib
+import urllib.request
 import enum
 import logging
+import shlex
 from django.db import models
 from django.utils.timezone import make_aware
 from django.utils.module_loading import import_string
@@ -61,25 +62,35 @@ def fetch_url(input_):
                 ).save()
                 index_story(Story.objects.get(pk=pk))
                 return True
-            elif not "text/html" in response.getheader("Content-Type"):
+            elif not "html" in response.getheader("Content-Type"):
                 return f"""Content-Type is {response.getheader("Content-Type")}"""
-        with subprocess.Popen(
-            [
-                BASE_DIR
-                / "tools/fetch_remote_content/target/debug/fetch_remote_content",
-                url,
-            ],
-            stdout=subprocess.PIPE,
-        ) as proc:
-            content = proc.stdout.read().decode("utf-8")
+            log = None
+            with subprocess.Popen(
+                [
+                    BASE_DIR
+                    / "tools/fetch_remote_content/target/debug/fetch_remote_content",
+                    url,
+                ],
+                stdout=subprocess.PIPE,
+            ) as proc:
+                content = proc.stdout.read().decode("utf-8")
+            w3m_output = None
+            try:
+                w3m_output = subprocess.check_output(
+                    f"curl -s {shlex.quote(url)} | w3m -T text/html -dump",
+                    shell=True,
+                ).decode("utf-8")
+            except (subprocess.SubprocessError, UnicodeDecodeError) as exc:
+                log = str(exc)
             StoryRemoteContent(
                 story_id=pk,
                 url=url,
                 content=content,
+                w3m_content=w3m_output,
                 retrieved_at=make_aware(datetime.now()),
             ).save()
             index_story(Story.objects.get(pk=pk))
-            return True
+            return log if log else True
     except Exception as exc:
         logging.exception(f"Could not fetch url: {exc}")
         raise exc

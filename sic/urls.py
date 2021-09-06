@@ -121,6 +121,11 @@ urlpatterns = [
         stories.story_remote_content,
         name="story_remote_content",
     ),
+    path(
+        "s/<int:story_pk>/<str:slug>/cached/formatted/",
+        stories.story_remote_content_formatted,
+        name="story_remote_content_formatted",
+    ),
     path("s/<int:story_pk>/<str:slug>/edit/", stories.edit_story, name="edit_story"),
     path("c/preview/", views.preview_comment, name="preview_comment"),
     path("c/<int:comment_pk>/edit/", views.edit_comment, name="edit_comment"),

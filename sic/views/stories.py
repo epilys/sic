@@ -116,6 +116,33 @@ def story_remote_content(request, story_pk, slug=None):
     )
 
 
+@require_safe
+def story_remote_content_formatted(request, story_pk, slug=None):
+    try:
+        story_obj = Story.objects.get(pk=story_pk)
+    except Story.DoesNotExist:
+        raise Http404("Story does not exist") from Story.DoesNotExist
+    if slug != story_obj.slugify:
+        return redirect(
+            reverse(
+                "story_remote_content_formatted",
+                kwargs={"story_pk": story_pk, "slug": story_obj.slugify},
+            )
+        )
+    try:
+        content_obj = story_obj.remote_content
+        if not content_obj.w3m_content:
+            raise StoryRemoteContent.DoesNotExist
+    except StoryRemoteContent.DoesNotExist:
+        raise Http404(
+            "Story content has not been locally cached."
+        ) from StoryRemoteContent.DoesNotExist
+    return HttpResponse(
+        f"Remote-Url: {content_obj.url}\nRetrieved-at: {content_obj.retrieved_at}\n\n{content_obj.w3m_content}",
+        content_type="text/plain; charset=utf-8",
+    )
+
+
 def all_stories(request, page_num=1):
     if "order_by" in request.GET:
         request.session["all_stories_order_by"] = request.GET["order_by"]

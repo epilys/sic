@@ -203,7 +203,12 @@ class Story(models.Model):
                 self.remote_content is None
             except Story._meta.model.remote_content.RelatedObjectDoesNotExist:
                 # schedule job
-                if self.pk and self.url is not None and len(self.url) != 0 and self.active:
+                if (
+                    self.pk
+                    and self.url is not None
+                    and len(self.url) != 0
+                    and self.active
+                ):
                     kind = JobKind.from_func(fetch_url)
                     _job_obj, _ = Job.objects.get_or_create(
                         kind=kind, periodic=False, data={"pk": self.pk, "url": self.url}
@@ -1258,6 +1263,7 @@ class StoryRemoteContent(models.Model):
     )
     url = models.URLField(null=False, blank=False)
     content = models.TextField(null=False, blank=False)
+    w3m_content = models.TextField(null=True, blank=True, max_length=16384)
     retrieved_at = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
     def __str__(self):
