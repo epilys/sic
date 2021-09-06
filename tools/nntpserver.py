@@ -215,7 +215,7 @@ class NNTPGroup(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def articles(self) -> typing.Dict[int, ArticleInfo]:
+    def articles(self) -> typing.Dict[typing.Union[int, str], ArticleInfo]:
         ...
 
     @property
@@ -284,7 +284,7 @@ class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
 
     @property
     @abc.abstractmethod
-    def articles(self) -> typing.Dict[int, ArticleInfo]:
+    def articles(self) -> typing.Dict[typing.Union[int, str], ArticleInfo]:
         ...
 
     @abc.abstractmethod

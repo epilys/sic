@@ -70,7 +70,7 @@ class SicAllStories(NNTPGroup):
         return self.server.low
 
     @property
-    def articles(self) -> typing.Dict[int, ArticleInfo]:
+    def articles(self) -> typing.Dict[typing.Union[int, str], ArticleInfo]:
         return self.server
 
     @property
@@ -146,7 +146,7 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
         return self._groups
 
     @property
-    def articles(self) -> typing.Dict[int, ArticleInfo]:
+    def articles(self) -> typing.Dict[typing.Union[int, str], ArticleInfo]:
         return self
 
     def get_story(
