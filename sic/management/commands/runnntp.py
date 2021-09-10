@@ -7,6 +7,7 @@ import datetime
 import sqlite3
 import typing
 import threading
+import itertools
 import collections.abc
 import importlib.util
 from email.policy import default as email_policy
@@ -170,11 +171,28 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
     def __getitem__(self, key: typing.Union[str, int]) -> ArticleInfo:
         return self.article(key).info
 
-    def __iter__(self) -> typing.Iterator[typing.Any]:
-        return (self[k] for k in self.index)
+    def __iter__(self) -> typing.Iterator[typing.Union[str, int]]:
+        return (k for k in self.index)
 
     def __len__(self) -> int:
         return self.count
+
+    def newnews(
+        self, _wildmat: str, date: datetime.datetime
+    ) -> typing.Iterator[ArticleInfo]:
+        for story in Story.objects.filter(created__gte=date):
+            key = MAKE_MSGID(story.id, story.message_id, "story")
+            try:
+                yield self.article(key).info
+            except NNTPArticleNotFound:
+                pass
+        for comment in Comment.objects.filter(created__gte=date):
+            key = MAKE_MSGID(comment.id, comment.message_id, "comment")
+            try:
+                yield self.article(key).info
+            except NNTPArticleNotFound:
+                pass
+        return None
 
     def article(self, key: typing.Union[str, int]) -> Article:
         # print("def article key = ", key, type(key))

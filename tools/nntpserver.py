@@ -296,7 +296,7 @@ class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
 
     def newnews(
         self, wildmat: str, date: datetime.datetime
-    ) -> typing.Optional[typing.List[ArticleInfo]]:
+    ) -> typing.Optional[typing.Iterator[ArticleInfo]]:
         return None
 
     def newgroups(
@@ -542,22 +542,19 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
         # Check if server implements newnews, otherwise compute newnews on our own.
         articles = self.server.newnews(wildmat, date)
         if articles is None:
-            articles = list(
-                filter(
-                    lambda a: a.date >= date,
-                    itertools.chain.from_iterable(
-                        g.articles.values()
-                        for g in filter(
-                            lambda g: g.name == wildmat, self.server.groups.values()
-                        )
-                    ),
-                )
+            articles = filter(
+                lambda a: a.date >= date,
+                itertools.chain.from_iterable(
+                    g.articles.values()
+                    for g in filter(
+                        lambda g: g.name == wildmat, self.server.groups.values()
+                    )
+                ),
             )
-        self.send_lines(
-            ["230 list of new articles by message-id follows"]
-            + list(article.message_id for article in articles)
-            + ["."]
-        )
+        self.send_lines(["230 list of new articles by message-id follows"])
+        for article in articles:
+            self.send_lines([article.message_id])
+        self.send_lines(["."])
 
     def newgroups(self) -> None:
         self.server.refresh()
