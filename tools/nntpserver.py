@@ -837,17 +837,13 @@ class NNTPConnectionHandler(socketserver.BaseRequestHandler):
                 if not range_[1]:
                     group = self.server.groups[self.current_selected_newsgroup]
                     range_ = (range_[0], group.high)
-                ret = []
+                self.send_lines(["224 Overview information follows (multi-line)"])
                 for i in range(range_[0], typing.cast(int, range_[1]) + 1):
                     try:
-                        ret.append(self.server.articles[i])
+                        self.send_lines([str(self.server.articles[i])])
                     except NNTPArticleNotFound:
                         pass
-                self.send_lines(
-                    ["224 Overview information follows (multi-line)"]
-                    + list(map(str, ret))
-                    + ["."]
-                )
+                self.send_lines(["."])
                 return
             try:
                 article = self.server.articles[tokens[0]]

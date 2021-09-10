@@ -8,6 +8,13 @@ import sqlite3
 import typing
 import threading
 import itertools
+
+try:
+    from functools import cache as func_cache
+except ImportError:
+    from functools import lru_cache as func_cache
+
+    func_cache = func_cache(maxsize=None)
 import collections.abc
 import importlib.util
 from email.policy import default as email_policy
@@ -93,6 +100,24 @@ MAKE_MSGID: typing.Callable[[int, str, str], str] = (
 MSG_ID_RE = re.compile(r"^\s*<(?P<msg_id>[^>]+)>\s*")
 
 
+@func_cache
+def get_story(message_id: str, story_pk: typing.Optional[int] = None) -> Story:
+    # print("get_story", message_id, story_pk)
+    if story_pk:
+        return Story.objects.filter(pk=story_pk, active=True).first()
+    else:
+        return Story.objects.filter(message_id=message_id, active=True).first()
+
+
+@func_cache
+def get_comment(message_id: str, comment_pk: typing.Optional[int] = None) -> Comment:
+    # print("get_comment", message_id, comment_pk)
+    if comment_pk:
+        return Comment.objects.filter(pk=comment_pk).first()
+    else:
+        return Comment.objects.filter(message_id=message_id).first()
+
+
 class SicNNTPServer(NNTPServer, collections.abc.Mapping):
     overview_format: typing.List[str] = [
         "Subject:",
@@ -150,24 +175,6 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
     def articles(self) -> typing.Dict[typing.Union[int, str], ArticleInfo]:
         return self
 
-    def get_story(
-        self, message_id: str, story_pk: typing.Optional[int] = None
-    ) -> Story:
-        # print("get_story", message_id, story_pk)
-        if story_pk:
-            return Story.objects.filter(pk=story_pk, active=True).first()
-        else:
-            return Story.objects.filter(message_id=message_id, active=True).first()
-
-    def get_comment(
-        self, message_id: str, comment_pk: typing.Optional[int] = None
-    ) -> Comment:
-        # print("get_comment", message_id, comment_pk)
-        if comment_pk:
-            return Comment.objects.filter(pk=comment_pk).first()
-        else:
-            return Comment.objects.filter(message_id=message_id).first()
-
     def __getitem__(self, key: typing.Union[str, int]) -> ArticleInfo:
         return self.article(key).info
 
@@ -208,7 +215,7 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
         key = key.strip()
         pk_search = PK_MSG_ID_RE.search(key)
         try:
-            story = self.get_story(
+            story = get_story(
                 key,
                 story_pk=int(pk_search.group("story_pk"))
                 if pk_search and pk_search.group("story_pk")
@@ -235,7 +242,7 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             # print("Exception,", exc)
             pass
         try:
-            comment = self.get_comment(
+            comment = get_comment(
                 key,
                 comment_pk=int(pk_search.group("comment_pk"))
                 if pk_search and pk_search.group("comment_pk")
@@ -245,11 +252,11 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             if not comment or not comment.story.active:
                 raise NNTPArticleNotFound(key)
             if comment.parent_id:
-                parent = self.get_comment("", comment_pk=comment.parent_id)
+                parent = get_comment("", comment_pk=comment.parent_id)
                 if parent:
                     references = MAKE_MSGID(parent.id, parent.message_id, "comment")
             else:
-                parent = self.get_story("", story_pk=comment.story_id)
+                parent = get_story("", story_pk=comment.story_id)
                 if not parent:
                     raise NNTPArticleNotFound(key)
                 references = MAKE_MSGID(parent.id, parent.message_id, "story")
