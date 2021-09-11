@@ -792,6 +792,14 @@ class InvitationRequest(models.Model):
         default=None,
         unique=True,
     )
+    requested_by = models.OneToOneField(
+        "User",
+        related_name="invitation_request",
+        on_delete=models.SET_NULL,
+        null=True,
+        default=None,
+        unique=True,
+    )
 
     def __str__(self):
         return f"{self.pk} {self.name} {self.address}"

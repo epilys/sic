@@ -46,15 +46,15 @@
             <li class="invitation-request">
                 <form method="POST" action="{% url_with_next 'generate_invite' request %}">
                     {% csrf_token %}
-                    <input type="hidden" name="vote-pk" value="{{ req.pk }}">
+                    <input type="hidden" name="req-pk" value="{{ req.pk }}">
                     <input type="hidden" name="email" value="{{ req.address }}">
-                    <span><label for="certain-{{req.pk}}">I'm certain about this</label><input type="checkbox" name="certain-{{req.pk}}" required></span>
-                    <input type="submit" name="send-invite" value="Send invite">
+                    <span><label for="certain-{{req.pk}}">I'm certain about this</label><input type="checkbox" id="certain-{{req.pk}}" required></span>
+                    <input type="submit" name="send-invite" value="{% if req.requested_by_id %}Vouch user{% else %}Send invite{% endif %}">
                 </form>
                 <table>
                     <tr>
                         <th>Name</th>
-                        <td>{{ req.name }}</td>
+                        <td>{% if req.requested_by_id %}<a href="{{ req.requested_by.get_absolute_url }}">{{ req.requested_by }}</a>{% else %}{{ req.name }}{% endif %}</td>
                     </tr>
                     <tr>
                         <th>Address</th>

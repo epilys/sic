@@ -350,8 +350,17 @@ def generate_invite(request, invite_pk=None):
     elif request.method == "POST":
         user = request.user
         form = GenerateInviteForm(request.POST)
+        req_pk = None
+        if "req-pk" in request.POST:
+            req_pk = request.POST["req-pk"]
         if form.is_valid():
             address = form.cleaned_data["email"]
+            if req_pk:
+                req = InvitationRequest.objects.filter(pk=req_pk).first()
+            if not req:
+                req = InvitationRequest.objects.filter(address=address).first()
+            if req and req.requested_by_id:
+                return vouch_for_user(request, req.requested_by_id)
             inv, created = user.invited.get_or_create(inviter=user, address=address)
             if created:
                 messages.add_message(
@@ -360,9 +369,9 @@ def generate_invite(request, invite_pk=None):
                     f"Successfully generated invitation to {address}.",
                 )
                 inv.send(request)
-                InvitationRequest.objects.filter(address=address).update(
-                    fulfilled_by=inv
-                )
+                if req:
+                    req.fulfilled_by = inv
+                    req.save(update_fields=["fulfilled_by"])
         else:
             error = form_errors_as_string(form.errors)
             messages.add_message(
@@ -896,11 +905,12 @@ def invitation_requests(request):
 
 
 @require_http_methods(["GET", "POST"])
+@transaction.atomic
 def new_invitation_request(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user.can_participate:
         messages.add_message(request, messages.ERROR, "You already have an account.")
         return redirect("account")
-    if config.ALLOW_REGISTRATIONS:
+    if config.ALLOW_REGISTRATIONS and not request.user.is_authenticated:
         return redirect("signup")
     if request.method == "POST":
         if not config.ALLOW_INVITATION_REQUESTS:
@@ -911,17 +921,26 @@ def new_invitation_request(request):
         form = InvitationRequestForm(request.POST)
         if form.is_valid():
             messages.add_message(request, messages.SUCCESS, "Request submitted.")
-            try:
-                new_req = InvitationRequest(
-                    name=form.cleaned_data["name"],
-                    address=form.cleaned_data["address"],
-                    about=form.cleaned_data["about"],
-                )
-                new_req.save()
-            except Exception as exc:
-                print(exc)
+            new_req = InvitationRequest(
+                name=form.cleaned_data["name"],
+                address=form.cleaned_data["address"],
+                about=form.cleaned_data["about"],
+                requested_by_id=request.user.id
+                if request.user.is_authenticated
+                else None,
+            )
+            new_req.save()
         return redirect("index")
-    form = InvitationRequestForm()
+    if request.user.is_authenticated:
+        from django import forms
+
+        form = InvitationRequestForm(
+            initial={"name": str(request.user), "address": request.user.email}
+        )
+        form.fields["name"].widget = forms.HiddenInput()
+        form.fields["address"].widget = forms.HiddenInput()
+    else:
+        form = InvitationRequestForm()
     return render(
         request,
         "account/new_invitation_request.html",
@@ -1351,6 +1370,10 @@ def vouch_for_user(request, pk):
             caused_by=request.user,
             url=None,
         )
+    req = InvitationRequest.objects.filter(requested_by_id=pk).first()
+    if req:
+        req.fulfilled_by = inv
+        req.save(update_fields=["fulfilled_by"])
     messages.add_message(request, messages.SUCCESS, f"You have vouched for {receiver}.")
     if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])

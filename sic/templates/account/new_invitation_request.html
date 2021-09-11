@@ -2,14 +2,23 @@
 {% load humanize %}
 {% block title %}request an invite - {{ config.verbose_name }}{% endblock %}
 {% block content %}
-    <h1>Creating an account on {{ config.html_label }}</h1>
-    <p class="help-text">{{ config.html_signup_request_info }}</p>
+    {% if request.user.is_authenticated and config.REQUIRE_VOUCH_FOR_PARTICIPATION and not request.user.invited_by and not request.user.can_participate %}
+        <h1>Request to be vouched</h1>
+    {% else %}
+        <h1>Creating an account on {{ config.html_label }}</h1>
+        <p class="help-text">{{ config.html_signup_request_info }}</p>
+    {% endif %}
     {% if config.ALLOW_INVITATION_REQUESTS %}
-        <h2>request an invite</h2>
+        {% if not request.user.is_authenticated %}
+            <h2>request an invite</h2>
+        {% endif %}
         <p class="help-text">If your request is submitted successfuly, you will receive a confirmation e-mail. Check that you actually receive it, otherwise you can't be informed if the request is accepted.</p>
         <form method="post" class="submit-story-form">
             {% csrf_token %}
-            {% for field in form %}
+            {% for field in form.hidden_fields %}
+                {{ field }}
+            {% endfor %}
+            {% for field in form.visible_fields %}
                 {{ field.errors }}
                 {{ field.label_tag }}
                 {% if field.help_text %}

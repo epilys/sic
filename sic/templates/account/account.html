@@ -69,6 +69,13 @@
         </div>
         <hr />
     {% endif %}
+    {% if user.email_validated and config.REQUIRE_VOUCH_FOR_PARTICIPATION and not user.invited_by and not user.can_participate %}
+        <div class="generate_an_invite" id="validate-email">
+            <h2><a href="{% url 'new_invitation_request' %}">Request to be vouched</a></h2>
+            <p class="help-text">Let us know about you in your request in order to be vouched and be able to participate.</p>
+        </div>
+        <hr />
+    {% endif %}
     <div id="profile">
         {% include "account/profile_include.html" with user=user %}
         <div class="settings">

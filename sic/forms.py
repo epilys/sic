@@ -735,7 +735,9 @@ class InvitationRequestForm(forms.Form):
     about = forms.CharField(
         required=True,
         widget=forms.Textarea({"rows": 3, "cols": 15, "placeholder": ""}),
-        help_text="Insert evidence of your web presence like blog posts you've written and accounts on other communities to support your request. (this is just to make sure you're not a spammer, no need to add a lot of stuff)",
+        help_text=mark_safe(
+            "Insert evidence of your web presence like blog posts you've written and accounts on other communities to support your request. This is just to make sure you're not a spammer and a good fit for participating in the community discussion.<br /><br />A request will be successful if this is not thin on details and lets us know more about you."
+        ),
         min_length=20,
     )
     choose_dead = forms.ChoiceField(
