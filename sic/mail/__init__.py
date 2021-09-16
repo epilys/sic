@@ -325,10 +325,8 @@ def story_create_mailing_list(
     if not users_list:
         return
 
-    if not story_obj.message_id:
-        story_obj.message_id = f"<story-{story_obj.pk}@{config.get_domain()}>"
     headers: typing.Dict[str, str] = {
-        "Message-ID": story_obj.message_id,
+        "Message-ID": story_obj.get_message_id,
         "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{story_obj.get_absolute_url()}>",
         "List-ID": f"{config.MAILING_LIST_ID} <{config.mailing_list_address()}>",
         "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
@@ -361,6 +359,7 @@ def comment_create_mailing_list(
         return
     comment_obj: Comment = instance
     story_obj: Story = comment_obj.story
+    in_reply_to: str = story_obj.get_message_id
     users = User.objects.filter(
         enable_mailing_list=True, enable_mailing_list_comments=True
     )
@@ -370,6 +369,7 @@ def comment_create_mailing_list(
                 enable_mailing_list_replies=True
             )
         )
+        in_reply_to = comment_obj.parent.get_message_id
     if not users.exists():
         return
 
@@ -379,16 +379,24 @@ def comment_create_mailing_list(
     if not users_list:
         return
 
-    if not comment_obj.message_id:
-        comment_obj.message_id = f"<comment-{comment_obj.pk}@{config.get_domain()}>"
-        comment_obj.save(update_fields=["message_id"])
+    references = []
+    parent_ptr = comment_obj.parent
+    while parent_ptr is not None:
+        references.append(parent_ptr.get_message_id)
+        parent_ptr = parent_ptr.parent
+    references.append(story_obj.get_message_id)
+
+    references_str = " ".join(reversed(references))
+
     headers: typing.Dict[str, str] = {
-        "Message-ID": comment_obj.message_id,
+        "Message-ID": comment_obj.get_message_id,
         "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{comment_obj.get_absolute_url()}>",
         "List-ID": f"{config.MAILING_LIST_ID} <{config.mailing_list_address()}>",
         "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
         "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
         "Reply-To": config.mailing_list_address(),
+        "In-Reply-To": in_reply_to,
+        "References": references_str,
     }
     with mail.get_connection(fail_silently=False) as connection:
         for user in users_list:

@@ -94,9 +94,6 @@ PK_MSG_ID_RE = re.compile(
     r"(?:story-(?P<story_pk>\d+))|(?:comment-(?P<comment_pk>\d+))"
 )
 
-MAKE_MSGID: typing.Callable[[int, str, str], str] = (
-    lambda pk, msg_id, tag: msg_id if msg_id else f"<{tag}-{pk}@{config.get_domain()}>"
-)
 MSG_ID_RE = re.compile(r"^\s*<(?P<msg_id>[^>]+)>\s*")
 
 
@@ -188,13 +185,13 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
         self, _wildmat: str, date: datetime.datetime
     ) -> typing.Iterator[ArticleInfo]:
         for story in Story.objects.filter(created__gte=date):
-            key = MAKE_MSGID(story.id, story.message_id, "story")
+            key = story.get_message_id
             try:
                 yield self.article(key).info
             except NNTPArticleNotFound:
                 pass
         for comment in Comment.objects.filter(created__gte=date):
-            key = MAKE_MSGID(comment.id, comment.message_id, "comment")
+            key = comment.get_message_id
             try:
                 yield self.article(key).info
             except NNTPArticleNotFound:
@@ -254,12 +251,12 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             if comment.parent_id:
                 parent = get_comment("", comment_pk=comment.parent_id)
                 if parent:
-                    references = MAKE_MSGID(parent.id, parent.message_id, "comment")
+                    references = parent.get_message_id
             else:
                 parent = get_story("", story_pk=comment.story_id)
                 if not parent:
                     raise NNTPArticleNotFound(key)
-                references = MAKE_MSGID(parent.id, parent.message_id, "story")
+                references = parent.get_message_id
             return Article(
                 ArticleInfo(
                     self.reverse_index[key],
@@ -287,11 +284,11 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
         self.high = 0
         self.low = 0
         stories = (
-            (MAKE_MSGID(story.id, story.message_id, "story"), story.created)
+            (story.get_message_id, story.created)
             for story in Story.objects.order_by("created")
         )
         comments = (
-            (MAKE_MSGID(comment.id, comment.message_id, "comment"), comment.created)
+            (comment.get_message_id, comment.created)
             for comment in Comment.objects.order_by("created")
         )
         self.index = dict(

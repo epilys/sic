@@ -280,6 +280,13 @@ class Story(models.Model):
             url = urljoin(url, ".")
         return url
 
+    @property
+    def get_message_id(self) -> str:
+        if not self.message_id:
+            self.message_id = f"<story-{self.pk}@{config.get_domain()}>"
+            self.save(update_fields=["message_id"])
+        return self.message_id
+
 
 class Message(models.Model):
     id = models.AutoField(primary_key=True)
@@ -372,6 +379,13 @@ class Comment(models.Model):
     @cached_property
     def text_to_plain_text(self):
         return Textractor.extract(self.text_to_html).strip()
+
+    @property
+    def get_message_id(self) -> str:
+        if not self.message_id:
+            self.message_id = f"<comment-{self.pk}@{config.get_domain()}>"
+            self.save(update_fields=["message_id"])
+        return self.message_id
 
 
 class Tag(models.Model):
