@@ -261,6 +261,14 @@ class Story(models.Model):
 
         return entry
 
+    @cached_property
+    def other_submissions(self):
+        if not self.url:
+            return Story.objects.none()
+        return (
+            Story.objects.filter(url=self.url).exclude(pk=self.pk).order_by("-created")
+        )
+
 
 class Message(models.Model):
     id = models.AutoField(primary_key=True)

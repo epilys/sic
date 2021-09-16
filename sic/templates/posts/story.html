@@ -70,4 +70,14 @@
     <ul class="posts">
         {% render_comments request comments reply_form %}
     </ul>
+    {% with story.other_submissions as other_submissions %}
+        {% if other_submissions %}
+            <h2>Other submissions with the same URL</h2>
+            <ul class="posts" aria-label="story post list">
+                {% for story in other_submissions %}
+                    {% include "posts/story_list_item.html" with story=story %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
 {% endblock %}
