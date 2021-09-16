@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_safe
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
+from django.utils.timezone import make_aware
 from django.http import Http404, HttpResponse
 from django.apps import apps
 
@@ -245,6 +246,22 @@ def submit_story(request):
                 url = form.cleaned_data["url"]
                 publish_date = form.cleaned_data["publish_date"]
                 user_is_author = form.cleaned_data["user_is_author"]
+                if config.DISALLOW_REPOSTS_PERIOD is not None:
+                    previous_post = (
+                        Story.objects.filter(url=url).order_by("-created").first()
+                    )
+                    if previous_post:
+                        now = make_aware(datetime.now())
+                        if (
+                            now - previous_post.created
+                        ) < config.DISALLOW_REPOSTS_PERIOD:
+                            messages.add_message(
+                                request,
+                                messages.ERROR,
+                                f"This URL has been submitted recently and you cannot repost it until it's at least {config.DISALLOW_REPOSTS_PERIOD} hours old.",
+                            )
+                            return redirect(previous_post.get_absolute_url())
+
                 new_story = Story.objects.create(
                     title=title,
                     url=url,

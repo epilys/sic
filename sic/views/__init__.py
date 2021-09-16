@@ -13,7 +13,6 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
-from django.utils.timezone import make_aware
 from django.db.models import Max
 from django.utils.http import urlencode
 from django.apps import apps

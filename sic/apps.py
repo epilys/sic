@@ -1,4 +1,6 @@
 from functools import lru_cache
+import datetime
+import typing
 from email.utils import make_msgid
 from django.apps import AppConfig
 from django.conf import settings
@@ -100,6 +102,10 @@ class SicAppConfig(AppConfig):
     ALLOW_REGISTRATIONS = True
 
     REQUIRE_VOUCH_FOR_PARTICIPATION = True
+
+    DISALLOW_REPOSTS_PERIOD: typing.Optional[datetime.timedelta] = datetime.timedelta(
+        weeks=1
+    )
 
     @property
     def html_label(self):
