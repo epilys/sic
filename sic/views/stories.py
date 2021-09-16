@@ -248,7 +248,9 @@ def submit_story(request):
                 user_is_author = form.cleaned_data["user_is_author"]
                 if config.DISALLOW_REPOSTS_PERIOD is not None:
                     previous_post = (
-                        Story.objects.filter(url=url).order_by("-created").first()
+                        Story.objects.filter(url=Story.normalize_url(url))
+                        .order_by("-created")
+                        .first()
                     )
                     if previous_post:
                         now = make_aware(datetime.now())
@@ -425,7 +427,7 @@ def edit_story(request, story_pk, slug=None):
                     ModerationLogEntry.edit_story_desc(
                         desc_before, story_obj, user, form.cleaned_data["reason"]
                     )
-                if url_before != form.cleaned_data["url"]:
+                if url_before != Story.normalize_url(form.cleaned_data["url"]):
                     ModerationLogEntry.edit_story_url(
                         url_before, story_obj, user, form.cleaned_data["reason"]
                     )
