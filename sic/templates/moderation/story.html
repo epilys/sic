@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load utils %}
+{% block title %}Edit story {{ story }} - {{ config.verbose_name }}{% endblock %}
+{% block content %}
+    <h1>Edit story {{ story }}</h1>
+    <ul class="posts" aria-label="story post list">
+        {% include "posts/story_list_item.html" with story=story %}
+    </ul>
+
+    <form method="POST" class="submit-story-form">
+        {% csrf_token %}
+        {% csrf_token %}
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+        {% for field in form.visible_fields %}
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {% if field.help_text %}
+                <p class="help-text">{{ field.help_text }}</p>
+            {% endif %}
+            {{ field }}
+        {% endfor %}
+        <div class="button-flex-box">
+            <input type="submit" value="Set status">
+        </div>
+    </form>
+
+    <h2>Moderation log history</h2>
+    <table class="moderation-log">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in history_logs %}
+                {% include 'moderation/log_list_item.html' with log=log %}
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

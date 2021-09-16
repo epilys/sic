@@ -245,6 +245,22 @@ class Story(models.Model):
             match |= has_match
         return match
 
+    @staticmethod
+    @functools.lru_cache(None)
+    def content_type():
+        return ContentType.objects.get(app_label="sic", model="story")
+
+    @cached_property
+    def last_log_entry(self):
+        from sic.moderation import ModerationLogEntry
+
+        entry = ModerationLogEntry.objects.filter(
+            object_id=self.id,
+            content_type_id=Story.content_type().id,
+        ).latest("action_time")
+
+        return entry
+
 
 class Message(models.Model):
     id = models.AutoField(primary_key=True)

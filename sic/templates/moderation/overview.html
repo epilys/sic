@@ -37,4 +37,24 @@
             {% endfor %}
         </table>
     </div>
+    <div>
+        <h2>Removed posts</h2>
+        <p class="help-text">To edit a story's status, append <code>/moderate/</code> to its url to visit the appropriate editing page.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>post</th>
+                    <th>Last moderation log</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in removed_posts %}
+                    <tr>
+                        <th><a href="{% url 'moderation_story' r.pk %}">{{ r }}</a></th>
+                        <td>{{ r.last_log_entry|default:'No reason given.' }} </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

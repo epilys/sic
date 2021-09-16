@@ -2,33 +2,10 @@
 {% load humanize %}
 {% load utils %}
 {% block title %}Moderation log - {{ config.verbose_name }}{% endblock %}
-{% block style %}
-    <style>
-        td>p:only-child {
-            margin:0;
-        }
-        td {
-            padding: 5px 8px;
-        }
-        table {
-            margin: auto;
-            border-collapse: collapse;
-        }
-        tbody tr:nth-child(6n+1), tbody tr:nth-child(6n+2), tbody tr:nth-child(6n+3) {
-            background: #e3e3e3;
-        }
-        tbody tr:nth-child(6n+1) td, tbody tr:nth-child(6n+2) td, tbody tr:nth-child(6n+3) td {
-            border-color: #bab9b9;
-        }
-        span.no-reason {
-            color: #585858;
-        }
-    </style>
-{% endblock %}
 {% block content %}
     <h1>Moderation Log</h1>
     <p class="help-text">All moderation actions <em>should</em> be in this public log.</p>
-    <table>
+    <table class="moderation-log">
         <thead>
             <tr>
                 <th>Date</th>
@@ -38,23 +15,7 @@
         </thead>
         <tbody>
             {% for log in logs %}
-                {% with log.get_edited_object as edited_object %}
-                    <tr>
-                        <td><p><time datetime="{{ log.action_time | date:"Y-m-d H:i:s" }}+0000" title="{{ log.action_time }} UTC+00:00">{{ log.action_time|naturaltime }}</time></p></td>
-                        <td><p><a href="{{ log.user.get_absolute_url }}">{{ log.user }}</a>{% if log.user.is_admin %} (Admin){% elif log.user.is_moderator %} (Moderator){% endif %}</p></td>
-                        <td><p>{% if edited_object %}{{ log.content_type.name }} &ldquo;<a href="{{ edited_object.get_absolute_url }}">{{ edited_object }}</a>&rdquo;{% endif %}</p></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td><p><b>Action</b>: {{ log.action }}</p></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td><p>{% if log.reason %}<b>Reason</b>{% else %}<span class="no-reason">Reason</span>{% endif %}: {{ log.reason }}</p></td>
-                    </tr>
-                {% endwith %}
+                {% include 'moderation/log_list_item.html' with log=log %}
             {% endfor %}
         </tbody>
     </table>

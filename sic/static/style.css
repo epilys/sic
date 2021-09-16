@@ -1851,3 +1851,22 @@ nav.pagination {
     border: 1px solid #fff;
   }
 }
+table.moderation-log td>p:only-child {
+    margin:0;
+}
+table.moderation-log td {
+    padding: 5px 8px;
+}
+table.moderation-log {
+    margin: auto;
+    border-collapse: collapse;
+}
+table.moderation-log tbody tr:nth-child(6n+1), table.moderation-log tbody tr:nth-child(6n+2), table.moderation-log tbody tr:nth-child(6n+3) {
+    background: #e3e3e3;
+}
+table.moderation-log tbody tr:nth-child(6n+1) td, table.moderation-log tbody tr:nth-child(6n+2) td, table.moderation-log tbody tr:nth-child(6n+3) td {
+    border-color: #bab9b9;
+}
+table.moderation-log span.no-reason {
+    color: #585858;
+}

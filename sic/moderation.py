@@ -36,7 +36,7 @@ class ModerationLogEntry(models.Model):
         return f"{self.action_time} {self.action}"
 
     def __str__(self):
-        return f"{self.action_time} {self.user}: {self.action}"
+        return f"{self.action_time} {self.user}: {self.action} {self.reason}"
 
     @staticmethod
     def edit_comment(before_text: str, comment_obj: Comment, user: User, reason):
@@ -242,6 +242,16 @@ class ModerationLogEntry(models.Model):
             reason=reason,
             content_type=ContentType.objects.get(app_label="sic", model="user"),
             object_id=str(user_obj.pk),
+        )
+
+    @staticmethod
+    def changed_story_status(story_obj: Story, user: User, action: str, reason: str):
+        return ModerationLogEntry.objects.create(
+            user=user,
+            action=action,
+            reason=reason,
+            content_type=ContentType.objects.get(app_label="sic", model="story"),
+            object_id=str(story_obj.pk),
         )
 
     def get_edited_object(self):

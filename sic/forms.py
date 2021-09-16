@@ -686,32 +686,6 @@ class OrderByForm(forms.Form):
         self.fields["order_by"].choices = [(f, f) for f in fields]
 
 
-class BanUserForm(forms.Form):
-    username = forms.CharField(
-        required=True, label="username", validators=[validate_user]
-    )
-    ban = forms.BooleanField(
-        label="ban",
-        required=False,
-        initial=True,
-    )
-    reason = forms.CharField(
-        required=True,
-        label="reason",
-        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
-    )
-
-    def clean_username(self):
-        value = self.cleaned_data["username"]
-        try:
-            user = User.objects.get(username=value)
-            if user.is_moderator or user.is_admin:
-                raise ValidationError(f"User {value} is staff.")
-            return user
-        except User.DoesNotExist:
-            raise ValidationError(f"User {value} not found.")
-
-
 CAPTCHA_CHOICES = [
     ("fish", "Fishes."),
     ("dog", "A dog."),

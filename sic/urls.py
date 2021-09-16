@@ -25,7 +25,7 @@ from django.views.decorators.cache import cache_page
 from django.contrib.flatpages import views as flatviews
 
 from sic import views
-from sic.views import stories, account, tags, stats
+from sic.views import stories, account, tags, stats, moderation
 from .auth import AuthenticationForm
 from .feeds import LatestStoriesRss, LatestStoriesAtom, user_feeds_rss, user_feeds_atom
 from .webfinger import webfinger
@@ -77,13 +77,19 @@ urlpatterns = [
         stats.upvote_ratio_svg,
         name="upvote_ratio_svg",
     ),
-    path("moderation-log/", views.moderation_log, name="moderation_log"),
+    path("moderation-log/", moderation.log, name="moderation_log"),
     path(
         "moderation-log/<int:page_num>/",
-        views.moderation_log,
+        moderation.log,
         name="moderation_log_page",
     ),
-    path("moderation/", views.moderation, name="moderation"),
+    path("moderation/", moderation.overview, name="moderation"),
+    path("moderation/s/<int:story_pk>/", moderation.story, name="moderation_story"),
+    path(
+        "moderation/s/<int:story_pk>/<str:slug>",
+        moderation.story,
+        name="moderation_story_slug",
+    ),
     path("", views.index, name="index"),
     path("page/<int:page_num>/", views.index, name="index_page"),
     path("<int:taggregation_pk>/<str:slug>/", views.agg_index, name="agg_index"),
@@ -101,6 +107,11 @@ urlpatterns = [
         name="recent_comments_page",
     ),
     path("s/<int:story_pk>/<str:slug>/", stories.story, name="story"),
+    path(
+        "s/<int:story_pk>/<str:slug>/moderate/",
+        RedirectView.as_view(pattern_name="moderation_story_slug", permanent=False),
+        name="story_moderate_redirect",
+    ),
     path(
         "s/<int:story_pk>/<str:slug>/upvote/<int:comment_pk>/",
         views.upvote_comment,

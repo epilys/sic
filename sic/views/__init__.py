@@ -27,7 +27,6 @@ from sic.forms import (
     DeleteCommentForm,
     SubmitStoryForm,
     SearchCommentsForm,
-    BanUserForm,
     OrderByForm,
 )
 from sic.views.utils import (
@@ -463,92 +462,6 @@ def search(request):
         request,
         "posts/search.html",
         {"form": form, "comments": comments, "stories": stories, "count": count},
-    )
-
-
-@require_http_methods(["GET"])
-def moderation_log(request, page_num=1):
-    if page_num == 1 and request.get_full_path() != reverse("moderation_log"):
-        return redirect(reverse("moderation_log"))
-    logs = ModerationLogEntry.objects.order_by("-action_time")
-    paginator = Paginator(logs, 10)
-    try:
-        page = paginator.page(page_num)
-    except InvalidPage:
-        # page_num is bigger than the actual number of pages
-        return redirect(
-            reverse("moderation_log_page", kwargs={"page_num": paginator.num_pages})
-        )
-    return render(
-        request,
-        "moderation/moderation_log.html",
-        {
-            "logs": page,
-            "pages": paginator.get_elided_page_range(number=page_num),
-        },
-    )
-
-
-@login_required
-def moderation(request):
-    if (not request.user.is_moderator) and (not request.user.is_admin):
-        raise PermissionDenied("You are not a moderator.")
-    if request.method == "POST":
-        if "set-ban" in request.POST:
-            ban_user_form = BanUserForm(request.POST)
-            if ban_user_form.is_valid():
-                user = ban_user_form.cleaned_data["username"]
-                ban = ban_user_form.cleaned_data["ban"]
-                reason = ban_user_form.cleaned_data["reason"]
-                if ban and user.banned_by_user is not None:
-                    messages.add_message(
-                        request, messages.ERROR, f"{user} already banned"
-                    )
-                    return redirect(reverse("moderation"))
-                if not ban and user.banned_by_user is None:
-                    messages.add_message(
-                        request, messages.ERROR, f"{user} already not banned"
-                    )
-                    return redirect(reverse("moderation"))
-                user.banned_by_user = request.user if ban else None
-                user.save()
-                log_entry = ModerationLogEntry.changed_user_status(
-                    user,
-                    request.user,
-                    "Banned user" if ban else "Unbanned user",
-                    reason,
-                )
-                messages.add_message(
-                    request, messages.SUCCESS, f"{log_entry.action} {user}"
-                )
-                return redirect(reverse("moderation"))
-            error = form_errors_as_string(ban_user_form.errors)
-            messages.add_message(
-                request, messages.ERROR, f"Invalid form. Error: {error}"
-            )
-        elif "domain-ban" in request.POST:
-            try:
-                domain_obj, _ = Domain.objects.get_or_create(
-                    pk=request.POST["domain-pk"]
-                )
-                domain_obj.is_banned = not domain_obj.is_banned
-                domain_obj.save(update_fields=["is_banned"])
-            except KeyError:
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    "Invalid form: domain_pk was missing from POST data. Is this a bug?",
-                )
-            ban_user_form = BanUserForm()
-        else:
-            ban_user_form = BanUserForm()
-    else:
-        ban_user_form = BanUserForm()
-    banned_domains = Domain.objects.filter(is_banned=True)
-    return render(
-        request,
-        "moderation/moderation.html",
-        {"ban_user_form": ban_user_form, "banned_domains": banned_domains},
     )
 
 
