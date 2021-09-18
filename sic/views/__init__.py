@@ -350,6 +350,8 @@ def delete_comment(request, comment_pk):
 @login_required
 def upvote_comment(request, story_pk, slug, comment_pk):
     if request.method == "POST":
+        if not config.ENABLE_KARMA:
+            return HttpResponseBadRequest("Karma is disabled.")
         user = request.user
         if not user.email_validated:
             messages.add_message(

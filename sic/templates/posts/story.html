@@ -15,19 +15,23 @@
     {% endif %}
     <article class="story">
         <header>
-            <div class="votes">
-                <div class="upvote{% if is_upvoted %} upvoted{% endif %}">
-                    {% if request.user.is_authenticated %}
-                        <form>
-                            {% csrf_token %}
-                            <input type="submit" formaction="{% url_with_next 'upvote_story' story.pk request %}" formmethod="POST" value="">
-                        </form>
-                    {% endif %}
+            {% if config.ENABLE_KARMA %}
+                <div class="votes">
+                    <div class="upvote{% if is_upvoted %} upvoted{% endif %}">
+                        {% if request.user.is_authenticated %}
+                            <form>
+                                {% csrf_token %}
+                                <input type="submit" formaction="{% url_with_next 'upvote_story' story.pk request %}" formmethod="POST" value="">
+                            </form>
+                        {% endif %}
+                    </div>
+                    <div class="score story-title">
+                        {% if config.VISIBLE_KARMA %}
+                            &#32;{{story.karma}}
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="score story-title">
-                    {% comment %}{{story.karma}}{% endcomment %}
-                </div>
-            </div>
+            {% endif %}
             <h1 class="story-title"><a href="{{story.get_listing_url}}" rel="external nofollow noreferrer">{{ story.title }}</a> {% with story.get_domain as domain %}{% if domain is None %}<span class="netloc">{{ domain|default_if_none:"text" }}</span>{% else %}<span class="netloc"><a href="{{ domain.get_absolute_url }}">{{ domain }}</a></span>{% endif %}{% endwith %}</h1>
             {% if story.publish_date %}<span class="publish_date">Published: <time datetime="{{ story.publish_date | date:"Y-m-d" }}" title="{{ story.publish_date }}">{{ story.publish_date|naturalday }}</time></span>{% endif %}
             {% include "posts/story_tags.html" with tags=story.tags.all in_article=True %}

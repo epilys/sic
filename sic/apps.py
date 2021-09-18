@@ -108,6 +108,10 @@ class SicAppConfig(AppConfig):
         weeks=1
     )
 
+    ENABLE_KARMA = True
+
+    VISIBLE_KARMA = False
+
     @cached_property
     def post_ranking(self) -> "sic.voting.PostRanking":
         # from sic.voting import TemporalRanking

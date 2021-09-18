@@ -10,7 +10,7 @@ from django.views.decorators.http import require_safe
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.utils.timezone import make_aware
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.apps import apps
 
 config = apps.get_app_config("sic")
@@ -306,6 +306,8 @@ def submit_story(request):
 @transaction.atomic
 def upvote_story(request, story_pk):
     if request.method == "POST":
+        if not config.ENABLE_KARMA:
+            return HttpResponseBadRequest("Karma is disabled.")
         user = request.user
         if not request.user.email_validated:
             messages.add_message(
