@@ -163,7 +163,7 @@ def all_stories(request, page_num=1):
     if order_by == "hotness":
         stories = sorted(
             story_obj.order_by("created", "title"),
-            key=lambda s: s.hotness["score"],
+            key=lambda s: s.hotness,
             reverse=ordering == "desc",
         )
     elif order_by == "last commented":

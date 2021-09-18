@@ -150,7 +150,7 @@ def agg_index(request, taggregation_pk, slug, page_num=1):
     )
     all_stories = sorted(
         all_stories,
-        key=lambda s: s.hotness["score"],
+        key=lambda s: s.hotness,
         reverse=True,
     )
     paginator = Paginator(all_stories, config.STORIES_PER_PAGE)
@@ -208,7 +208,7 @@ def index(request, page_num=1):
     )
     all_stories = sorted(
         all_stories,
-        key=lambda s: s.hotness["score"],
+        key=lambda s: s.hotness,
         reverse=True,
     )
     paginator = Paginator(all_stories, config.STORIES_PER_PAGE)

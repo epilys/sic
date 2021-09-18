@@ -35,7 +35,6 @@ from django.apps import apps
 config = apps.get_app_config("sic")
 
 from .markdown import comment_to_html, Textractor
-from .voting import story_hotness
 
 url_decode_translation = str.maketrans(string.ascii_lowercase[:10], string.digits)
 url_encode_translation = str.maketrans(string.digits, string.ascii_lowercase[:10])
@@ -173,7 +172,7 @@ class Story(models.Model):
 
     @cached_property
     def hotness(self):
-        return story_hotness(self)
+        return config.post_ranking.story_hotness(self)
 
     @cached_property
     def description_to_html(self):

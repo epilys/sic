@@ -2,6 +2,7 @@ from functools import lru_cache
 import datetime
 import typing
 from email.utils import make_msgid
+from django.utils.functional import cached_property
 from django.apps import AppConfig
 from django.conf import settings
 from django.urls import reverse_lazy
@@ -106,6 +107,14 @@ class SicAppConfig(AppConfig):
     DISALLOW_REPOSTS_PERIOD: typing.Optional[datetime.timedelta] = datetime.timedelta(
         weeks=1
     )
+
+    @cached_property
+    def post_ranking(self) -> "sic.voting.PostRanking":
+        # from sic.voting import TemporalRanking
+        # return TemporalRanking()
+        from sic.voting import KarmaRanking
+
+        return KarmaRanking()
 
     @property
     def html_label(self):
