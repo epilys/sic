@@ -170,12 +170,12 @@ def edit_avatar(request):
     )
 
 
-def profile(request, username):
+def profile(request, name):
     try:
-        user = User.objects.get(username=username)
+        user = User.get_by_display_name(name)
     except User.DoesNotExist:
         try:
-            user = User.objects.get(pk=int(username))
+            user = User.objects.get(pk=int(name))
         except:
             raise Http404("User does not exist") from User.DoesNotExist
     return render(request, "account/profile.html", {"user": user})
@@ -302,9 +302,7 @@ def inbox_message(request, message_pk):
         )
         match["reply"] = mark_safe(QUOTED_PART_RE.sub(quotedrepl, match["reply"]))
         try:
-            user = User.objects.only("id", "email", "username").get(
-                username=match["user"]
-            )
+            user = User.get_by_display_name(match["user"])
             match["first_line"] = mark_safe(
                 match["first_line"].replace(
                     match["user"], f"""<a href="{user.get_absolute_url()}">{user}</a>"""
@@ -382,14 +380,14 @@ def generate_invite(request, invite_pk=None):
     return redirect(reverse("account"))
 
 
-def profile_posts(request, username, page_num=1):
-    print("profile_posts", username, page_num)
+def profile_posts(request, name, page_num=1):
+    print("profile_posts", name, page_num)
     if page_num == 1 and request.get_full_path() != reverse(
-        "profile_posts", args=[username]
+        "profile_posts", args=[name]
     ):
-        return redirect(reverse("profile_posts", args=[username]))
+        return redirect(reverse("profile_posts", args=[name]))
     try:
-        user = User.objects.get(username=username)
+        user = User.get_by_display_name(name)
     except User.DoesNotExist:
         raise Http404("User does not exist") from User.DoesNotExist
     story_obj = list(
@@ -410,7 +408,7 @@ def profile_posts(request, username, page_num=1):
         return redirect(
             reverse(
                 "profile_posts_page",
-                args=[username],
+                args=[name],
                 kwargs={"page_num": paginator.num_pages},
             )
         )

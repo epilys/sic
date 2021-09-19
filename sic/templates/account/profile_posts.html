@@ -15,7 +15,7 @@
     <nav class="pagination" aria-label="pagination">
         <ul class="pagination">
             {% if posts.has_previous %}
-                <li><a href="{% url 'profile_posts_page' username=user.username page_num=posts.previous_page_number %}"><span aria-hidden="true">«</span><span class="visuallyhidden">previous page</span></a></li>
+                <li><a href="{% url 'profile_posts_page' name=user page_num=posts.previous_page_number %}"><span aria-hidden="true">«</span><span class="visuallyhidden">previous page</span></a></li>
             {% endif %}
             {% for page in pages %}
                 {% if page == posts.number %}
@@ -23,11 +23,11 @@
                 {% elif page == None %}
                     <li><span aria-hidden="true">&hellip;</span></li>
                 {% else %}
-                    <li><a href="{% url 'profile_posts_page' username=user.username page_num=page %}"><span class="visuallyhidden">page </span>{{ page }}</a></li>
+                    <li><a href="{% url 'profile_posts_page' name=user page_num=page %}"><span class="visuallyhidden">page </span>{{ page }}</a></li>
                 {% endif %}
             {% endfor %}
             {% if posts.has_next %}
-                <li><a href="{% url 'profile_posts_page' username=user.username page_num=posts.next_page_number %}"><span class="visuallyhidden">next page</span><span aria-hidden="true">»</span></a></li>
+                <li><a href="{% url 'profile_posts_page' name=user page_num=posts.next_page_number %}"><span class="visuallyhidden">next page</span><span aria-hidden="true">»</span></a></li>
             {% endif %}
         </ul>
     </nav>

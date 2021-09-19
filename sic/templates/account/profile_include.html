@@ -8,8 +8,8 @@
     <table>
         <tbody>
             <tr>
-                <th>username:</th>
-                <td class="{% if user.is_banned %}banned-user{% elif user.is_new_user %} new-user{% endif %}">{{ user.username }}</td>
+                <th>user:</th>
+                <td class="{% if user.is_banned %}banned-user{% elif user.is_new_user %} new-user{% endif %}">{{ user }}</td>
             </tr>
             {% for label, metadata in user.metadata_fields %}
                 <tr>
@@ -35,11 +35,11 @@
             </tr>{% endcomment %}
             <tr>
                 <th>stories:</th>
-                <td><a href="{% url 'profile_posts' username=user.username %}">{{ user.stories.count }}</a></td>
+                <td><a href="{% url 'profile_posts' name=user %}">{{ user.stories.count }}</a></td>
             </tr>
             <tr>
                 <th>comments:</th>
-                <td><a href="{% url 'profile_posts' username=user.username %}">{{ user.comments.count }}</a></td>
+                <td><a href="{% url 'profile_posts' name=user %}">{{ user.comments.count }}</a></td>
             </tr>
         </tbody>
     </table>

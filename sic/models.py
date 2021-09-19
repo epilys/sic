@@ -1075,6 +1075,18 @@ class User(PermissionsMixin, AbstractBaseUser):
     def __str__(self):
         return self.username if self.username else self.email
 
+    def get_by_display_name(name: str) -> "User":
+        try:
+            return User.objects.get(username=name)
+        except User.DoesNotExist:
+            try:
+                return User.objects.filter(
+                    Q(username__exact="") | Q(username__isnull=True)
+                ).get(email=name)
+            except User.DoesNotExist:
+                pass
+        raise User.DoesNotExist
+
     def send_validation_email(self, request):
         from sic.auth import EmailValidationToken
 
@@ -1107,7 +1119,7 @@ class User(PermissionsMixin, AbstractBaseUser):
     def get_absolute_url(self):
         return reverse(
             "profile",
-            kwargs={"username": self.username if self.username else self.pk},
+            kwargs={"name": self.username if self.username else self.pk},
         )
 
     @cached_property

@@ -144,8 +144,14 @@ def validate_emails(modeladmin, request, queryset):
 
 class UserAdmin(ModelAdmin):
     ordering = ["-created"]
+
+    def username_or_email(self, obj):
+        if obj.username:
+            return obj.username
+        return obj.email
+
     list_display = [
-        "username",
+        "username_or_email",
         "email",
         "created",
         "last_login",

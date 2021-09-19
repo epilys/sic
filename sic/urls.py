@@ -142,10 +142,10 @@ urlpatterns = [
     path("c/<int:comment_pk>/edit/", views.edit_comment, name="edit_comment"),
     path("c/<int:comment_pk>/delete/", views.delete_comment, name="delete_comment"),
     path("search/", views.search, name="search"),
-    path("u/<str:username>/", account.profile, name="profile"),
-    path("u/<str:username>/posts/", account.profile_posts, name="profile_posts"),
+    path("u/<str:name>/", account.profile, name="profile"),
+    path("u/<str:name>/posts/", account.profile_posts, name="profile_posts"),
     path(
-        "u/<str:username>/posts/<int:page_num>/",
+        "u/<str:name>/posts/<int:page_num>/",
         account.profile_posts,
         name="profile_posts_page",
     ),
