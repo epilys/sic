@@ -189,6 +189,7 @@ def post_receive(data: typing.Union[str, bytes], user=None) -> str:
         if exists:
             raise Exception("Post with this Message-ID already exists.")
 
+    is_from_mailing_list: bool = user is None
     if not user:
         if not msg["from"]:
             raise Exception("Post has no From")
@@ -210,16 +211,16 @@ def post_receive(data: typing.Union[str, bytes], user=None) -> str:
             [user.email],
             headers={"Message-ID": config.make_msgid()},
         ).send(fail_silently=False)
-        raise Exception("{user} doesn't have permission to post")
-    elif not user.enable_mailing_list_replying:
+        raise Exception(f"{user} doesn't have permission to post")
+    elif not user.enable_mailing_list_replying and is_from_mailing_list:
         EmailMessage(
             f"[{config.verbose_name}] Your message has been rejected.",
-            "You have disabled postiving via mailing list in your account settings.",
+            "You have disabled posting via mailing list in your account settings.",
             config.DEFAULT_FROM_EMAIL,
             [user.email],
             headers={"Message-ID": config.make_msgid()},
         ).send(fail_silently=False)
-        raise Exception("{user} doesn't have enable_mailing_list_replying")
+        raise Exception(f"{user} doesn't have enable_mailing_list_replying")
 
     if "In-Reply-To" in msg or "References" in msg:
         # This is a comment
