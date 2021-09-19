@@ -5,12 +5,12 @@
 
     {% if form.errors %}
         <p style="place-self:center;">Your username and password didn't match. Please try again.</p>
+        <p style="place-self:center;">Try logging in with your e-mail address instead of userame.</p>
     {% endif %}
 
     {% if next %}
         {% if user.is_authenticated %}
-            <p style="place-self:center;">Your account doesn't have access to this page. To proceed,
-                please login with an account that has access.</p>
+            <p style="place-self:center;">You are already logged in as <a href="{{ user.get_absolute_url }}">{{ user }}</a> Continue to the <a href="{% url 'index' %}">index</a>.</p>
         {% endif %}
     {% endif %}
 
@@ -25,8 +25,8 @@
             <input type="submit" value="login">
             <input type="hidden" name="next" value="{{ next }}">
         </form>
-    {% endif %}
 
-    {# Assumes you setup the password_reset view in your URLconf #}
-    <p style="place-self:center;"><a href="{% url 'password_reset' %}">Lost password?</a></p>
+        {# Assumes you setup the password_reset view in your URLconf #}
+        <p style="place-self:center;"><a href="{% url 'password_reset' %}">Lost password?</a></p>
+    {% endif %}
 {% endblock %}
