@@ -317,14 +317,36 @@ def story_create_mailing_list(
     if not created or not instance.active or not config.MAILING_LIST:
         return
     story_obj = instance
+
+    # Story has just been created. Tags are not available at this point, since
+    # the story must be created before a story-tag relationship can be created.
+    # So we can't send stories to subscribers yet. Schedule it as a job and
+    # assume the correct tags will be available then.
+
+    from sic.jobs import Job, JobKind
+
+    kind = JobKind.from_func(create_story_post_on_mailing_list)
+    _job_obj, _ = Job.objects.get_or_create(
+        kind=kind, periodic=False, data=story_obj.pk
+    )
+
+
+def create_story_post_on_mailing_list(pk):
+    if isinstance(pk, str):
+        pk = int(pk)
+    story_obj = Story.objects.get(pk=pk)
+
     users = User.objects.filter(enable_mailing_list=True)
+
     if not users.exists():
-        return
+        return ""
+
+    users = list(users)
     users_list: typing.List[User] = list(
         filter(lambda user: story_obj.is_user_subscribed(user), users)
     )
     if not users_list:
-        return
+        return ""
 
     headers: typing.Dict[str, str] = {
         "Message-ID": story_obj.get_message_id,
@@ -350,6 +372,7 @@ def story_create_mailing_list(
                 headers=headers,
                 connection=connection,
             ).send()
+    return f"sent story to {len(users_list)} users"
 
 
 @receiver(post_save, sender=Comment)
