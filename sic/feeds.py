@@ -50,12 +50,14 @@ class LatestStories(Feed):
     def items(self):
         latest = cache.get("latest_stories_latest")
         try:
-            actual_latest = Story.objects.latest("created").created
+            actual_latest = (
+                Story.objects.exclude(active=False).latest("created").created
+            )
         except Story.DoesNotExist:
             actual_latest = date.fromtimestamp(0)
         items = cache.get("latest_stories")
         if items is None or (latest is not None and latest != actual_latest):
-            items = Story.objects.order_by("-created")[:10]
+            items = Story.objects.exclude(active=False).order_by("-created")[:10]
             cache.set("latest_stories", items)
             cache.set("latest_stories_latest", actual_latest)
         return items
@@ -132,7 +134,7 @@ class UserLatestStoriesFeed(Feed):
             actual_latest = date.fromtimestamp(0)
         items = cache.get(self.cache_key)
         if items is None or (latest is not None and latest != actual_latest):
-            items = Story.objects.order_by("-created")[:10]
+            items = Story.objects.exclude(active=False).order_by("-created")[:10]
             cache.set(self.cache_key, items)
             cache.set(self.latest_key, actual_latest)
         return items
