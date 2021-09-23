@@ -100,6 +100,12 @@ urlpatterns = [
     ),
     path("all/", stories.all_stories, name="all_stories"),
     path("all/page/<int:page_num>/", stories.all_stories, name="all_stories_page"),
+    path("all/json/", stories.all_stories_json, name="all_stories_json"),
+    path(
+        "all/page/<int:page_num>/json/",
+        stories.all_stories_json,
+        name="all_stories_json_page",
+    ),
     path("comments/", views.recent_comments, name="recent_comments"),
     path(
         "comments/page/<int:page_num>/",

@@ -286,6 +286,20 @@ class Story(models.Model):
             self.save(update_fields=["message_id"])
         return self.message_id
 
+    def to_json_dict(self):
+        return {
+            "id": self.pk,
+            "user": str(self.user),
+            "title": self.title,
+            "description": self.description_to_plain_text,
+            "url": self.url,
+            "sic_url": self.get_absolute_url(),
+            "created": self.created,
+            "publish_date": self.publish_date,
+            "tags": list(map(lambda t: str(t), self.tags.all())),
+            "kind": list(map(lambda k: str(k), self.kind.all())),
+        }
+
 
 class Message(models.Model):
     id = models.AutoField(primary_key=True)

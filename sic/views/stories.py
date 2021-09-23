@@ -10,7 +10,7 @@ from django.views.decorators.http import require_safe
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.utils.timezone import make_aware
-from django.http import Http404, HttpResponse, HttpResponseBadRequest
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.apps import apps
 
 config = apps.get_app_config("sic")
@@ -144,14 +144,14 @@ def story_remote_content_formatted(request, story_pk, slug=None):
     )
 
 
-def all_stories(request, page_num=1):
+def all_stories_tmpl(request, view_name, json_response, page_num=1):
     if "order_by" in request.GET:
         request.session["all_stories_order_by"] = request.GET["order_by"]
     if "ordering" in request.GET:
         request.session["all_stories_ordering"] = request.GET["ordering"]
 
-    if page_num == 1 and request.get_full_path() != reverse("all_stories"):
-        return redirect(reverse("all_stories"))
+    if page_num == 1 and request.get_full_path() != reverse(view_name):
+        return redirect(reverse(view_name))
 
     order_by = request.session.get("all_stories_order_by", "hotness")
     ordering = request.session.get("all_stories_ordering", "desc")
@@ -183,12 +183,24 @@ def all_stories(request, page_num=1):
     except InvalidPage:
         # page_num is bigger than the actual number of pages
         return redirect(
-            reverse("all_stories_page", kwargs={"page_num": paginator.num_pages})
+            reverse(f"{view_name}_page", kwargs={"page_num": paginator.num_pages})
         )
     order_by_form = OrderByForm(
         fields=all_stories.ORDER_BY_FIELDS,
         initial={"order_by": order_by, "ordering": ordering},
     )
+    if json_response:
+        return JsonResponse(
+            {
+                "stories": [s.to_json_dict() for s in page],
+                "page_num": page_num,
+                "pages": paginator.num_pages,
+                "next_page": None
+                if page_num == paginator.num_pages
+                else reverse(f"{view_name}_page", kwargs={"page_num": page_num + 1}),
+            }
+        )
+
     return render(
         request,
         "posts/all_stories.html",
@@ -200,7 +212,18 @@ def all_stories(request, page_num=1):
     )
 
 
+def all_stories(request, page_num=1):
+    return all_stories_tmpl(request, "all_stories", False, page_num)
+
+
 all_stories.ORDER_BY_FIELDS = ["hotness", "created", "last commented"]
+
+
+def all_stories_json(request, page_num=1):
+    return all_stories_tmpl(request, "all_stories_json", True, page_num)
+
+
+all_stories_json.ORDER_BY_FIELDS = all_stories.ORDER_BY_FIELDS
 
 
 @login_required
