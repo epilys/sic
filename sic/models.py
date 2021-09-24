@@ -188,7 +188,6 @@ class Story(models.Model):
 
     def save(self, *args, **kwargs):
         if self.url:
-            self.url = Story.normalize_url(self.url)
             netloc = urlparse(self.url).netloc
             if netloc.startswith("www."):
                 netloc = netloc[4:]
@@ -268,16 +267,6 @@ class Story(models.Model):
         return (
             Story.objects.filter(url=self.url).exclude(pk=self.pk).order_by("-created")
         )
-
-    @staticmethod
-    def normalize_url(url: str) -> str:
-        from urllib.parse import urljoin
-
-        if url:
-            if not url.endswith("/"):
-                url += "/"
-            url = urljoin(url, ".")
-        return url
 
     @property
     def get_message_id(self) -> str:
