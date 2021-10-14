@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Permission
+from django.db import models
+from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import TextInput
 from django.utils.safestring import mark_safe
@@ -9,6 +11,7 @@ from sic.moderation import ModerationLogEntry
 from sic.jobs import Job, JobKind
 from sic.webmention import Webmention
 from sic.flatpages import DocumentationFlatPage, CommunityFlatPage, ExternalLinkFlatPage
+from sic.forms import URLField
 
 
 def hex_color_html(self, obj):
@@ -47,6 +50,14 @@ class TagAdmin(ModelAdmin):
     list_display = ["name", "hex_color_html", "parents_html", "created"]
 
 
+class StoryAdminForm(forms.ModelForm):
+    url = URLField()
+
+    class Meta:
+        model = Story
+        exclude = ()
+
+
 class StoryAdmin(ModelAdmin):
     def tags_html(self, obj):
         if not obj.tags.exists():
@@ -75,6 +86,7 @@ class StoryAdmin(ModelAdmin):
         "kind",
         "active",
     ]
+    form = StoryAdminForm
 
 
 class CommentAdmin(ModelAdmin):

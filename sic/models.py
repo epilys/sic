@@ -29,7 +29,7 @@ from django.contrib.sites.models import Site
 from django.conf import settings
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
-from django.core.validators import MinLengthValidator
+from django.core.validators import MinLengthValidator, URLValidator
 from django.apps import apps
 
 config = apps.get_app_config("sic")
@@ -39,9 +39,41 @@ from .markdown import comment_to_html, Textractor
 url_decode_translation = str.maketrans(string.ascii_lowercase[:10], string.digits)
 url_encode_translation = str.maketrans(string.digits, string.ascii_lowercase[:10])
 
+URI_SCHEME_VALIDATOR = URLValidator(
+    [
+        "dat",
+        "finger",
+        "gemini",
+        "gopher",
+        "irc",
+        "ircs",
+        "jabber",
+        "magnet",
+        "matrix",
+        "news",
+        "nntp",
+        "snews",
+        "telnet",
+        "xmpp",
+        "ftp",
+        "ftps",
+        "http",
+        "https",
+    ]
+)
+
+
+class URLField(models.URLField):
+    default_validators = [URI_SCHEME_VALIDATOR]
+
+    def deconstruct(self):
+        field_class = "django.db.models.URLField"
+        name, _path, args, kwargs = super().deconstruct()
+        return name, field_class, args, kwargs
+
 
 class Domain(models.Model):
-    url = models.URLField(
+    url = URLField(
         null=False, blank=False, primary_key=True, validators=[MinLengthValidator(5)]
     )
     is_banned = models.BooleanField(default=False, null=False)
@@ -109,7 +141,7 @@ class Story(models.Model):
     )
     title = models.CharField(null=False, blank=False, max_length=100)
     description = models.TextField(null=True, blank=True)
-    url = models.URLField(null=True)
+    url = URLField(null=True)
     domain = models.ForeignKey(
         Domain, on_delete=models.SET_NULL, null=True, default=None, blank=True
     )
@@ -1038,8 +1070,8 @@ class User(PermissionsMixin, AbstractBaseUser):
     show_colors = models.BooleanField(default=True, null=False)
     show_stories_with_content_warning = models.BooleanField(default=True, null=False)
 
-    homepage = models.URLField(null=True, blank=True)
-    git_repository = models.URLField(null=True, blank=True)
+    homepage = URLField(null=True, blank=True)
+    git_repository = URLField(null=True, blank=True)
     metadata_1 = models.CharField(null=True, blank=True, max_length=200)
     metadata_2 = models.CharField(null=True, blank=True, max_length=200)
     metadata_3 = models.CharField(null=True, blank=True, max_length=200)
@@ -1253,7 +1285,7 @@ class Notification(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(null=False, blank=False, max_length=20)
     body = models.TextField(null=False, blank=True)
-    url = models.URLField(null=True, blank=True)
+    url = URLField(null=True, blank=True)
     user = models.ForeignKey(
         User, related_name="notifications", on_delete=models.CASCADE
     )
@@ -1332,7 +1364,7 @@ class StoryRemoteContent(models.Model):
         unique=True,
         primary_key=True,
     )
-    url = models.URLField(null=False, blank=False)
+    url = URLField(null=False, blank=False)
     content = models.TextField(null=False, blank=False)
     w3m_content = models.TextField(null=True, blank=True, max_length=16384)
     retrieved_at = models.DateTimeField(null=False, blank=False, auto_now_add=True)

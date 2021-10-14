@@ -7,11 +7,25 @@ from django.db.models.functions import Lower
 from django.apps import apps
 
 config = apps.get_app_config("sic")
-from sic.models import Tag, User, StoryKind, StoryFilter, TaggregationHasTag
+from sic.models import (
+    URI_SCHEME_VALIDATOR,
+    Tag,
+    User,
+    StoryKind,
+    StoryFilter,
+    TaggregationHasTag,
+)
 
 SELECT_WIDGET_HELP_TEXT = mark_safe(
     """Hold down <kbd title="Control">Ctrl</kbd>, or <kbd title="Command">&#8984;</kbd> to select more than one entry."""
 )
+
+
+class URLField(forms.URLField):
+    default_validators = [URI_SCHEME_VALIDATOR]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
 class SubmitStoryForm(forms.Form):
@@ -28,7 +42,7 @@ class SubmitStoryForm(forms.Form):
         widget=forms.Textarea({"rows": 5, "cols": 15, "placeholder": ""}),
         help_text="Write additional context for the submitted link, or your content if your post has no URL.",
     )
-    url = forms.URLField(
+    url = URLField(
         required=False,
         widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
     )
@@ -128,10 +142,8 @@ class EditAvatarForm(forms.Form):
 
 
 class EditProfileForm(forms.Form):
-    homepage = forms.URLField(required=False, label="homepage", max_length=500)
-    git_repository = forms.URLField(
-        required=False, label="git repository", max_length=500
-    )
+    homepage = URLField(required=False, label="homepage", max_length=500)
+    git_repository = URLField(required=False, label="git repository", max_length=500)
     about = forms.CharField(
         required=False,
         label="about",
