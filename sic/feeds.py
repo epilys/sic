@@ -2,13 +2,17 @@ from datetime import date
 from django.core.cache import cache
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.syndication.views import Feed
+import django.contrib.syndication.views as django_contrib_syndication_views
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from django.utils.encoding import iri_to_uri
 from django.utils.feedgenerator import Atom1Feed, Rss201rev2Feed
 from django.views.decorators.http import require_http_methods
+from django.apps import apps
 from .models import Story, User
 from .auth import AuthToken
+
+config = apps.get_app_config("sic")
 
 # Edit site domain in /admin/sites/site/1/change
 
@@ -19,9 +23,15 @@ def add_domain(domain, url, secure=False):
     if url.startswith("//"):
         # Support network-path reference (see #16753) - RSS requires a protocol
         url = "%s:%s" % (protocol, url)
-    elif not url.startswith(("http://", "https://", "mailto:")):
+    elif not url.startswith(("mailto:",)) and not url.startswith(
+        tuple(f"{scheme}://" for scheme in config.ACCEPTED_URI_SCHEMES)
+    ):
         url = iri_to_uri("%s://%s%s" % (protocol, domain, url))
     return url
+
+
+# Patch django's add_domain to allow gemini etc URI schemes in submitted links
+django_contrib_syndication_views.add_domain = add_domain
 
 
 class RssFeed(Rss201rev2Feed):

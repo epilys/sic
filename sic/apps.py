@@ -112,6 +112,27 @@ class SicAppConfig(AppConfig):
 
     VISIBLE_KARMA = False
 
+    ACCEPTED_URI_SCHEMES: typing.List[str] = [
+        "dat",
+        "finger",
+        "gemini",
+        "gopher",
+        "irc",
+        "ircs",
+        "jabber",
+        "magnet",
+        "matrix",
+        "news",
+        "nntp",
+        "snews",
+        "telnet",
+        "xmpp",
+        "ftp",
+        "ftps",
+        "http",
+        "https",
+    ]
+
     @cached_property
     def post_ranking(self) -> "sic.voting.PostRanking":
         # from sic.voting import TemporalRanking

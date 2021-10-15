@@ -39,28 +39,7 @@ from .markdown import comment_to_html, Textractor
 url_decode_translation = str.maketrans(string.ascii_lowercase[:10], string.digits)
 url_encode_translation = str.maketrans(string.digits, string.ascii_lowercase[:10])
 
-URI_SCHEME_VALIDATOR = URLValidator(
-    [
-        "dat",
-        "finger",
-        "gemini",
-        "gopher",
-        "irc",
-        "ircs",
-        "jabber",
-        "magnet",
-        "matrix",
-        "news",
-        "nntp",
-        "snews",
-        "telnet",
-        "xmpp",
-        "ftp",
-        "ftps",
-        "http",
-        "https",
-    ]
-)
+URI_SCHEME_VALIDATOR = URLValidator(config.ACCEPTED_URI_SCHEMES)
 
 
 class URLField(models.URLField):
