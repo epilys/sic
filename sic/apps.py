@@ -1,6 +1,7 @@
 from functools import lru_cache
 import datetime
 import typing
+import threading
 from email.utils import make_msgid
 from django.utils.functional import cached_property
 from django.apps import AppConfig
@@ -168,6 +169,24 @@ class SicAppConfig(AppConfig):
         import sic.mail
         import sic.jobs
         import sic.flatpages
+
+        def sched_jobs():
+            from sic.jobs import Job
+            import sched
+            import time
+
+            def exec_fn():
+                for job in Job.objects.filter(active=True, failed=False):
+                    job.run()
+
+            s = sched.scheduler(time.time, time.sleep)
+            while True:
+                s.enter(15 * 60, 1, exec_fn)
+                s.run(blocking=True)
+
+        self.scheduling_thread = threading.Thread(target=sched_jobs, daemon=True)
+        self.scheduling_thread.name = "scheduling_thread"
+        self.scheduling_thread.start()
 
     @staticmethod
     @lru_cache(maxsize=None)

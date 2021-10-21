@@ -194,10 +194,10 @@ def webmention_post(source, target):
     return None
 
 
-def webmention_send(data):
-    source = data["source"]
-    target = data["target"]
-    story_pk = data["story_pk"]
+def webmention_send(job):
+    source = job.data["source"]
+    target = job.data["target"]
+    story_pk = job.data["story_pk"]
     ret = webmention_post(source, target)
     if ret is not None:
         Webmention(
@@ -207,9 +207,9 @@ def webmention_send(data):
     return f"No webmention endpoint found at {target}"
 
 
-def webmention_receive(data):
-    source = data["source"]
-    target = data["target"]
+def webmention_receive(job):
+    source = job.data["source"]
+    target = job.data["target"]
     if source == target:
         raise ValueError("Received Webmention has source == target:", source)
     if not check_safe_url(source):

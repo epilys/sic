@@ -1,6 +1,6 @@
 import subprocess
 import types
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 import urllib.request
 import enum
@@ -16,14 +16,24 @@ from sic.search import index_story
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-def send_digests(input_):
+def send_digests(job):
+    now = make_aware(datetime.now())
+    if job.data:
+        try:
+            last_run = make_aware(datetime.fromtimestamp(job.data))
+            if last_run and (now - last_run) <= timedelta(days=1):
+                return
+        except Exception as exc:
+            print("send_digests() EXC ", exc)
+    job.data = int(now.timestamp())
+    job.save()
     Digest.send_digests()
 
 
-def fetch_url(input_):
+def fetch_url(job):
     try:
-        pk = input_["pk"]
-        url = input_["url"]
+        pk = job.data["pk"]
+        url = job.data["url"]
         if pk is None or url is None or len(url) == 0:
             return None
         with urllib.request.urlopen(
@@ -115,11 +125,11 @@ class JobKind(models.Model):
         else:
             raise TypeError
 
-    def run(self, data):
+    def run(self, job):
         logging.info("jobkind run")
         try:
             func = import_string(self.dotted_path)
-            return func(data)
+            return func(job)
         except ImportError:
             logging.error(f"Could not resolve job dotted_path: {self.dotted_path}")
             raise ImportError
@@ -144,7 +154,7 @@ class Job(models.Model):
             return
         self.last_run = make_aware(datetime.now())
         try:
-            res = self.kind.run(self.data)
+            res = self.kind.run(self)
             if res and not self.periodic:
                 self.active = False
             if isinstance(res, str):

@@ -20,7 +20,7 @@ from pathlib import Path
 # or
 # sendmail -t < mail.eml
 
-DOTTED_PATH = "sic.mail.post_receive"
+DOTTED_PATH = "sic.mail.post_receive_job"
 
 
 def normalize_email(addr):

@@ -165,6 +165,10 @@ PK_MSG_ID_RE = re.compile(
 )
 
 
+def post_receive_job(job):
+    return post_receive(job.data)
+
+
 def post_receive(data: typing.Union[str, bytes], user=None) -> str:
     if isinstance(data, str):
         msg = email.message_from_string(data, policy=email_policy)
@@ -331,7 +335,8 @@ def story_create_mailing_list(
     )
 
 
-def create_story_post_on_mailing_list(pk):
+def create_story_post_on_mailing_list(job):
+    pk = job.data
     if isinstance(pk, str):
         pk = int(pk)
     story_obj = Story.objects.get(pk=pk)
@@ -339,14 +344,14 @@ def create_story_post_on_mailing_list(pk):
     users = User.objects.filter(enable_mailing_list=True)
 
     if not users.exists():
-        return ""
+        return "no users to send to"
 
     users = list(users)
     users_list: typing.List[User] = list(
         filter(lambda user: story_obj.is_user_subscribed(user), users)
     )
     if not users_list:
-        return ""
+        return "no users to send to"
 
     headers: typing.Dict[str, str] = {
         "Message-ID": story_obj.get_message_id,
