@@ -1,6 +1,7 @@
 import io
 import re
-import multiprocessing
+import types
+from datetime import datetime, timedelta
 
 from itertools import cycle, chain
 
@@ -10,16 +11,18 @@ from matplotlib.figure import Figure
 from mpl_toolkits.axisartist.axislines import Subplot
 import numpy as np
 
+from django.utils.timezone import make_aware
 from django.http import HttpResponse
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_safe
 from django.core.cache import cache
 from django.db import connection
 
+from sic.jobs import Job, JobKind
+
 rcParams["svg.fonttype"] = "none"
 
 CACHE_TIMEOUT = 60 * 60 * 12
-WORKER_TIMEOUT = 3
 
 UNAVAILABLE_SVG = """<svg id="svg" viewBox="0 0 240 80" xmlns="http://www.w3.org/2000/svg">
   <text x="20" y="35">data unavailable</text>
@@ -68,9 +71,7 @@ def make_posts_svg(data):
     return svg.getvalue().decode(encoding="UTF-8").strip()
 
 
-@require_safe
-@cache_page(CACHE_TIMEOUT)
-def daily_posts_svg(request):
+def daily_posts_svg_job(job):
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT
@@ -88,30 +89,25 @@ GROUP BY
         "count": [x[0] for x in posts],
         "label": [x[1] for x in posts],
     }
+    job.data = data
+    job.save()
     cache.set(
         "daily_posts", list(zip(data["label"], data["count"])), timeout=CACHE_TIMEOUT
     )
     if not posts:
         svg = UNAVAILABLE_SVG
     else:
-        try:
-            with multiprocessing.Pool(processes=1) as pool:
-                svg = pool.apply_async(make_posts_svg, (data,))
-                svg = svg.get(timeout=WORKER_TIMEOUT)
-                svg = re.sub(
-                    r"""<svg """,
-                    """<svg id="svg" """,
-                    svg,
-                    count=1,
-                )
-        except multiprocessing.TimeoutError:
-            svg = UNAVAILABLE_SVG
-    return HttpResponse(svg, content_type="image/svg+xml")
+        svg = make_posts_svg(data)
+        svg = re.sub(
+            r"""<svg """,
+            """<svg id="svg" """,
+            svg,
+            count=1,
+        )
+    return svg
 
 
-@require_safe
-@cache_page(CACHE_TIMEOUT)
-def registrations_svg(request):
+def registrations_svg_job(job):
     with connection.cursor() as cursor:
         cursor.execute(
             """CREATE TEMPORARY VIEW IF NOT EXISTS month_labels AS WITH RECURSIVE cte (
@@ -186,25 +182,23 @@ WHERE
         "count": [x[0] for x in registrations],
         "label": [x[1] for x in registrations],
     }
+    job.data = data
+    job.save()
     cache.set(
         "registrations", list(zip(data["label"], data["count"])), timeout=CACHE_TIMEOUT
     )
     if not registrations:
         svg = UNAVAILABLE_SVG
     else:
-        try:
-            with multiprocessing.Pool(processes=1) as pool:
-                svg = pool.apply_async(make_registrations_svg, (data,))
-                svg = svg.get(timeout=WORKER_TIMEOUT)
-                svg = re.sub(
-                    r"""<svg """,
-                    """<svg id="svg" """,
-                    svg,
-                    count=1,
-                )
-        except multiprocessing.TimeoutError:
-            svg = UNAVAILABLE_SVG
-    return HttpResponse(svg, content_type="image/svg+xml")
+        svg = make_registrations_svg(data)
+        svg = re.sub(
+            r"""<svg """,
+            """<svg id="svg" """,
+            svg,
+            count=1,
+        )
+        cache.set("registrations_svg", svg, timeout=CACHE_TIMEOUT)
+    return svg
 
 
 def make_registrations_svg(data):
@@ -306,9 +300,7 @@ def make_total_graph_svg(edges):
     return dot.pipe().decode("utf-8")
 
 
-@require_safe
-@cache_page(CACHE_TIMEOUT)
-def total_graph_svg(request):
+def total_graph_svg_job(job):
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT
@@ -321,19 +313,15 @@ FROM
     if not edges:
         svg = UNAVAILABLE_SVG
     else:
-        try:
-            with multiprocessing.Pool(processes=1) as pool:
-                svg = pool.apply_async(make_total_graph_svg, (edges,))
-                svg = svg.get(timeout=WORKER_TIMEOUT)
-                svg = re.sub(
-                    r"""<svg """,
-                    """<svg id="svg" """,
-                    svg,
-                    count=1,
-                )
-        except multiprocessing.TimeoutError:
-            svg = UNAVAILABLE_SVG
-    return HttpResponse(svg, content_type="image/svg+xml")
+        svg = make_total_graph_svg(edges)
+        svg = re.sub(
+            r"""<svg """,
+            """<svg id="svg" """,
+            svg,
+            count=1,
+        )
+        cache.set("total_graph_svg", svg, timeout=CACHE_TIMEOUT)
+    return svg
 
 
 def make_upvote_ratio_svg(ratios):
@@ -388,9 +376,7 @@ def make_upvote_ratio_svg(ratios):
     return svg.getvalue().decode(encoding="UTF-8").strip()
 
 
-@cache_page(CACHE_TIMEOUT)
-@require_safe
-def upvote_ratio_svg(request):
+def upvote_ratio_svg_job(job):
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT
@@ -429,27 +415,23 @@ GROUP BY
             ratios[c[1]] = [0, c[0]]
 
     cache.set("upvote_ratio", ratios, timeout=CACHE_TIMEOUT)
+    job.data = ratios
+    job.save()
     if len(ratios) == 0:
         svg = UNAVAILABLE_SVG
     else:
-        try:
-            with multiprocessing.Pool(processes=1) as pool:
-                svg = pool.apply_async(make_upvote_ratio_svg, (ratios,))
-                svg = svg.get(timeout=WORKER_TIMEOUT)
-                svg = re.sub(
-                    r"""<svg """,
-                    """<svg id="svg" """,
-                    svg,
-                    count=1,
-                )
-        except multiprocessing.TimeoutError:
-            svg = UNAVAILABLE_SVG
-    return HttpResponse(svg, content_type="image/svg+xml")
+        svg = make_upvote_ratio_svg(ratios)
+        svg = re.sub(
+            r"""<svg """,
+            """<svg id="svg" """,
+            svg,
+            count=1,
+        )
+        cache.set("upvote_ratio_svg", svg, timeout=CACHE_TIMEOUT)
+    return svg
 
 
-@require_safe
-@cache_page(CACHE_TIMEOUT)
-def user_graph_svg(request):
+def user_graph_svg_job(job):
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT
@@ -462,16 +444,81 @@ FROM
     if not edges:
         svg = UNAVAILABLE_SVG
     else:
-        try:
-            with multiprocessing.Pool(processes=1) as pool:
-                svg = pool.apply_async(make_total_graph_svg, (edges,))
-                svg = svg.get(timeout=WORKER_TIMEOUT)
-                svg = re.sub(
-                    r"""<svg """,
-                    """<svg id="svg" """,
-                    svg,
-                    count=1,
-                )
-        except multiprocessing.TimeoutError:
-            svg = UNAVAILABLE_SVG
-    return HttpResponse(svg, content_type="image/svg+xml")
+        svg = make_total_graph_svg(edges)
+        svg = re.sub(
+            r"""<svg """,
+            """<svg id="svg" """,
+            svg,
+            count=1,
+        )
+        cache.set("user_graph_svg", svg, timeout=CACHE_TIMEOUT)
+    return svg
+
+
+def get_svg_or_schedule_job(job_name: str, func: types.FunctionType) -> str:
+    svg_name = f"{job_name}_svg"
+    svg = cache.get(svg_name, None)
+    print("get_svg_or_schedule_job() job_name is ", job_name, " svg is ", svg)
+    if svg is None:
+        kind = JobKind.from_func(func)
+        jobs = Job.objects.filter(
+            kind=kind,
+            created__gte=make_aware(datetime.now() - timedelta(seconds=CACHE_TIMEOUT)),
+        )
+        print("job exists()", jobs.exists())
+        if jobs.exists():
+            for job in jobs:
+                if not job.failed and not job.active:
+                    svg = job.logs
+                    cache.set(svg_name, svg, timeout=CACHE_TIMEOUT)
+                    cache.set(job_name, job.data, timeout=CACHE_TIMEOUT)
+                else:
+                    job.active = True
+                    job.save(update_fields=["active"])
+        else:
+            _job_obj, _ = Job.objects.get_or_create(
+                kind=kind, created=make_aware(datetime.now()), periodic=False
+            )
+    if not svg:
+        svg = UNAVAILABLE_SVG
+    return svg
+
+
+@require_safe
+def user_graph_svg(request):
+    return HttpResponse(
+        get_svg_or_schedule_job("user_graph", user_graph_svg_job),
+        content_type="image/svg+xml",
+    )
+
+
+@require_safe
+def daily_posts_svg(request):
+    return HttpResponse(
+        get_svg_or_schedule_job("daily_posts", daily_posts_svg_job),
+        content_type="image/svg+xml",
+    )
+
+
+@require_safe
+def upvote_ratio_svg(request):
+    return HttpResponse(
+        get_svg_or_schedule_job("upvote_ratio", upvote_ratio_svg_job),
+        content_type="image/svg+xml",
+    )
+
+
+@require_safe
+def registrations_svg(request):
+    return HttpResponse(
+        get_svg_or_schedule_job("registrations", registrations_svg_job),
+        content_type="image/svg+xml",
+    )
+
+
+@require_safe
+def total_graph_svg(request):
+    return HttpResponse(
+        get_svg_or_schedule_job("total_graph", total_graph_svg_job),
+        content_type="image/svg+xml",
+    )
