@@ -156,6 +156,33 @@ def tag_graph_svg(request):
         dot = dot.unflatten(stagger=3, chain=5, fanout=True)
     except:
         pass
+
+    def find_graph_dimensions(svg):
+        try:
+            scale = re.search(r"""<g.+?transform="scale.([^ ]*\s*[^)]*)""", svg)
+            try:
+                scale = float(scale[1].split()[0])
+            except:
+                scale = 1.0
+            polygon = re.search(
+                r"""<polygon.*?points="([^ ]* [^ ]* [^ ]* [^ ]*)""", svg
+            )
+            points = tuple(
+                map(
+                    lambda pair: tuple(map(lambda num: float(num), pair.split(","))),
+                    polygon[1].split(),
+                )
+            )
+            A, B, C, D = points
+            height = (A[1] - B[1]) * scale
+            width = (C[0] - B[0]) * scale
+            return width, height
+        except Exception as exc:
+            wh = re.search(r"""svg width="(\d*)pt"\s*height="(\d*)pt"\s*""", svg)
+            if not wh:
+                return 1500.0, 600.0
+            return wh[1], wh[2]
+
     try:
         import subprocess
         from subprocess import PIPE, Popen
@@ -166,17 +193,19 @@ def tag_graph_svg(request):
         svg = subprocess.check_output(
             "dot | gvpack -array1 -n|neato -n2 -Tsvg", stdin=ccomps.stdout, shell=True
         ).decode("utf-8")
+        width, height = find_graph_dimensions(svg)
         svg = re.sub(
             r"""svg width="(\d*)pt"\s*height="(\d*)pt"\s*viewBox="[^"]*"\s""",
-            lambda matchobj: f"""svg width="{int(int(matchobj[1])*3.0)}pt" height="{int(int(matchobj[2])*2.0)}pt" viewBox="0.00 0.00 {int(matchobj[1])*10.2} {int(matchobj[2])*8.2}" """,
+            lambda matchobj: f"""svg width="{int(width)}pt" height="{int(height)}pt" viewBox="0.00 0.00 {int(width)} {int(height)}" """,
             svg,
             count=1,
         )
     except:
         svg = dot.pipe().decode("utf-8")
+        width, height = find_graph_dimensions(svg)
         svg = re.sub(
             r"""svg width="(\d*)pt"\s*height="(\d*)pt"\s*viewBox="[^"]*"\s""",
-            lambda matchobj: f"""svg width="{int(int(matchobj[1])*3.0)}pt" height="{int(int(matchobj[2])*3.0)}pt" viewBox="0.00 0.00 {int(matchobj[1])*10.2} {int(matchobj[2])*8.2}" """,
+            lambda matchobj: f"""svg width="{int(width)}pt" height="{int(height)}pt" viewBox="0.00 0.00 {int(width)} {int(height)}" """,
             svg,
             count=1,
         )
