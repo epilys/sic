@@ -156,14 +156,32 @@ def tag_graph_svg(request):
         dot = dot.unflatten(stagger=3, chain=5, fanout=True)
     except:
         pass
-    svg = dot.pipe().decode("utf-8")
+    try:
+        import subprocess
+        from subprocess import PIPE, Popen
+
+        ccomps = Popen(["ccomps", "-x"], stdout=PIPE, stdin=PIPE)
+        ccomps.stdin.write(dot.source.encode("utf-8"))
+        ccomps.stdin.close()
+        svg = subprocess.check_output(
+            "dot | gvpack -array1 -n|neato -n2 -Tsvg", stdin=ccomps.stdout, shell=True
+        ).decode("utf-8")
+        svg = re.sub(
+            r"""svg width="(\d*)pt"\s*height="(\d*)pt"\s*viewBox="[^"]*"\s""",
+            lambda matchobj: f"""svg width="{int(int(matchobj[1])*3.0)}pt" height="{int(int(matchobj[2])*2.0)}pt" viewBox="0.00 0.00 {int(matchobj[1])*10.2} {int(matchobj[2])*8.2}" """,
+            svg,
+            count=1,
+        )
+    except:
+        svg = dot.pipe().decode("utf-8")
+        svg = re.sub(
+            r"""svg width="(\d*)pt"\s*height="(\d*)pt"\s*viewBox="[^"]*"\s""",
+            lambda matchobj: f"""svg width="{int(int(matchobj[1])*3.0)}pt" height="{int(int(matchobj[2])*3.0)}pt" viewBox="0.00 0.00 {int(matchobj[1])*10.2} {int(matchobj[2])*8.2}" """,
+            svg,
+            count=1,
+        )
+
     svg = svg.replace('1999/xlink">', SVG_STYLE)
-    svg = re.sub(
-        r"""svg width="(\d*)pt" """,
-        lambda matchobj: f"""svg width="{int(matchobj[1])*1.2}pt" """,
-        svg,
-        count=1,
-    )
     tags = {t.pk: t for t in tags}
 
     def node_repl(matchobj):
