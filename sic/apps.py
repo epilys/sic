@@ -17,6 +17,9 @@ class SicAppConfig(AppConfig):
 
     subtitle = "is a community about human curiosity and interests."
 
+    THEME_COLOR_HEX = "#1e82be"
+    DARK_THEME_COLOR_HEX = "#15557b"
+
     BANNED_USERNAMES = [
         "admin",
         "administrator",

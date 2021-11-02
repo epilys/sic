@@ -11,6 +11,18 @@
         <link rel="preload" href="/static/Inter-Bold.woff2" as="font" type="font/woff2" crossorigin>
         <link rel="stylesheet" href="/static/style.css">
         <link href="{% url 'webmention_endpoint' %}" rel="webmention" />
+        <style>
+            @media (prefers-color-scheme: light) {
+                :root {
+                    --theme-color: {{ config.THEME_COLOR_HEX }};
+                }
+            }
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --theme-color: {{ config.DARK_THEME_COLOR_HEX }};
+                }
+            }
+        </style>
         {% block script %}{% endblock %}
         {% if not show_colors %}
             <style>

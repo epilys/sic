@@ -644,7 +644,6 @@ header .logo a:visited {
   padding: .54rem .35rem;
   display: inline-block;
   font-size: 2rem;
-  width: 3.5rem;
   height: 3.5rem;
 }
 
@@ -1498,7 +1497,6 @@ body>header>div.logo {
     font-size: 1.4rem;
     padding: .35rem .3rem;
     display: inline-block;
-    width: 2.5rem;
     height: 2.5rem;
   }
   header .logo a:hover::before {
