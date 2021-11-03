@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}browse aggregations - {{ config.verbose_name }}{% endblock %}
+{% block title %}browse {% model_verbose_name 'taggregation' False %} - {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
         div.aggregations {
@@ -48,12 +48,12 @@
     <nav>
         <ul>
             {% if request.user.is_authenticated %}
-                <li><a href="{% url 'personal_aggregations' %}">Your aggregations</a></li>
+                <li><a href="{% url 'personal_aggregations' %}">Your {% model_verbose_name 'taggregation' True %}</a></li>
             {% endif %}
-            <li><a href="{% url 'default_aggregations' %}">Browse default aggregations</a></li>
-            <li><a href="{% url 'public_aggregations' %}">Browse public aggregations</a></li>
+            <li><a href="{% url 'default_aggregations' %}">Browse default {% model_verbose_name 'taggregation' True %}</a></li>
+            <li><a href="{% url 'public_aggregations' %}">Browse public {% model_verbose_name 'taggregation' True %}</a></li>
             {% if request.user.is_authenticated %}
-                <li><a href="{% url 'new_aggregation' %}">Create aggregation</a></li>
+                <li><a href="{% url 'new_aggregation' %}">Create {% model_verbose_name 'taggregation' False %}</a></li>
             {% endif %}
             <li><form method="get" class="order-by-form">
                 {% for f in order_by_form %}
@@ -65,13 +65,13 @@
         </ul>
     </nav>
     {% if view_name == 'default_aggregations' %}
-        <h1>Default aggregations</h1>
+        <h1>Default {% model_verbose_name 'taggregation' True %}</h1>
     {% elif view_name == 'personal_aggregations' %}
-        <h1>Your aggregations</h1>
+        <h1>Your {% model_verbose_name 'taggregation' True %}</h1>
     {% else %}
-        <h1>Public aggregations</h1>
+        <h1>Public {% model_verbose_name 'taggregation' True %}</h1>
     {% endif %}
-    <p class="help-text">Aggregations are collections of tags you can subscribe to. They populate your frontpage. You can create your own private or public aggregations or subscribe to public ones.</p>
+    <p class="help-text">{% model_verbose_name 'taggregation' True True %} are collections of tags you can subscribe to. They populate your frontpage. You can create your own private or public {% model_verbose_name 'taggregation' True %} or subscribe to public ones.</p>
     {% spaceless %}
         <div class="aggregations">
             {% for agg in aggs %}
@@ -87,9 +87,9 @@
                 </div>
             {% empty %}
                 {% if view_name == 'default_aggregations' %}
-                    <p>No default aggregations. <a href="{% url 'public_aggregations' %}">Browse public aggregations</a></p>
+                    <p>No default {% model_verbose_name 'taggregation' True %}. <a href="{% url 'public_aggregations' %}">Browse public {% model_verbose_name 'taggregation' True %}</a></p>
                 {% else %}
-                    <p>No aggregations. {% if request.user.is_authenticated %}<a href="{% url 'new_aggregation' %}">Create your own</a>.{% endif %}</p>
+                    <p>No {% model_verbose_name 'taggregation' True %}. {% if request.user.is_authenticated %}<a href="{% url 'new_aggregation' %}">Create your own</a>.{% endif %}</p>
                 {% endif %}
             {% endfor %}
         </div>

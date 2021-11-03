@@ -88,7 +88,7 @@
         </ul>
     {% endif %}
     {% if stories %}
-        <h2>{{ stories|length }} matching stor{{ stories|length|pluralize:"y,ies" }}</h2>
+        <h2>{{ stories|length }} matching {% model_verbose_name 'story' stories|length %}</h2>
         <ul class="posts">
             {% for story in stories %}
                 <li>
@@ -96,7 +96,7 @@
                     <blockquote>
                         <span class="comment">{{ story.snippet|escape }}</span>
                     </blockquote>
-                    <i>In story</i>:
+                    <i>In {% model_verbose_name 'story' False %}</i>:
                 </li>
                 {% include "posts/story_list_item.html" with story=story %}
                 {% if not forloop.last %}

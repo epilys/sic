@@ -102,10 +102,10 @@
             <svg viewBox="0 0 162 100" xmlns="http://www.w3.org/2000/svg">
                 <use xlink:href="{% static "/help/newartsfilter.svg" %}#svg" width="162" height="109"></use>
             </svg>
-            <figcaption>Adding a new story filter to the <em>Arts</em> aggregation.</figcaption>
+            <figcaption>Adding a new {% model_verbose_name 'story' False %} filter to the <em>Arts</em> aggregation.</figcaption>
         </figure>
         <div>
-            <p class="help-text">A tag is added to an aggregation through a story filter.</p>
+            <p class="help-text">A tag is added to an aggregation through a {% model_verbose_name 'story' False %} filter.</p>
             <p class="help-text">You can select a <em>depth</em> for each tag which determines how many levels of descendants in the tag graph are included.</p>
             <p class="help-text">The default depth is <code>0</code>. An empty depth means the entire tree starting from the given tag is included.</p>
             <p class="help-text">Finally, you can exclude tags by adding exclude filters.</p>
@@ -114,9 +114,9 @@
     <div class="help">
         <div>
             <h2 id="account_settings">Account settings</h2>
-            <p class="help-text">You can select when to receive emails, whether to show stories with content warnings by default and whether to show colors at all.</p>
+            <p class="help-text">You can select when to receive emails, whether to show {% model_verbose_name 'story' True %} with content warnings by default and whether to show colors at all.</p>
             <h3>weekly digests</h3>
-            <p class="help-text">You can opt-in to a weekly digest email to read all the stories posted since the last time you were sent a digest mail. The digest mail can include all stories or just your aggregation subscriptions. You can also select individual days for delivery.</p>
+            <p class="help-text">You can opt-in to a weekly digest email to read all the {% model_verbose_name 'story' True %} posted since the last time you were sent a digest mail. The digest mail can include all {% model_verbose_name 'story' True %} or just your aggregation subscriptions. You can also select individual days for delivery.</p>
             <p class="help-text">You can disable it at any time.</p>
             <h3>accessibility session settings</h3>
             <p class="help-text">You can optionally disable vivid colors and increase font-size <span style="font-size:115%">for</span> <span style="font-size:125%">this</span> <span style="font-size:135%">session</span>.</p>
@@ -139,7 +139,7 @@
         </div>
         <div>
             <h3>Personalised feeds</h3>
-            <p class="help-text">Issue an authentication token that you can use to access your personalised feeds without logging in. These feeds contain your subscriptions, compared to the public feeds which contain all stories.</p>
+            <p class="help-text">Issue an authentication token that you can use to access your personalised feeds without logging in. These feeds contain your subscriptions, compared to the public feeds which contain all {% model_verbose_name 'story' True %}.</p>
         </div>
         <figure>
             <svg viewBox="0 0 162 41" xmlns="http://www.w3.org/2000/svg">

@@ -28,7 +28,7 @@
     <div class="profile-container">
         {% include "account/profile_include.html" with user=user %}
         <div class="aggregations">
-            <h2>Aggregations</h2>
+            <h2>{% model_verbose_name 'taggregation' True True %}</h2>
             {% spaceless %}
                 <ul>
                     {% for c in user.taggregation_subscriptions.all %}

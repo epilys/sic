@@ -10,7 +10,7 @@
     {% story_is_upvoted  as is_upvoted %}
     {% if not story.active %}
         <ul class="messagelist">
-            <li class="warning">The story has been set inactive. {% if story.last_log_entry %}Reason given: {{ story.last_log_entry }}{% else %}No reason given{% endif %}.</li>
+            <li class="warning">The {% model_verbose_name 'story' False %} has been set inactive. {% if story.last_log_entry %}Reason given: {{ story.last_log_entry }}{% else %}No reason given{% endif %}.</li>
         </ul>
     {% endif %}
     <article class="story">
@@ -37,7 +37,7 @@
             {% include "posts/story_tags.html" with tags=story.tags.all in_article=True %}
             {% if not story.tags.exists and request.user == story.user %}
                 <ul class="messagelist">
-                    <li class="warning">A story <em>should</em> have at least one tag. Add some tags by <a href="{% url 'edit_story' story_pk=story.pk slug=story.slugify %}">editing the story</a>.</li>
+                    <li class="warning">A {% model_verbose_name 'story' False %} <em>should</em> have at least one tag. Add some tags by <a href="{% url 'edit_story' story_pk=story.pk slug=story.slugify %}">editing the {% model_verbose_name 'story' False %}</a>.</li>
                 </ul>
             {% endif %}
             <div class="links">{% if story.user.avatar and show_avatars %}<img class="avatar-small" src="{{story.user.avatar}}" alt="">{% endif %}{% if story.user_is_author %}authored by{% else %}via{% endif %} <a href="{{ story.user.get_absolute_url }}" class="user_link{% if story.user.is_banned %} banned-user{% elif story.user.is_new_user %} new-user{% endif %}"{% if story.user_is_author %} rel="author"{% endif %}>{{ story.user }}</a> <time datetime="{{ story.created | date:"Y-m-d H:i:s" }}+0000" title="{{ story.created }} UTC+00:00">{{ story.created|naturaltime }}</time> {% if story.user == request.user or request.user.is_moderator %}| <a href="{% url 'edit_story' story_pk=story.pk slug=story.slugify %}">edit</a> {% endif%}| {% if request.user.is_authenticated %}flag | <form method="POST" class="bookmark_form" action="{% url_with_next 'bookmark_story' request %}">{% csrf_token %}<input type="hidden" name="story_pk" value="{{ story.pk }}"><input type="submit"  class="bookmark_link" value="{% if is_bookmarked %}un{% endif %}bookmark"></form> |{% endif %} {% if story.url %}<a rel="nofollow external" href="http://archive.is/timegate/{{ story.url }}">archived</a> |{% if story.remote_content %} <a rel="nofollow" href="{% url 'story_remote_content' story.pk story.slugify %}">plain text cache</a> {% if story.remote_content.w3m_content %}<a rel="nofollow" href="{% url 'story_remote_content_formatted' story.pk story.slugify %}">(formatted)</a>{% endif %}|{% endif %}{% endif %} <a rel="nofollow" href="{% url 'story_source' story.pk story.slugify %}">source</a> | <a href="{{story.get_absolute_url}}" rel="bookmark">{{ comments.count }} comment{{ comments.count|pluralize }}</a></div>

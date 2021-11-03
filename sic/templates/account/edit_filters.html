@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Edit story exclude filters - {{ config.verbose_name }}{% endblock %}
+{% load utils %}
+{% block title %}Edit {% model_verbose_name 'story' False %} exclude filters - {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
         .story_filters_grid {
@@ -26,7 +27,7 @@
     </style>
 {% endblock %}
 {% block content %}
-    <h1>Edit story exclude filters</h1>
+    <h1>Edit {% model_verbose_name 'story' False %} exclude filters</h1>
     <p class="help-text">Adding a filter will exclude matching stories from your frontpage.</p>
     <h2>Tag filters</h2>
     <nav>
@@ -34,7 +35,7 @@
             <li><a href="{% url 'add_tag_filter' %}">Add tag filter</a></li>
         </ul>
     </nav>
-    <p class="help-text">Stories matching the exact tag of a filter will be excluded.</p>
+    <p class="help-text">{% model_verbose_name 'story' True %} matching the exact tag of a filter will be excluded.</p>
     <div class="story_filters_grid">
         {% for f in exact_tag_filters %}
             <div>
@@ -65,7 +66,7 @@
             <li><a href="{% url 'add_domain_filter' %}">Add domain filter</a></li>
         </ul>
     </nav>
-    <p class="help-text">Stories matching the string of a filter will be excluded. You can choose whether the match string is searched as a substring or a python regular expression pattern.</p>
+    <p class="help-text">{% model_verbose_name 'story' True %} matching the string of a filter will be excluded. You can choose whether the match string is searched as a substring or a python regular expression pattern.</p>
     <div class="story_filters_grid">
         {% for f in domain_filters %}
             <div>

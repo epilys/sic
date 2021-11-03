@@ -24,7 +24,7 @@
         {% for activity in activities %}
             <li class="">
                 {% if activity.type == 'story' %}
-                    <h3>You posted {{ activity.count }} stor{{ activity.count|pluralize:"y,ies" }} <small>{{ activity.date_min|naturaltime }}{% if activity.date_max %} - {{ activity.date_max|naturaltime }}{% endif %}</small></h3>
+                    <h3>You posted {{ activity.count }} {% model_verbose_name 'story' activity.count %} <small>{{ activity.date_min|naturaltime }}{% if activity.date_max %} - {{ activity.date_max|naturaltime }}{% endif %}</small></h3>
                     <ul class="posts" aria-label="story post list">
                         {% for activity in activity.items %}
                             {% include "posts/story_list_item.html" with story=activity.obj %}
@@ -32,7 +32,7 @@
                     </ul>
                 {% elif activity.type == 'story_reply' %}
                     {% for subactivity in activity.items %}
-                        <h3>Your story received {{ subactivity.count }} repl{{ subactivity.count|pluralize:"y,ies" }}: <a href="{{ subactivity.obj.get_absolute_url }}">{{ subactivity.obj.title }}</a></h3>
+                        <h3>Your {% model_verbose_name 'story' False %} received {{ subactivity.count }} repl{{ subactivity.count|pluralize:"y,ies" }}: <a href="{{ subactivity.obj.get_absolute_url }}">{{ subactivity.obj.title }}</a></h3>
                         <ul class="posts">
                             {% render_comments request subactivity.items reply_form show_story=True only_roots=False %}
                         </ul>
@@ -49,7 +49,7 @@
                     {% endfor %}
                 {% elif activity.type == 'comment_reply' %}
                     {% for subactivity in activity.items %}
-                        <h3>Your comment received {{ subactivity.count }} repl{{ subactivity.count|pluralize:"y,ies" }}: <a href="{{ subactivity.obj.get_absolute_url }}">{{ subactivity.obj.title }}</a> <small>{{ activity.date_min|naturaltime }}{% if activity.date_max %} - {{ activity.date_max|naturaltime }}{% endif %}</small></h3>
+                        <h3>Your {% model_verbose_name 'comment' False %} received {{ subactivity.count }} repl{{ subactivity.count|pluralize:"y,ies" }}: <a href="{{ subactivity.obj.get_absolute_url }}">{{ subactivity.obj.title }}</a> <small>{{ activity.date_min|naturaltime }}{% if activity.date_max %} - {{ activity.date_max|naturaltime }}{% endif %}</small></h3>
                         <ul class="posts">
                             {% render_comments request subactivity.items reply_form show_story=True only_roots=False %}
                         </ul>

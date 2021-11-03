@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load utils %}
 {% block title %}Edit settings - {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
@@ -36,7 +37,7 @@
         </div>
     </form>
     <h2>edit weekly digest settings</h2>
-    <p class="help-text">On every selected day, you will receive a list of every story created since the last time you received a digest.</p>
+    <p class="help-text">On every selected day, you will receive a list of every {% model_verbose_name 'story' False %} created since the last time you received a digest.</p>
     <form method="POST" class="submit-story-form">
         {% csrf_token %}
         {{ digest_form.active.label_tag }}

@@ -137,6 +137,19 @@ class SicAppConfig(AppConfig):
         "https",
     ]
 
+    MODEL_VERBOSE_NAMES: typing.Dict[str, str] = {
+        #        "story": ("thread", "threads"),
+        #        "comment": ("reply", "replies"),
+        #       "taggregation": ("topic", "topics"),
+    }
+
+    @lru_cache(maxsize=None)
+    def model_verbose_names(self, model_name: str, plural: bool) -> str:
+        if model_name in self.MODEL_VERBOSE_NAMES:
+            return self.MODEL_VERBOSE_NAMES[model_name][1 if plural else 0]
+        model = self.models[model_name]
+        return model._meta.verbose_name_plural if plural else model._meta.verbose_name
+
     @cached_property
     def post_ranking(self) -> "sic.voting.PostRanking":
         # from sic.voting import TemporalRanking

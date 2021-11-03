@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}{{ taggregation.name }} aggregation - {{ config.verbose_name }}{% endblock %}
+{% block title %}{{ taggregation.name }} {% model_verbose_name 'taggregation' False %} - {{ config.verbose_name }}{% endblock %}
 {% block style %}
     <style>
         .story_filters_grid {
@@ -52,7 +52,7 @@
     {% spaceless %}
         <nav>
             <ul>
-                <li><a href="{% url 'agg_index' taggregation.pk taggregation.slugify %}">Aggregation frontpage</a></li>
+                <li><a href="{% url 'agg_index' taggregation.pk taggregation.slugify %}">{% model_verbose_name 'taggregation' False True %} frontpage</a></li>
             </ul>
         </nav>
         <h1><span class="sparklines" title="activity for last 14 days">{{ taggregation.last_14_days }}</span>{{ taggregation.name }}{% if user_can_modify %} <small><a href="{% url_with_next 'edit_aggregation' taggregation.pk taggregation.slugify request %}">edit&hellip;</a>{% endif %}</small></h1>
@@ -65,7 +65,7 @@
                 <input type="submit" value="{% if subscribed %}un{% endif %}subscribe">
             </form>
         </div>
-        <p class="help-text">For problems or suggestions about this aggregation, go to a moderator's profile and send them a message.</p>
+        <p class="help-text">For problems or suggestions about this {% model_verbose_name 'taggregation' False %}, go to a moderator's profile and send them a message.</p>
         <div class="agg-info">
             <table>
                 <tr>
@@ -121,7 +121,7 @@
         </div>
         <hr />
         <div>
-            <h2>story filters</h2>
+            <h2>{% model_verbose_name 'story' False %} filters</h2>
             <a href="{% url 'new_aggregation_filter' taggregation.pk taggregation.slugify %}">add new</a>
             <div class="story_filters_grid">
                 {% for has in taggregation.taggregationhastag_set.all %}
@@ -231,8 +231,8 @@
         </div>
         <hr />
         <div>
-            <h2>latest stories</h2>
-            <p>Showing at most 10 stories. <a href="{% url 'agg_index' taggregation.pk taggregation.slugify %}">See all&hellip;</a></p>
+            <h2>latest {% model_verbose_name 'story' True %}</h2>
+            <p>Showing at most 10 {% model_verbose_name 'story' True %}. <a href="{% url 'agg_index' taggregation.pk taggregation.slugify %}">See all&hellip;</a></p>
         </div>
         <ul class="posts">
             {% for story in taggregation.get_stories|slice:":10" %}

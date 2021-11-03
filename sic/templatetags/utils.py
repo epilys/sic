@@ -176,3 +176,13 @@ def get_externallink_flatpages():
 @register.simple_tag(takes_context=False)
 def get_config():
     return config
+
+
+@register.simple_tag(takes_context=False)
+def model_verbose_name(model_name: str, plural: bool, capitalize: bool = False) -> str:
+    if not isinstance(plural, bool) and isinstance(plural, int):
+        plural = plural != 1
+    ret = config.model_verbose_names(model_name, plural)
+    if capitalize:
+        return ret.capitalize()
+    return ret

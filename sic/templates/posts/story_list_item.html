@@ -10,7 +10,7 @@
                     {% if request.user.is_authenticated %}
                         <form method="POST" action="{% url_with_next 'upvote_story' story.pk request %}">
                             {% csrf_token %}
-                            <input type="submit" title="Upvote story ''{{ story.title }}'" aria-label="Upvote story ''{{ story.title }}'" value="">
+                            <input type="submit" title="Upvote {% model_verbose_name 'story' False %} ''{{ story.title }}'" aria-label="Upvote {% model_verbose_name 'story' False %} ''{{ story.title }}'" value="">
                         </form>
                     {% endif %}
                 </div>

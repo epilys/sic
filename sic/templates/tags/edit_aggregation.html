@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}{% if agg %}edit {{ agg.name }}{% else %}new aggregation{% endif %} - {{ config.verbose_name }}{% endblock %}
+{% block title %}{% if agg %}edit {{ agg.name }}{% else %}new {% model_verbose_name 'taggregation' False %}{% endif %} - {{ config.verbose_name }}{% endblock %}
 {% block content %}
-    <h1>{% if agg %}edit {{ agg.name }}{% else %}new aggregation{% endif %}</h1>
+    <h1>{% if agg %}edit {{ agg.name }}{% else %}new {% model_verbose_name 'taggregation' False %}{% endif %}</h1>
     <nav>
         <ul>
             <li><a href="{% if next %}{{ next }}{% elif agg %}{{ agg.get_absolute_url }}{% else %}{% url 'account' %}{% endif %}">go back</a></li>

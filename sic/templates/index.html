@@ -59,7 +59,7 @@
 {% endblock %}
 {% block content %}
     {% if aggregation %}
-        <div class="showing-aggregations">Showing stories from <a href="{{ aggregation.get_absolute_url }}">{{ aggregation.name }}</a>. <nav style="display: inline-block"><ul><li><a href="{{ aggregation.get_details_url }}">view details</a></li></ul></nav></div>
+        <div class="showing-aggregations">Showing {% model_verbose_name 'story' True %} from <a href="{{ aggregation.get_absolute_url }}">{{ aggregation.name }}</a>. <nav style="display: inline-block"><ul><li><a href="{{ aggregation.get_details_url }}">view details</a></li></ul></nav></div>
     {% endif %}
     {% if aggregations %}<div class="aggregations">{% for agg in aggregations %}<div><span class="sparklines" aria-hidden="true" title="activity for last 14 days">{{ agg.last_14_days }}</span><div><a href="{{ agg.get_absolute_url }}" class="agg-name" title="{{ agg.name }} {% if agg.description %} - {{ agg.description }}{% endif %}">{{ agg.name }}</a></div></div>{% endfor %}</div>{% endif %}
     <ul class="posts" aria-label="story post list">

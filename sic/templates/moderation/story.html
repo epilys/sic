@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}Edit story {{ story }} - {{ config.verbose_name }}{% endblock %}
+{% block title %}Edit {% model_verbose_name 'story' False %} {{ story }} - {{ config.verbose_name }}{% endblock %}
 {% block content %}
-    <h1>Edit story {{ story }}</h1>
+    <h1>Edit {% model_verbose_name 'story' False %} {{ story }}</h1>
     <ul class="posts" aria-label="story post list">
         {% include "posts/story_list_item.html" with story=story %}
     </ul>

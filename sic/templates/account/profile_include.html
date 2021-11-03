@@ -1,3 +1,4 @@
+{% load utils %}
 <div class="profile">
     <div id="avatar" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
         <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
@@ -34,11 +35,11 @@
                 <td>{{ user.karma }}</td>
             </tr>{% endcomment %}
             <tr>
-                <th>stories:</th>
+                <th>{% model_verbose_name 'story' True %}:</th>
                 <td><a href="{% url 'profile_posts' name=user %}">{{ user.stories.count }}</a></td>
             </tr>
             <tr>
-                <th>comments:</th>
+                <th>{% model_verbose_name 'comment' True %}:</th>
                 <td><a href="{% url 'profile_posts' name=user %}">{{ user.comments.count }}</a></td>
             </tr>
         </tbody>

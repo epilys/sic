@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
+{% load utils %}
 {% load humanize %}
-{% block title %}{% if story %}edit story - {{ story.title }}{% else %}submit story{% endif %} - {{ config.verbose_name }}{% endblock %}
+{% block title %}{% if story %}edit {% model_verbose_name 'story' False %} - {{ story.title }}{% else %}submit {% model_verbose_name 'story' False %}{% endif %} - {{ config.verbose_name }}{% endblock %}
 {% block script %}
     <script>
         var error = null;
@@ -80,13 +81,13 @@
 {% endblock %}
 {% block content %}
     {% if story %}
-        <h1>edit story</h1>
+        <h1>edit {% model_verbose_name 'story' False %}</h1>
     {% else %}
-        <h1>submit story</h1>
+        <h1>submit {% model_verbose_name 'story' False %}</h1>
     {% endif %}
-    <p class="help-text">A story can have no <code>url</code>; in that case, the story content is what you put in the description.</p>
+    <p class="help-text">A {% model_verbose_name 'story' False %} can have no <code>url</code>; in that case, the {% model_verbose_name 'story' False %} content is what you put in the description.</p>
     {% if not story %}
-        <p class="help-text">You can edit your story after submission to add missing tags or correct mistakes.</p>
+        <p class="help-text">You can edit your {% model_verbose_name 'story' False %} after submission to add missing tags or correct mistakes.</p>
     {% endif %}
     <form method="post" class="submit-story-form">
         {% if preview %}
@@ -147,7 +148,7 @@
             {{ form.tags }}
         </fieldset>
         <details>
-            <summary><em>Optional</em>&hairsp;: Set publish date, author status (are you the author of this content?), story kind (<abbr title="for example">e.g.</abbr> audio transcript, video, book)</summary>
+            <summary><em>Optional</em>&hairsp;: Set publish date, author status (are you the author of this content?), {% model_verbose_name 'story' False %} kind (<abbr title="for example">e.g.</abbr> audio transcript, video, book)</summary>
             <fieldset>
                 <legend>other metadata</legend>
                 {{ form.publish_date.errors }}

@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% load utils %}
 {% block title %}Sign-up - {{ config.verbose_name }}{% endblock %}
 {% block content %}
     <p class="help-text">Your email address must be validated in order to activate your account.</p>
     {% if not inv and config.REQUIRE_VOUCH_FOR_PARTICIPATION %}
-        <p class="help-text">To post comments and stories, ask an existing vouched member to vouch for you.</p>
+        <p class="help-text">To post comments and {% model_verbose_name 'story' True %}, ask an existing vouched member to vouch for you.</p>
         {% if config.ALLOW_INVITATION_REQUESTS %}
             <p class="help-text">You can also request a vouch after signup. After validating your email, check your "Account" page.</p>
         {% endif %}

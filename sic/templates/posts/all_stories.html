@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load utils %}
-{% block title %}All stories - {{ config.verbose_name }}{% endblock %}
+{% block title %}All {% model_verbose_name 'story' True %} - {{ config.verbose_name }}{% endblock %}
 {% block content %}
     <nav>
         <ul>{% if tag %}
