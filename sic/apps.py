@@ -116,6 +116,8 @@ class SicAppConfig(AppConfig):
 
     VISIBLE_KARMA = False
 
+    ENABLE_FETCHING_REMOTE_CONTENT = True
+
     ACCEPTED_URI_SCHEMES: typing.List[str] = [
         "dat",
         "finger",

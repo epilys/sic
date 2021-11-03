@@ -207,22 +207,25 @@ class Story(models.Model):
                 if domain_obj.is_banned:
                     self.active = False
                 self.domain = domain_obj
-            from sic.jobs import Job, JobKind, fetch_url
+            if config.ENABLE_FETCHING_REMOTE_CONTENT:
+                from sic.jobs import Job, JobKind, fetch_url
 
-            try:
-                self.remote_content is None
-            except Story._meta.model.remote_content.RelatedObjectDoesNotExist:
-                # schedule job
-                if (
-                    self.pk
-                    and self.url is not None
-                    and len(self.url) != 0
-                    and self.active
-                ):
-                    kind = JobKind.from_func(fetch_url)
-                    _job_obj, _ = Job.objects.get_or_create(
-                        kind=kind, periodic=False, data={"pk": self.pk, "url": self.url}
-                    )
+                try:
+                    self.remote_content is None
+                except Story._meta.model.remote_content.RelatedObjectDoesNotExist:
+                    # schedule job
+                    if (
+                        self.pk
+                        and self.url is not None
+                        and len(self.url) != 0
+                        and self.active
+                    ):
+                        kind = JobKind.from_func(fetch_url)
+                        _job_obj, _ = Job.objects.get_or_create(
+                            kind=kind,
+                            periodic=False,
+                            data={"pk": self.pk, "url": self.url},
+                        )
         super().save(*args, **kwargs)
 
     def is_user_subscribed(self, user: "User") -> bool:
@@ -293,7 +296,7 @@ class Story(models.Model):
             "title": self.title,
             "description": self.description_to_plain_text,
             "url": self.url,
-            "sic_url": self.get_absolute_url(),
+            "site_url": self.get_absolute_url(),
             "created": self.created,
             "publish_date": self.publish_date,
             "tags": list(map(lambda t: str(t), self.tags.all())),
