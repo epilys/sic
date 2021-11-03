@@ -269,7 +269,7 @@ def submit_story(request):
                 url = form.cleaned_data["url"]
                 publish_date = form.cleaned_data["publish_date"]
                 user_is_author = form.cleaned_data["user_is_author"]
-                if config.DISALLOW_REPOSTS_PERIOD is not None:
+                if url and config.DISALLOW_REPOSTS_PERIOD is not None:
                     previous_post = (
                         Story.objects.filter(url=url).order_by("-created").first()
                     )
