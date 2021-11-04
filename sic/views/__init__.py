@@ -15,6 +15,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.db.models import Max
 from django.utils.http import urlencode
+from django.utils.timezone import make_aware
 from django.apps import apps
 
 config = apps.get_app_config("sic")
@@ -153,6 +154,21 @@ def agg_index(request, taggregation_pk, slug, page_num=1):
         key=lambda s: s.hotness,
         reverse=True,
     )
+    now = make_aware(datetime.now())
+    unix_epoch = make_aware(datetime.fromtimestamp(0))
+    pinned = list(
+        filter(
+            lambda s: s.pinned and (s.pinned >= now or s.pinned == unix_epoch),
+            all_stories,
+        )
+    )
+    if pinned:
+        for p in pinned:
+            all_stories.remove(p)
+        pinned.reverse()
+        for p in pinned:
+            p.pinned_status = True
+            all_stories.insert(0, p)
     paginator = Paginator(all_stories, config.STORIES_PER_PAGE)
     try:
         page = paginator.page(page_num)
@@ -211,6 +227,21 @@ def index(request, page_num=1):
         key=lambda s: s.hotness,
         reverse=True,
     )
+    now = make_aware(datetime.now())
+    unix_epoch = make_aware(datetime.fromtimestamp(0))
+    pinned = list(
+        filter(
+            lambda s: s.pinned and (s.pinned >= now or s.pinned == unix_epoch),
+            all_stories,
+        )
+    )
+    if pinned:
+        for p in pinned:
+            all_stories.remove(p)
+        pinned.reverse()
+        for p in pinned:
+            p.pinned_status = True
+            all_stories.insert(0, p)
     paginator = Paginator(all_stories, config.STORIES_PER_PAGE)
     try:
         page = paginator.page(page_num)

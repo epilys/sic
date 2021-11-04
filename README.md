@@ -24,6 +24,7 @@ Public instance at https://sic.pm | [Tor hidden service](http://sicpm3hp7dtrwhmf
 - Latest stories RSS and Atom feeds are provided.
 - Post and comment text content support [commonmark Markdown syntax](https://commonmark.org/).
 - Posts and comments can only be upvoted. Support for flagging (downvoting) will be added soon.
+- Posts can be pinned to the top with a time limit or indefinitely.
 
 ### 🏷️ Tag and 🗂️ Aggregation system
 

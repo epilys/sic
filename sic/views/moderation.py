@@ -1,3 +1,4 @@
+from datetime import datetime, time
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import transaction
 from django.http import Http404, HttpResponse
@@ -6,6 +7,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
+from django.utils.timezone import make_aware
 from django.apps import apps
 from django import forms
 from django.core.exceptions import ValidationError
@@ -46,19 +48,6 @@ class BanUserForm(forms.Form):
             return user
         except User.DoesNotExist:
             raise ValidationError(f"User {value} not found.")
-
-
-class EditStoryForm(forms.Form):
-    active = forms.BooleanField(
-        label="is active",
-        required=False,
-        initial=True,
-    )
-    reason = forms.CharField(
-        required=True,
-        label="reason",
-        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
-    )
 
 
 @require_http_methods(["GET"])
@@ -150,6 +139,28 @@ def overview(request):
     )
 
 
+class EditStoryForm(forms.Form):
+    active = forms.BooleanField(
+        label="is active",
+        required=False,
+        initial=True,
+    )
+    reason = forms.CharField(
+        required=True,
+        label="reason",
+        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
+    )
+
+
+class EditStoryPinForm(forms.Form):
+    pinned = forms.DateField(
+        label="pinned until",
+        required=False,
+        initial=None,
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+
+
 @login_required
 @transaction.atomic
 def story(request, story_pk: int, slug=None):
@@ -170,30 +181,82 @@ def story(request, story_pk: int, slug=None):
         reason = last.reason
     if request.method == "POST":
         form = EditStoryForm(request.POST)
-        if form.is_valid():
-            changed_status = form.cleaned_data["active"] != story_obj.active
-            if changed_status:
-                story_obj.active = form.cleaned_data["active"]
-                story_obj.save(update_fields=["active"])
-            if changed_status or form.cleaned_data["reason"].strip() != reason:
-                reason = form.cleaned_data["reason"].strip()
-                log_entry = ModerationLogEntry.changed_story_status(
-                    story_obj,
-                    request.user,
-                    "Set active" if story_obj.active else "Set inactive",
-                    reason,
-                )
-                messages.add_message(
-                    request, messages.SUCCESS, f"{log_entry.action} {story_obj}"
-                )
-                return redirect(reverse("moderation"))
-            return redirect(reverse("moderation_story", args=[story_pk]))
-        error = form_errors_as_string(form.errors)
-        messages.add_message(request, messages.ERROR, f"Invalid form. Error: {error}")
+        pinned_form = EditStoryPinForm(request.POST)
+        if "set-status" in request.POST:
+            if form.is_valid():
+                changed_status = form.cleaned_data["active"] != story_obj.active
+                if changed_status:
+                    story_obj.active = form.cleaned_data["active"]
+                    story_obj.save(update_fields=["active"])
+                if changed_status or form.cleaned_data["reason"].strip() != reason:
+                    reason = form.cleaned_data["reason"].strip()
+                    log_entry = ModerationLogEntry.changed_story_status(
+                        story_obj,
+                        request.user,
+                        "Set active" if story_obj.active else "Set inactive",
+                        reason,
+                    )
+                    messages.add_message(
+                        request, messages.SUCCESS, f"{log_entry.action} {story_obj}"
+                    )
+                return redirect(reverse("moderation_story", args=[story_pk]))
+            error = form_errors_as_string(form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
+            )
+        elif (
+            "set-pinned" in request.POST
+            or "set-pinned-indefinitely" in request.POST
+            or "set-pinned-unpin" in request.POST
+        ):
+            if pinned_form.is_valid():
+                if "set-pinned-indefinitely" in request.POST:
+                    pinned_form.cleaned_data["pinned"] = make_aware(
+                        datetime.fromtimestamp(0)
+                    )
+                elif "set-pinned-unpin" in request.POST:
+                    pinned_form.cleaned_data["pinned"] = None
+                else:
+                    pinned_form.cleaned_data["pinned"] = make_aware(
+                        datetime.combine(pinned_form.cleaned_data["pinned"], time())
+                    )
+                changed_status = pinned_form.cleaned_data["pinned"] != story_obj.pinned
+                if changed_status:
+                    story_obj.pinned = pinned_form.cleaned_data["pinned"]
+                    story_obj.save(update_fields=["pinned"])
+                if changed_status:
+                    log_entry = ModerationLogEntry.changed_story_status(
+                        story_obj,
+                        request.user,
+                        (
+                            "Pinned "
+                            if story_obj.pinned.timestamp() == 0
+                            else f"Pinned until {story_obj.pinned}"
+                        )
+                        if story_obj.pinned
+                        else "Unpinned",
+                        "",
+                    )
+                    messages.add_message(
+                        request, messages.SUCCESS, f"{log_entry.action} {story_obj}"
+                    )
+                return redirect(reverse("moderation_story", args=[story_pk]))
+            error = form_errors_as_string(pinned_form.errors)
+            messages.add_message(
+                request, messages.ERROR, f"Invalid form. Error: {error}"
+            )
     else:
         form = EditStoryForm(initial={"active": story_obj.active, "reason": reason})
+        pinned_form = EditStoryPinForm(
+            initial={"pinned": story_obj.pinned if story_obj.pinned else None}
+        )
     return render(
         request,
         "moderation/story.html",
-        {"story": story_obj, "history_logs": history_logs, "form": form},
+        {
+            "story": story_obj,
+            "history_logs": history_logs,
+            "form": form,
+            "pinned_form": pinned_form,
+        },
     )

@@ -28,7 +28,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.dispatch import receiver
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.core.validators import MinLengthValidator, URLValidator
 from django.apps import apps
 
@@ -133,6 +133,7 @@ class Story(models.Model):
         "Story", on_delete=models.CASCADE, null=True, blank=True
     )
     active = models.BooleanField(default=True, null=False)
+    pinned = models.DateTimeField(default=None, null=True, blank=True)
     user_is_author = models.BooleanField(default=False, null=False)
     tags = models.ManyToManyField("Tag", related_name="stories", blank=True)
     kind = models.ManyToManyField(
@@ -140,7 +141,7 @@ class Story(models.Model):
         related_name="stories",
         blank=False,
     )
-    content_warning = models.CharField(null=True, blank=False, max_length=30)
+    content_warning = models.CharField(null=True, blank=True, max_length=30)
     karma = models.IntegerField(null=False, blank=True, default=0)
     message_id = models.TextField(null=True, blank=True)
 
@@ -221,11 +222,14 @@ class Story(models.Model):
                         and self.active
                     ):
                         kind = JobKind.from_func(fetch_url)
-                        _job_obj, _ = Job.objects.get_or_create(
-                            kind=kind,
-                            periodic=False,
-                            data={"pk": self.pk, "url": self.url},
-                        )
+                        try:
+                            _job_obj, _ = Job.objects.get_or_create(
+                                kind=kind,
+                                periodic=False,
+                                data={"pk": self.pk, "url": self.url},
+                            )
+                        except MultipleObjectsReturned:
+                            pass
         super().save(*args, **kwargs)
 
     def is_user_subscribed(self, user: "User") -> bool:

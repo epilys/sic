@@ -10,7 +10,6 @@
 
     <form method="POST" class="submit-story-form">
         {% csrf_token %}
-        {% csrf_token %}
         {% for field in form.hidden_fields %}
             {{ field }}
         {% endfor %}
@@ -23,10 +22,33 @@
             {{ field }}
         {% endfor %}
         <div class="button-flex-box">
-            <input type="submit" value="Set status">
+            <input type="submit" name="set-status" value="Set status">
         </div>
     </form>
 
+    <h2>Set pinned status</h2>
+    <form method="POST" class="submit-story-form">
+        {% csrf_token %}
+        {% for field in pinned_form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+        {% for field in pinned_form.visible_fields %}
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {% if field.help_text %}
+                <p class="help-text">{{ field.help_text }}</p>
+            {% endif %}
+            {{ field }}
+        {% endfor %}
+        <div class="button-flex-box">
+            <input type="reset" value="Reset">
+            <input type="submit" name="set-pinned" value="Set pinned date">
+        </div>
+        <div class="button-flex-box">
+            <input type="submit" name="set-pinned-indefinitely" value="Pin indefinitely">
+            <input type="submit" name="set-pinned-unpin" value="Unpin">
+        </div>
+    </form>
     <h2>Moderation log history</h2>
     <table class="moderation-log">
         <thead>

@@ -1,6 +1,6 @@
 {% load humanize %}
 {% load utils %}
-<li class="story">
+<li class="story{% if story.pinned_status %} pinned-story{% endif %}" >
     {% spaceless %}
         {% story_is_bookmarked request.user story as is_bookmarked %}
         {% story_is_upvoted as is_upvoted %}
@@ -22,6 +22,9 @@
             </div>
         {% endif %}
         <div class="title{% if story.content_warning %} content-warning{% endif %}">
+            {% if story.pinned_status %}
+                <small title="Pinned {% if story.pinned.timestamp == 0 %}indefinitely{% else %}until {{ story.pinned }}{% endif %}"><strong>PINNED <span aria-hidden="true">📌</span> </strong></small>
+            {% endif %}
             {% if story.content_warning %}
                 <label for="content-warning-{{ story.pk }}">{{ story.content_warning }}</label>&#32;
                 <input id="content-warning-{{ story.pk }}" type="checkbox"{% if show_stories_with_content_warning %} checked="checked"{% endif %}>&#32;

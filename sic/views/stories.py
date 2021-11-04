@@ -176,6 +176,20 @@ def all_stories_tmpl(request, view_name, json_response, page_num=1):
         )
     else:
         stories = story_obj.order_by(order_by_field, "title")
+    now = make_aware(datetime.now())
+    unix_epoch = make_aware(datetime.fromtimestamp(0))
+    pinned = list(
+        filter(
+            lambda s: s.pinned and (s.pinned >= now or s.pinned == unix_epoch), stories
+        )
+    )
+    if pinned:
+        for p in pinned:
+            stories.remove(p)
+        pinned.reverse()
+        for p in pinned:
+            p.pinned_status = True
+            stories.insert(0, p)
 
     paginator = Paginator(stories, config.STORIES_PER_PAGE)
     try:
