@@ -385,6 +385,11 @@ urlpatterns = [
     path("feeds/<str:username>/latest.rss", user_feeds_rss, name="user_feeds_rss"),
     path("feeds/<str:username>/latest.atom", user_feeds_atom, name="user_feeds_atom"),
     path(
+        "toggle-signup-box-view",
+        account.toggle_signup_box_view,
+        name="toggle_signup_box_view",
+    ),
+    path(
         "favicon.ico",
         RedirectView.as_view(url="static/favicon.ico", permanent=False),
         name="favicon",

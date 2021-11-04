@@ -1376,3 +1376,14 @@ def vouch_for_user(request, pk):
     if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])
     return redirect(receiver)
+
+
+@require_http_methods(["POST"])
+def toggle_signup_box_view(request):
+    if "show_signup_box" in request.session:
+        del request.session["show_signup_box"]
+    else:
+        request.session["show_signup_box"] = True
+    if "next" in request.GET and check_next_url(request.GET["next"]):
+        return redirect(request.GET["next"])
+    return redirect(reverse("index"))

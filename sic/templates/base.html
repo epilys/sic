@@ -184,8 +184,8 @@
                 </svg>
             {% endspaceless %}
             {% if not request.user.is_authenticated %}
-                <ul class="messagelist">
-                    <li style="padding: 0 1rem;display: grid;grid-template-columns: 1fr;grid-template-rows: auto auto;width: 100%;align-content: center;justify-items: center;"><p style="text-align:center;">{{ config.html_label }} {{ config.html_subtitle }} <br/>Read <a href="{% url 'signup_help' %}">about getting an account here</a>.</p></li>
+                <ul class="messagelist"{% if request.session.show_signup_box %} style="margin:0;"{% endif %}>
+                    <li style="padding:0 1rem;display:grid;grid-template-columns:1fr;grid-template-rows:auto auto;width:100%;align-content:center;justify-items:center;{% if request.session.show_signup_box %}height:.1rem;{% endif %}"><p style="text-align:center;{% if request.session.show_signup_box %}transform:scaleY(0.1);{% endif %}">{{ config.html_label }} {{ config.html_subtitle }} <br/>Read <a href="{% url 'signup_help' %}">about getting an account here</a>.</p><form method="POST" class="bookmark_form" action="{% url_with_next 'toggle_signup_box_view' request %}" style="grid-row:1/1;grid-column:2;place-self:end;font-size:{% if request.session.show_signup_box %}x-small{% else %}smaller{% endif %};width:0;">{% csrf_token %}<input type="submit" class="bookmark_link" value="{% if request.session.show_signup_box %}show{% else %}hide{% endif %}" style="padding:.5rem;margin:-.5rem;transform:translateX(-50%){% if request.session.show_signup_box %} translateY(-100%){% endif %};"/></form></li>
                 </ul>
             {% endif %}
             {% if messages %}

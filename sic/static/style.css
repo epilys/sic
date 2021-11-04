@@ -1223,8 +1223,7 @@ ul.messagelist li {
     display: block;
     background: var(--message-success-bg);
     padding: .8rem 1rem;
-    outline: 4px solid #dddddd5e;
-    outline-offset: -4px;
+    border: 4px solid #dddddd5e;
 }
 
 ul.messagelist li.warning {
