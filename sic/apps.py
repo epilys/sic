@@ -118,6 +118,8 @@ class SicAppConfig(AppConfig):
 
     ENABLE_FETCHING_REMOTE_CONTENT = True
 
+    ENABLE_URL_POSTING = True
+
     ACCEPTED_URI_SCHEMES: typing.List[str] = [
         "dat",
         "finger",

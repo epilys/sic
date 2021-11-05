@@ -85,7 +85,9 @@
     {% else %}
         <h1>submit {% model_verbose_name 'story' False %}</h1>
     {% endif %}
-    <p class="help-text">A {% model_verbose_name 'story' False %} can have no <code>url</code>; in that case, the {% model_verbose_name 'story' False %} content is what you put in the description.</p>
+    {% if config.ENABLE_URL_POSTING %}
+        <p class="help-text">A {% model_verbose_name 'story' False %} can have no <code>url</code>; in that case, the {% model_verbose_name 'story' False %} content is what you put in the description.</p>
+    {% endif %}
     {% if not story %}
         <p class="help-text">You can edit your {% model_verbose_name 'story' False %} after submission to add missing tags or correct mistakes.</p>
     {% endif %}
@@ -101,28 +103,54 @@
             <span class="comment preview">{{ preview.description }}</span>
         {% endif %}
         {% csrf_token %}
-        <fieldset>
-            <legend>content</legend>
-            {{ form.title.errors }}
-            {{ form.title.label_tag }}
-            {% if form.title.help_text %}
-                <p class="help-text">{{ form.title.help_text }}</p>
-            {% endif %}
-            {{ form.title }}
-            {{ form.url.errors }}
-            {{ form.url.label_tag }}
-            {% if form.url.help_text %}
-                <p class="help-text">{{ form.url.help_text }}</p>
-            {% endif %}
-            {{ form.url }}
-            <div class="button-flex-box">
-                <input type="submit" name="fetch-title" value="fetch title">
-            </div>
-        </fieldset>
-        <details>
-            <summary><em>Optional</em>&hairsp;: Set description, content warning</summary>
+        {% if config.ENABLE_URL_POSTING %}
             <fieldset>
-                <legend>content <abbr title="continued">cont'd</abbr></legend>
+                <legend>content</legend>
+                {{ form.title.errors }}
+                {{ form.title.label_tag }}
+                {% if form.title.help_text %}
+                    <p class="help-text">{{ form.title.help_text }}</p>
+                {% endif %}
+                {{ form.title }}
+                {{ form.url.errors }}
+                {{ form.url.label_tag }}
+                {% if form.url.help_text %}
+                    <p class="help-text">{{ form.url.help_text }}</p>
+                {% endif %}
+                {{ form.url }}
+                <div class="button-flex-box">
+                    <input type="submit" name="fetch-title" value="fetch title">
+                </div>
+            </fieldset>
+            <details>
+                <summary><em>Optional</em>&hairsp;: Set description, content warning</summary>
+                <fieldset>
+                    <legend>content <abbr title="continued">cont'd</abbr></legend>
+                    {{ form.description.errors }}
+                    {{ form.description.label_tag }}
+                    {% if form.description.help_text %}
+                        <p class="help-text">{{ form.description.help_text }}</p>
+                    {% endif %}
+                    {{ form.description }}
+                    <a target="_blank" href="{% url 'formatting_help' %}">Formatting help</a>
+                    {{ form.content_warning.errors }}
+                    {{ form.content_warning.label_tag }}
+                    {% if form.content_warning.help_text %}
+                        <p class="help-text">{{ form.content_warning.help_text }}</p>
+                    {% endif %}
+                    {{ form.content_warning }}
+                </fieldset>
+            </details>
+        {% else %}
+            <fieldset>
+                <legend>content</legend>
+                {{ form.title.errors }}
+                {{ form.title.label_tag }}
+                {% if form.title.help_text %}
+                    <p class="help-text">{{ form.title.help_text }}</p>
+                {% endif %}
+                {{ form.title }}
+                {{ form.url }}
                 {{ form.description.errors }}
                 {{ form.description.label_tag }}
                 {% if form.description.help_text %}
@@ -130,14 +158,20 @@
                 {% endif %}
                 {{ form.description }}
                 <a target="_blank" href="{% url 'formatting_help' %}">Formatting help</a>
-                {{ form.content_warning.errors }}
-                {{ form.content_warning.label_tag }}
-                {% if form.content_warning.help_text %}
-                    <p class="help-text">{{ form.content_warning.help_text }}</p>
-                {% endif %}
-                {{ form.content_warning }}
             </fieldset>
-        </details>
+            <details>
+                <summary><em>Optional</em>&hairsp;: Set content warning</summary>
+                <fieldset>
+                    <legend>content <abbr title="continued">cont'd</abbr></legend>
+                    {{ form.content_warning.errors }}
+                    {{ form.content_warning.label_tag }}
+                    {% if form.content_warning.help_text %}
+                        <p class="help-text">{{ form.content_warning.help_text }}</p>
+                    {% endif %}
+                    {{ form.content_warning }}
+                </fieldset>
+            </details>
+        {% endif %}
         <fieldset>
             <legend>tags</legend>
             {{ form.tags.errors }}
