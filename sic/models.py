@@ -694,6 +694,8 @@ class Taggregation(models.Model):
         return mark_safe("".join(svgs))
 
     class Meta:
+        verbose_name = "aggregation"
+        verbose_name_plural = "aggregations"
         ordering = ["name"]
 
 

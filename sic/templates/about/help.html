@@ -63,13 +63,13 @@
 {% endblock %}
 {% block content %}{% get_config as config %}
     <h1>help with using {{ config.html_label }}</h1>
-    <p class="help-text">{{ config.html_label }} is a different link aggregator: almost anything is on-topic and you can customise what on-topic means for you by subscribing only to topics of interest.</p>
+    <p class="help-text">In {{ config.html_label }} you can customise what on-topic means for you by subscribing only to topics of interest.</p>
     <div class="help">
         <div>
-            <h2 id="tags_and_aggregations">Tags and aggregations</h2>
+            <h2 id="tags_and_aggregations">Tags and {% model_verbose_name 'taggregation' True %}</h2>
             <p class="help-text">Posts on {{ config.html_label }} are organised by <strong>tags</strong>.</p>
             <p class="help-text">Tags are hierarchical and can have multiple parents and children; they form a <em>directed acyclic graph</em>.</p>
-            <p class="help-text">To read posts only relevant to your interests, you can collect related tags into <strong>aggregations</strong>. Your personalised frontpage will be then the posts with tags in your aggregations you have <strong>subscribed</strong> to.</p>
+            <p class="help-text">To read posts only relevant to your interests, you can collect related tags into <strong>{% model_verbose_name 'taggregation' True %}</strong>. Your personalised frontpage will be then the posts with tags in your {% model_verbose_name 'taggregation' True %} you have <strong>subscribed</strong> to.</p>
         </div>
         <figure>
             <svg viewBox="0 0 162 71" xmlns="http://www.w3.org/2000/svg">
@@ -81,31 +81,31 @@
             <svg viewBox="0 0 162 100" xmlns="http://www.w3.org/2000/svg">
                 <use xlink:href="{% static "/help/aggs.svg" %}#svg" y="0" width="162" height="112"></use>
             </svg>
-            <figcaption>Viewing <a href="{% url 'public_aggregations' %}">public aggregations</a>.</figcaption>
+            <figcaption>Viewing <a href="{% url 'public_aggregations' %}">public {% model_verbose_name 'taggregation' True %}</a>.</figcaption>
         </figure>
         <div>
-            <p class="help-text">When you sign up you will be subscribed to the default aggregations which are managed by the website moderators. You can however create your own and don't use the default ones at all.</p>
-            <p class="help-text">Your personal aggregations can be kept private or public. They also can be <em>discoverable</em>, i.e. they show up in the public aggregations list.</p>
-            <p class="help-text">You can always find your personal aggregations in your <a href="{% url 'account' %}#taggregations">Account</a> page.</p>
+            <p class="help-text">When you sign up you will be subscribed to the default {% model_verbose_name 'taggregation' True %} which are managed by the website moderators. You can however create your own and don't use the default ones at all.</p>
+            <p class="help-text">Your personal {% model_verbose_name 'taggregation' True %} can be kept private or public. They also can be <em>discoverable</em>, i.e. they show up in the public aggregations list.</p>
+            <p class="help-text">You can always find your personal {% model_verbose_name 'taggregation' True %} in your <a href="{% url 'account' %}#taggregations">Account</a> page.</p>
         </div>
         <div>
-            <p class="help-text">You can change your subscription status from the aggregation's page. If you're a moderator and/or creator, you can also edit it.</p>
-            <p class="help-text">If you want to base a personal aggregation on an existing one, you can create a copy.</p>
+            <p class="help-text">You can change your subscription status from the {% model_verbose_name 'taggregation' False %}'s page. If you're a moderator and/or creator, you can also edit it.</p>
+            <p class="help-text">If you want to base a personal {% model_verbose_name 'taggregation' False %} on an existing one, you can create a copy.</p>
         </div>
         <figure>
             <svg viewBox="0 0 162 109" xmlns="http://www.w3.org/2000/svg">
                 <use xlink:href="{% static "/help/artsagg.svg" %}#svg" width="162" height="109"></use>
             </svg>
-            <figcaption>Details of the <em>Arts</em> aggregation.</figcaption>
+            <figcaption>Details of the <em>Arts</em> {% model_verbose_name 'taggregation' False %}.</figcaption>
         </figure>
         <figure>
             <svg viewBox="0 0 162 100" xmlns="http://www.w3.org/2000/svg">
                 <use xlink:href="{% static "/help/newartsfilter.svg" %}#svg" width="162" height="109"></use>
             </svg>
-            <figcaption>Adding a new {% model_verbose_name 'story' False %} filter to the <em>Arts</em> aggregation.</figcaption>
+            <figcaption>Adding a new {% model_verbose_name 'story' False %} filter to the <em>Arts</em> {% model_verbose_name 'taggregation' False %}.</figcaption>
         </figure>
         <div>
-            <p class="help-text">A tag is added to an aggregation through a {% model_verbose_name 'story' False %} filter.</p>
+            <p class="help-text">A tag is added to one {% model_verbose_name 'taggregation' False %} through a {% model_verbose_name 'story' False %} filter.</p>
             <p class="help-text">You can select a <em>depth</em> for each tag which determines how many levels of descendants in the tag graph are included.</p>
             <p class="help-text">The default depth is <code>0</code>. An empty depth means the entire tree starting from the given tag is included.</p>
             <p class="help-text">Finally, you can exclude tags by adding exclude filters.</p>
@@ -116,7 +116,7 @@
             <h2 id="account_settings">Account settings</h2>
             <p class="help-text">You can select when to receive emails, whether to show {% model_verbose_name 'story' True %} with content warnings by default and whether to show colors at all.</p>
             <h3>weekly digests</h3>
-            <p class="help-text">You can opt-in to a weekly digest email to read all the {% model_verbose_name 'story' True %} posted since the last time you were sent a digest mail. The digest mail can include all {% model_verbose_name 'story' True %} or just your aggregation subscriptions. You can also select individual days for delivery.</p>
+            <p class="help-text">You can opt-in to a weekly digest email to read all the {% model_verbose_name 'story' True %} posted since the last time you were sent a digest mail. The digest mail can include all {% model_verbose_name 'story' True %} or just your {% model_verbose_name 'taggregation' False %} subscriptions. You can also select individual days for delivery.</p>
             <p class="help-text">You can disable it at any time.</p>
             <h3>accessibility session settings</h3>
             <p class="help-text">You can optionally disable vivid colors and increase font-size <span style="font-size:115%">for</span> <span style="font-size:125%">this</span> <span style="font-size:135%">session</span>.</p>
@@ -155,7 +155,7 @@
         </figure>
         <div>
             <h3>bookmarks</h3>
-            <p class="help-text">You can save individual comments or posts in your bookmarks and optionally add your notes. You can export your bookmarks as <code>json</code> at any time.</p>
+            <p class="help-text">You can save individual {% model_verbose_name 'comment' True %} or posts in your bookmarks and optionally add your notes. You can export your bookmarks as <code>json</code> at any time.</p>
         </div>
     </div>
 {% endblock %}

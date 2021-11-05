@@ -41,7 +41,7 @@
                         {% endif %}
                     {% endfor %}
                 {% elif activity.type == 'comment' %}
-                    <h3>You posted {{ activity.count }} comment{{ activity.count|pluralize }} <small>{{ activity.date_min|naturaltime }}{% if activity.date_max %} - {{ activity.date_max|naturaltime }}{% endif %}</small></h3>
+                    <h3>You posted {{ activity.count }} {% model_verbose_name 'comment' activity.count %} <small>{{ activity.date_min|naturaltime }}{% if activity.date_max %} - {{ activity.date_max|naturaltime }}{% endif %}</small></h3>
                     {% for subactivity in activity.items %}
                         <ul class="posts">
                             {% render_comments request subactivity.obj reply_form show_story=True only_roots=False %}
@@ -64,7 +64,7 @@
             </li>
         {% empty %}
             <li class="">
-                <p>No activity yet. Make a post or add a comment and it will show up here.</p>
+                <p>No activity yet. Make a post or add a {% model_verbose_name 'comment' False %} and it will show up here.</p>
             </li>
         {% endfor %}
     </ul>

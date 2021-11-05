@@ -3,6 +3,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.utils.text import format_lazy
 from django.db.models.functions import Lower
 from django.apps import apps
 
@@ -31,7 +32,9 @@ class URLField(forms.URLField):
 class SubmitStoryForm(forms.Form):
     required_css_class = "required"
     title = forms.CharField(
-        label="Story title",
+        label=format_lazy(
+            "{story} title", story=config.model_verbose_names("story", False)
+        ),
         required=False,
         max_length=200,
         min_length=2,
@@ -54,7 +57,7 @@ class SubmitStoryForm(forms.Form):
     user_is_author = forms.BooleanField(
         label="Author",
         required=False,
-        help_text="I am the author of the story at this URL (or this text)",
+        help_text="I am the author of the content at this URL (or this text)",
     )
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all().order_by(Lower("name")),
@@ -91,7 +94,9 @@ class EditStoryForm(SubmitStoryForm):
 class SubmitCommentForm(forms.Form):
     text = forms.CharField(
         required=True,
-        label="Comment",
+        label=format_lazy(
+            "{comment}", comment=config.model_verbose_names("comment", False)
+        ),
         min_length=1,
         widget=forms.Textarea({"rows": 6, "cols": 15, "placeholder": ""}),
     )
@@ -100,14 +105,23 @@ class SubmitCommentForm(forms.Form):
 class DeleteCommentForm(forms.Form):
     confirm_delete = forms.BooleanField(
         required=True,
-        label="Really Delete this comment?",
-        help_text="Check this box to permanently delete this comment.",
+        label=format_lazy(
+            "Really delete this {comment}?",
+            comment=config.model_verbose_names("comment", False),
+        ),
+        help_text=format_lazy(
+            "Check this box to permanently delete this {comment}.",
+            comment=config.model_verbose_names("comment", False),
+        ),
     )
     deletion_reason = forms.CharField(
         required=False,
         label="Public deletion reason",
         widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
-        help_text="Describe the reason (that will be shown in the public log) for deleting this comment.",
+        help_text=format_lazy(
+            "Describe the reason (that will be shown in the public log) for deleting this {comment}.",
+            comment=config.model_verbose_names("comment", False),
+        ),
     )
 
 
@@ -121,7 +135,10 @@ class EditReplyForm(forms.Form):
     edit_reason = forms.CharField(
         required=False,
         label="Reason",
-        help_text="Describe the reason (that will be shown in the public log) for editing this comment.",
+        help_text=format_lazy(
+            "Describe the reason (that will be shown in the public log) for editing this {comment}.",
+            comment=config.model_verbose_names("comment", False),
+        ),
         widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""}),
     )
 
@@ -628,7 +645,19 @@ class SearchCommentsForm(forms.Form):
     search_in = forms.ChoiceField(
         required=True,
         label="search in",
-        choices=[("comments", "comments"), ("stories", "stories"), ("both", "both")],
+        choices=[
+            (
+                "comments",
+                format_lazy(
+                    "{comment}", comment=config.model_verbose_names("comment", True)
+                ),
+            ),
+            (
+                "stories",
+                format_lazy("{story}", story=config.model_verbose_names("story", True)),
+            ),
+            ("both", "both"),
+        ],
         initial="both",
         widget=forms.RadioSelect,
     )
