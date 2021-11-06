@@ -299,6 +299,9 @@ def submit_story(request):
                             )
                             return redirect(previous_post.get_absolute_url())
 
+                if not url and description:
+                    user_is_author = True
+
                 new_story = Story.objects.create(
                     title=title,
                     url=url,
