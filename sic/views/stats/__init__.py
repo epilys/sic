@@ -458,14 +458,12 @@ FROM
 def get_svg_or_schedule_job(job_name: str, func: types.FunctionType) -> str:
     svg_name = f"{job_name}_svg"
     svg = cache.get(svg_name, None)
-    print("get_svg_or_schedule_job() job_name is ", job_name, " svg is ", svg)
     if svg is None:
         kind = JobKind.from_func(func)
         jobs = Job.objects.filter(
             kind=kind,
             created__gte=make_aware(datetime.now() - timedelta(seconds=CACHE_TIMEOUT)),
         )
-        print("job exists()", jobs.exists())
         if jobs.exists():
             for job in jobs:
                 if not job.failed and not job.active:
@@ -479,6 +477,18 @@ def get_svg_or_schedule_job(job_name: str, func: types.FunctionType) -> str:
             _job_obj, _ = Job.objects.get_or_create(
                 kind=kind, created=make_aware(datetime.now()), periodic=False
             )
+    if not svg:
+        kind = JobKind.from_func(func)
+        job = Job.objects.filter(
+            kind=kind,
+            created__lte=make_aware(datetime.now()),
+            failed=False,
+            active=False,
+        ).last()
+        if job:
+            svg = job.logs
+            cache.set(svg_name, svg, timeout=30)
+            cache.set(job_name, job.data, timeout=30)
     if not svg:
         svg = UNAVAILABLE_SVG
     return svg
