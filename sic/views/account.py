@@ -353,6 +353,7 @@ def generate_invite(request, invite_pk=None):
             req_pk = request.POST["req-pk"]
         if form.is_valid():
             address = form.cleaned_data["email"]
+            req = None
             if req_pk:
                 req = InvitationRequest.objects.filter(pk=req_pk).first()
             if not req:
