@@ -143,8 +143,18 @@ urlpatterns = [
         stories.story_remote_content_formatted,
         name="story_remote_content_formatted",
     ),
+    path(
+        "s/<int:story_pk>/<str:slug>/rfc5322/",
+        views.story_as_email,
+        name="story_as_email",
+    ),
     path("s/<int:story_pk>/<str:slug>/edit/", stories.edit_story, name="edit_story"),
     path("c/preview/", views.preview_comment, name="preview_comment"),
+    path(
+        "s/<int:story_pk>/<str:slug>/rfc5322/<int:comment_pk>/",
+        views.comment_as_email,
+        name="comment_as_email",
+    ),
     path("c/<int:comment_pk>/edit/", views.edit_comment, name="edit_comment"),
     path("c/<int:comment_pk>/delete/", views.delete_comment, name="delete_comment"),
     path("search/", views.search, name="search"),

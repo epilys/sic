@@ -439,3 +439,79 @@ def comment_create_mailing_list(
                 headers=headers,
                 connection=connection,
             ).send()
+
+
+def story_as_email(pk):
+    if isinstance(pk, str):
+        pk = int(pk)
+    story_obj = Story.objects.get(pk=pk)
+    headers: typing.Dict[str, str] = {
+        "To": config.mailing_list_address(),
+        "Message-ID": story_obj.get_message_id,
+        "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{story_obj.get_absolute_url()}>",
+        "List-ID": f"{config.MAILING_LIST_ID} <{config.mailing_list_address()}>",
+        "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
+        "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
+        "Reply-To": config.mailing_list_address(),
+    }
+    description = story_obj.description_to_plain_text
+    if story_obj.url:
+        description = f"{story_obj.url}\n\n{description}"
+    from email.message import EmailMessage
+
+    msg = EmailMessage()
+    msg["Subject"] = f"[{config.verbose_name}] {story_obj.title}"
+    msg["From"] = (
+        config.MAILING_LIST_FROM
+        if config.MAILING_LIST_FROM
+        else f""""{story_obj.user}" <{str(story_obj.user).replace(" ", ".")}@{config.get_domain()}>"""
+    )
+    for (k, v) in headers.items():
+        msg[k] = v
+    msg.set_content(description)
+    return str(msg)
+
+
+def comment_as_email(pk):
+    if isinstance(pk, str):
+        pk = int(pk)
+    comment_obj = Comment.objects.get(pk=pk)
+    story_obj: Story = comment_obj.story
+    in_reply_to: str = story_obj.get_message_id
+    if comment_obj.parent:
+        in_reply_to = comment_obj.parent.get_message_id
+
+    references = []
+    parent_ptr = comment_obj.parent
+    while parent_ptr is not None:
+        references.append(parent_ptr.get_message_id)
+        parent_ptr = parent_ptr.parent
+    references.append(story_obj.get_message_id)
+
+    references_str = " ".join(reversed(references))
+
+    headers: typing.Dict[str, str] = {
+        "To": config.mailing_list_address(),
+        "Message-ID": comment_obj.get_message_id,
+        "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{comment_obj.get_absolute_url()}>",
+        "List-ID": f"{config.MAILING_LIST_ID} <{config.mailing_list_address()}>",
+        "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
+        "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
+        "Reply-To": config.mailing_list_address(),
+        "In-Reply-To": in_reply_to,
+        "References": references_str,
+    }
+    from email.message import EmailMessage
+
+    msg = EmailMessage()
+    msg["Subject"] = f"Re: [{config.verbose_name}] {story_obj.title}"
+    msg["From"] = (
+        config.MAILING_LIST_FROM
+        if config.MAILING_LIST_FROM
+        else f""""{comment_obj.user}" <{str(comment_obj.user).replace(" ", ".")}@{config.get_domain()}>"""
+    )
+
+    for (k, v) in headers.items():
+        msg[k] = v
+    msg.set_content(comment_obj.text_to_plain_text)
+    return str(msg)
