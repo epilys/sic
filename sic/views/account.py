@@ -427,9 +427,6 @@ def profile_posts(request, name, page_num=1):
 @transaction.atomic
 @require_http_methods(["GET", "POST"])
 def signup(request, invite_pk=None):
-    if request.user.is_authenticated:
-        messages.add_message(request, messages.ERROR, "You already have an account.")
-        return redirect("index")
     inv = None
     if invite_pk:
         try:
@@ -439,6 +436,27 @@ def signup(request, invite_pk=None):
         if not inv.is_valid():
             messages.add_message(request, messages.ERROR, "Invitation has expired.")
             return redirect("index")
+
+    if request.user.is_authenticated and not inv:
+        messages.add_message(request, messages.ERROR, "You already have an account.")
+        return redirect("index")
+    elif request.user.is_authenticated and inv:
+        is_valid = inv.is_valid()
+        has_correct_address = inv.address == request.user.email
+        if is_valid and has_correct_address:
+            if not config.REQUIRE_VOUCH_FOR_PARTICIPATION:
+                return HttpResponseBadRequest("Vouches are not required.")
+            inv.accept(request.user)
+            messages.add_message(request, messages.SUCCESS, "You have been vouched!")
+        elif not is_valid:
+            messages.add_message(request, messages.ERROR, "Invalid invitation.")
+        elif not has_correct_address:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                "The invitation address and your account email do not match.",
+            )
+        return redirect("index")
 
     if not inv and not config.ALLOW_REGISTRATIONS:
         return HttpResponseBadRequest("Registrations are closed.")
