@@ -1069,6 +1069,8 @@ class User(PermissionsMixin, AbstractBaseUser):
     metadata_3_label = models.CharField(null=True, blank=True, max_length=200)
     metadata_4_label = models.CharField(null=True, blank=True, max_length=200)
 
+    ssh_public_key = models.TextField(null=True, blank=True)
+
     auth_token = models.TextField(null=True, blank=True)
 
     is_active = models.BooleanField(default=True)

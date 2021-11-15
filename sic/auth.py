@@ -1,3 +1,10 @@
+import tempfile
+import subprocess
+from subprocess import Popen, PIPE
+import shutil
+from datetime import datetime, timedelta
+from django.conf import settings
+from django.utils.timezone import make_aware
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.crypto import constant_time_compare
@@ -31,8 +38,84 @@ CACHE_TIMEOUT = 60 * 30
 
 class SicBackend(ModelBackend):
     def authenticate(
-        self, request, username=None, password=None, username_as_alternative=False
+        self,
+        request,
+        username=None,
+        password=None,
+        username_as_alternative=False,
+        ssh_signature=None,
     ):
+        if ssh_signature:
+            # First search for a valid (existing/unexpired) challenge token in the request session
+            user = None
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                user = User.objects.get(email=username)
+            if not user.ssh_public_key:
+                if settings.DEBUG:
+                    raise Exception("User hasn't configured a ssh_public_key")
+                return None
+            timeout, token = request.session.get(f"ssh_challenge", None)
+            timeout = make_aware(datetime.fromtimestamp(timeout))
+            now = make_aware(datetime.now())
+            if now - timeout > timedelta(minutes=6):
+                raise Exception("Token has expired")
+            ssh_keygen_bin = shutil.which("ssh-keygen")
+            if not ssh_keygen_bin:
+                if settings.DEBUG:
+                    raise Exception("No ssh-keygen binary found in $PATH")
+                return None
+
+            # Once you have your allowed signers file, verification works like this:
+            # ssh-keygen -Y verify -f allowed_signers -I alice@example.com -n file -s file_to_verify.sig < file_to_verify
+            # Here are the arguments you may need to change:
+            #     allowed_signers is the path to the allowed signers file.
+            #     alice@example.com is the email address of the person who allegedly signed the file. This email address is looked up in the allowed signers file to get possible public keys.
+            #     file is the "namespace", which must match the namespace used for signing as described above.
+            #     file_to_verify.sig is the path to the signature file.
+            #     file_to_verify is the path to the file to be verified. Note that this file is read from standard in. In the above command, the < shell operator is used to redirect standard in from this file.
+            # If the signature is valid, the command exits with status 0 and prints a message like this:
+            # Good "file" signature for alice@example.com with ED25519 key SHA256:ZGa8RztddW4kE2XKPPsP9ZYC7JnMObs6yZzyxg8xZSk
+            # Otherwise, the command exits with a non-zero status and prints an error message.
+            with tempfile.NamedTemporaryFile() as allowed_signers_fp, tempfile.NamedTemporaryFile() as signature_fp:
+                allowed_signers_fp.write(
+                    f"{user.email} {user.ssh_public_key}".encode("utf-8")
+                )
+                allowed_signers_fp.flush()
+                signature_fp.write(
+                    ssh_signature.strip().replace("\r\n", "\n").encode("utf-8")
+                )
+                signature_fp.flush()
+                with Popen(
+                    [
+                        ssh_keygen_bin,
+                        "-Y",
+                        "verify",
+                        "-f",
+                        allowed_signers_fp.name,
+                        "-I",
+                        user.email,
+                        "-n",
+                        config.verbose_name,
+                        "-s",
+                        signature_fp.name,
+                    ],
+                    stdin=PIPE,
+                    stdout=PIPE,
+                    text=True,
+                ) as ssh_keygen_pipe:
+                    outs, errs = ssh_keygen_pipe.communicate(input=token, timeout=1)
+                    exit_code = ssh_keygen_pipe.returncode
+                    if exit_code != 0:
+                        if settings.DEBUG:
+                            raise Exception(
+                                f"ssh-keygen exited with {exit_code}: {outs}"
+                            )
+                        return None
+                    return user
+                return None
+
         res = super().authenticate(request, username=username, password=password)
         if res is None and username_as_alternative is True:
             try:
@@ -278,3 +361,15 @@ class AuthenticationForm(DjangoAuthenticationForm):
             self.confirm_login_allowed(self.user_cache)
 
         return self.cleaned_data
+
+
+from django import forms
+
+
+class SSHAuthenticationForm(forms.Form):
+    username = forms.CharField(required=True, label="Email address or username")
+    password = forms.CharField(
+        required=True,
+        widget=forms.Textarea({"rows": 5, "cols": 15, "placeholder": ""}),
+        label="SSH signature",
+    )

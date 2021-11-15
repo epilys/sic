@@ -284,6 +284,11 @@ urlpatterns = [
         name="login",
     ),
     path(
+        "accounts/sshlogin/",
+        account.login_with_ssh_signature,
+        name="sshlogin",
+    ),
+    path(
         "accounts/logout/",
         auth_views.LogoutView.as_view(next_page="index"),
         name="logout",

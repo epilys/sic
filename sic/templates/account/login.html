@@ -1,5 +1,19 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% block title %}Login - {{ config.verbose_name }} {% endblock %}
+{% block style %}
+    <style>
+        .command-line-example {
+            place-self:center;
+            user-select: all;
+            display: inline-block;
+            ruby-align: center;
+            ruby-position: under;
+            padding: 0;
+        }
+
+    </style>
+{% endblock %}
 {% block content %}
     <h2 style="place-self:center;">Login</h2>
 
@@ -16,7 +30,11 @@
 
     {% if user.is_authenticated %}
     {% else %}
-        <form method="post" action="{% url 'login' %}" class="login-form">
+        {% if ssh_challenge %}
+            <p style="place-self:center;">Sign <mark><code>{{ ssh_challenge }}</code></mark> with your previously configured key within <time title="{{ timeout_left }}" datetime="{{ timeout_left }}">{{ timeout_left|naturaltime }}</time>. Example:</p>
+            <pre class="command-line-example">printf '<ruby><mark>{{ ssh_challenge }}</mark><rp>(</rp><rt>signin challenge</rt><rp>)</rp></ruby>' | ssh-keygen -Y sign -f <ruby>~/.ssh/id_rsa <rp>(</rp><rt>your account's key</rt><rp>)</rp></ruby> -n <ruby>{{ config.verbose_name }}<rp>(</rp><rt>protocol</rt><rp>)</rp></ruby></pre>
+        {% endif %}
+        <form method="post" action="{% if ssh_challenge %}{% url 'sshlogin' %}{%else %}{% url 'login' %}{% endif %}" class="login-form">
             {% csrf_token %}
             {{ form.username.label_tag }}
             {{ form.username }}
@@ -24,9 +42,15 @@
             {{ form.password }}
             <input type="submit" value="login">
             <input type="hidden" name="next" value="{{ next }}">
+            {% if ssh_challenge %}<input formaction="{% url 'sshlogin' %}" formnovalidate="true" type="submit" name="refresh" value="refresh token">{% endif %}
         </form>
 
         {# Assumes you setup the password_reset view in your URLconf #}
-        <p style="place-self:center;"><a href="{% url 'password_reset' %}">Lost password?</a></p>
+        <p style="place-self:center;"><a href="{% url 'password_reset' %}">Lost password?</a><br/>
+            {% if ssh_challenge %}
+                <a href="{% url 'login' %}">Sign in with your password instead</a>
+            {% else %}
+                <a href="{% url 'sshlogin' %}">Sign in with your SSH key instead</a>
+            {% endif %}</p>
     {% endif %}
 {% endblock %}

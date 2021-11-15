@@ -1,7 +1,8 @@
 import re
+import secrets
 import html
 import itertools
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.http import Http404, HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
@@ -21,7 +22,7 @@ from django.apps import apps
 
 config = apps.get_app_config("sic")
 from wand.image import Image
-from sic.auth import AuthToken
+from sic.auth import AuthToken, SSHAuthenticationForm
 from sic.models import (
     User,
     Invitation,
@@ -83,6 +84,55 @@ def login(request):
             return redirect(reverse("index"))
         messages.add_message(request, messages.ERROR, "Could not login.")
     return render(request, "account/login.html")
+
+
+def login_with_ssh_signature(request):
+    token = None
+    timeout_left = None
+    generate_new = True
+    if request.method == "POST":
+        if "refresh" not in request.POST:
+            username = request.POST["username"]
+            signature = request.POST["password"]
+            try:
+                user = authenticate(request, username=username, ssh_signature=signature)
+                if user is not None:
+                    auth_login(request, user)
+                    return redirect(reverse("index"))
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "Could not login. A possible reason is you have not configured a ssh_public_key in your account settings.",
+                )
+            except Exception as exc:
+                messages.add_message(request, messages.ERROR, f"Could not login: {exc}")
+        else:
+            del request.session["ssh_challenge"]
+    existing_token = request.session.get("ssh_challenge", None)
+    if existing_token:
+        timeout, prev_token = existing_token
+        timeout = make_aware(datetime.fromtimestamp(timeout))
+        now = make_aware(datetime.now())
+        timeout_left = timeout + timedelta(minutes=6)
+        if timeout < now and now - timeout < timedelta(minutes=6):
+            generate_new = False
+            token = prev_token
+
+    if generate_new:
+        # generate a challenge token
+        token = secrets.token_hex(5)
+        now = make_aware(datetime.now())
+        request.session["ssh_challenge"] = (now.timestamp(), token)
+        timeout_left = now + timedelta(minutes=6)
+    return render(
+        request,
+        "account/login.html",
+        {
+            "ssh_challenge": token,
+            "timeout_left": timeout_left,
+            "form": SSHAuthenticationForm,
+        },
+    )
 
 
 @login_required
@@ -773,6 +823,7 @@ def edit_settings(request):
                 ]
                 user.show_avatars = form.cleaned_data["show_avatars"]
                 user.show_colors = form.cleaned_data["show_colors"]
+                user.ssh_public_key = form.cleaned_data["ssh_public_key"]
                 user.save()
                 messages.add_message(
                     request, messages.SUCCESS, "Account settings updated successfully."
