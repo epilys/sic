@@ -370,6 +370,37 @@ class SSHAuthenticationForm(forms.Form):
     username = forms.CharField(required=True, label="Email address or username")
     password = forms.CharField(
         required=True,
-        widget=forms.Textarea({"rows": 5, "cols": 15, "placeholder": ""}),
+        widget=forms.Textarea(
+            {
+                "style": "font-family: monospace; font-size: 0.5rem; font-weight: bolder;",
+                "rows": 5,
+                "cols": 15,
+                "placeholder": """-----BEGIN SSH SIGNATURE-----
+changemechangemechangemechangemechangemechangemechangemechangemechange
+mechangemechangemechangemechangemechangemechangemechangemechangemechan
+gemechangemechangemechangemechangemechangemechangemechangemechangemech
+angemechangemechangemechangemechangemechangemechangemechangemechangeme
+changemechangemechangemechangemechangemechangemechangemechangemechange
+mechangemechangemechangemechangemechangemechangemechangemechangemechan
+gemechangemechangemechangemechangemechangemechangemechangemechangemech
+angemechangemechangemechangemechangemechangemechangemechangemechangeme
+changemechangemechangemechangemechangemechangemechangemechangemechange
+mechangemechangemechangemechangemechangemechangemechangemechangemechan
+gemechangemechangemechangemechangemechangemechangemechangemechangemech
+angemechangemechangemechangemechangemechangemechangemechangemechangeme
+changemechangemechangemechangemechangemechangemechangemechangemechange
+mechangemechangemechangemechangemechangemechangemechangemechangemechan
+gemechangemechangemechangemechangemechangemechangemechangemechangemech
+angemechangemechangemechangemechangemechangemechangemechangemechangeme
+changemechangemechangemechangemechangemechangemechangemechangemechange
+mechangemechangemechangemechangemechangemechangemechangemechangemechan
+gemechangemechangemechangemechangemechangemechangemechangemechangemech
+angemechangemechangemechangemechangemechangemechangemechangemechangeme
+changemechangemechangemechangemechangemechangemechangemechangemechange
+chang=
+-----END SSH SIGNATURE-----
+""",
+            }
+        ),
         label="SSH signature",
     )
