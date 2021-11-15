@@ -108,6 +108,8 @@ class SicAppConfig(AppConfig):
 
     REQUIRE_VOUCH_FOR_PARTICIPATION = True
 
+    ENABLE_SSH_OTP_LOGIN = True
+
     DISALLOW_REPOSTS_PERIOD: typing.Optional[datetime.timedelta] = datetime.timedelta(
         weeks=1
     )

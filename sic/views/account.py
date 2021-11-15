@@ -86,7 +86,15 @@ def login(request):
     return render(request, "account/login.html")
 
 
+@transaction.atomic
+@require_http_methods(["GET", "POST"])
 def login_with_ssh_signature(request):
+    if not config.ENABLE_SSH_OTP_LOGIN:
+        messages.add_message(
+            request, messages.ERROR, "SSH OTP login not allowed in this website."
+        )
+        return redirect(reverse("login"))
+
     token = None
     timeout_left = None
     generate_new = True

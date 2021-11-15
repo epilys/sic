@@ -49,7 +49,7 @@
         <p style="place-self:center;"><a href="{% url 'password_reset' %}">Lost password?</a><br/>
             {% if ssh_challenge %}
                 <a href="{% url 'login' %}">Sign in with your password instead</a>
-            {% else %}
+            {% elif config.ENABLE_SSH_OTP_LOGIN %}
                 <a href="{% url 'sshlogin' %}">Sign in with your SSH key instead</a>
             {% endif %}</p>
     {% endif %}
