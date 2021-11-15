@@ -122,7 +122,7 @@
                     <input type="submit" name="fetch-title" value="fetch title">
                 </div>
             </fieldset>
-            <details>
+            <details{% if form.description.value or form.content_warning.value %} open{%endif%}>
                 <summary><em>Optional</em>&hairsp;: Set description, content warning</summary>
                 <fieldset>
                     <legend>content <abbr title="continued">cont'd</abbr></legend>
