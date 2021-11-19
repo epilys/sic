@@ -117,7 +117,7 @@ def story_exists(story_url):
 
 story_link = make_link_rule(
     "story_tag",
-    lambda story_url: story_url,
+    lambda story_url: f"/{story_url}",
     story_exists,
     detect_fn=lambda t: 1 if t.startswith("</") else False,
 )
