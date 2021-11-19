@@ -102,6 +102,10 @@
             </div>
             <span class="comment preview">{{ preview.description }}</span>
         {% endif %}
+        <div class="button-flex-box">
+            <input class="heavy-positive-action" type="submit" value="{% if story %}Save{% else %}Submit{% endif %}">
+            <input type="submit" name="preview" value="Preview">
+        </div>
         {% csrf_token %}
         {% if config.ENABLE_URL_POSTING %}
             <fieldset>
