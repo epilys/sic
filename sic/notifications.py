@@ -4,6 +4,7 @@ from django.db.models.expressions import RawSQL
 from django.dispatch import receiver
 from django.core.mail import EmailMessage
 from django.apps import apps
+from django.urls import reverse
 
 config = apps.get_app_config("sic")
 from .models import Comment, Story, User, Message, Notification, InvitationRequest
@@ -98,6 +99,15 @@ def new_invitation_request_receiver(
 ):
     req = instance
     if created:
+        for user in User.objects.filter(notify_on_new_invitation_request=True):
+            Notification.objects.create(
+                user=user,
+                name=f"New invitation request from {req.name} <{req.address}>",
+                kind=Notification.Kind.OTHER,
+                body=f"{req.about}\n\nTurn these notifications off from the following page",
+                caused_by=None,
+                url=reverse("invitation_requests"),
+            )
         EmailMessage(
             f"[{config.verbose_name}] confirmation of your invitation request",
             f"This message is just a confirmation we have received your request.",

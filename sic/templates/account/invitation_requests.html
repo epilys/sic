@@ -41,6 +41,23 @@
     </style>
 {% endblock %}
 {% block content %}
+    <h1>Invitation/vouching requests</h1>
+    <h2>Account settings</h2>
+    <form method="POST" class="submit-story-form">
+        {% csrf_token %}
+        {% for field in notify_form %}
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {% if field.help_text %}
+                <p class="help-text">{{ field.help_text }}</p>
+            {% endif %}
+            {{ field }}
+        {% endfor %}
+        <div class="button-flex-box">
+            <input type="submit" name="set-notify" value="Submit">
+        </div>
+    </form>
+    <h2>Requests</h2>
     <ul class="invitation-requests">
         {% for req in requests %}
             <li class="invitation-request">

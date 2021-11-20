@@ -811,3 +811,11 @@ class EditDomainFilter(forms.Form):
         required=False,
         initial=False,
     )
+
+
+class NotifyOnNewInvitationRequests(forms.Form):
+    notify_me = forms.BooleanField(
+        initial=False,
+        required=False,
+        help_text="Send me a notification whenever a new request arrives.",
+    )

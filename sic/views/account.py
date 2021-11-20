@@ -51,6 +51,7 @@ from sic.forms import (
     AnnotationForm,
     EditExactTagFilter,
     EditDomainFilter,
+    NotifyOnNewInvitationRequests,
 )
 
 from sic.views.utils import (
@@ -951,20 +952,36 @@ def issue_token(request):
 @transaction.atomic
 def invitation_requests(request):
     user = request.user
+    notify_form = NotifyOnNewInvitationRequests(
+        initial={"notify_me": user.notify_on_new_invitation_request}
+    )
     if request.method == "POST":
         try:
-            vote_pk = request.POST["vote-pk"]
-            if "submit" in request.POST:
+            if "vote-pk" in request.POST and "submit" in request.POST:
+                vote_pk = request.POST["vote-pk"]
                 choice = request.POST[f"choice-{vote_pk}"]
                 choice = True if choice == "yes" else False if choice == "no" else None
                 note = request.POST[f"note-{vote_pk}"]
                 InvitationRequest.objects.get(pk=int(vote_pk)).votes.create(
                     user=user, in_favor=choice, note=note
                 )
-            elif "delete-vote" in request.POST:
+            elif "vote-pk" in request.POST and "delete-vote" in request.POST:
+                vote_pk = request.POST["vote-pk"]
                 InvitationRequest.objects.get(pk=int(vote_pk)).votes.filter(
                     user__pk=user.pk
                 ).delete()
+            elif "set-notify" in request.POST:
+                notify_form = NotifyOnNewInvitationRequests(request.POST)
+                if notify_form.is_valid():
+                    user.notify_on_new_invitation_request = notify_form.cleaned_data[
+                        "notify_me"
+                    ]
+                    user.save(update_fields=["notify_on_new_invitation_request"])
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        "Your notification settings have been updated.",
+                    )
         except Exception as exc:
             messages.add_message(request, messages.ERROR, f"Exception: {exc}")
     requests = list(InvitationRequest.objects.filter(fulfilled_by__isnull=True))
@@ -976,7 +993,7 @@ def invitation_requests(request):
     return render(
         request,
         "account/invitation_requests.html",
-        {"requests": requests},
+        {"requests": requests, "notify_form": notify_form},
     )
 
 

@@ -875,6 +875,9 @@ class InvitationRequest(models.Model):
     def __str__(self):
         return f"{self.pk} {self.name} {self.address}"
 
+    def get_absolute_url(self):
+        return reverse("invitation_requests")
+
 
 class InvitationRequestVote(models.Model):
     id = models.AutoField(primary_key=True)
@@ -1047,6 +1050,7 @@ class User(PermissionsMixin, AbstractBaseUser):
     email_replies = models.BooleanField(default=True, null=False)
     email_messages = models.BooleanField(default=True, null=False)
     email_mentions = models.BooleanField(default=True, null=False)
+    notify_on_new_invitation_request = models.BooleanField(default=False, null=False)
     enable_mailing_list = models.BooleanField(default=False, null=False)
     enable_mailing_list_comments = models.BooleanField(default=False, null=False)
     enable_mailing_list_replies = models.BooleanField(default=False, null=False)
