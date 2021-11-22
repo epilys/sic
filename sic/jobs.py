@@ -30,12 +30,34 @@ def send_digests(job):
     Digest.send_digests()
 
 
+def fetch_remote_content(url):
+    with subprocess.Popen(
+        [
+            BASE_DIR / "tools/fetch_remote_content/target/debug/fetch_remote_content",
+            url,
+        ],
+        stdout=subprocess.PIPE,
+    ) as proc:
+        content = proc.stdout.read().decode("utf-8")
+    return content
+
+
 def fetch_url(job):
     try:
         pk = job.data["pk"]
         url = job.data["url"]
         if pk is None or url is None or len(url) == 0:
             return None
+        if url.startswith("gemini://"):
+            content = fetch_remote_content(url)
+            StoryRemoteContent(
+                story_id=pk,
+                url=url,
+                content=content,
+                retrieved_at=make_aware(datetime.now()),
+            ).save()
+            index_story(Story.objects.get(pk=pk))
+            return True
         with urllib.request.urlopen(
             urllib.request.Request(
                 url,
@@ -75,15 +97,7 @@ def fetch_url(job):
             elif not "html" in response.getheader("Content-Type"):
                 return f"""Content-Type is {response.getheader("Content-Type")}"""
             log = None
-            with subprocess.Popen(
-                [
-                    BASE_DIR
-                    / "tools/fetch_remote_content/target/debug/fetch_remote_content",
-                    url,
-                ],
-                stdout=subprocess.PIPE,
-            ) as proc:
-                content = proc.stdout.read().decode("utf-8")
+            content = fetch_remote_content(url)
             w3m_output = None
             try:
                 w3m_output = subprocess.check_output(
