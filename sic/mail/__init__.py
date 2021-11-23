@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import logging
 import email
+from email.headerregistry import Address as AddressHeader
 import re
 import typing
 from email.policy import default as email_policy
@@ -365,14 +366,26 @@ def create_story_post_on_mailing_list(job):
     if story_obj.url:
         description = f"{story_obj.url}\n\n{description}"
 
+    from_addr: str
+    if config.MAILING_LIST_FROM:
+        from_addr = config.MAILING_LIST_FROM
+    elif story_obj.user.username:
+        from_addr = str(
+            AddressHeader(
+                story_obj.user.username,
+                story_obj.user.username.replace(" ", "_").replace("@", "_"),
+                config.get_domain(),
+            )
+        )
+    else:
+        from_addr = story_obj.user.email
+
     with mail.get_connection(fail_silently=False) as connection:
         for user in users_list:
             EmailMessage(
                 f"[{config.verbose_name}] {story_obj.title}",
                 description,
-                config.MAILING_LIST_FROM
-                if config.MAILING_LIST_FROM
-                else f""""{story_obj.user}" <{str(story_obj.user).replace(" ", ".")}@{config.get_domain()}>""",
+                from_addr,
                 [user.email],
                 headers=headers,
                 connection=connection,
@@ -427,14 +440,26 @@ def comment_create_mailing_list(
         "In-Reply-To": in_reply_to,
         "References": references_str,
     }
+
+    from_addr: str
+    if config.MAILING_LIST_FROM:
+        from_addr = config.MAILING_LIST_FROM
+    elif comment_obj.user.username:
+        from_addr = str(
+            AddressHeader(
+                comment_obj.user.username,
+                comment_obj.user.username.replace(" ", "_").replace("@", "_"),
+                config.get_domain(),
+            )
+        )
+    else:
+        from_addr = comment_obj.user.email
     with mail.get_connection(fail_silently=False) as connection:
         for user in users_list:
             EmailMessage(
                 f"Re: [{config.verbose_name}] {story_obj.title}",
                 comment_obj.text_to_plain_text,
-                config.MAILING_LIST_FROM
-                if config.MAILING_LIST_FROM
-                else f""""{comment_obj.user}" <{str(comment_obj.user).replace(" ", ".")}@{config.get_domain()}>""",
+                from_addr,
                 [user.email],
                 headers=headers,
                 connection=connection,
@@ -461,11 +486,23 @@ def story_as_email(pk):
 
     msg = EmailMessage()
     msg["Subject"] = f"[{config.verbose_name}] {story_obj.title}"
-    msg["From"] = (
-        config.MAILING_LIST_FROM
-        if config.MAILING_LIST_FROM
-        else f""""{story_obj.user}" <{str(story_obj.user).replace(" ", ".")}@{config.get_domain()}>"""
-    )
+
+    from_addr: str
+    if config.MAILING_LIST_FROM:
+        from_addr = config.MAILING_LIST_FROM
+    elif story_obj.user.username:
+        from_addr = str(
+            AddressHeader(
+                story_obj.user.username,
+                story_obj.user.username.replace(" ", "_").replace("@", "_"),
+                config.get_domain(),
+            )
+        )
+    else:
+        from_addr = story_obj.user.email
+
+    msg["From"] = from_addr
+
     for (k, v) in headers.items():
         msg[k] = v
     msg.set_content(description)
@@ -505,11 +542,20 @@ def comment_as_email(pk):
 
     msg = EmailMessage()
     msg["Subject"] = f"Re: [{config.verbose_name}] {story_obj.title}"
-    msg["From"] = (
-        config.MAILING_LIST_FROM
-        if config.MAILING_LIST_FROM
-        else f""""{comment_obj.user}" <{str(comment_obj.user).replace(" ", ".")}@{config.get_domain()}>"""
-    )
+    from_addr: str
+    if config.MAILING_LIST_FROM:
+        from_addr = config.MAILING_LIST_FROM
+    elif comment_obj.user.username:
+        from_addr = str(
+            AddressHeader(
+                comment_obj.user.username,
+                comment_obj.user.username.replace(" ", "_").replace("@", "_"),
+                config.get_domain(),
+            )
+        )
+    else:
+        from_addr = comment_obj.user.email
+    msg["From"] = from_addr
 
     for (k, v) in headers.items():
         msg[k] = v
