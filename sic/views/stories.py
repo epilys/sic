@@ -175,7 +175,7 @@ def all_stories_tmpl(request, view_name, json_response, page_num=1):
             reverse=ordering == "desc",
         )
     else:
-        stories = story_obj.order_by(order_by_field, "title")
+        stories = list(story_obj.order_by(order_by_field, "title"))
     now = make_aware(datetime.now())
     unix_epoch = make_aware(datetime.fromtimestamp(0))
     pinned = list(
