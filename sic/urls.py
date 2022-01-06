@@ -301,6 +301,39 @@ urlpatterns = [
         name="password_reset",
     ),
     path(
+        "accounts/reset/<uidb64>/<token>/",
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name="account/password_reset_confirm.html"
+        ),
+        name="password_reset_confirm",
+    ),
+    path(
+        "accounts/reset/done/",
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name="account/password_reset_complete.html"
+        ),
+        name="password_reset_complete",
+    ),
+    path(
+        "accounts/password-reset/done/",
+        auth_views.PasswordResetDoneView.as_view(
+            template_name="account/password_reset_done.html"
+        ),
+        name="password_reset_done",
+    ),
+    path(
+        "accounts/password-change/",
+        auth_views.PasswordChangeView.as_view(
+            template_name="account/password_change.html", success_url="/accounts"
+        ),
+        name="password_change",
+    ),
+    path(
+        "accounts/password-change/done/",
+        auth_views.PasswordChangeDoneView.as_view(),
+        name="password_change_done",
+    ),
+    path(
         "accounts/send-validation-email/",
         account.send_validation_email,
         name="send_validation_email",
@@ -316,13 +349,6 @@ urlpatterns = [
         "accounts/activity/page/<int:page_num>/",
         account.my_activity,
         name="account_activity_page",
-    ),
-    path(
-        "accounts/password-change/",
-        auth_views.PasswordChangeView.as_view(
-            template_name="account/password_change.html", success_url="/accounts"
-        ),
-        name="password_change",
     ),
     path("accounts/bookmarks/", account.bookmarks, name="bookmarks"),
     path(
