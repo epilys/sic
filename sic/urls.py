@@ -83,6 +83,11 @@ urlpatterns = [
         moderation.log,
         name="moderation_log_page",
     ),
+    path(
+        "moderation-log/banned-domains/",
+        moderation.banned_domains,
+        name="moderation_banned_domains",
+    ),
     path("moderation/", moderation.overview, name="moderation"),
     path("moderation/s/<int:story_pk>/", moderation.story, name="moderation_story"),
     path(

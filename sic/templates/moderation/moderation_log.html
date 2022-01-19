@@ -3,6 +3,11 @@
 {% load utils %}
 {% block title %}Moderation log - {{ config.verbose_name }}{% endblock %}
 {% block content %}
+    <nav>
+        <ul>
+            <li><a href="{% url 'moderation_banned_domains' %}">List of banned domains</a></li>
+        </ul>
+    </nav>
     <h1>Moderation Log</h1>
     <p class="help-text">All moderation actions <em>should</em> be in this public log.</p>
     <table class="moderation-log">

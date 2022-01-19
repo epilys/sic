@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load utils %}
+{% block title %}Banned domains - {{ config.verbose_name }}{% endblock %}
+{% block content %}
+    <nav>
+        <ul>
+            <li><a href="{% url 'moderation_log' %}">Moderation log</a></li>
+        </ul>
+    </nav>
+    <h1>Banned domains</h1>
+    <div>
+        <ul>
+            {% for d in banned_domains %}
+                <li>
+                    {{ d }}
+                </li>
+            {% endfor %}
+        </div>
+{% endblock %}

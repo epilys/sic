@@ -73,6 +73,18 @@ def log(request, page_num=1):
     )
 
 
+@require_http_methods(["GET"])
+def banned_domains(request):
+    banned_domains = Domain.objects.filter(is_banned=True)
+    return render(
+        request,
+        "moderation/banned_domains.html",
+        {
+            "banned_domains": banned_domains,
+        },
+    )
+
+
 @login_required
 def overview(request):
     if (not request.user.is_moderator) and (not request.user.is_admin):
