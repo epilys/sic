@@ -117,6 +117,7 @@ urlpatterns = [
         views.recent_comments,
         name="recent_comments_page",
     ),
+    path("s/<int:story_pk>/", stories.story, name="story_slugless"),
     path("s/<int:story_pk>/<str:slug>/", stories.story, name="story"),
     path(
         "s/<int:story_pk>/<str:slug>/moderate/",
