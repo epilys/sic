@@ -134,12 +134,14 @@ class ModerationLogEntry(models.Model):
     ):
         return ModerationLogEntry.objects.create(
             user=user,
-            action=f"Set story's publish date to {story_obj.publish_date}",
+            action=f"Set story's publish date to {story_obj.publish_date} from {before_date}",
             reason=reason,
             change=json.dumps(
                 {
-                    "before": before_date,
-                    "after": story_obj.publish_date,
+                    "before": before_date.isoformat() if before_date else None,
+                    "after": story_obj.publish_date.isoformat()
+                    if story_obj.publish_date
+                    else None,
                 }
             ),
             content_type=ContentType.objects.get(app_label="sic", model="story"),
