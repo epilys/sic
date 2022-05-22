@@ -224,7 +224,7 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             return Article(
                 ArticleInfo(
                     self.reverse_index[key],
-                    story.title,
+                    story.title.replace("\r\n", "").replace("\n", ""),
                     f"""{story.user.username}@{config.get_domain()}""",
                     story.created,
                     key,
@@ -257,10 +257,11 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
                 if not parent:
                     raise NNTPArticleNotFound(key)
                 references = parent.get_message_id
+            comment_title = comment.story.title.replace("\r\n", "").replace("\n", "")
             return Article(
                 ArticleInfo(
                     self.reverse_index[key],
-                    f"Re: {comment.story.title}",
+                    f"Re: {comment_title}",
                     f"""{comment.user.username}@{config.get_domain()}""",
                     comment.created,
                     key,
