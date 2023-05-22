@@ -152,3 +152,5 @@ try:
     from .local.settings_local import *
 except ImportError:
     pass
+
+CSRF_TRUSTED_ORIGINS = ["https://*.sic.pm","https://sic.pm"]

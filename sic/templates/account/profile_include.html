@@ -2,8 +2,8 @@
 <div class="profile">
     <div id="avatar" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
         <figure id="avatar-thumbnail" style="width: max-content; background-image: url({{user.avatar|default_if_none:''}});">
-            {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title|default_if_none:''}}">{% else %}<div>No avatar.</div>{% endif %}
-            <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }}</figcaption>
+            {% if user.avatar %}<img src="{{ user.avatar }}" title="{{ user.avatar_title_to_text|default_if_none:''}}">{% else %}<div>No avatar.</div>{% endif %}
+            <figcaption>{{ user.avatar_title_to_html|default_if_none:"<em>No title.</em>" }}</figcaption>
         </figure>
     </div>
     <table>

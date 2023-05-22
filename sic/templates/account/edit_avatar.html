@@ -5,7 +5,7 @@
     <p>Current avatar:</p>
     <figure style="width: max-content;">
         {% if user.avatar %}<img src="{{ user.avatar }}">{% else %}<div>None.</div>{% endif %}
-        <figcaption>{{ user.avatar_title|default_if_none:"<em>No title.</em>" }}</figcaption>
+        <figcaption>{{ user.avatar_title_to_html|default_if_none:"<em>No title.</em>" }}</figcaption>
     </figure>
     <form enctype="multipart/form-data" class="submit-story-form" method="POST">
         {% csrf_token %}

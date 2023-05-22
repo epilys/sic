@@ -116,7 +116,7 @@
                 {% if request.user.is_authenticated %}
                     <nav class="menu user">
                         <ul>
-                            <li class="profile account">{% if request.user.avatar and show_avatars %}<a class="avatar-small" href="{{ request.user.get_absolute_url }}"><img class="avatar-small" src="{{request.user.avatar}}" alt="" title="{{ request.user.avatar_title|default_if_none:'' }}" height="18" width="18"></a>{% endif %}<a href="{% url 'account' %}" id="account_link" title="account page">{{ request.user }}</a>{% if unread_messages and unread_messages > 0 %} <a href="{% url 'inbox' %}" id="inbox_link">({{ unread_messages }})</a>{% endif %}</li>
+                            <li class="profile account">{% if request.user.avatar and show_avatars %}<a class="avatar-small" href="{{ request.user.get_absolute_url }}"><img class="avatar-small" src="{{request.user.avatar}}" alt="" title="{{ request.user.avatar_title_to_text|default_if_none:'' }}" height="18" width="18"></a>{% endif %}<a href="{% url 'account' %}" id="account_link" title="account page">{{ request.user }}</a>{% if unread_messages and unread_messages > 0 %} <a href="{% url 'inbox' %}" id="inbox_link">({{ unread_messages }})</a>{% endif %}</li>
                             {% with request.user.active_notifications as notifications %}
                                 {% if notifications|length > 0 %}
                                     <li class="notification"><a href="{% url 'notifications' %}">{{ notifications|length }} notification{{ notifications|pluralize }}</a></li>

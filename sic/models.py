@@ -1240,6 +1240,18 @@ class User(PermissionsMixin, AbstractBaseUser):
     def about_to_html(self):
         return comment_to_html(self.about) if self.about else None
 
+    @cached_property
+    def about_to_text(self):
+        return Textractor.extract(self.about_to_html).strip() if self.about else None
+
+    @cached_property
+    def avatar_title_to_html(self):
+        return comment_to_html(self.avatar_title) if self.avatar_title else None
+
+    @cached_property
+    def avatar_title_to_text(self):
+        return Textractor.extract(comment_to_html(self.avatar_title)).strip() if self.avatar_title else None
+
 
 class CommentBookmark(models.Model):
     id = models.AutoField(primary_key=True)

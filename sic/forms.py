@@ -250,7 +250,7 @@ class GenerateInviteForm(forms.Form):
 class UserCreationForm(forms.Form):
     username = forms.CharField(
         label="Enter Username",
-        min_length=4,
+        min_length=3,
         max_length=150,
         required=False,
         help_text="Leaving it blank will show your e-mail address to other users instead.",
