@@ -1121,7 +1121,18 @@ ul.tags li.tag:not(:nth-last-child(1)) {
   color: rgb(var(--aa-color), var(--aa-color), var(--aa-color));
   min-width: max-content;
   font-weight: bold;
+}
+@media (prefers-color-scheme: dark) {
+.tag {
+  color: var(--fg-color);
+  border-width: 1px;
+}
+}
+@media (prefers-color-scheme: light) {
+.tag {
   color: #555;
+  border-width: 2px;
+}
 }
 
 ul.posts {
@@ -1804,7 +1815,7 @@ nav.pagination {
 @media (prefers-color-scheme: dark) {
   :root {
     --entry-separator-color: #3f4142;
-    --bg-color: #333;
+    --bg-color: #242424;
     --fg-color: white;
     --header-bg-color: #444;
     --high-contrast-bg-color: black;
@@ -1888,9 +1899,9 @@ nav.pagination {
   kbd {
     filter: invert();
   }
-  .tag {
-    filter: invert(10%);
-  }
+  /*.tag {
+  *  filter: invert(10%);
+  }*/
   thead,
   tfoot {
     background-color: #fff;
