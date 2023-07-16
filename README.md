@@ -82,6 +82,17 @@ python3 manage.py runserver 8001 # or run at 127.0.0.1:8001
 python3 manage.py runserver 0.0.0.0:8000 # or run at public-ip:8000
 ```
 
+For macos you will need to provide paths for headers and libraries like so:
+
+```shell
+$ python3 -m pip install pygraphviz
+$ python3 -m pip install \
+    --global-option=build_ext \
+    --global-option="-I$(brew --prefix graphviz)/include/" \
+    --global-option="-L$(brew --prefix graphviz)/lib/" \
+    -r requirements.txt
+```
+
 See [`DEPLOY.md`](DEPLOY.md) for deployment instructions.
 
 ## Code style

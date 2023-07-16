@@ -36,7 +36,7 @@
                         &#32;{{comment.karma}}
                     {% endif %}
                 </span>
-            </div>{% endif %} <a href="{{ comment.user.get_absolute_url }}" class="user_link{% if comment.user.is_banned %} banned-user{% elif comment.user.is_new_user %} new-user{% endif %}" title="{{ comment.get_message_id }}">{{ comment.user }}</a>
+            </div>{% endif %} {% if comment.user.avatar and show_avatars %}<img class="avatar-small" src="{{comment.user.avatar}}" alt="" title="{{ comment.user.avatar_title_to_text|default_if_none:'' }}" height="18" width="18">{% endif %}<a href="{{ comment.user.get_absolute_url }}" class="user_link{% if comment.user.is_banned %} banned-user{% elif comment.user.is_new_user %} new-user{% endif %}" title="{{ comment.get_message_id }}">{{ comment.user }}</a>
                 <time datetime="{{ comment.created | date:"Y-m-d H:i:s" }}+0000" title="{{ comment.created }} UTC+00:00">{{ comment.created|naturaltime }}</time>
                 {% if comment.last_log_entry %}
                     <time datetime="{{ comment.last_log_entry.action_time | date:"Y-m-d H:i:s" }}+0000" title="{{ comment.last_log_entry.action_time }} UTC+00:00">- Edited {{ comment.last_log_entry.action_time|naturaltime }}</time>

@@ -464,7 +464,7 @@ body {
   align-content: space-between;
   background:
     var(--bg-color)
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 4 4'%3E%3Cpath fill='%23666' opacity='0.06' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 4 4'%3E%3Cpath fill='%23666' opacity='0.035' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
 }
 
 body>* {
@@ -610,6 +610,7 @@ body>main ul.posts>li.story .votes{
 body>main ul.posts>li.story div.title{
   grid-area: title;
   max-width: max-content;
+  line-height: 1.7;
 }
 
 a.title {
@@ -993,8 +994,11 @@ div.comment {
   hyphens: auto;
   word-break: break-word;
   overflow: auto;
-  padding-bottom: 1rem;
   margin-left: 2px;
+  border: 1px solid;
+  padding: 0.3rem 0.6rem 0.5rem 0.6rem;
+  background: var(--bg-color);
+  margin-top: 0.4rem;
 }
 
 div.comment ul li {
@@ -1102,19 +1106,22 @@ ul.tags li.tag:not(:nth-last-child(1)) {
 
 .tag {
   display: inline-block;
-  border: 1px solid var(--tag-border-color);
+  border: 2px outset var(--tag-border-color);
   border-radius:.2rem;
   color: #555;
-  font-size: .9rem;
-  padding: 0px 0.4em 1px 0.4em;
-  padding: 1px 5.4px 1px 4.4px;
+  font-size: .85rem;
+  padding: 0em .3em;
   text-decoration: none;
+  line-height: 150%;
 
   --aa-brightness: ((var(--red) * 299) + (var(--green) * 587) + (var(--blue) * 114)) / 1000;
   --aa-color: calc((var(--aa-brightness) - 128) * -1000);
   background: rgb(var(--red), var(--green), var(--blue));
+  background: var(--bg-color);
   color: rgb(var(--aa-color), var(--aa-color), var(--aa-color));
   min-width: max-content;
+  font-weight: bold;
+  color: #555;
 }
 
 ul.posts {
@@ -1140,6 +1147,7 @@ li.comment:target>div.comment {
 li.comment li.comment {
   border-left: 1px dotted gray;
   padding-left: 8px;
+  padding-top: 1rem;
 }
 
 li.root > label.comment::after {
@@ -1676,6 +1684,12 @@ blockquote {
   max-width: clamp(10vw, 66ch, var(--main-width));
 }
 
+.comment blockquote {
+  border-left: .3rem solid darkgray;
+  padding-left: .3rem;
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+}
 
 form>*:not([type=hidden]) +label,
 fieldset>*:not([type=hidden],legend) +label{
