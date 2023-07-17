@@ -125,6 +125,12 @@
                 <div class="button-flex-box">
                     <input type="submit" name="fetch-title" value="fetch title">
                 </div>
+                {{ form.requires_javascript.errors }}
+                {{ form.requires_javascript.label_tag }}
+                {% if form.requires_javascript.help_text %}
+                    <p class="help-text">{{ form.requires_javascript.help_text }}</p>
+                {% endif %}
+                {{ form.requires_javascript }}
             </fieldset>
             <details{% if form.description.value or form.content_warning.value %} open{%endif%}>
                 <summary><em>Optional</em>&hairsp;: Set description, content warning</summary>

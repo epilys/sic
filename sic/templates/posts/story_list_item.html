@@ -39,6 +39,9 @@
                     {{ story.hotness|pprint }}
                 </details>
             {% endif %}
+            {% if story.requires_javascript %}
+            <span> ⚠️  This link requires Javascript to view.</span>
+            {% endif %}
         </div>
         <div class="links">{% if story.user.avatar and show_avatars %}<img class="avatar-small" src="{{story.user.avatar}}" alt="" title="{{ story.user.avatar_title_to_text|default_if_none:'' }}" height="18" width="18">{% endif %}{% if story.user_is_author %}authored by{% else %}via{% endif %} <a href="{{ story.user.get_absolute_url }}" class="user_link{% if story.user.is_banned %} banned-user{% elif story.user.is_new_user %} new-user{% endif %}">{{ story.user }}</a> <time datetime="{{ story.created | date:"Y-m-d H:i:s" }}+0000" title="{{ story.created }} UTC+00:00"> {{ story.created|naturaltime }}</time> | {% if request.user.is_authenticated %}flag | <form method="POST" class="bookmark_form" action="{% url_with_next 'bookmark_story' request %}">{% csrf_token %}<input type="hidden" name="story_pk" value="{{ story.pk }}"><input type="submit"  class="bookmark_link" value="{% if is_bookmarked %}un{% endif %}bookmark"></form> |{% endif %} {% if story.url %}<a rel="nofollow external" href="http://archive.is/timegate/{{ story.url }}" class="archive_link">archived</a> |{% endif %} <a href="{{story.get_absolute_url}}" class="comments_link">{% with story.active_comments.count as active_comments %}{{ active_comments }} comment{{ active_comments|pluralize }}{% endwith %}</a></div>
     {% endspaceless %}

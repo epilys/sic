@@ -58,6 +58,11 @@ class SubmitStoryForm(forms.Form):
         widget=forms.DateInput(attrs={"type": "date"}),
         help_text="Set publication date if relevant (for example, an article not published within the last year).",
     )
+    requires_javascript = forms.BooleanField(
+        label="Link requires javascript",
+        required=False,
+        help_text="To view this link, the user's browser must support and/or enable javascript.",
+    )
     user_is_author = forms.BooleanField(
         label="Author",
         required=False,

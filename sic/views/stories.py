@@ -283,6 +283,7 @@ def submit_story(request):
                 url = form.cleaned_data["url"]
                 publish_date = form.cleaned_data["publish_date"]
                 user_is_author = form.cleaned_data["user_is_author"]
+                requires_javascript = form.cleaned_data["requires_javascript"]
                 if url and config.DISALLOW_REPOSTS_PERIOD is not None:
                     previous_post = (
                         Story.objects.filter(url=url).order_by("-created").first()
@@ -309,6 +310,7 @@ def submit_story(request):
                     description=description,
                     user=user,
                     user_is_author=user_is_author,
+                    requires_javascript=requires_javascript,
                     content_warning=form.cleaned_data["content_warning"],
                 )
                 new_story.tags.set(form.cleaned_data["tags"])
@@ -454,6 +456,7 @@ def edit_story(request, story_pk, slug=None):
                 story_obj.description = form.cleaned_data["description"]
                 story_obj.url = form.cleaned_data["url"]
                 story_obj.user_is_author = form.cleaned_data["user_is_author"]
+                story_obj.requires_javascript = form.cleaned_data["requires_javascript"]
                 story_obj.tags.set(form.cleaned_data["tags"])
                 story_obj.kind.set(form.cleaned_data["kind"])
                 story_obj.publish_date = form.cleaned_data["publish_date"]
@@ -502,6 +505,7 @@ def edit_story(request, story_pk, slug=None):
                 "url": story_obj.url,
                 "publish_date": story_obj.publish_date,
                 "user_is_author": story_obj.user_is_author,
+                "requires_javascript": story_obj.requires_javascript,
                 "tags": story_obj.tags.all(),
                 "kind": story_obj.kind.all(),
                 "content_warning": story_obj.content_warning,

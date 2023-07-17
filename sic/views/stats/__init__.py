@@ -236,6 +236,7 @@ def make_registrations_svg(data):
     return svg.getvalue().decode(encoding="UTF-8").strip()
 
 
+"""
 def make_total_graph_igraph_svg(edges):
     import igraph
 
@@ -269,15 +270,10 @@ def make_total_graph_igraph_svg(edges):
     svg = io.BytesIO()
     fig.savefig(svg, format="svg", bbox_inches="tight", pad_inches=0.2)
     return svg.getvalue().decode(encoding="UTF-8").strip()
+"""
 
 
 def make_total_graph_svg(edges):
-    try:
-        import igraph
-
-        return make_total_graph_igraph_svg(edges)
-    except ImportError:
-        pass
     import graphviz
 
     dot = graphviz.Digraph(

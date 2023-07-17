@@ -144,6 +144,7 @@ class Story(models.Model):
     content_warning = models.CharField(null=True, blank=True, max_length=30)
     karma = models.IntegerField(null=False, blank=True, default=0)
     message_id = models.TextField(null=True, blank=True)
+    requires_javascript = models.BooleanField(default=False, null=False)
 
     class Meta:
         verbose_name_plural = "stories"
