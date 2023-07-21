@@ -26,7 +26,7 @@ black sic/*py
 
 ```shell
 git add sic/templates/TEMPL.html # stage first
-djhtml -i sic/templates/TEMPL.html # in-place formatting
+djhtml sic/templates/TEMPL.html # in-place formatting
 git add -p sic/templates/TEMPL.html # selectively add formatting if acceptable
 ```
 
@@ -69,6 +69,8 @@ checklink --broken --quiet --indicator --summary --recursive --location "http://
 ```
 
 #### CSS, `css-validator.jar`
+
+Warning: css-validator.js has out-of-date rules.
 
 ```shell
 css-validator.jar "http://127.0.0.1:8002/static/style.css"

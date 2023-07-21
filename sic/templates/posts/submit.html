@@ -8,16 +8,16 @@
         var error = null;
         import("{% static 'tag_input_wasm.js' %}")
             .then((module) => {
-            async function run() {
-                let w = await module.default("{% static 'tag_input_wasm_bg.wasm' %}");
-                module.setup("tag", "id_tags", "tags_json", false);
-                module.setup("kind", "id_kind", "kind_json", true);
-            }
-            return run();
-        }).catch(err => {
-            console.warn("Could not load tag input .wasm file.\n\nThe error is saved in the global variable `error` for more details. The page and submission form will still work.\n\nYou can use `console.dir(error)` to see what happened.");
-            error = err;
-        });
+                async function run() {
+                    let w = await module.default("{% static 'tag_input_wasm_bg.wasm' %}");
+                    module.setup("tag", "id_tags", "tags_json", false);
+                    module.setup("kind", "id_kind", "kind_json", true);
+                }
+                return run();
+            }).catch(err => {
+                console.warn("Could not load tag input .wasm file.\n\nThe error is saved in the global variable `error` for more details. The page and submission form will still work.\n\nYou can use `console.dir(error)` to see what happened.");
+                error = err;
+            });
     </script>
 {% endblock %}
 {% block style %}
@@ -126,11 +126,13 @@
                     <input type="submit" name="fetch-title" value="fetch title">
                 </div>
                 {{ form.requires_javascript.errors }}
-                {{ form.requires_javascript.label_tag }}
+                <div class="checkbox-flex-box">
+                    {{ form.requires_javascript }}
+                    {{ form.requires_javascript.label_tag }}
+                </div>
                 {% if form.requires_javascript.help_text %}
                     <p class="help-text">{{ form.requires_javascript.help_text }}</p>
                 {% endif %}
-                {{ form.requires_javascript }}
             </fieldset>
             <details{% if form.description.value or form.content_warning.value %} open{%endif%}>
                 <summary><em>Optional</em>&hairsp;: Set description, content warning</summary>
@@ -202,11 +204,13 @@
                 {% endif %}
                 {{ form.publish_date }}
                 {{ form.user_is_author.errors }}
-                {{ form.user_is_author.label_tag }}
+                <div class="checkbox-flex-box">
+                    {{ form.user_is_author }}
+                    {{ form.user_is_author.label_tag }}
+                </div>
                 {% if form.user_is_author.help_text %}
                     <p class="help-text">{{ form.user_is_author.help_text }}</p>
                 {% endif %}
-                {{ form.user_is_author }}
                 {{ form.kind.errors }}
                 {{ form.kind.label_tag }}
                 {% if form.kind.help_text %}

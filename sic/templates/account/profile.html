@@ -18,6 +18,7 @@
                 {% if user.invited_by %}{# raises Exception #}{% elif config.REQUIRE_VOUCH_FOR_PARTICIPATION %}
                     <li><form method="POST" action="{% url_with_next 'vouch_for_user' user.pk request %}">{% csrf_token %}<input type="submit" value="Vouch for user"></form></li>
                 {% endif %}
+                {% if request.user == user %}<li><a href="{% url 'edit_profile' %}">Edit Profile</a></li>{% endif %}
             {% endif %}
         </ul>
     </nav>

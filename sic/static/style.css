@@ -287,7 +287,7 @@ textarea {
 }
 
 [type="checkbox"] {
-  transform: scale(2);
+  transform: scale(1);
 }
 
 /**
@@ -387,8 +387,8 @@ template {
   --tag-border-color: #0000005e;
   --pre-bg-color: #e9e9e9;
   --targetbg-color: #ffffa1;
+  --form-help-text-color: #0009;
 }
-
 
 @font-face {
   font-family: 'Inter';
@@ -1420,6 +1420,16 @@ div.button-flex-box-rev {
   align-self: end;
 }
 
+div.checkbox-flex-box {
+  display: flex;
+  flex-flow: wrap;
+  flex-direction: row;
+  column-gap: .5rem;
+  row-gap: .5rem;
+  align-items: end;
+  align-self: start;
+}
+
 .heavy-positive-action {
   font-size: 125%;
 }
@@ -1721,7 +1731,10 @@ form label {
 }
 
 p.help-text {
+  color: var(--form-help-text-color);
   margin-top: 0;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
 }
 
 .sparklines {
@@ -1834,6 +1847,7 @@ nav.pagination {
     --tag-border-color: #000;
     --pre-bg-color: #171717;
     --targetbg-color: #4c4c01;
+    --form-help-text-color: #fff9;
   }
   a.title,
   a.title:visited {
@@ -1929,4 +1943,8 @@ table.moderation-log tbody tr:nth-child(6n+1) td, table.moderation-log tbody tr:
 }
 table.moderation-log span.no-reason {
     color: #585858;
+}
+
+input, textarea {
+  padding: 0.5rem;
 }

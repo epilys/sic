@@ -60,11 +60,13 @@ class SubmitStoryForm(forms.Form):
     )
     requires_javascript = forms.BooleanField(
         label="Link requires javascript",
+        label_suffix="",
         required=False,
         help_text="To view this link, the user's browser must support and/or enable javascript.",
     )
     user_is_author = forms.BooleanField(
         label="Author",
+        label_suffix="",
         required=False,
         help_text="I am the author of the content at this URL (or this text)",
     )
@@ -118,6 +120,7 @@ class DeleteCommentForm(forms.Form):
             "Really delete this {comment}?",
             comment=config.model_verbose_names("comment", False),
         ),
+        label_suffix="",
         help_text=format_lazy(
             "Check this box to permanently delete this {comment}.",
             comment=config.model_verbose_names("comment", False),
@@ -422,15 +425,17 @@ class EditTaggregationForm(forms.Form):
 
     discoverable = forms.BooleanField(
         label="Is discoverable",
+        label_suffix="",
         required=False,
         help_text="Will be shown in public lists.",
     )
     private = forms.BooleanField(
         label="Is private",
+        label_suffix="",
         required=False,
         help_text="Will only be visible to users with access.",
     )
-    subscribed = forms.BooleanField(required=False)
+    subscribed = forms.BooleanField(required=False, label_suffix="")
 
 
 class EditTaggregationHasTagForm(forms.Form):
@@ -460,6 +465,7 @@ class DeleteTaggregationHasTagForm(forms.Form):
         required=True,
         initial=None,
         label="Really Delete this filter?",
+        label_suffix="",
         help_text="Check this box to permanently delete this filter.",
     )
 
@@ -482,13 +488,16 @@ class EditAccountSettings(forms.Form):
         required=True,
         label="account e-mail address",
     )
-    email_notifications = forms.BooleanField(initial=True, required=False)
-    email_replies = forms.BooleanField(initial=True, required=False)
-    email_messages = forms.BooleanField(initial=True, required=False)
-    email_mentions = forms.BooleanField(initial=True, required=False)
+    email_notifications = forms.BooleanField(
+        initial=True, label_suffix="", required=False
+    )
+    email_replies = forms.BooleanField(initial=True, label_suffix="", required=False)
+    email_messages = forms.BooleanField(initial=True, label_suffix="", required=False)
+    email_mentions = forms.BooleanField(initial=True, label_suffix="", required=False)
     enable_mailing_list = forms.BooleanField(
         initial=False,
         required=False,
+        label_suffix="",
         help_text="Enabling this option will result in subscribed stories being mailed to you. To receive stories in less frequent batches enable the weekly digest settings instead. To also receive comments and be able to reply to them refer to other settings.",
         disabled=not config.MAILING_LIST,
         widget=forms.CheckboxInput if config.MAILING_LIST else forms.HiddenInput,
@@ -496,6 +505,7 @@ class EditAccountSettings(forms.Form):
     enable_mailing_list_comments = forms.BooleanField(
         initial=False,
         required=False,
+        label_suffix="",
         help_text="Enabling this option will result in comments being mailed to you in addition to stories if the mailing list option is enabled.",
         disabled=not config.MAILING_LIST,
         widget=forms.CheckboxInput if config.MAILING_LIST else forms.HiddenInput,
@@ -503,6 +513,7 @@ class EditAccountSettings(forms.Form):
     enable_mailing_list_replies = forms.BooleanField(
         initial=False,
         required=False,
+        label_suffix="",
         help_text="Enabling this option will result in replies to your comments being mailed to you in addition to stories if the mailing list option is enabled. Note that this option does not depend on enabling the mailing list comments setting.",
         disabled=not config.MAILING_LIST,
         widget=forms.CheckboxInput if config.MAILING_LIST else forms.HiddenInput,
@@ -510,15 +521,19 @@ class EditAccountSettings(forms.Form):
     enable_mailing_list_replying = forms.BooleanField(
         initial=False,
         required=False,
+        label_suffix="",
         help_text="Enabling this option will allow you to reply to mailing list e-mails and having the reply posted under your account directly.",
         disabled=not config.MAILING_LIST,
         widget=forms.CheckboxInput if config.MAILING_LIST else forms.HiddenInput,
     )
 
-    show_avatars = forms.BooleanField(initial=True, required=False)
-    show_stories_with_content_warning = forms.BooleanField(initial=True, required=False)
+    show_avatars = forms.BooleanField(initial=True, label_suffix="", required=False)
+    show_stories_with_content_warning = forms.BooleanField(
+        initial=True, label_suffix="", required=False
+    )
     show_colors = forms.BooleanField(
         initial=True,
+        label_suffix="",
         help_text="If false, UI and tag colors are not shown, and if avatars are displayed, they are in monochrome.",
         required=False,
     )
@@ -564,9 +579,11 @@ class EditAccountSettings(forms.Form):
 class WeeklyDigestForm(forms.Form):
     active = forms.BooleanField(
         required=False,
+        label_suffix="",
     )
     all_stories = forms.BooleanField(
         required=False,
+        label_suffix="",
         help_text="If false, only stories from subscribed aggregations will be considered for the digest.",
     )
     last_run = forms.DateField(
@@ -576,24 +593,31 @@ class WeeklyDigestForm(forms.Form):
     )
     on_monday = forms.BooleanField(
         required=False,
+        label_suffix="",
     )
     on_tuesday = forms.BooleanField(
         required=False,
+        label_suffix="",
     )
     on_wednesday = forms.BooleanField(
         required=False,
+        label_suffix="",
     )
     on_thursday = forms.BooleanField(
         required=False,
+        label_suffix="",
     )
     on_friday = forms.BooleanField(
         required=False,
+        label_suffix="",
     )
     on_saturday = forms.BooleanField(
         required=False,
+        label_suffix="",
     )
     on_sunday = forms.BooleanField(
         required=False,
+        label_suffix="",
     )
 
     def calculate_on_days(self):
@@ -621,6 +645,7 @@ class WeeklyDigestForm(forms.Form):
 class EditSessionSettings(forms.Form):
     vivid_colors = forms.BooleanField(
         initial=True,
+        label_suffix="",
         help_text="If false, UI, tag and image colors are made less vivid.",
         required=False,
     )
@@ -813,6 +838,7 @@ class EditDomainFilter(forms.Form):
     )
     is_regexp = forms.BooleanField(
         label="Is Python regular expression",
+        label_suffix="",
         required=False,
         initial=False,
     )
@@ -821,6 +847,7 @@ class EditDomainFilter(forms.Form):
 class NotifyOnNewInvitationRequests(forms.Form):
     notify_me = forms.BooleanField(
         initial=False,
+        label_suffix="",
         required=False,
         help_text="Send me a notification whenever a new request arrives.",
     )

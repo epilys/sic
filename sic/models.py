@@ -157,7 +157,6 @@ class Story(models.Model):
         return slugify(self.title, allow_unicode=True)
 
     def get_absolute_url(self):
-
         return reverse(
             "story",
             kwargs={"story_pk": self.pk, "slug": self.slugify},
@@ -1251,7 +1250,11 @@ class User(PermissionsMixin, AbstractBaseUser):
 
     @cached_property
     def avatar_title_to_text(self):
-        return Textractor.extract(comment_to_html(self.avatar_title)).strip() if self.avatar_title else None
+        return (
+            Textractor.extract(comment_to_html(self.avatar_title)).strip()
+            if self.avatar_title
+            else None
+        )
 
 
 class CommentBookmark(models.Model):

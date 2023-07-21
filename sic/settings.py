@@ -153,4 +153,4 @@ try:
 except ImportError:
     pass
 
-CSRF_TRUSTED_ORIGINS = ["https://*.sic.pm","https://sic.pm"]
+CSRF_TRUSTED_ORIGINS = ["https://*.sic.pm", "https://sic.pm"]

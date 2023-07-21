@@ -25,12 +25,22 @@
             {{ field }}
         {% endfor %}
         {% for field in form.visible_fields %}
-            {{ field.errors }}
-            {{ field.label_tag }}
-            {% if field.help_text %}
-                <p class="help-text">{{ field.help_text }}</p>
+            {% if field.field.widget.input_type == 'checkbox' %}
+                <div class="checkbox-flex-box">
+                    {{ field }}
+                    {{ field.label_tag }}
+                </div>
+                {% if field.help_text %}
+                    <p class="help-text">{{ field.help_text }}</p>
+                {% endif %}
+            {% else %}
+                {{ field.errors }}
+                {{ field.label_tag }}
+                {% if field.help_text %}
+                    <p class="help-text">{{ field.help_text }}</p>
+                {% endif %}
+                {{ field }}
             {% endif %}
-            {{ field }}
         {% endfor %}
         <div class="button-flex-box">
             <input type="submit" value="Submit">
@@ -40,10 +50,16 @@
     <p class="help-text">On every selected day, you will receive a list of every {% model_verbose_name 'story' False %} created since the last time you received a digest.</p>
     <form method="POST" class="submit-story-form">
         {% csrf_token %}
-        {{ digest_form.active.label_tag }}
-        {{ digest_form.active }}{% if digest_form.active.helptext %}<br><span class="helptext">{{ digest_form.active.help_text }}</span>{% endif %}
-        {{ digest_form.all_stories.label_tag }}
-        {{ digest_form.all_stories }}{% if digest_form.all_stories.help_text %}<br><span class="helptext">{{ digest_form.all_stories.help_text }}</span>{% endif %}
+        <div class="checkbox-flex-box">
+            {{ digest_form.active }}
+            {{ digest_form.active.label_tag }}
+        </div>
+        {% if digest_form.active.helptext %}<br><span class="helptext">{{ digest_form.active.help_text }}</span>{% endif %}
+        <div class="checkbox-flex-box">
+            {{ digest_form.all_stories }}
+            {{ digest_form.all_stories.label_tag }}
+        </div>
+        {% if digest_form.all_stories.help_text %}<br><span class="helptext">{{ digest_form.all_stories.help_text }}</span>{% endif %}
         {{ digest_form.last_run.label_tag }}
         {{ digest_form.last_run }}{% if digest_form.last_run.help_text %}<br><span class="helptext">{{ digest_form.last_run.help_text }}</span>{% endif %}
         <fieldset>
@@ -74,12 +90,22 @@
     <form method="POST" class="submit-story-form">
         {% csrf_token %}
         {% for field in session_form %}
-            {{ field.errors }}
-            {{ field.label_tag }}
-            {% if field.help_text %}
-                <p class="help-text">{{ field.help_text }}</p>
+            {% if field.field.widget.input_type == 'checkbox' %}
+                <div class="checkbox-flex-box">
+                    {{ field }}
+                    {{ field.label_tag }}
+                </div>
+                {% if field.help_text %}
+                    <p class="help-text">{{ field.help_text }}</p>
+                {% endif %}
+            {% else %}
+                {{ field.errors }}
+                {{ field.label_tag }}
+                {% if field.help_text %}
+                    <p class="help-text">{{ field.help_text }}</p>
+                {% endif %}
+                {{ field }}
             {% endif %}
-            {{ field }}
         {% endfor %}
         <div class="button-flex-box">
             <input type="submit" name="session-settings" value="Submit">
