@@ -157,11 +157,26 @@ def validate_emails(modeladmin, request, queryset):
 class UserAdmin(ModelAdmin):
     ordering = ["-created"]
 
+    @admin.display(description="Account username or e-mail used for login")
     def username_or_email(self, obj):
         if obj.username:
             return obj.username
         return obj.email
 
+    @admin.display(description="Mailing list address")
+    def mailing_list_address(self, instance):
+        from django.utils.html import escape
+
+        return mark_safe(
+            '<pre style="border: 1px solid;width: max-content;padding: 0.4rem;margin: 0;">'
+            + escape(str(instance.rfc822_mailing_list_address))
+            + "</pre>"
+        )
+
+    readonly_fields = (
+        "username_or_email",
+        "mailing_list_address",
+    )
     list_display = [
         "username_or_email",
         "email",
@@ -322,6 +337,7 @@ class JobAdmin(ModelAdmin):
 
 
 class JobKindAdmin(ModelAdmin):
+    @admin.display(description="Does the job's dotted path resolve as a python module?")
     def resolves(self, obj):
         from django.utils.module_loading import import_string
 

@@ -1256,6 +1256,33 @@ class User(PermissionsMixin, AbstractBaseUser):
             else None
         )
 
+    @cached_property
+    def rfc822_mailing_list_address(self) -> str:
+        from email.utils import formataddr
+
+        illegal = [
+            " ",
+            '"',
+            "-",
+            "(",
+            ")",
+            ",",
+            ":",
+            ";",
+            "<",
+            ">",
+            "@",
+            "[",
+            "\\",
+            "]",
+        ]
+        username: str = self.username
+        quoted = username.startswith(".") or ".." in username
+        quoted |= any(c in username for c in illegal)
+        if quoted:
+            username = f'"{username}"'
+        return formataddr((self.username, f"{username}@{config.get_domain()}"))
+
 
 class CommentBookmark(models.Model):
     id = models.AutoField(primary_key=True)
