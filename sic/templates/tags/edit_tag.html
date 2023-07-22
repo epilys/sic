@@ -8,15 +8,15 @@
         var error = null;
         import("{% static 'tag_input_wasm.js' %}")
             .then((module) => {
-            async function run() {
-                let w = await module.default("{% static 'tag_input_wasm_bg.wasm' %}");
-                module.setup("parent", "id_parents", "parents_json", false);
-            }
-            return run();
-        }).catch(err => {
-            console.warn("Could not load tag input .wasm file.\n\nThe error is saved in the global variable `error` for more details. The page and submission form will still work.\n\nYou can use `console.dir(error)` to see what happened.");
-            error = err;
-        });
+                async function run() {
+                    let w = await module.default("{% static 'tag_input_wasm_bg.wasm' %}");
+                    module.setup("parent", "id_parents", "parents_json", false);
+                }
+                return run();
+            }).catch(err => {
+                console.warn("Could not load tag input .wasm file.\n\nThe error is saved in the global variable `error` for more details. The page and submission form will still work.\n\nYou can use `console.dir(error)` to see what happened.");
+                error = err;
+            });
     </script>
 {% endblock %}
 {% block style %}

@@ -58,7 +58,7 @@
             <div class="comment">{{ comment.text_to_html }}</div>
             {% if request.user.is_authenticated %}
                 <input class="reply" type="checkbox" id="reply-{{comment.pk}}" name="reply-{{comment.pk}}"
-                    {% if preview %}checked="checked"{% endif %}>
+                       {% if preview %}checked="checked"{% endif %}>
                 <form action="{% url 'reply' comment.pk %}" method="POST" class="reply-form">
                     <label class="reply" for="reply-{{comment.pk}}" style="align-self: end; position: absolute;"><a href="">hide</a></label>
                     <div class="reply-parent">

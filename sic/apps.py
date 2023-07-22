@@ -116,7 +116,7 @@ class SicAppConfig(AppConfig):
 
     ENABLE_KARMA = True
 
-    VISIBLE_KARMA = False
+    VISIBLE_KARMA = True
 
     ENABLE_FETCHING_REMOTE_CONTENT = True
 
