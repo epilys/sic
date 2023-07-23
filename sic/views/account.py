@@ -62,6 +62,7 @@ from sic.views.utils import (
     check_next_url,
 )
 
+
 # Convert image to data:image/... in order to save avatars as strings in database
 def generate_image_thumbnail(blob):
     with Image(blob=blob) as i:
@@ -1475,10 +1476,10 @@ def vouch_for_user(request, pk):
 
 @require_http_methods(["POST"])
 def toggle_signup_box_view(request):
-    if "show_signup_box" in request.session:
-        del request.session["show_signup_box"]
+    if "hide_signup_box" in request.session:
+        del request.session["hide_signup_box"]
     else:
-        request.session["show_signup_box"] = True
+        request.session["hide_signup_box"] = True
     if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])
     return redirect(reverse("index"))
