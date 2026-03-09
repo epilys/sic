@@ -28,6 +28,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='vote',
-            constraint=models.CheckConstraint(check=models.Q(models.Q(('story__isnull', False), ('comment__isnull', False), _connector='OR'), models.Q(('story__isnull', False), ('comment__isnull', False), _negated=True)), name='not_both_null'),
+            constraint=models.CheckConstraint(condition=models.Q(models.Q(('story__isnull', False), ('comment__isnull', False), _connector='OR'), models.Q(('story__isnull', False), ('comment__isnull', False), _negated=True)), name='not_both_null'),
         ),
     ]

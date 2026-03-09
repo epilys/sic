@@ -1,4 +1,4 @@
-Django>=3.2,<3.3
+Django==6.0.3
 Wand>=0.6.6,<0.7
 linkify-it-py==1.0
 markdown-it-py==1.1.0

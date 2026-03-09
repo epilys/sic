@@ -330,7 +330,9 @@ class AuthToken(PasswordResetTokenGenerator):
             return False
 
         # Check that the timestamp/uid has not been tampered with
-        if not constant_time_compare(self._make_token_with_timestamp(user, ts), token):
+        if not constant_time_compare(
+            self._make_token_with_timestamp(user, ts, self.secret), token
+        ):
             return False
         return token == user.auth_token
 

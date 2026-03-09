@@ -1104,6 +1104,7 @@ class User(PermissionsMixin, AbstractBaseUser):
     def __str__(self):
         return self.username if self.username else self.email
 
+    @staticmethod
     def get_by_display_name(name: str) -> "User":
         try:
             return User.objects.get(username=name)
