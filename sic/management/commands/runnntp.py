@@ -214,9 +214,11 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
         try:
             story = get_story(
                 key,
-                story_pk=int(pk_search.group("story_pk"))
-                if pk_search and pk_search.group("story_pk")
-                else None,
+                story_pk=(
+                    int(pk_search.group("story_pk"))
+                    if pk_search and pk_search.group("story_pk")
+                    else None
+                ),
             )
             # print("get_story returned ", story)
             if not story:
@@ -241,9 +243,11 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
         try:
             comment = get_comment(
                 key,
-                comment_pk=int(pk_search.group("comment_pk"))
-                if pk_search and pk_search.group("comment_pk")
-                else None,
+                comment_pk=(
+                    int(pk_search.group("comment_pk"))
+                    if pk_search and pk_search.group("comment_pk")
+                    else None
+                ),
             )
             # print("get_comment returned ", comment)
             if not comment or not comment.story.active:

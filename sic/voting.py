@@ -7,8 +7,7 @@ from django.utils.timezone import make_aware
 
 class PostRanking(ABC):
     @abstractmethod
-    def story_hotness(self, story: "sic.models.Story") -> int:
-        ...
+    def story_hotness(self, story: "sic.models.Story") -> int: ...
 
     def story_hotness_dict(
         self, story: "sic.models.Story"

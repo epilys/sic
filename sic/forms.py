@@ -43,15 +43,19 @@ class SubmitStoryForm(forms.Form):
     description = forms.CharField(
         required=not config.ENABLE_URL_POSTING,
         widget=forms.Textarea({"rows": 5, "cols": 15, "placeholder": ""}),
-        help_text="Write additional context for the submitted link, or your content if your post has no URL."
-        if config.ENABLE_URL_POSTING
-        else None,
+        help_text=(
+            "Write additional context for the submitted link, or your content if your post has no URL."
+            if config.ENABLE_URL_POSTING
+            else None
+        ),
     )
     url = URLField(
         required=False,
-        widget=forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""})
-        if config.ENABLE_URL_POSTING
-        else forms.HiddenInput,
+        widget=(
+            forms.Textarea({"rows": 2, "cols": 15, "placeholder": ""})
+            if config.ENABLE_URL_POSTING
+            else forms.HiddenInput
+        ),
     )
     publish_date = forms.DateField(
         required=False,

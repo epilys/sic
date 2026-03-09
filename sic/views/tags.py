@@ -57,9 +57,9 @@ def browse_tags(request, page_num=1):
     elif order_by == "active":
         tags = sorted(
             Tag.objects.all(),
-            key=lambda t: t.latest.created
-            if t.latest
-            else make_aware(datetime.fromtimestamp(0)),
+            key=lambda t: (
+                t.latest.created if t.latest else make_aware(datetime.fromtimestamp(0))
+            ),
             reverse=ordering == "desc",
         )
     else:
@@ -732,9 +732,12 @@ def default_aggregations(request, page_num=1):
     return browse_aggs(request, "default_aggregations", aggregations, page_num)
 
 
-# HSV values in [0..1[
+# HSV values in [0..1]
 # returns [r, g, b] values from 0 to 255
 def hsv_to_rgb(h, s, v):
+    r, g, b = 0, 0, 0
+    h %= 1
+
     h_i = int(h * 6)
     f = h * 6 - h_i
     p = v * (1 - s)
@@ -804,9 +807,11 @@ def view_tag(request, tag_pk, slug=None, page_num=1):
         stories = list(obj.get_stories())
         stories = sorted(
             stories,
-            key=lambda s: s.active_comments.latest("created").created
-            if s.active_comments.exists()
-            else make_aware(datetime.fromtimestamp(0)),
+            key=lambda s: (
+                s.active_comments.latest("created").created
+                if s.active_comments.exists()
+                else make_aware(datetime.fromtimestamp(0))
+            ),
             reverse=ordering == "desc",
         )
 

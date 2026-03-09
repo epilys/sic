@@ -729,12 +729,10 @@ class StoryFilter(models.Model):
         return self.name if len(self.name) > 0 else "unnamed"
 
     @abc.abstractmethod
-    def kind(self):
-        ...
+    def kind(self): ...
 
     @abc.abstractmethod
-    def content(self):
-        ...
+    def content(self): ...
 
     def into_inner(self):
         try:

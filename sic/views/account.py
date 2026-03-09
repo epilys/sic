@@ -294,9 +294,11 @@ def inbox_compose(request, in_reply_to=None):
             form = ComposeMessageForm(
                 initial={
                     "recipient": in_reply_to.author,
-                    "subject": f"Re: {in_reply_to.subject}"
-                    if not RES_PREFIX_RE.match(in_reply_to.subject)
-                    else in_reply_to.subject,
+                    "subject": (
+                        f"Re: {in_reply_to.subject}"
+                        if not RES_PREFIX_RE.match(in_reply_to.subject)
+                        else in_reply_to.subject
+                    ),
                     "body": f"On {in_reply_to.created.strftime('%Y/%m/%d, a %A, at %I:%M %P')}, {in_reply_to.author} wrote:\n"
                     + "\n".join(map(lambda l: "> " + l, in_reply_to.body.split("\n")))
                     + "\n\n",
@@ -651,9 +653,11 @@ def bookmarks_json(request):
             "story_title": b.comment.story.title,
             "text": b.comment.text_to_plain_text,
             "sic_url": "http://" + domain + b.comment.get_absolute_url(),
-            "parent": ("http://" + domain + b.comment.parent.get_absolute_url())
-            if b.comment.parent
-            else None,
+            "parent": (
+                ("http://" + domain + b.comment.parent.get_absolute_url())
+                if b.comment.parent
+                else None
+            ),
             "created": b.comment.created,
         }
         ret.append(
@@ -1019,9 +1023,9 @@ def new_invitation_request(request):
                 name=form.cleaned_data["name"],
                 address=form.cleaned_data["address"],
                 about=form.cleaned_data["about"],
-                requested_by_id=request.user.id
-                if request.user.is_authenticated
-                else None,
+                requested_by_id=(
+                    request.user.id if request.user.is_authenticated else None
+                ),
             )
             new_req.save()
         return redirect("index")

@@ -39,9 +39,11 @@ def webfinger(request):
             "links": [
                 {
                     "rel": "self",
-                    "href": f"http://{domain}{user.get_absolute_url()}"
-                    if settings.DEBUG
-                    else f"https://{domain}{user.get_absolute_url()}",
+                    "href": (
+                        f"http://{domain}{user.get_absolute_url()}"
+                        if settings.DEBUG
+                        else f"https://{domain}{user.get_absolute_url()}"
+                    ),
                 }
             ],
         }

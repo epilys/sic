@@ -241,12 +241,14 @@ def story(request, story_pk: int, slug=None):
                         story_obj,
                         request.user,
                         (
-                            "Pinned "
-                            if story_obj.pinned.timestamp() == 0
-                            else f"Pinned until {story_obj.pinned}"
-                        )
-                        if story_obj.pinned
-                        else "Unpinned",
+                            (
+                                "Pinned "
+                                if story_obj.pinned.timestamp() == 0
+                                else f"Pinned until {story_obj.pinned}"
+                            )
+                            if story_obj.pinned
+                            else "Unpinned"
+                        ),
                         "",
                     )
                     messages.add_message(

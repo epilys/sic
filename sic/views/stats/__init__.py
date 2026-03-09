@@ -36,7 +36,7 @@ def make_posts_svg(data):
     fig.add_subplot(ax)
 
     def x_ticks(labels):
-        for (p, l) in zip(cycle([True, False, False, False]), labels):
+        for p, l in zip(cycle([True, False, False, False]), labels):
             if p:
                 yield l
             else:
@@ -359,7 +359,7 @@ def make_upvote_ratio_svg(ratios):
         #            color=text_color)
 
     def x_ticks(labels):
-        for (p, l) in zip(cycle([True, False, False, False]), labels):
+        for p, l in zip(cycle([True, False, False, False]), labels):
             if p:
                 yield l
             else:

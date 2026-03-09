@@ -169,9 +169,11 @@ def all_stories_tmpl(request, view_name, json_response, page_num=1):
     elif order_by == "last commented":
         stories = sorted(
             story_obj.order_by("created", "title"),
-            key=lambda s: s.active_comments.latest("created").created
-            if s.active_comments.exists()
-            else s.created,
+            key=lambda s: (
+                s.active_comments.latest("created").created
+                if s.active_comments.exists()
+                else s.created
+            ),
             reverse=ordering == "desc",
         )
     else:
@@ -209,9 +211,11 @@ def all_stories_tmpl(request, view_name, json_response, page_num=1):
                 "stories": [s.to_json_dict() for s in page],
                 "page_num": page_num,
                 "pages": paginator.num_pages,
-                "next_page": None
-                if page_num == paginator.num_pages
-                else reverse(f"{view_name}_page", kwargs={"page_num": page_num + 1}),
+                "next_page": (
+                    None
+                    if page_num == paginator.num_pages
+                    else reverse(f"{view_name}_page", kwargs={"page_num": page_num + 1})
+                ),
             }
         )
 
@@ -268,9 +272,11 @@ def submit_story(request):
                 "description": comment_to_html(request.POST["description"]),
                 "title": form.cleaned_data["title"],
                 "url": form.cleaned_data["url"],
-                "domain": form.cleaned_data["url"]
-                if len(form.cleaned_data["url"]) > 0
-                else None,
+                "domain": (
+                    form.cleaned_data["url"]
+                    if len(form.cleaned_data["url"]) > 0
+                    else None
+                ),
                 "publish_date": form.cleaned_data["publish_date"],
                 "tags": form.cleaned_data["tags"],
             }

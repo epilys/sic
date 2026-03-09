@@ -503,7 +503,7 @@ def story_as_email(pk):
 
     msg["From"] = from_addr
 
-    for (k, v) in headers.items():
+    for k, v in headers.items():
         msg[k] = v
     msg.set_content(description)
     return str(msg)
@@ -557,7 +557,7 @@ def comment_as_email(pk):
         from_addr = comment_obj.user.email
     msg["From"] = from_addr
 
-    for (k, v) in headers.items():
+    for k, v in headers.items():
         msg[k] = v
     msg.set_content(comment_obj.text_to_plain_text)
     return str(msg)

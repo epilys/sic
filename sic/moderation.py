@@ -139,9 +139,11 @@ class ModerationLogEntry(models.Model):
             change=json.dumps(
                 {
                     "before": before_date.isoformat() if before_date else None,
-                    "after": story_obj.publish_date.isoformat()
-                    if story_obj.publish_date
-                    else None,
+                    "after": (
+                        story_obj.publish_date.isoformat()
+                        if story_obj.publish_date
+                        else None
+                    ),
                 }
             ),
             content_type=ContentType.objects.get(app_label="sic", model="story"),
