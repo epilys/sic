@@ -3,6 +3,6 @@ Wand>=0.6.6,<0.7
 linkify-it-py==1.0
 markdown-it-py==1.1.0
 markdown-it-py[linkify]==1.1.0
-matplotlib==3.3.4
-pdfminer.six==20200726
-pygraphviz==1.7
+#matplotlib==3.10.8
+#pygraphviz==1.14
+#pdfminer.six==20200726

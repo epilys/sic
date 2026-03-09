@@ -3,7 +3,7 @@ import random
 import re
 from django.db import transaction, connection, IntegrityError
 from django.db.models.functions import Lower
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseServerError
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, redirect
@@ -127,7 +127,10 @@ SVG_TAG_PATTERN = re.compile(
 @cache_page(60 * 60 * 12)
 @xframe_options_exempt
 def tag_graph_svg(request):
-    import graphviz
+    try:
+        import graphviz
+    except ImportError:
+        return HttpResponseServerError("graphviz could not be imported")
 
     tag_pks = request.GET.getlist("tags")
     if tag_pks is None or len(tag_pks) == 0:
