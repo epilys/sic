@@ -12,6 +12,8 @@ and orientation.
 We pledge to act and interact in ways that contribute to an open, welcoming,
 diverse, inclusive, and healthy community.
 
+We pledge to use our own voices when interacting with other members.
+
 ## Our Standards
 
 Examples of behavior that contributes to a positive environment for our
@@ -35,6 +37,7 @@ Examples of unacceptable behavior include:
   address, without their explicit permission
 * Other conduct which could reasonably be considered inappropriate in a
   professional setting
+* Posting content generated with a large language model.
 
 ## Enforcement Responsibilities
 

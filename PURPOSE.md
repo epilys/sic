@@ -20,6 +20,12 @@ We don't blindly reject content about corporations, but we disapprove of pro-cor
 
 As a community, our main interest is our welfare. We should strive to give aid, compassion and understanding to each other.
 
+## `sic` is by humans, for humans and about humans
+
+Only content authored entirely by humans is on-topic, whether submissions, posts, or comments.
+
+Additionally, discussion about large language models is well covered in mainstream media and considered off-topic, as per the main statement of purpose.
+
 ### Libre and commons
 
 Showing and sharing your work and projects licensed with [Creative Commons](https://creativecommons.org/share-your-work/) or [free software licenses](https://creativecommons.org/about/program-areas/software/) is encouraged. `sic` itself is free software that you can inspect, improve or host yourself.
