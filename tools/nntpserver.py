@@ -256,18 +256,17 @@ class NNTPServer(abc.ABC, socketserver.ThreadingMixIn, socketserver.TCPServer):
                 raise ValueError(
                     "You set use_ssl to True but the ssl module could not be imported."
                 )
-            self.ssl_version = ssl_version = ssl.PROTOCOL_TLS
+            self.ssl_version = ssl_version = ssl.PROTOCOL_TLS_SERVER
         super().__init__(*args, **kwargs)
 
     def get_request(self) -> typing.Tuple[typing.Any, typing.Tuple[str, int]]:
         if self.ssl_version:
             newsocket, fromaddr = self.socket.accept()
-            connstream = ssl.wrap_socket(
+            context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            context.load_cert_chain(certfile=self.certfile, keyfile=self.keyfile)
+            connstream = context.wrap_socket(
                 newsocket,
                 server_side=True,
-                certfile=self.certfile,
-                keyfile=self.keyfile,
-                ssl_version=self.ssl_version,
             )
             return connstream, fromaddr
         return super().get_request()
