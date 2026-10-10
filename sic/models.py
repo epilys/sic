@@ -1338,6 +1338,8 @@ class Notification(models.Model):
         return f"{self.name} {self.kind}"
 
     def send(self, request=None):
+        if self.user and not self.user.can_participate:
+            return
         if request:
             domain = get_current_site(request).domain
         else:

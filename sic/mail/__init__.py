@@ -75,6 +75,8 @@ class Digest(models.Model):
         unsubscribe = f"{domain}{reverse('edit_settings')}"
         with mail.get_connection(fail_silently=False) as connection:
             for d in digests:
+                if not d.user or not d.user.can_participate:
+                    continue
                 aggregations = None
                 if d.all_stories:
                     stories = Story.objects.filter(active=True)
@@ -200,6 +202,8 @@ def post_receive(data: typing.Union[str, bytes], user=None) -> str:
             raise Exception("Post has no From")
         from_ = msg["from"].addresses[0].addr_spec
         user = User.objects.get(email=from_)
+    if not user.can_participate:
+        raise Exception(f"User {user} cannot participate")
     body = msg.get_body(preferencelist=("markdown", "plain", "html"))  # type: ignore
     if body["content-type"] and body["content-type"].maintype != "text":
         raise Exception("Not text.")
@@ -342,14 +346,17 @@ def create_story_post_on_mailing_list(job):
         pk = int(pk)
     story_obj = Story.objects.get(pk=pk)
 
-    users = User.objects.filter(enable_mailing_list=True)
+    users = User.objects.filter(enable_mailing_list=True, email_validated=True)
 
     if not users.exists():
         return "no users to send to"
 
     users = list(users)
     users_list: typing.List[User] = list(
-        filter(lambda user: story_obj.is_user_subscribed(user), users)
+        filter(
+            lambda user: story_obj.is_user_subscribed(user) and user.can_participate,
+            users,
+        )
     )
     if not users_list:
         return "no users to send to"
@@ -403,12 +410,15 @@ def comment_create_mailing_list(
     story_obj: Story = comment_obj.story
     in_reply_to: str = story_obj.get_message_id
     users = User.objects.filter(
-        enable_mailing_list=True, enable_mailing_list_comments=True
+        enable_mailing_list=True,
+        enable_mailing_list_comments=True,
+        email_validated=True,
     )
     if comment_obj.parent:
         users = users.union(
             User.objects.filter(pk=comment_obj.parent.user_id).filter(
-                enable_mailing_list_replies=True
+                enable_mailing_list_replies=True,
+                email_validated=True,
             )
         )
         in_reply_to = comment_obj.parent.get_message_id
@@ -416,7 +426,10 @@ def comment_create_mailing_list(
         return
 
     users_list: typing.List[User] = list(
-        filter(lambda user: story_obj.is_user_subscribed(user), users)
+        filter(
+            lambda user: story_obj.is_user_subscribed(user) and user.can_participate,
+            users,
+        )
     )
     if not users_list:
         return
