@@ -467,12 +467,11 @@ def profile_posts(request, name, page_num=1):
     try:
         page = paginator.page(page_num)
     except InvalidPage:
-        # page_num BooleanFieldis bigger than the actual number of pages
+        # page_num BooleanField is bigger than the actual number of pages
         return redirect(
             reverse(
                 "profile_posts_page",
-                args=[name],
-                kwargs={"page_num": paginator.num_pages},
+                kwargs={"name":name, "page_num": paginator.num_pages},
             )
         )
     return render(
