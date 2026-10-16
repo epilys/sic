@@ -1157,9 +1157,9 @@ def my_activity(request, page_num=1):
     if page_num == 1 and request.get_full_path() != reverse("account_activity"):
         return redirect(reverse("account_activity"))
     user = request.user
-    user_stories = user.stories.prefetch_related("tags", "user", "comments").order_by(
-        "-created"
-    )
+    user_stories = user.stories.prefetch_related(
+        "tags", "kind", "user", "comments"
+    ).order_by("-created")
     user_comments = user.comments.prefetch_related("parent", "replies").order_by(
         "-created"
     )

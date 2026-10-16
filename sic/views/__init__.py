@@ -516,7 +516,7 @@ def domain(request, slug, page_num=1):
     order_by_field = ("-" if ordering == "desc" else "") + order_by
     stories = (
         Story.objects.filter(active=True, domain=domain_obj)
-        .prefetch_related("tags", "user", "comments")
+        .prefetch_related("tags", "kind", "user", "comments")
         .order_by(order_by_field)
     )
     paginator = Paginator(stories, config.STORIES_PER_PAGE)

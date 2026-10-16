@@ -91,6 +91,8 @@ class Domain(models.Model):
 
 
 class StoryKind(models.Model):
+    DEFAULT_NAME = "article"
+
     id = models.AutoField(primary_key=True)
     name = models.CharField(null=False, blank=False, max_length=40, unique=True)
     hex_color = models.CharField(max_length=7, null=True, blank=True, default="#ffffff")
@@ -100,13 +102,13 @@ class StoryKind(models.Model):
         return f"{self.name}"
 
     def color_vars_css(self):
-        hex_ = self.hex_color.lstrip("#")
+        hex_ = (self.hex_color or "#ffffff").lstrip("#")
         red, green, blue = tuple(int(hex_[i : i + 2], 16) for i in (0, 2, 4))
         return f"--red: {red}; --green:{green}; --blue:{blue};"
 
     @staticmethod
     def default_value():
-        val, _ = StoryKind.objects.get_or_create(name="article")
+        val, _ = StoryKind.objects.get_or_create(name=StoryKind.DEFAULT_NAME)
         return val
 
     class Meta:
@@ -197,6 +199,14 @@ class Story(models.Model):
     @cached_property
     def active_comments(self):
         return self.comments.filter(deleted=False)
+
+    @cached_property
+    def displayed_kinds(self):
+        kinds = list(self.kind.all())
+        # if the only kind is the default one, preserve the current display.
+        if [k.name for k in kinds] == [StoryKind.DEFAULT_NAME]:
+            return []
+        return kinds
 
     def save(self, *args, **kwargs):
         if self.url:
@@ -464,7 +474,7 @@ WHERE
                     [self.pk],
                 ),
                 active=True,
-            ).prefetch_related("tags", "user", "comments")
+            ).prefetch_related("tags", "kind", "user", "comments")
         return Story.objects.filter(
             tags__pk__in=RawSQL(
                 """WITH RECURSIVE w (
@@ -496,7 +506,7 @@ WHERE
                 [self.pk, depth],
             ),
             active=True,
-        ).prefetch_related("tags", "user", "comments")
+        ).prefetch_related("tags", "kind", "user", "comments")
 
     @cached_property
     def slugify(self):
@@ -592,7 +602,7 @@ class Taggregation(models.Model):
                 [self.pk],
             ),
             active=True,
-        ).prefetch_related("tags", "user", "comments")
+        ).prefetch_related("tags", "kind", "user", "comments")
 
     @cached_property
     def vertices(self):
@@ -609,7 +619,7 @@ class Taggregation(models.Model):
         if not taggregations.exists():
             return {
                 "stories": Story.objects.filter(active=True).prefetch_related(
-                    "tags", "user", "comments"
+                    "tags", "kind", "user", "comments"
                 ),
                 "taggregations": Taggregation.objects.none(),
             }
@@ -621,7 +631,7 @@ class Taggregation(models.Model):
                 [],
             ),
             active=True,
-        ).prefetch_related("tags", "user", "comments")
+        ).prefetch_related("tags", "kind", "user", "comments")
         return {
             "stories": stories,
             "taggregations": taggregations,
@@ -1221,14 +1231,14 @@ class User(PermissionsMixin, AbstractBaseUser):
                     ),
                     active=True,
                 )
-                .prefetch_related("tags", "user", "comments")
+                .prefetch_related("tags", "kind", "user", "comments")
                 .exclude(qobj)
             )
             taggregations = self.taggregation_subscriptions.all()
         else:
             stories = (
                 Story.objects.filter(active=True)
-                .prefetch_related("tags", "user", "comments")
+                .prefetch_related("tags", "kind", "user", "comments")
                 .exclude(qobj)
             )
         return {
