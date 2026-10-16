@@ -201,9 +201,18 @@ class DomainAdmin(ModelAdmin):
     list_display = ["url"]
 
 
+class StoryKindForm(ModelForm):
+    class Meta:
+        model = StoryKind
+        fields = "__all__"
+        widgets = {
+            "hex_color": TextInput(attrs={"type": "color"}),
+        }
+
 class StoryKindAdmin(ModelAdmin):
     ordering = ["name", "created"]
     list_display = ["name", "hex_color_html", "created"]
+    form = StoryKindForm
 
 
 class InvitationRequestVoteInline(admin.TabularInline):
