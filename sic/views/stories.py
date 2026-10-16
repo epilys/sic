@@ -158,7 +158,7 @@ def all_stories_tmpl(request, view_name, json_response, page_num=1):
     order_by_field = ("-" if ordering == "desc" else "") + order_by
 
     story_obj = Story.objects.filter(active=True).prefetch_related(
-        "tags", "user", "comments"
+        "tags", "kind", "user", "comments"
     )
     if order_by == "hotness":
         stories = sorted(

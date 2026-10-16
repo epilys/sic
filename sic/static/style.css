@@ -1104,6 +1104,15 @@ ul.tags li.tag:not(:nth-last-child(1)) {
   margin-bottom: 2px;
 }
 
+.tag.kind {
+  border-style: dashed;
+  font-style: italic;
+}
+
+ul.tags.kinds.inline li.tag {
+  margin-right: 3px;
+}
+
 .tag {
   display: inline-block;
   border: 2px outset var(--tag-border-color);

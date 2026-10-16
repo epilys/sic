@@ -1,0 +1,9 @@
+{% spaceless %}
+    {% if kinds %}
+        <ul class="tags kinds{% if inline %} inline{% endif %}">
+            {% for kind in kinds %}
+                <li class="tag kind" style="{% if show_colors %}{{ kind.color_vars_css }}{% endif %}"><span class="tag-name">{{ kind.name }}</span></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endspaceless %}

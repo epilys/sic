@@ -65,7 +65,7 @@ def scrape(
     ROOT_URL = root_url
     HTTP_ROOT_URL = "http://" + ROOT_URL
     CHECK_XML = check_xml
-    VNU_CMD = [vnu_jar_bin, "-"]
+    VNU_CMD = ["java", "-jar", vnu_jar_bin, "-"]
     VNU_CMD_XML = [vnu_jar_bin, "--format", "xml", "-"]
 
     # username and password for login
