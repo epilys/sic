@@ -93,7 +93,7 @@ class Domain(models.Model):
 class StoryKind(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(null=False, blank=False, max_length=40, unique=True)
-    hex_color = models.CharField(max_length=7, null=True, blank=True, default="#fffff")
+    hex_color = models.CharField(max_length=7, null=True, blank=True, default="#ffffff")
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
