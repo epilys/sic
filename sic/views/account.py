@@ -471,7 +471,7 @@ def profile_posts(request, name, page_num=1):
         return redirect(
             reverse(
                 "profile_posts_page",
-                kwargs={"name":name, "page_num": paginator.num_pages},
+                kwargs={"name": name, "page_num": paginator.num_pages},
             )
         )
     return render(
