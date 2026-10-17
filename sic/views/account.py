@@ -17,6 +17,7 @@ from django.contrib.sites.models import Site
 from django.utils.timezone import make_aware
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_http_methods, require_safe
+from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMessage
 from django.apps import apps
 
@@ -1486,3 +1487,33 @@ def toggle_signup_box_view(request):
     if "next" in request.GET and check_next_url(request.GET["next"]):
         return redirect(request.GET["next"])
     return redirect(reverse("index"))
+
+
+@transaction.atomic
+@csrf_exempt
+@require_http_methods("POST")
+def one_click_unsubscribe(request, token: str):
+    from http import HTTPStatus
+
+    try:
+        user = User.objects.get(email_oneclick_unsubscribe_token=token)
+    except User.DoesNotExist:
+        return HttpResponseBadRequest("Invalid")
+
+    user.email_oneclick_unsubscribe_token = None
+    user.email_notifications = False
+    user.email_replies = False
+    user.email_messages = False
+    user.email_mentions = False
+
+    user.email_digest.delete()
+
+    user.notify_on_new_invitation_request = False
+    user.enable_mailing_list = False
+    user.enable_mailing_list_comments = False
+    user.enable_mailing_list_replies = False
+    user.enable_mailing_list_replying = False
+    user.save()
+    response = HttpResponse()
+    response.status_code = HTTPStatus.OK
+    return response

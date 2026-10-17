@@ -229,6 +229,11 @@ urlpatterns = [
     path("agg/new/", tags.new_aggregation, name="new_aggregation"),
     path("accounts/auth_token/new/", account.issue_token, name="issue_token"),
     path(
+        "accounts/settings/unsubscribe/<str:token>",
+        account.one_click_unsubscribe,
+        name="one_click_unsubscribe",
+    ),
+    path(
         "accounts/invitations/requests/",
         account.invitation_requests,
         name="invitation_requests",
