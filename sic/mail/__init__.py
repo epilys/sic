@@ -105,22 +105,37 @@ class Digest(models.Model):
                         "unsubscribe": unsubscribe,
                     }
                 )
+                headers = {
+                    "Message-ID": config.make_msgid(),
+                    "List-ID": f"{config.verbose_name} digests <{config.NOTIFICATION_FROM}>",
+                    "List-Unsubscribe": f"<{unsubscribe}>",
+                }
                 try:
                     if d.user.username:
                         username = d.user.username.replace('"', "")
                         to = f""""{username}" <{d.user.email}>"""
                     else:
                         to = d.user.email
+                    if config.WEB_PROTOCOL == "https":
+                        if not d.user.email_oneclick_unsubscribe_token:
+                            from sic.auth import AuthToken
+
+                            d.user.email_oneclick_unsubscribe_token = (
+                                AuthToken().make_token(d.user)
+                            )
+                            d.user.save(
+                                update_fields=["email_oneclick_unsubscribe_token"]
+                            )
+                        headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+                        headers["List-Unsubscribe"] = (
+                            f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('one_click_unsubscribe', args = [d.user.email_oneclick_unsubscribe_token])}>",
+                        )
                     EmailMessage(
                         f"{config.DIGEST_SUBJECT} {today.date()}",
                         template.render(context),
                         config.NOTIFICATION_FROM,
                         [to],
-                        headers={
-                            "Message-ID": config.make_msgid(),
-                            "List-ID": f"{config.verbose_name} digests <{config.NOTIFICATION_FROM}>",
-                            "List-Unsubscribe": f"<{unsubscribe}>",
-                        },
+                        headers=headers,
                         connection=connection,
                     ).send()
                     d.last_run = make_aware(today)
@@ -389,6 +404,16 @@ def create_story_post_on_mailing_list(job):
 
     with mail.get_connection(fail_silently=False) as connection:
         for user in users_list:
+            if config.WEB_PROTOCOL == "https":
+                if not user.email_oneclick_unsubscribe_token:
+                    from sic.auth import AuthToken
+
+                    user.email_oneclick_unsubscribe_token = AuthToken().make_token(user)
+                    user.save(update_fields=["email_oneclick_unsubscribe_token"])
+                headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+                headers["List-Unsubscribe"] = (
+                    f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('one_click_unsubscribe', args = [d.user.email_oneclick_unsubscribe_token])}>",
+                )
             EmailMessage(
                 f"[{config.verbose_name}] {story_obj.title}",
                 description,
@@ -469,6 +494,16 @@ def comment_create_mailing_list(
         from_addr = comment_obj.user.email
     with mail.get_connection(fail_silently=False) as connection:
         for user in users_list:
+            if config.WEB_PROTOCOL == "https":
+                if not user.email_oneclick_unsubscribe_token:
+                    from sic.auth import AuthToken
+
+                    user.email_oneclick_unsubscribe_token = AuthToken().make_token(user)
+                    user.save(update_fields=["email_oneclick_unsubscribe_token"])
+                headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+                headers["List-Unsubscribe"] = (
+                    f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('one_click_unsubscribe', args = [d.user.email_oneclick_unsubscribe_token])}>",
+                )
             EmailMessage(
                 f"Re: [{config.verbose_name}] {story_obj.title}",
                 comment_obj.text_to_plain_text,
