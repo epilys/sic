@@ -1085,6 +1085,7 @@ class User(PermissionsMixin, AbstractBaseUser):
     ssh_public_key = models.TextField(null=True, blank=True)
 
     auth_token = models.TextField(null=True, blank=True)
+    email_oneclick_unsubscribe_token = models.TextField(null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -1376,13 +1377,32 @@ class Notification(models.Model):
             body += "\n\n"
             body += self.body
         body += f"\n\nYou can disable email notifications in your account settings: {root_url}{reverse('edit_settings')}"
+        headers: typing.Dict[str, str] = {
+            "Message-ID": config.make_msgid(),
+            "List-ID": f"{config.verbose_name} notifications <{config.NOTIFICATION_FROM}>",
+            "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
+        }
+        if config.WEB_PROTOCOL == "https":
+            if not self.user.email_oneclick_unsubscribe_token:
+                from sic.auth import AuthToken
+
+                self.user.email_oneclick_unsubscribe_token = AuthToken().make_token(
+                    self.user
+                )
+                self.user.save(update_fields=["email_oneclick_unsubscribe_token"])
+            headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+            headers["List-Unsubscribe"] = (
+                f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('one_click_unsubscribe', args = [self.user.email_oneclick_unsubscribe_token])}>"
+            )
         try:
-            EmailMessage(
+            from sic.mail import ListEmailMessage
+
+            ListEmailMessage(
                 f"[{config.verbose_name}] {self.name}",
                 body,
                 config.NOTIFICATION_FROM,
                 [self.user.email],
-                headers={"Message-ID": config.make_msgid()},
+                headers=headers,
             ).send(fail_silently=False)
         except Exception as error:
             messages.add_message(

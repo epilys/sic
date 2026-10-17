@@ -4,7 +4,7 @@ import email
 from email.headerregistry import Address as AddressHeader
 import re
 import typing
-from email.policy import default as email_policy
+from email.policy import default as email_policy, EmailPolicy
 from django.db import models
 from django.db.models import F, Q
 from django.template import Context, Template
@@ -21,6 +21,25 @@ from sic.models import Story, User, Comment, Tag, ExactTagFilter, DomainFilter
 from sic.markdown import Textractor
 
 logger = logging.getLogger("sic")
+
+
+class ListPolicy(EmailPolicy):
+    def fold(self, name, value):
+        if name.lower() == "List-Unsubscribe".lower():
+            return f"{name}: {value}{self.linesep}"
+        return super().fold(name, value)
+
+    def fold_binary(self, name, value):
+        if name.lower() == "List-Unsubscribe".lower():
+            folded = f"{name}: {value}{self.linesep}"
+            charset = "utf8" if self.utf8 else "ascii"
+            return folded.encode(charset, "surrogateescape")
+        return super().fold_binary(name, value)
+
+
+class ListEmailMessage(EmailMessage):
+    def message(self, *, policy=email_policy):
+        return super().message(policy=ListPolicy())
 
 
 def test_bit(int_, offset):
@@ -105,22 +124,37 @@ class Digest(models.Model):
                         "unsubscribe": unsubscribe,
                     }
                 )
+                headers = {
+                    "Message-ID": config.make_msgid(),
+                    "List-ID": f"{config.verbose_name} digests <{config.NOTIFICATION_FROM}>",
+                    "List-Unsubscribe": f"<{unsubscribe}>",
+                }
                 try:
                     if d.user.username:
                         username = d.user.username.replace('"', "")
                         to = f""""{username}" <{d.user.email}>"""
                     else:
                         to = d.user.email
-                    EmailMessage(
+                    if config.WEB_PROTOCOL == "https":
+                        if not d.user.email_oneclick_unsubscribe_token:
+                            from sic.auth import AuthToken
+
+                            d.user.email_oneclick_unsubscribe_token = (
+                                AuthToken().make_token(d.user)
+                            )
+                            d.user.save(
+                                update_fields=["email_oneclick_unsubscribe_token"]
+                            )
+                        headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+                        headers["List-Unsubscribe"] = (
+                            f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('one_click_unsubscribe', args = [d.user.email_oneclick_unsubscribe_token])}>"
+                        )
+                    ListEmailMessage(
                         f"{config.DIGEST_SUBJECT} {today.date()}",
                         template.render(context),
                         config.NOTIFICATION_FROM,
                         [to],
-                        headers={
-                            "Message-ID": config.make_msgid(),
-                            "List-ID": f"{config.verbose_name} digests <{config.NOTIFICATION_FROM}>",
-                            "List-Unsubscribe": f"<{unsubscribe}>",
-                        },
+                        headers=headers,
                         connection=connection,
                     ).send()
                     d.last_run = make_aware(today)
@@ -213,7 +247,7 @@ def post_receive(data: typing.Union[str, bytes], user=None) -> str:
         text = body.get_content().strip()
 
     if not user.has_perm("sic.add_comment") or not user.has_perm("sic.add_story"):
-        EmailMessage(
+        ListEmailMessage(
             f"[{config.verbose_name}] Your message has been rejected.",
             "You do not have permissions to post.",
             config.DEFAULT_FROM_EMAIL,
@@ -222,7 +256,7 @@ def post_receive(data: typing.Union[str, bytes], user=None) -> str:
         ).send(fail_silently=False)
         raise Exception(f"{user} doesn't have permission to post")
     elif not user.enable_mailing_list_replying and is_from_mailing_list:
-        EmailMessage(
+        ListEmailMessage(
             f"[{config.verbose_name}] Your message has been rejected.",
             "You have disabled posting via mailing list in your account settings.",
             config.DEFAULT_FROM_EMAIL,
@@ -389,7 +423,17 @@ def create_story_post_on_mailing_list(job):
 
     with mail.get_connection(fail_silently=False) as connection:
         for user in users_list:
-            EmailMessage(
+            if config.WEB_PROTOCOL == "https":
+                if not user.email_oneclick_unsubscribe_token:
+                    from sic.auth import AuthToken
+
+                    user.email_oneclick_unsubscribe_token = AuthToken().make_token(user)
+                    user.save(update_fields=["email_oneclick_unsubscribe_token"])
+                headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+                headers["List-Unsubscribe"] = (
+                    f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('one_click_unsubscribe', args = [user.email_oneclick_unsubscribe_token])}>"
+                )
+            ListEmailMessage(
                 f"[{config.verbose_name}] {story_obj.title}",
                 description,
                 from_addr,
@@ -469,7 +513,17 @@ def comment_create_mailing_list(
         from_addr = comment_obj.user.email
     with mail.get_connection(fail_silently=False) as connection:
         for user in users_list:
-            EmailMessage(
+            if config.WEB_PROTOCOL == "https":
+                if not user.email_oneclick_unsubscribe_token:
+                    from sic.auth import AuthToken
+
+                    user.email_oneclick_unsubscribe_token = AuthToken().make_token(user)
+                    user.save(update_fields=["email_oneclick_unsubscribe_token"])
+                headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+                headers["List-Unsubscribe"] = (
+                    f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('one_click_unsubscribe', args = [user.email_oneclick_unsubscribe_token])}>"
+                )
+            ListEmailMessage(
                 f"Re: [{config.verbose_name}] {story_obj.title}",
                 comment_obj.text_to_plain_text,
                 from_addr,
@@ -497,7 +551,7 @@ def story_as_email(pk):
         description = f"{story_obj.url}\n\n{description}"
     from email.message import EmailMessage
 
-    msg = EmailMessage()
+    msg = EmailMessage(policy=ListPolicy())
     msg["Subject"] = f"[{config.verbose_name}] {story_obj.title}"
 
     from_addr: str
@@ -553,7 +607,7 @@ def comment_as_email(pk):
     }
     from email.message import EmailMessage
 
-    msg = EmailMessage()
+    msg = EmailMessage(policy=ListPolicy())
     msg["Subject"] = f"Re: [{config.verbose_name}] {story_obj.title}"
     from_addr: str
     if config.MAILING_LIST_FROM:
