@@ -209,6 +209,7 @@ class StoryKindForm(ModelForm):
             "hex_color": TextInput(attrs={"type": "color"}),
         }
 
+
 class StoryKindAdmin(ModelAdmin):
     ordering = ["name", "created"]
     list_display = ["name", "hex_color_html", "created"]
