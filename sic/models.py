@@ -1162,6 +1162,18 @@ class User(PermissionsMixin, AbstractBaseUser):
             kwargs={"name": self.username if self.username else self.pk},
         )
 
+    @property
+    def can_be_vouched(self):
+        return (
+            not self.is_banned
+            and not self.is_admin
+            and not self.is_staff
+            and not self.is_moderator
+            and self.email_validated
+            and self.is_active
+            and not self.is_vouched
+        )
+
     @cached_property
     def is_banned(self):
         return self.banned_by_user is not None
@@ -1182,6 +1194,14 @@ class User(PermissionsMixin, AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+    @property
+    def is_vouched(self) -> bool:
+        """"""
+        try:
+            return self.invited_by is not None
+        except Invitation.DoesNotExist as exc:
+            return self.is_staff
 
     @property
     def can_participate(self) -> bool:

@@ -28,7 +28,7 @@
             </tr>
             <tr>
                 <th>invited by:</th>
-                <td>{% if user.invited_by %}<a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a>{% else %}None.{% endif %}</td>
+                <td>{% if user.is_vouched %}<a href="{{ user.invited_by.inviter.get_absolute_url }}">{{ user.invited_by.inviter }}</a>{% else %}None.{% endif %}</td>
             </tr>
             {% comment %}<tr>
                 <th>karma:</th>

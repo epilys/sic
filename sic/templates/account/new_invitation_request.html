@@ -2,7 +2,7 @@
 {% load humanize %}
 {% block title %}request an invite - {{ config.verbose_name }}{% endblock %}
 {% block content %}
-    {% if request.user.is_authenticated and config.REQUIRE_VOUCH_FOR_PARTICIPATION and not request.user.invited_by and not request.user.can_participate %}
+    {% if request.user.is_authenticated and config.REQUIRE_VOUCH_FOR_PARTICIPATION and request.user.can_be_vouched and not request.user.can_participate %}
         <h1>Request to be vouched</h1>
     {% else %}
         <h1>Creating an account on {{ config.html_label }}</h1>

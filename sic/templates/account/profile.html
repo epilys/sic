@@ -15,7 +15,7 @@
         <ul>
             {% if request.user.is_authenticated %}
                 <li><a href="{% url 'inbox_compose' %}?recipient={{ user|urlencode }}">Message user</a></li>
-                {% if user.invited_by %}{# raises Exception #}{% elif config.REQUIRE_VOUCH_FOR_PARTICIPATION %}
+                {% if not user.is_vouched and config.REQUIRE_VOUCH_FOR_PARTICIPATION and user.can_be_vouched and request.user.can_participate %}
                     <li><form method="POST" action="{% url_with_next 'vouch_for_user' user.pk request %}">{% csrf_token %}<input type="submit" value="Vouch for user"></form></li>
                 {% endif %}
                 {% if request.user == user %}<li><a href="{% url 'edit_profile' %}">Edit Profile</a></li>{% endif %}
