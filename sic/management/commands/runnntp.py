@@ -252,6 +252,7 @@ class SicNNTPServer(NNTPServer, collections.abc.Mapping):
             # print("get_comment returned ", comment)
             if not comment or not comment.story.active:
                 raise NNTPArticleNotFound(key)
+            references = ""
             if comment.parent_id:
                 parent = get_comment("", comment_pk=comment.parent_id)
                 if parent:
