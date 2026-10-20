@@ -126,7 +126,7 @@ class Digest(models.Model):
                 )
                 headers = {
                     "Message-ID": config.make_msgid(),
-                    "List-ID": f"{config.verbose_name} digests <{config.NOTIFICATION_FROM}>",
+                    "List-ID": f"{config.verbose_name} digests <{config.get_domain()}>",
                     "List-Unsubscribe": f"<{unsubscribe}>",
                 }
                 try:
@@ -398,7 +398,7 @@ def create_story_post_on_mailing_list(job):
     headers: typing.Dict[str, str] = {
         "Message-ID": story_obj.get_message_id,
         "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{story_obj.get_absolute_url()}>",
-        "List-ID": f"{config.MAILING_LIST_ID} <{config.mailing_list_address()}>",
+        "List-ID": f"{config.MAILING_LIST_ID} <{config.get_domain()}>",
         "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
         "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
         "Reply-To": config.mailing_list_address(),
@@ -490,7 +490,7 @@ def comment_create_mailing_list(
     headers: typing.Dict[str, str] = {
         "Message-ID": comment_obj.get_message_id,
         "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{comment_obj.get_absolute_url()}>",
-        "List-ID": f"{config.MAILING_LIST_ID} <{config.mailing_list_address()}>",
+        "List-ID": f"{config.MAILING_LIST_ID} <{config.get_domain()}>",
         "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
         "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
         "Reply-To": config.mailing_list_address(),
@@ -541,7 +541,7 @@ def story_as_email(pk):
         "To": config.mailing_list_address(),
         "Message-ID": story_obj.get_message_id,
         "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{story_obj.get_absolute_url()}>",
-        "List-ID": f"{config.MAILING_LIST_ID} <{config.mailing_list_address()}>",
+        "List-ID": f"{config.MAILING_LIST_ID} <{config.get_domain()}>",
         "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
         "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
         "Reply-To": config.mailing_list_address(),
@@ -598,7 +598,7 @@ def comment_as_email(pk):
         "To": config.mailing_list_address(),
         "Message-ID": comment_obj.get_message_id,
         "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{comment_obj.get_absolute_url()}>",
-        "List-ID": f"{config.MAILING_LIST_ID} <{config.mailing_list_address()}>",
+        "List-ID": f"{config.MAILING_LIST_ID} <{config.get_domain()}>",
         "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
         "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
         "Reply-To": config.mailing_list_address(),

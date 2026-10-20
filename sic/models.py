@@ -1379,7 +1379,7 @@ class Notification(models.Model):
         body += f"\n\nYou can disable email notifications in your account settings: {root_url}{reverse('edit_settings')}"
         headers: typing.Dict[str, str] = {
             "Message-ID": config.make_msgid(),
-            "List-ID": f"{config.verbose_name} notifications <{config.NOTIFICATION_FROM}>",
+            "List-ID": f"{config.verbose_name} notifications <{config.get_domain()}>",
             "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
         }
         if config.WEB_PROTOCOL == "https":
