@@ -179,7 +179,7 @@ def run_discovery_tests(urls=None):
         print("Sleeping for 2 seconds...")
         time.sleep(2)
     print("\nResults: ")
-    for (url, links) in results:
+    for url, links in results:
         print(url, links)
     if failed:
         print("\nDiscovery failed with the following URLs:", failed)
