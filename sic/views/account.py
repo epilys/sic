@@ -1451,6 +1451,13 @@ def vouch_for_user(request, pk):
         pass
     if user_has_invite:
         return HttpResponseBadRequest("User is vouched for.")
+    if (
+        receiver.is_staff
+        or receiver.is_superuser
+        or receiver.is_moderator
+        or not receiver.can_be_vouched
+    ):
+        return HttpResponseBadRequest("k-lined")
 
     inv, created = request.user.invited.get_or_create(
         inviter=request.user,

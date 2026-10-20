@@ -451,7 +451,7 @@ def invitation_tree(request):
         {
             "root_user": root_user,
             "depth": 0,
-            "max_depth": 64,
+            "max_depth": 32,
         },
     )
 
