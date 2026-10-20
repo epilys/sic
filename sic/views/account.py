@@ -403,7 +403,9 @@ def generate_invite(request, invite_pk=None):
         except Invitation.DoesNotExist:
             raise Http404("Invitation URL is not valid") from Invitation.DoesNotExist
         if inv.inviter != request.user:
-            raise PermissionDenied("This is not your invite.")
+            raise Http404("Invitation URL is not valid") from PermissionDenied(
+                "This is not your invite."
+            )
         if not inv.is_valid():
             messages.add_message(request, messages.ERROR, "Invitation has expired.")
         else:
@@ -1464,6 +1466,7 @@ def vouch_for_user(request, pk):
         receiver=receiver,
         address=receiver.email,
         accepted=make_aware(datetime.now()),
+        is_vouch=True,
     )
     if created:
         root_url = f"{config.WEB_PROTOCOL}://{config.get_domain()}"

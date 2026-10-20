@@ -921,6 +921,7 @@ class Invitation(models.Model):
     address = models.EmailField(null=False, blank=False, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     accepted = models.DateTimeField(null=True, blank=True)
+    is_vouch = models.BooleanField(default=False, null=False, blank=True)
 
     def send(self, request):
         root_url = get_current_site(request).domain
