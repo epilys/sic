@@ -400,7 +400,7 @@ def create_story_post_on_mailing_list(job):
         "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{story_obj.get_absolute_url()}>",
         "List-ID": f"{config.MAILING_LIST_ID} <{config.get_domain()}>",
         "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
-        "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
+        "Keywords": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
         "Reply-To": config.mailing_list_address(),
     }
     description = story_obj.description_to_plain_text
@@ -492,7 +492,7 @@ def comment_create_mailing_list(
         "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{comment_obj.get_absolute_url()}>",
         "List-ID": f"{config.MAILING_LIST_ID} <{config.get_domain()}>",
         "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
-        "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
+        "Keywords": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
         "Reply-To": config.mailing_list_address(),
         "In-Reply-To": in_reply_to,
         "References": references_str,
@@ -543,7 +543,7 @@ def story_as_email(pk):
         "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{story_obj.get_absolute_url()}>",
         "List-ID": f"{config.MAILING_LIST_ID} <{config.get_domain()}>",
         "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
-        "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
+        "Keywords": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
         "Reply-To": config.mailing_list_address(),
     }
     description = story_obj.description_to_plain_text
@@ -600,7 +600,7 @@ def comment_as_email(pk):
         "Archived-At": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{comment_obj.get_absolute_url()}>",
         "List-ID": f"{config.MAILING_LIST_ID} <{config.get_domain()}>",
         "List-Unsubscribe": f"<{config.WEB_PROTOCOL}://{config.get_domain()}{reverse('edit_settings')}>",
-        "Tags": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
+        "Keywords": ", ".join(map(lambda t: t.name, story_obj.tags.all())),
         "Reply-To": config.mailing_list_address(),
         "In-Reply-To": in_reply_to,
         "References": references_str,
