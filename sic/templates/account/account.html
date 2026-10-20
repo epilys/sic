@@ -142,7 +142,7 @@
                     {% for inv in user.invited.all reversed %}
                         <tr>
                             <td title="{{ inv.id }}">{{ inv.created }}</td>
-                            <td>{{ inv.address }}</td>
+                            <td>{% if not inv.accepted %}{{ inv.address }}{% endif %}</td>
                             <td>{% if inv.accepted %}<span class="accepted">accepted by <a href="{{ inv.receiver.get_absolute_url }}" class="{% if inv.receiver.is_banned %}banned-user{% elif inv.receiver.is_new_user %} new-user{% endif %}">{{ inv.receiver }}</a></span>{% else %}no answer yet <a href="{% url_with_next 'resend_invite' invite_pk=inv.pk request %}">resend email</a>, or <a href="{{ inv.get_absolute_url }}">share link</a>{% endif %}</td>
                         </tr>
                     {% empty %}
