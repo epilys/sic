@@ -201,7 +201,7 @@ def webmention_send(job):
     ret = webmention_post(source, target)
     if ret is not None:
         Webmention(
-            story_pk=story_pk, url=ret, source=source, target=target, was_received=False
+            story_id=story_pk, url=ret, source=source, target=target, was_received=False
         ).save()
         return f"Sent webmention to {ret}"
     return f"No webmention endpoint found at {target}"
