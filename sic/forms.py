@@ -24,9 +24,25 @@ SELECT_WIDGET_HELP_TEXT = mark_safe(
 
 class URLField(forms.URLField):
     default_validators = [URI_SCHEME_VALIDATOR]
+    _strip_on_share = config.strip_on_share_dict
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def clean(self, value):
+        from urllib.parse import urlsplit, parse_qs, urlencode
+
+        value = super().clean(value)
+        split = urlsplit(value)
+        if split.netloc in URLField._strip_on_share["hosts"]:
+            host = URLField._strip_on_share["hosts"][split.netloc]
+            sanitized_queries = []
+            queries = parse_qs(split.query)
+            for q in queries:
+                if q not in URLField._strip_on_share[host]:
+                    sanitized_queries += [(q, v) for v in queries[q]]
+            return split._replace(query=urlencode(sanitized_queries)).geturl()
+        return value
 
 
 class SubmitStoryForm(forms.Form):
