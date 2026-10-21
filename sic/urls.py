@@ -434,7 +434,7 @@ urlpatterns = [
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if stats:
-    urlpatterns += [
+    urlpatterns = [
         path(
             "about/statistics/svg/daily_posts/",
             stats.daily_posts_svg,
@@ -460,7 +460,7 @@ if stats:
             stats.upvote_ratio_svg,
             name="upvote_ratio_svg",
         ),
-    ]
+    ] + urlpatterns
 
 
 @cache_page(60 * 60 * 24)
