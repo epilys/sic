@@ -228,3 +228,50 @@ class SicAppConfig(AppConfig):
         if SicAppConfig.MAILING_LIST_ADDRESS:
             return SicAppConfig.MAILING_LIST_ADDRESS
         return f"{SicAppConfig.MAILING_LIST_ID}@{SicAppConfig.get_domain()}"
+
+    @cached_property
+    def strip_on_share_dict(
+        self,
+    ) -> typing.Dict[str, typing.Dict[str, typing.Union[bool, str]]]:
+        import json
+        from copy import deepcopy
+        from importlib import resources
+
+        merged = {}
+
+        value1 = json.loads(
+            resources.read_text(
+                "sic", "vendor/StripOnShareLists/LGPL/StripOnShareLGPL.json"
+            )
+        )
+
+        value2 = json.loads(
+            resources.read_text(
+                "sic", "vendor/StripOnShareLists/MPL2/StripOnShare.json"
+            )
+        )
+        overlapping_keys = value1.keys() & value2.keys()
+
+        for key in overlapping_keys:
+            merged[key] = {}
+            overlapping_sub_keys = value1[key].keys() & value2[key].keys()
+            for subkey in overlapping_sub_keys:
+                merged[key][subkey] = deepcopy(value1[key][subkey])
+            for subkey1 in value1[key].keys() - overlapping_sub_keys:
+                merged[key][subkey1] = deepcopy(value1[key][subkey1])
+            for subkey2 in value2[key].keys() - overlapping_sub_keys:
+                merged[key][subkey2] = deepcopy(value2[key][subkey2])
+        for key in value2.keys() - overlapping_keys:
+            merged[key] = deepcopy(value2[key])
+        for key1 in value1.keys() - overlapping_keys:
+            merged[key1] = deepcopy(value1[key1])
+        for key2 in value2.keys() - overlapping_keys:
+            merged[key2] = deepcopy(value2[key2])
+
+        ret = {"global": merged["global"], "hosts": {}}
+        for key in merged.keys() - ["global"]:
+            for host in merged[key]["hosts"]:
+                ret["hosts"][host] = key
+            ret[key] = merged[key]["queryParams"]
+
+        return ret
