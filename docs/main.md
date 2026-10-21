@@ -60,17 +60,17 @@ _Note_: signing with `ssh-keygen` requires a recent enough version of it.
 ### Available web APIs
 
 - The `all stories` frontpage is available in JSON by appending `/json/` to the end of the URL. Examples:
-  - `https://tade.link/all/json/`
-  - `https://tade.link/all/page/2/json/`
+  - `https://sic.pm/all/json/`
+  - `https://sic.pm/all/page/2/json/`
 - A cached version of a submitted url might be available. Append `/cached` to story url to retrieve it. There might also be a formatted version of it under `/cached/formatted/`. Examples:
-  - `https://tade.link/s/146/improving-the-world-bit-by-expensive-bit-mythic-beasts/cached/`
-  - `https://tade.link/s/146/improving-the-world-bit-by-expensive-bit-mythic-beasts/cached/formatted/`
+  - `https://sic.pm/s/146/improving-the-world-bit-by-expensive-bit-mythic-beasts/cached/`
+  - `https://sic.pm/s/146/improving-the-world-bit-by-expensive-bit-mythic-beasts/cached/formatted/`
 - You can retrieve a post as an email (as it might have been sent via the mailing list):
   - for stories, append `/rfc5322/` at the url.
   - For comments: click source view, and replace `source` from url to `rfc5322` in the URL.
   Examples:
-  - https://tade.link/s/146/improving-the-world-bit-by-expensive-bit-mythic-beasts/rfc5322/
-  - https://tade.link/s/134/friendly-computers-starting-my-own-computer-co-operative/rfc5322/167/
+  - https://sic.pm/s/146/improving-the-world-bit-by-expensive-bit-mythic-beasts/rfc5322/
+  - https://sic.pm/s/134/friendly-computers-starting-my-own-computer-co-operative/rfc5322/167/
 
 ### TOR
 
@@ -86,7 +86,7 @@ NNTP is a very old protocol used to distribute "articles" to users, much like a 
 
 #### How to connect with your client
 
-Connect to the site's url in the port `563`, i.e. `tade.link:563`. If your client allows authentication, you can optionally log in with your account. The server is read-only for unathenticated users.
+Connect to the site's url in the port `563`, i.e. `sic.pm:563`. If your client allows authentication, you can optionally log in with your account. The server is read-only for unathenticated users.
 
 #### How to post/reply
 
