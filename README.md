@@ -1,6 +1,6 @@
 # [[sic]](https://sic.pm) link aggregator organised by tags [<kbd><b>AGPL-3.0</b></kbd>](https://github.com/epilys/sic/blob/main/LICENSE) [<kbd><b>`python3`</b></kbd>](https://www.python.org/) [<kbd><b>`django3`</b></kbd>](https://www.djangoproject.com/) [<kbd><b>`sqlite3`</b></kbd>](https://sqlite.org)
 
-Public instance at https://sic.pm | [Tor hidden service](http://sicpm3hp7dtrwhmf4qlelycqlvie6flqa5qnjnt3snok5xydvxhs4xyd.onion/) | IRC: [`#sic` on Libera Chat](https://libera.chat/) | [[sic] bot on Mastodon](https://botsin.space/@sic)
+Public instance at https://sic.pm | [Tor hidden service](http://sicpm3hp7dtrwhmf4qlelycqlvie6flqa5qnjnt3snok5xydvxhs4xyd.onion/) | IRC: [`#sic` on Libera Chat](https://libera.chat/)
 
 <table align="center">
 	<tbody>
