@@ -42,6 +42,19 @@
             border-collapse: collapse;
             border: 3px solid;
         }
+        #logout_button {
+            /* Style the logout button the same as links */
+            color: var(--link-color);
+            background-color: transparent;
+            text-decoration: underline;
+            border: 1px outset gray;
+            padding: 4px 5px;
+            border-radius: 3px;
+            max-width: var(--main-width);
+            word-wrap: break-word;
+            display: inline-block;
+            cursor: pointer;
+        }
     </style>
 {% endblock %}
 {% block content %}
@@ -56,7 +69,13 @@
             <li><a href="{% url 'notifications' %}">Notification History</a></li>
             <li><a href="{% url 'inbox' %}">Message Inbox</a></li>
             <li><a href="{% url 'password_change' %}">Change Password</a></li>
-            <li><a href="{% url 'logout' %}" id="logout_link">Logout</a></li>
+            <li>
+              <!-- We must POST to logout with a CSRF token with django auth -->
+              <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button id="logout_button" type="submit">Logout</button>
+              </form>
+            </li>
         </ul>
     </nav>
     <h1>Your Account</h1>
