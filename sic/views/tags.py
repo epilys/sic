@@ -549,7 +549,7 @@ def edit_aggregation_filter(request, taggregation_pk, slug, taggregationhastag_i
     if not obj.user_has_access(request.user):
         raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
     if not obj.user_can_modify(request.user) or not request.user.has_perm(
-        "sic.change_taggregationhastag", tag
+        "sic.change_taggregationhastag", obj
     ):
         raise PermissionDenied("You don't have permissions to edit this aggregation.")
     if slug != obj.slugify:
@@ -657,7 +657,7 @@ def delete_aggregation_filter(request, taggregation_pk):
     if not obj.user_has_access(request.user):
         raise Http404("Taggregation does not exist") from Taggregation.DoesNotExist
     if not obj.user_can_modify(request.user) or not request.user.has_perm(
-        "sic.delete_taggregationhastag", tag
+        "sic.delete_taggregationhastag", obj
     ):
         raise PermissionDenied("You don't have permissions to edit this aggregation.")
 

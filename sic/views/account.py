@@ -958,6 +958,8 @@ def issue_token(request):
 @require_http_methods(["GET", "POST"])
 @transaction.atomic
 def invitation_requests(request):
+    if not request.user.has_perm("sic.add_invitation"):
+        raise PermissionDenied("You don't have permission to view this page.")
     user = request.user
     notify_form = NotifyOnNewInvitationRequests(
         initial={"notify_me": user.notify_on_new_invitation_request}
