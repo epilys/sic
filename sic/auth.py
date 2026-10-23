@@ -182,7 +182,7 @@ class SicBackend(ModelBackend):
             return user_obj.id == obj.user_id
         elif perm == "sic.change_commentbookmark" and isinstance(obj, CommentBookmark):
             return user_obj.id == obj.user_id
-        elif perm in ["change_taggregationhastag", "sic.delete_taggregationhastag"]:
+        elif perm in ["sic.change_taggregationhastag", "sic.delete_taggregationhastag"]:
             if is_banned or not is_active or not can_participate:
                 return False
             if isinstance(obj, TaggregationHasTag):
