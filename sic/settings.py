@@ -91,6 +91,19 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "sic.db",
         "CONN_MAX_AGE": None,
+        "OPTIONS": {
+            "timeout": 30,
+            "transaction_mode": "IMMEDIATE",
+            "init_command": (
+                "PRAGMA journal_mode=WAL;"
+                "PRAGMA synchronous=NORMAL;"
+                "PRAGMA foreign_keys=ON;"
+                "PRAGMA temp_store=MEMORY;"
+                # "PRAGMA mmap_size=134217728;"
+                "PRAGMA journal_size_limit=67108864;"
+                "PRAGMA cache_size=-20000;"
+            ),
+        },
     }
 }
 
