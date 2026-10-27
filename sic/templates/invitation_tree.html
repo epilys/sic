@@ -10,7 +10,7 @@
                             <ul>
                                 {% increment_var 'depth' %}
                                 {% for inv in user.invited.all %}
-                                    {% if inv.accepted %}
+                                    {% if inv.receiver and inv.accepted %}
                                         {% include "invitation_tree.html" with user=inv.receiver depth=new_depth max_depth=max_depth %}
                                     {% endif %}
                                 {% endfor %}
@@ -23,7 +23,7 @@
                     <ul>
                         {% increment_var 'depth' %}
                         {% for inv in user.invited.all %}
-                            {% if inv.accepted %}
+                            {% if inv.receiver and inv.accepted %}
                                 {% include "invitation_tree.html" with user=inv.receiver depth=new_depth max_depth=max_depth %}
                             {% endif %}
                         {% endfor %}
@@ -35,7 +35,7 @@
                 <ul>
                     {% increment_var 'depth' %}
                     {% for inv in user.invited.all %}
-                        {% if inv.accepted %}
+                        {% if inv.receiver and inv.accepted %}
                             {% include "invitation_tree.html" with user=inv.receiver depth=new_depth max_depth=max_depth %}
                         {% endif %}
                     {% endfor %}
