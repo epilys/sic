@@ -31,15 +31,18 @@ def send_digests(job):
 
 
 def fetch_remote_content(url):
-    with subprocess.Popen(
-        [
-            BASE_DIR / "tools/fetch_remote_content/target/debug/fetch_remote_content",
-            url,
-        ],
-        stdout=subprocess.PIPE,
-    ) as proc:
-        content = proc.stdout.read().decode("utf-8")
-    return content
+    try:
+        with subprocess.Popen(
+            [
+                BASE_DIR / "tools/fetch_remote_content/target/debug/fetch_remote_content",
+                url,
+            ],
+            stdout=subprocess.PIPE,
+        ) as proc:
+            content = proc.stdout.read().decode("utf-8")
+        return content
+    except Exception as exc:
+        raise BaseException(f"""could not execute {[BASE_DIR / "tools/fetch_remote_content/target/debug/fetch_remote_content", url]}""") from exc
 
 
 def fetch_url(job):
@@ -72,8 +75,8 @@ def fetch_url(job):
                 try:
                     from pdfminer.high_level import extract_pages
                     from pdfminer.layout import LTTextContainer
-                except ImportError:
-                    return f"""Content-Type is {response.getheader("Content-Type")} and could not import pdfminer.six"""
+                except ImportError as exc:
+                    raise BaseException(f"""Content-Type is {response.getheader("Content-Type")} and could not import pdfminer.six""") from exc
                 from io import BytesIO, StringIO
 
                 input_bytes = BytesIO(response.read())
@@ -95,8 +98,7 @@ def fetch_url(job):
                 index_story(Story.objects.get(pk=pk))
                 return True
             elif not "html" in response.getheader("Content-Type"):
-                return f"""Content-Type is {response.getheader("Content-Type")}"""
-            log = None
+                raise BaseException(f"""Unknown Content-Type: {response.getheader("Content-Type")}""")
             content = fetch_remote_content(url)
             w3m_output = None
             try:
@@ -105,7 +107,7 @@ def fetch_url(job):
                     shell=True,
                 ).decode("utf-8")
             except (subprocess.SubprocessError, UnicodeDecodeError) as exc:
-                log = str(exc)
+                raise BaseException(f"Could not exec \"curl -s {shlex.quote(url)} | w3m -T text/html -dump\"") from exc
             StoryRemoteContent(
                 story_id=pk,
                 url=url,
@@ -114,7 +116,7 @@ def fetch_url(job):
                 retrieved_at=make_aware(datetime.now()),
             ).save()
             index_story(Story.objects.get(pk=pk))
-            return log if log else True
+            return True
     except Exception as exc:
         logging.exception(f"Could not fetch url: {exc}")
         raise exc
