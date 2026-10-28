@@ -369,12 +369,15 @@ template {
   --fg-color: black;
   --bg-color: white;
   --header-bg-color: #eee;
+  --odd-row-bg-color: #e3e3e3;
+  --odd-row-border-color: #bab9b9;
   --theme-color: #1e82be;
   --upvote-arrow-color:#bbb;
   --upvote-arrow-upvoted-color: #ac130d;
   --message-success-bg: #dfd;
   --message-warning-bg: #ffc;
   --message-error-bg: #f77;
+  --no-reason-color: #585858;
   --main-width: 83.3vw;
   --entry-separator-color: #c7ddde;
   --netloc-color: darkslategray;
@@ -1589,7 +1592,7 @@ body>header>div.logo {
     grid-column: 1 / span 24;
     column-gap: 12px;
     margin-bottom: 7px;
-  } 
+  }
   body>header {
     border-bottom: 1px outset var(--header-bg-color);
   }
@@ -1840,6 +1843,7 @@ nav.pagination {
     --bg-color: #242424;
     --fg-color: white;
     --header-bg-color: #444;
+    --odd-row-bg-color: #323232;
     --high-contrast-bg-color: black;
     --upvote-arrow-color:#bbb;
     --upvote-arrow-upvoted-color: #ca6a6a;
@@ -1848,6 +1852,7 @@ nav.pagination {
     --message-success-bg: #1a5a1a;
     --message-warning-bg: #474722;
     --message-error-bg: #833030;
+    --no-reason-color: #c2c2c2;
     --theme-color: #15557b;
     --new-user-fg: green;
     --banned-user-fg: #d6d6d6;
@@ -1945,13 +1950,13 @@ table.moderation-log {
     border-collapse: collapse;
 }
 table.moderation-log tbody tr:nth-child(6n+1), table.moderation-log tbody tr:nth-child(6n+2), table.moderation-log tbody tr:nth-child(6n+3) {
-    background: #e3e3e3;
+    background: var(--odd-row-bg-color);
 }
 table.moderation-log tbody tr:nth-child(6n+1) td, table.moderation-log tbody tr:nth-child(6n+2) td, table.moderation-log tbody tr:nth-child(6n+3) td {
-    border-color: #bab9b9;
+    border-color: var(--odd-row-border-color);
 }
 table.moderation-log span.no-reason {
-    color: #585858;
+    color: var(--no-reason-color);
 }
 
 input, textarea {
