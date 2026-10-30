@@ -28,7 +28,11 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.dispatch import receiver
-from django.core.exceptions import ValidationError, MultipleObjectsReturned
+from django.core.exceptions import (
+    ValidationError,
+    MultipleObjectsReturned,
+    PermissionDenied,
+)
 from django.core.validators import MinLengthValidator, URLValidator
 from django.apps import apps
 
@@ -209,6 +213,8 @@ class Story(models.Model):
         return kinds
 
     def save(self, *args, **kwargs):
+        if self._state.adding and not self.user.has_perm("sic.add_story", self):
+            raise PermissionDenied("You don't have permission to post stories.")
         if self.url:
             netloc = urlparse(self.url).netloc
             if netloc.startswith("www."):

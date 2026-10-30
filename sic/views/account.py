@@ -993,7 +993,9 @@ def invitation_requests(request):
                     )
         except Exception as exc:
             messages.add_message(request, messages.ERROR, f"Exception: {exc}")
-    requests = list(InvitationRequest.objects.filter(fulfilled_by__isnull=True).order_by("-created"))
+    requests = list(
+        InvitationRequest.objects.filter(fulfilled_by__isnull=True).order_by("-created")
+    )
     for req in requests:
         req.have_voted = False
         if req.votes.filter(user__pk=user.pk).exists():

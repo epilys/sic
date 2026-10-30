@@ -2,7 +2,7 @@ import json
 import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from sic.models import User, Comment, Story, Tag
+from sic.models import User, Comment, Story, Tag, Notification
 
 
 class ModerationLogEntry(models.Model):
@@ -40,7 +40,7 @@ class ModerationLogEntry(models.Model):
 
     @staticmethod
     def edit_comment(before_text: str, comment_obj: Comment, user: User, reason):
-        return ModerationLogEntry.objects.create(
+        ret = ModerationLogEntry.objects.create(
             user=user,
             action="Edited comment",
             reason=reason,
@@ -53,20 +53,47 @@ class ModerationLogEntry(models.Model):
             content_type=ContentType.objects.get(app_label="sic", model="comment"),
             object_id=str(comment_obj.pk),
         )
+        if comment_obj.user != user:
+            body = ""
+            if reason:
+                body = f"Reason was: {reason}."
+            Notification.objects.create(
+                user=comment_obj.user,
+                name=f"{user} has edited your comment",
+                kind=Notification.Kind.MODERATION,
+                body=f"{body}",
+                caused_by=user,
+                url=comment_obj.get_absolute_url(),
+            )
+
+        return ret
 
     @staticmethod
     def delete_comment(comment_obj: Comment, user: User, reason):
-        return ModerationLogEntry.objects.create(
+        ret = ModerationLogEntry.objects.create(
             user=user,
             action="Deleted comment",
             reason=reason,
             content_type=ContentType.objects.get(app_label="sic", model="comment"),
             object_id=str(comment_obj.pk),
         )
+        if comment_obj.user != user:
+            body = ""
+            if reason:
+                body = f"Reason was: {reason}. "
+            Notification.objects.create(
+                user=comment_obj.user,
+                name=f"{user} has deleted your comment",
+                kind=Notification.Kind.MODERATION,
+                body=f"{body}",
+                caused_by=user,
+                url=None,
+            )
+        return ret
 
     @staticmethod
     def edit_story_title(before_text: str, story_obj: Story, user: User, reason):
-        return ModerationLogEntry.objects.create(
+        ret = ModerationLogEntry.objects.create(
             user=user,
             action=f"Set story title to {story_obj.title}",
             reason=reason,
@@ -80,9 +107,23 @@ class ModerationLogEntry(models.Model):
             object_id=str(story_obj.pk),
         )
 
+        if story_obj.user != user:
+            body = ""
+            if reason:
+                body = f"Reason was: {reason}."
+            Notification.objects.create(
+                user=story_obj.user,
+                name=f"{user} has edited your story title",
+                kind=Notification.Kind.MODERATION,
+                body=f"{body}",
+                caused_by=user,
+                url=story_obj.get_absolute_url(),
+            )
+        return ret
+
     @staticmethod
     def edit_story_desc(before_text: str, story_obj: Story, user: User, reason):
-        return ModerationLogEntry.objects.create(
+        ret = ModerationLogEntry.objects.create(
             user=user,
             action=f"Set story description to {story_obj.description}",
             reason=reason,
@@ -96,9 +137,23 @@ class ModerationLogEntry(models.Model):
             object_id=str(story_obj.pk),
         )
 
+        if story_obj.user != user:
+            body = ""
+            if reason:
+                body = f"Reason was: {reason}."
+            Notification.objects.create(
+                user=story_obj.user,
+                name=f"{user} has edited your story description",
+                kind=Notification.Kind.MODERATION,
+                body=f"{body}",
+                caused_by=user,
+                url=story_obj.get_absolute_url(),
+            )
+        return ret
+
     @staticmethod
     def edit_story_url(before_text: str, story_obj: Story, user: User, reason):
-        return ModerationLogEntry.objects.create(
+        ret = ModerationLogEntry.objects.create(
             user=user,
             action=f"Set story url to {story_obj.url}",
             reason=reason,
@@ -111,12 +166,25 @@ class ModerationLogEntry(models.Model):
             content_type=ContentType.objects.get(app_label="sic", model="story"),
             object_id=str(story_obj.pk),
         )
+        if story_obj.user != user:
+            body = ""
+            if reason:
+                body = f"Reason was: {reason}."
+            Notification.objects.create(
+                user=story_obj.user,
+                name=f"{user} has edited your story description",
+                kind=Notification.Kind.MODERATION,
+                body=f"{body}",
+                caused_by=user,
+                url=story_obj.get_absolute_url(),
+            )
+        return ret
 
     @staticmethod
     def edit_story_cw(before_text: str, story_obj: Story, user: User, reason):
-        return ModerationLogEntry.objects.create(
+        ret = ModerationLogEntry.objects.create(
             user=user,
-            action=f"""Set story's content warning to "{story_obj.content_warning}" """,
+            action=f'Set story\'s content warning to "{story_obj.content_warning}"',
             reason=reason,
             change=json.dumps(
                 {
@@ -127,12 +195,25 @@ class ModerationLogEntry(models.Model):
             content_type=ContentType.objects.get(app_label="sic", model="story"),
             object_id=str(story_obj.pk),
         )
+        if story_obj.user != user:
+            body = ""
+            if reason:
+                body = f"Reason was: {reason}."
+            Notification.objects.create(
+                user=story_obj.user,
+                name=f"{user} has edited your story's content warning",
+                kind=Notification.Kind.MODERATION,
+                body=f"{body}",
+                caused_by=user,
+                url=story_obj.get_absolute_url(),
+            )
+        return ret
 
     @staticmethod
     def edit_story_pubdate(
         before_date: datetime.datetime, story_obj: Story, user: User, reason
     ):
-        return ModerationLogEntry.objects.create(
+        ret = ModerationLogEntry.objects.create(
             user=user,
             action=f"Set story's publish date to {story_obj.publish_date} from {before_date}",
             reason=reason,
@@ -149,11 +230,24 @@ class ModerationLogEntry(models.Model):
             content_type=ContentType.objects.get(app_label="sic", model="story"),
             object_id=str(story_obj.pk),
         )
+        if story_obj.user != user:
+            body = ""
+            if reason:
+                body = f"Reason was: {reason}."
+            Notification.objects.create(
+                user=story_obj.user,
+                name=f"{user} has edited your story's publish date",
+                kind=Notification.Kind.MODERATION,
+                body=f"{body}",
+                caused_by=user,
+                url=story_obj.get_absolute_url(),
+            )
+        return ret
 
     @staticmethod
     def edit_story_tags(tags_before, story_obj: Story, user: User, reason):
         tags_after = list(story_obj.tags.all())
-        return ModerationLogEntry.objects.create(
+        ret = ModerationLogEntry.objects.create(
             user=user,
             action=f"""Edited story tags from ("{'", "'.join(t.name for t in tags_before)}") to ("{'", "'.join(t.name for t in tags_after)}")""",
             reason=reason,
@@ -166,11 +260,24 @@ class ModerationLogEntry(models.Model):
             content_type=ContentType.objects.get(app_label="sic", model="story"),
             object_id=str(story_obj.pk),
         )
+        if story_obj.user != user:
+            body = ""
+            if reason:
+                body = f"Reason was: {reason}."
+            Notification.objects.create(
+                user=story_obj.user,
+                name=f"{user} has edited your story's tags",
+                kind=Notification.Kind.MODERATION,
+                body=f"{body}",
+                caused_by=user,
+                url=story_obj.get_absolute_url(),
+            )
+        return ret
 
     @staticmethod
     def edit_story_kind(kinds_before, story_obj: Story, user: User, reason):
         kinds_after = list(story_obj.kind.all())
-        return ModerationLogEntry.objects.create(
+        ret = ModerationLogEntry.objects.create(
             user=user,
             action=f"""Edited story kind from ("{'", "'.join(k.name for k in kinds_before)}") to ("{'", "'.join(k.name for k in kinds_after)}")""",
             reason=reason,
@@ -183,16 +290,42 @@ class ModerationLogEntry(models.Model):
             content_type=ContentType.objects.get(app_label="sic", model="story"),
             object_id=str(story_obj.pk),
         )
+        if story_obj.user != user:
+            body = ""
+            if reason:
+                body = f"Reason was: {reason}."
+            Notification.objects.create(
+                user=story_obj.user,
+                name=f"{user} has edited your story's kind",
+                kind=Notification.Kind.MODERATION,
+                body=f"{body}",
+                caused_by=user,
+                url=story_obj.get_absolute_url(),
+            )
+        return ret
 
     @staticmethod
     def delete_story(story_obj: Story, user: User, reason):
-        return ModerationLogEntry.objects.create(
+        ret = ModerationLogEntry.objects.create(
             user=user,
             action="Deleted story",
             reason=reason,
             content_type=ContentType.objects.get(app_label="sic", model="story"),
             object_id=str(story_obj.pk),
         )
+        if story_obj.user != user:
+            body = ""
+            if reason:
+                body = f"Reason was: {reason}."
+            Notification.objects.create(
+                user=story_obj.user,
+                name=f"{user} has deleted your story",
+                kind=Notification.Kind.MODERATION,
+                body=f"{body}",
+                caused_by=user,
+                url=None,
+            )
+        return ret
 
     @staticmethod
     def edit_tag_name(name_before: str, tag_obj: Tag, user: User, reason):
