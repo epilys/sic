@@ -32,6 +32,26 @@ class ModerationLogEntry(models.Model):
         verbose_name_plural = "moderation log entries"
         ordering = ["-action_time"]
 
+    @property
+    def by_admin(self):
+        obj = self.get_edited_object()
+        retval = self.user.is_admin
+        try:
+            retval = obj.user != self.user and self.user.is_admin
+        except:
+            pass
+        return retval
+
+    @property
+    def by_moderator(self):
+        obj = self.get_edited_object()
+        retval = self.user.is_moderator
+        try:
+            retval = obj.user != self.user and self.user.is_moderator
+        except:
+            pass
+        return retval
+
     def __repr__(self):
         return f"{self.action_time} {self.action}"
 
