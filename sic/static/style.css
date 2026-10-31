@@ -1143,7 +1143,7 @@ ul.tags.kinds.inline li.tag {
 @media (prefers-color-scheme: light) {
 .tag {
   color: #555;
-  border-width: 2px;
+  border-width: 1px;
 }
 }
 
