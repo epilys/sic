@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from django.apps import apps
 from django.db import transaction, connection, IntegrityError
 from django.test import TestCase, Client
 from django.utils import timezone
@@ -354,3 +355,60 @@ class PostingTests(TestCase):
         self.assertEqual(notif.name, "admin@example.com has edited your comment")
         self.assertEqual(notif.body, "Reason was: power trip.")
         self.assertEqual(notif.url, "/s/2/foo4/#b")
+
+
+class InvitationRequestTests(TestCase):
+    def setUp(self):
+        admin = User.objects.create_user("admin@example.com", "hunter2")
+        admin.is_admin = True
+        admin.save()
+        user = User.objects.create_user("user@example.com", "hunter3")
+        user.email_validated = True
+        user.notify_on_new_invitation_request = True
+        user.save()
+        _, _ = admin.invited.get_or_create(
+            inviter=admin,
+            receiver=user,
+            address=user.email,
+            accepted=make_aware(datetime.now()),
+        )
+
+        self.admin = admin
+        self.user = user
+        config = apps.get_app_config("sic")
+        config.ALLOW_REGISTRATIONS = False
+        config.ALLOW_INVITATION_REQUESTS = True
+
+    def test_invitation_request(self):
+        c = Client()
+        response = c.post(
+            "/accounts/signup-help/",
+            {"name": "user2", "address": "user2@example.com", "choose_dead": "rock"},
+        )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertEqual(
+            messages, ["Invalid form. Error: about: This field is required."]
+        )
+        response = c.post(
+            "/accounts/signup-help/",
+            {
+                "name": "user2",
+                "address": "user2@example.com",
+                "choose_dead": "rock",
+                "about": "asdfasfsaasdfasfsaasdfasfsaasdfasfsaasdfasfsa",
+            },
+        )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertEqual(messages, ["Request submitted."])
+        notif = Notification.objects.latest("created")
+        self.assertEqual(notif.user, self.user)
+        self.assertEqual(notif.caused_by, None)
+        self.assertEqual(notif.kind, Notification.Kind.OTHER)
+        self.assertEqual(
+            notif.name, "New invitation request from user2 <user2@example.com>"
+        )
+        self.assertEqual(
+            notif.body,
+            "asdfasfsaasdfasfsaasdfasfsaasdfasfsaasdfasfsa\n\nTurn these notifications off from the following page",
+        )
+        self.assertEqual(notif.url, "/accounts/invitations/requests/")

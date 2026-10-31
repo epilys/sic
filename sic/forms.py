@@ -1,6 +1,6 @@
 import functools, operator
 from django import forms
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.utils.text import format_lazy
@@ -833,7 +833,7 @@ class InvitationRequestForm(forms.Form):
     def clean_choose_dead(self):
         choice = self.cleaned_data["choose_dead"]
         if choice != "rock":
-            raise ValidationError("")
+            raise PermissionDenied("")
         return choice
 
 

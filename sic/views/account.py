@@ -1023,7 +1023,12 @@ def new_invitation_request(request):
             )
             return redirect("index")
         form = InvitationRequestForm(request.POST)
-        if form.is_valid():
+        try:
+            is_valid = form.is_valid()
+        except PermissionDenied:
+            messages.add_message(request, messages.SUCCESS, "Request submitted.")
+            return redirect("index")
+        if is_valid:
             messages.add_message(request, messages.SUCCESS, "Request submitted.")
             new_req = InvitationRequest(
                 name=form.cleaned_data["name"],
@@ -1034,7 +1039,13 @@ def new_invitation_request(request):
                 ),
             )
             new_req.save()
-        return redirect("index")
+            return redirect("index")
+        else:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                f"Invalid form. Error: {form_errors_as_string(form.errors)}",
+            )
     if request.user.is_authenticated:
         from django import forms
 
