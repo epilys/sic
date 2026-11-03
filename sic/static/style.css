@@ -1840,8 +1840,8 @@ nav.pagination {
 @media (prefers-color-scheme: dark) {
   :root {
     --entry-separator-color: #3f4142;
-    --bg-color: #242424;
-    --fg-color: white;
+    --bg-color: oklch(0.162 0.01 260);
+    --fg-color: oklch(90% .0001 260);
     --header-bg-color: #444;
     --odd-row-bg-color: #323232;
     --high-contrast-bg-color: black;
@@ -1853,7 +1853,7 @@ nav.pagination {
     --message-warning-bg: #474722;
     --message-error-bg: #833030;
     --no-reason-color: #c2c2c2;
-    --theme-color: #15557b;
+    --theme-color: darkslategray;
     --new-user-fg: green;
     --banned-user-fg: #d6d6d6;
     --feed-color: #ff5310;
