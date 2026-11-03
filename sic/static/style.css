@@ -415,6 +415,7 @@ html, body {
   --netloc-color: darkslategray;
   --story-title-font-size: 1.1rem;
   --link-color: deepskyblue;
+  --visited-link-color: cornflowerblue;
   --new-user-fg: green;
   --banned-user-fg: #d6d6d6;
   --feed-color: #dc3545;
@@ -487,8 +488,12 @@ body > main nav > ul > li > a, body > main nav > ul > li > form > input[type="su
   cursor: pointer;
 }
 
-nav>ul>li>a:visited{
-  color: #00e;
+a {
+  color: var(--link-color);
+}
+
+a:visited {
+  color: var(--visited-link-color);
 }
 
 body>main>hr {
@@ -600,7 +605,7 @@ a.title {
 }
 
 a.title:visited {
-  color: #576f9d;
+  color: var(--visited-link-color);
 }
 
 div.content-warning:before{
@@ -631,7 +636,7 @@ body>main ul.posts>li.story .links{
 body>main ul.posts>li.story .links input[type="submit"],
 body>main ul.posts>li.story .links a,
 body>main ul.posts>li.story .links a:visited {
-  color: var(--link-color);
+  color: var(--visited-link-color);
 }
 
 header>* {
@@ -921,7 +926,7 @@ label.required:after {
   pointer-events: none;
 }
 .reply a:visited {
-  color: LinkText;
+  color: var(--link-color);
 }
 
 form.delete-comment-form table,
@@ -1839,33 +1844,11 @@ nav.pagination {
     --targetbg-color: #4c4c01;
     --form-help-text-color: #fff9;
   }
-  a.title,
-  a.title:visited {
-    color: var(--fg-color);
-  }
-  body>main ul.posts>li.story .links a,
-  body>main ul.posts>li.story .links a:visited {
-    color: var(--fg-color);
-  }
-  body>main ul.posts>li.story .links{
-    color: var(--fg-color);
-  }
-  nav>ul>li>a, nav>ul>li>a:visited{
-    color: var(--fg-color);
-  }
-
-  span.netloc,
-  span.netloc a,
-  span.netloc a:visited {
-  }
 
   a.feed, a.feed:visited {
     color: var(--feed-color);
   }
 
-  *|*:link, *|*:visited, .reply a, .reply a:visited {
-    color: var(--link-color);
-  }
   label.comment {
     background: var(--bg-color)
   }
@@ -1875,8 +1858,11 @@ nav.pagination {
     color: var(--fg-color);
   }
 
+  body>main ul.posts>li.story .links{
+    color: #979797;
+  }
   body>main ul.posts>li.story .links input[type="submit"].bookmark_link {
-    color: var(--fg-color);
+    color: var(--link-color);
   }
   input[type="submit"]:not(.bookmark_link) {
     filter: invert();
