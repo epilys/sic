@@ -76,7 +76,7 @@
                     {% endif %}
                 {% endfor %}
                 {% if config.SHOW_GIT_REPOSITORY_IN_ABOUT_PAGE %}
-                    <li>Source code: <a href="https://github.com/epilys/sic/">https://github.com/epilys/sic/</a></li>
+                    <li>Source code: <a href="{{ config.GIT_REPOSITORY }}">{{ config.GIT_REPOSITORY }}</a></li>
                 {% endif %}
             </ul>
         </nav>

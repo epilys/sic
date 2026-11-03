@@ -93,7 +93,7 @@ def build_sha():
         git_string = head.stdout.read().strip().decode("utf-8")
         [commit_sha, subject, date] = git_string.split("\n")
         return format_html(
-            '<span class="build"><a href="https://github.com/epilys/sic/commit/{}"><code>[{}]</code> {}</a> {}</span>',
+            f'<span class="build"><a href="{config.GIT_REPOSITORY}/commit/{{}}"><code>[{{}}]</code> {{}}</a> {{}}</span>',
             commit_sha,
             commit_sha,
             subject,

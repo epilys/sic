@@ -99,6 +99,7 @@ class SicAppConfig(AppConfig):
     DETECT_USERNAME_MENTIONS_IN_COMMENTS = True
     MAILING_LIST = True
 
+    GIT_REPOSITORY = "https://codeberg.org/epilys/sic"
     SHOW_GIT_REPOSITORY_IN_ABOUT_PAGE = True
     SHOW_GIT_COMMIT_IN_FOOTER = True
 
