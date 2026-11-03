@@ -365,34 +365,6 @@ template {
   display: none;
 }
 
-:root {
-  --fg-color: black;
-  --bg-color: white;
-  --header-bg-color: #eee;
-  --odd-row-bg-color: #e3e3e3;
-  --odd-row-border-color: #bab9b9;
-  --theme-color: #1e82be;
-  --upvote-arrow-color:#bbb;
-  --upvote-arrow-upvoted-color: #ac130d;
-  --message-success-bg: #dfd;
-  --message-warning-bg: #ffc;
-  --message-error-bg: #f77;
-  --no-reason-color: #585858;
-  --main-width: 83.3vw;
-  --entry-separator-color: #c7ddde;
-  --netloc-color: darkslategray;
-  --story-title-font-size: 1.1rem;
-  --link-color: #4141c7;
-  --new-user-fg: green;
-  --banned-user-fg: #d6d6d6;
-  --feed-color: #dc3545;
-  --build-color: #2f4f4f;
-  --tag-border-color: #0000005e;
-  --pre-bg-color: #e9e9e9;
-  --targetbg-color: #ffffa1;
-  --form-help-text-color: #0009;
-}
-
 @font-face {
   font-family: 'Inter';
   font-style:  normal;
@@ -429,17 +401,20 @@ html, body {
   --fg-color: black;
   --bg-color: white;
   --header-bg-color: #eee;
+  --odd-row-bg-color: #e3e3e3;
+  --odd-row-border-color: #bab9b9;
   --theme-color: #1e82be;
   --upvote-arrow-color:#bbb;
   --upvote-arrow-upvoted-color: #ac130d;
   --message-success-bg: #dfd;
   --message-warning-bg: #ffc;
   --message-error-bg: #f77;
+  --no-reason-color: #585858;
   --main-width: 83.3vw;
   --entry-separator-color: #c7ddde;
   --netloc-color: darkslategray;
   --story-title-font-size: 1.1rem;
-  --link-color: #4141c7;
+  --link-color: deepskyblue;
   --new-user-fg: green;
   --banned-user-fg: #d6d6d6;
   --feed-color: #dc3545;
@@ -447,6 +422,7 @@ html, body {
   --tag-border-color: #0000005e;
   --pre-bg-color: #e9e9e9;
   --targetbg-color: #ffffa1;
+  --form-help-text-color: #0009;
   --emoji-system-stack: 'Twemoji Mozilla', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --monospace-system-stack: /* apple */ ui-monospace, SFMono-Regular, Menlo, Monaco,
   /* windows */ "Cascadia Mono", "Segoe UI Mono", Consolas,
@@ -1847,7 +1823,7 @@ nav.pagination {
     --high-contrast-bg-color: black;
     --upvote-arrow-color:#bbb;
     --upvote-arrow-upvoted-color: #ca6a6a;
-    --link-color: #ff7474;
+    --link-color: deepskyblue;
     --netloc-color: #bff;
     --message-success-bg: #1a5a1a;
     --message-warning-bg: #474722;
