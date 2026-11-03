@@ -414,8 +414,8 @@ html, body {
   --entry-separator-color: #c7ddde;
   --netloc-color: darkslategray;
   --story-title-font-size: 1.1rem;
-  --link-color: deepskyblue;
-  --visited-link-color: cornflowerblue;
+  --link-color: LinkText;
+  --visited-link-color: VisitedText;
   --new-user-fg: green;
   --banned-user-fg: #d6d6d6;
   --feed-color: #dc3545;
@@ -1829,6 +1829,7 @@ nav.pagination {
     --upvote-arrow-color:#bbb;
     --upvote-arrow-upvoted-color: #ca6a6a;
     --link-color: deepskyblue;
+    --visited-link-color: cornflowerblue;
     --netloc-color: #bff;
     --message-success-bg: #1a5a1a;
     --message-warning-bg: #474722;
