@@ -1,5 +1,5 @@
 {% load utils %}{% load cache %}<!DOCTYPE html>
-<html lang="en">
+<html lang="en"{% if colorscheme != 'auto' %} data-theme="{{ colorscheme }}"{% endif %}>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,6 +21,12 @@
                 :root {
                     --theme-color: {{ config.DARK_THEME_COLOR_HEX }};
                 }
+            }
+            html[data-theme="light"] {
+              --theme-color: {{ config.THEME_COLOR_HEX }};
+            }
+            html[data-theme="dark"] {
+              --theme-color: {{ config.DARK_THEME_COLOR_HEX }};
             }
         </style>
         {% block script %}{% endblock %}

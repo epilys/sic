@@ -782,6 +782,7 @@ def edit_settings(request):
     user = request.user
     session_settings = {
         "vivid_colors": request.session.get("vivid_colors", True),
+        "colorscheme": request.session.get("colorscheme", "auto"),
         "font_size": request.session.get("font_size", 100),
     }
     form = None
@@ -795,6 +796,9 @@ def edit_settings(request):
                     "vivid_colors"
                 ]
                 request.session["font_size"] = session_form.cleaned_data["font_size"]
+                request.session["colorscheme"] = session_form.cleaned_data[
+                    "colorscheme"
+                ]
                 messages.add_message(
                     request, messages.SUCCESS, "Session settings updated successfully."
                 )

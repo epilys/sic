@@ -669,6 +669,16 @@ class EditSessionSettings(forms.Form):
         help_text="If false, UI, tag and image colors are made less vivid.",
         required=False,
     )
+    colorscheme = forms.TypedChoiceField(
+        required=False,
+        label="Colorscheme",
+        choices=[
+            ("auto", "Browser setting, auto"),
+            ("dark", "force dark"),
+            ("light", "force light"),
+        ],
+        initial="auto",
+    )
     font_size = forms.TypedChoiceField(
         required=False,
         label="Font size factor",

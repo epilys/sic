@@ -1882,6 +1882,40 @@ nav.pagination {
     filter: invert();
   }
 }
+
+html[data-theme="dark"] {
+  --entry-separator-color: #3f4142;
+  --bg-color: oklch(0.162 0.01 260);
+  --fg-color: oklch(90% .0001 260);
+  --header-bg-color: #444;
+  --odd-row-bg-color: #323232;
+  --high-contrast-bg-color: black;
+  --upvote-arrow-color:#bbb;
+  --upvote-arrow-upvoted-color: #ca6a6a;
+  --link-color: deepskyblue;
+  --visited-link-color: cornflowerblue;
+  --netloc-color: #bff;
+  --message-success-bg: #1a5a1a;
+  --message-warning-bg: #474722;
+  --message-error-bg: #833030;
+  --no-reason-color: #c2c2c2;
+  --theme-color: darkslategray;
+  --new-user-fg: green;
+  --banned-user-fg: #d6d6d6;
+  --feed-color: #ff5310;
+  --build-color: white;
+  --tag-border-color: #000;
+  --pre-bg-color: #171717;
+  --targetbg-color: #4c4c01;
+  --table-bg-color: #fff;
+  --table-fg-color: #333;
+  --table-border-color: #fff;
+  --aggregation-border-color: #000;
+  --aggregation-bg-color: oklch(0.195 0.009 260);
+  --aggregation-hover-bg-color: #536574;
+  --aggregation-fg-color: #eef7ff;
+  --form-help-text-color: #fff9;
+}
 table.moderation-log td>p:only-child {
     margin:0;
 }
