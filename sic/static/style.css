@@ -423,6 +423,13 @@ html, body {
   --tag-border-color: #0000005e;
   --pre-bg-color: #e9e9e9;
   --targetbg-color: #ffffa1;
+  --table-bg-color: #333;
+  --table-fg-color: #fff;
+  --table-border: #333;
+  --aggregation-bg-color: aliceblue;
+  --aggregation-fg-color: #11466f;
+  --aggregation-border: gray;
+  --aggregation-hover-bg-color: #d6ecff;
   --form-help-text-color: #0009;
   --emoji-system-stack: 'Twemoji Mozilla', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --monospace-system-stack: /* apple */ ui-monospace, SFMono-Regular, Menlo, Monaco,
@@ -1037,11 +1044,11 @@ div.comment a {
 }
 
 label.comment {
+  background: var(--bg-color);
   position: absolute;
   margin-top: 1px;
   font-size: 92%;
   margin-left: -29px;
-  background: white;
   cursor: pointer;
 }
 
@@ -1067,6 +1074,12 @@ input[type="checkbox"].comment ~ div.replies {
 input[type="checkbox"].comment:checked ~ div.replies {
   display: none;
 }
+input[type="text"],input[type="password"],input[type="email"], input[type="url"], input[type="search"], input[type="date"],textarea {
+  background: var(--bg-color);
+  border-color: #686565;
+  color: var(--fg-color);
+}
+
 
 ul.tags.inline {
   display: contents;
@@ -1114,18 +1127,7 @@ ul.tags.kinds.inline li.tag {
   color: rgb(var(--aa-color), var(--aa-color), var(--aa-color));
   min-width: max-content;
   font-weight: bold;
-}
-@media (prefers-color-scheme: dark) {
-.tag {
   color: var(--fg-color);
-  border-width: 1px;
-}
-}
-@media (prefers-color-scheme: light) {
-.tag {
-  color: #555;
-  border-width: 1px;
-}
 }
 
 ul.posts {
@@ -1144,6 +1146,9 @@ ul.posts li.comment + li {
   border-top: 1px outset var(--entry-separator-color);
 }
 
+body>main ul.posts>li.story .links input[type="submit"].bookmark_link {
+  color: var(--link-color);
+}
 li.comment:target>div.comment {
   background: var(--targetbg-color);
 }
@@ -1296,7 +1301,7 @@ table {
 
 table,
 td {
-    border: 1px solid #333;
+    border: 1px solid var(--table-border-color);
 }
 
 th {
@@ -1335,8 +1340,8 @@ th.subtable, td.subtable {
 
 thead,
 tfoot {
-    background-color: #333;
-    color: #fff;
+    background-color: var(--table-bg-color);
+    color: var(--table-fg-color);
 }
 
 table.filters {
@@ -1387,6 +1392,8 @@ li.bookmark-annotation {
 
 select {
   resize: vertical;
+  background: var(--high-contrast-bg-color);
+  color: var(--fg-color);
 }
 
 nav.menu li.notification, nav.menu li.notification a:visited, nav.menu li.notification a {
@@ -1710,14 +1717,25 @@ fieldset>*:not([type=hidden],legend) +label{
   margin-top: 1rem;
 }
 
+fieldset {
+  border-color: var(--high-contrast-bg-color);
+}
+
 fieldset>legend {
   font-weight: 500;
   background-color: var(--bg-color);
-  border: 1px outset black;
+  border: 1px outset var(--high-contrast-bg-color);
   padding: 2px 5px;
   border-radius: 2px;
 }
+  /* fieldset>legend { */
+  /*   background-color: #0c0c0c; */
+  /*   border-color: ; */
+  /* } */
 
+span.body {
+  background: var(--high-contrast-bg-color) !important;
+}
 form label {
   font-weight: 500;
   text-transform: lowercase;
@@ -1843,63 +1861,25 @@ nav.pagination {
     --tag-border-color: #000;
     --pre-bg-color: #171717;
     --targetbg-color: #4c4c01;
+    --table-bg-color: #fff;
+    --table-fg-color: #333;
+    --table-border-color: #fff;
+    --aggregation-border-color: #000;
+    --aggregation-bg-color: oklch(0.195 0.009 260);
+    --aggregation-hover-bg-color: #536574;
+    --aggregation-fg-color: #eef7ff;
     --form-help-text-color: #fff9;
   }
 
-  a.feed, a.feed:visited {
-    color: var(--feed-color);
-  }
-
-  label.comment {
-    background: var(--bg-color)
-  }
-  input[type="text"],input[type="password"],input[type="email"], input[type="url"], input[type="search"], input[type="date"],textarea {
-    background: var(--bg-color);
-    border-color: #686565;
-    color: var(--fg-color);
-  }
-
-  body>main ul.posts>li.story .links{
-    color: #979797;
-  }
-  body>main ul.posts>li.story .links input[type="submit"].bookmark_link {
-    color: var(--link-color);
-  }
+  /* body>main ul.posts>li.story .links{ */
+  /*   color: #979797; */
+  /* } */
   input[type="submit"]:not(.bookmark_link) {
     filter: invert();
   }
 
-  fieldset>legend {
-    background-color: #0c0c0c;
-    border-color: var(--high-contrast-bg-color);
-  }
-  select {
-    resize: vertical;
-    background: var(--high-contrast-bg-color);
-    color: var(--fg-color);
-  }
-  fieldset {
-    border-color: var(--high-contrast-bg-color);
-  }
-  span.body {
-    background: var(--high-contrast-bg-color) !important;
-  }
-  .pagination a:visited {
-    color: var(--fg-color);
-  }
   kbd {
     filter: invert();
-  }
-  /*.tag {
-  *  filter: invert(10%);
-  }*/
-  thead,
-  tfoot {
-    background-color: #fff;
-    color: #333;
-  }
-  table, td {
-    border: 1px solid #fff;
   }
 }
 table.moderation-log td>p:only-child {

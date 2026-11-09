@@ -30,30 +30,18 @@
             -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            border: 1px solid gray;
+            border: 1px solid var(--aggregation-border-color);
             border-radius: 3px;
             padding: 5px 2px;
-            background: aliceblue;
+            background: var(--aggregation-bg-color);
             cursor: pointer;
         }
         div.aggregations>div>div:hover {
-            background: #d6ecff;
+            background:  var(--aggregation-hover-bg-color);
         }
         a.agg-name, a.agg-name:visited {
-            color: #11466f;
+            color: var(--aggregation-fg-color);
             text-decoration: none;
-        }
-        @media (prefers-color-scheme: dark) {
-            div.aggregations>div>div {
-                border: 1px solid #000;
-                background: oklch(0.195 0.009 260);
-            }
-            div.aggregations>div>div:hover {
-                background: #536574;
-            }
-            a.agg-name, a.agg-name:visited {
-                color: #eef7ff;
-            }
         }
     </style>
 {% endblock %}
