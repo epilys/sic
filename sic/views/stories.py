@@ -257,9 +257,9 @@ def submit_story(request):
                 parsr = fetch_url_metadata(request, qdict["url"])
                 if parsr:
                     title = parsr.title
-                    qdict["title"] = title
+                    qdict["title"] = title.strip()
                     if parsr.ogtitle is not None:
-                        qdict["title"] = parsr.ogtitle
+                        qdict["title"] = parsr.ogtitle.strip()
                     if parsr.publish_date is not None:
                         qdict["publish_date"] = parsr.publish_date
             else:
